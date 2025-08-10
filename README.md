@@ -61,26 +61,29 @@ A clean, minimal, sleek, general programming language.
       See [official docs and reference of vscode Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers).
 
       - Install extension
+
       ![Remote Window Button](/docs/1.docker-ext.png)
 
       - Click the `Remote Window Button`
+
       ![Remote Window Button](/docs/2.remote-window.png)
       
       - Click the `reopen container`
+
       ![Remote Window Button](/docs/3.reopen-container.png)
 
       - Configure the `.devcontainer` based on existing dockerfile
 
       - Add this in `.devcontainer` for proper linting and intellisense
-      ```json
-      "customizations": {
-        "vscode": {
-          "settings": {},
-          "extensions": [
-            "vscjava.vscode-java-pack"
-          ]
-        }}
-      ```
+        ```json
+        "customizations": {
+          "vscode": {
+            "settings": {},
+            "extensions": [
+              "vscjava.vscode-java-pack"
+            ]
+          }}
+        ```
       
       - Click `run and debug`, make sure you already have a launch.json for launching java maven projects. See .vscode if existing
       ![Run and Debug](/docs/4.run-debug.png)
