@@ -55,7 +55,7 @@
           <configuration>
               <archive>
                   <manifest>
-                      <mainClass>dev.marianoluiz.App</mainClass> <!-- your main class full name -->
+                      <mainClass>dev.marianoluiz.Main</mainClass> <!-- your main class full name -->
                   </manifest>
               </archive>
           </configuration>
