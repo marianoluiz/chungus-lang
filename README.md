@@ -76,7 +76,7 @@ A clean, minimal, sleek, general programming language.
         <br><br>
       
       - Create a `launch script` and `task script`
-          - You can click the run and debug and have a template launch script for java or create manually a `.vscode` folder then create `launch.json` file.
+          - You can click the run and debug and have a template launch script for java or create manually a `.vscode` folder then create `launch.json` file inside.
               ```json
               {
                   "version": "0.2.0",
