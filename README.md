@@ -8,6 +8,14 @@ A clean, minimal, sleek, general programming language.
 ## Architecture
 - .hue -> .c -> machine lang
 
+## Steps
+  1. *Parsing* is taking raw code and turning it into a more abstract
+    representation of the code. Lexical & Syntetic Analysis.
+  2. *Transformation* takes this abstract representation and manipulates to do
+    whatever the compiler wants it to.
+  3. *Code Generation* takes the transformed representation of the code and
+    turns it into new code.
+
 ## Get Started
 1. **Install Docker**
 
@@ -24,69 +32,105 @@ A clean, minimal, sleek, general programming language.
       docker run --rm -it hue
       ```
 
-    b. **Setup Vscode Task for easier re-build and runs** [This is one way to run it, but the linting and intellisense depend on the local version of your program which is not ideal.]
-      - Create .vscode folder in the project root directory
-      - Create `task.json` inside the .vscode folder
-      ```json
-      {
-        "version": "2.0.0",
-        "tasks": [
-          {
-            "label": "docker-build-run",
-            "dependsOn": ["docker-build", "docker-run"],
-            "dependsOrder": "sequence",
-            "problemMatcher": []
-          },
-          {
-            "label": "docker-build",
-            "type": "shell",
-            "command": "docker build -t hue .",
-            "problemMatcher": []
-          },
-          {
-            "label": "docker-run",
-            "type": "shell",
-            "command": "docker run --rm -it hue",
-            "problemMatcher": []
-          }
-        ]
-      }
-      ```
-      - Click search bar in vscode then search `> Run Task` then select `docker-build-run`.
 
-      - You can set up a vscode keyboard for the `Run Task` or the `docker-build-run` for easier re-build and run.
-
-    c. **Open Project in Container** (Recommended)
+    b. **Use vscode Remote Window** (Recommended)
 
       See [official docs and reference of vscode Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers).
 
       - Install extension
 
-      ![Remote Window Button](/docs/1.docker-ext.png)
+        ![Remote Window Button](/docs/1.docker-ext.png)
+        <br><br>
+      
 
       - Click the `Remote Window Button`
 
-      ![Remote Window Button](/docs/2.remote-window.png)
-      
-      - Click the `reopen container`
+        ![Remote Window Button](/docs/2.remote-window.png)
+        <br><br>
 
-      ![Remote Window Button](/docs/3.reopen-container.png)
+      - Click the `reopen in container`
+
+        ![Remote Window Button](/docs/3.reopen-container.png)
+        <br><br>
 
       - Configure the `.devcontainer` based on existing dockerfile
 
       - Add this in `.devcontainer` for proper linting and intellisense
         ```json
-        "customizations": {
-          "vscode": {
-            "settings": {},
-            "extensions": [
-              "vscjava.vscode-java-pack"
-            ]
-          }}
+        {
+          "name": "Existing Dockerfile",
+          "build": {
+            "context": "..",
+            "dockerfile": "../Dockerfile"
+          },
+          "customizations": {
+            "vscode": {
+              "settings": {},
+              "extensions": [
+                "vscjava.vscode-java-pack"
+              ]
+            }
+          }
+        }
         ```
+        <br><br>
       
-      - Click `run and debug`, make sure you already have a launch.json for launching java maven projects. See .vscode if existing
+      - Create a `launch script` and `task script`
+          - You can click the run and debug and have a template launch script for java or create manually a `.vscode` folder then create `launch.json` file.
+              ```json
+              {
+                  "version": "0.2.0",
+                "configurations": [
+                  {
+                    "type": "java",
+                    "name": "Launch",
+                    "request": "launch",
+                    "mainClass": "dev.marianoluiz.Main",
+                    "projectName": "hue",
+                    "preLaunchTask": "build",
+                  }
+                ]
+              }
+              ```
+              <br><br>
+            - create the pre-launch task script or `task.json` for to automate building the container
+
+                ```json
+                {
+                  "version": "2.0.0",
+                  "tasks": [
+                    {
+                      "label": "build",
+                      "type": "shell",
+                      "command": "mvn compile && echo Build Successful",
+                      "problemMatcher": []
+                    },
+                    {
+                      "label": "docker-build-run",
+                      "dependsOn": ["docker-build", "docker-run"],
+                      "dependsOrder": "sequence",
+                      "problemMatcher": []
+                    },
+                    {
+                      "label": "docker-build",
+                      "type": "shell",
+                      "command": "docker build -t hue .",
+                      "problemMatcher": []
+                    },
+                    {
+                      "label": "docker-run",
+                      "type": "shell",
+                      "command": "docker run --rm -it hue",
+                      "problemMatcher": []
+                    }
+                  ]
+                }
+                ```
+            <br><br>
+
+      - Click `run and debug` to build and run.
       ![Run and Debug](/docs/4.run-debug.png)
+      <br><br>
 
 3. How to use GitHub to contribute?
 
