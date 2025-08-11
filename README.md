@@ -78,56 +78,46 @@ A clean, minimal, sleek, general programming language.
       - Create a `launch script` and `task script`
           - You can click the run and debug and have a template launch script for java or create manually a `.vscode` folder then create `launch.json` file inside.
 
+            ```json
+            {
+              "version": "0.2.0",
+              "configurations": [
+                {
+                  "type": "java",
+                  "name": "Launch with Arguments Prompt",
+                  "request": "launch",
+                  "mainClass": "dev.marianoluiz.Main",
+                  "args": "${command:SpecifyProgramArgs}",
+                  "preLaunchTask": "build",
+                },
+                {
+                  "type": "java",
+                  "name": "Launch",
+                  "request": "launch",
+                  "mainClass": "dev.marianoluiz.Main",
+                  "projectName": "hue",
+                  "preLaunchTask": "build",
+                }
+              ]
+            }
+            ```
+              <br><br>
+          - create the pre-launch task script or `task.json` to automate building the container
+
               ```json
               {
-                "version": "0.2.0",
-                "configurations": [
+                "version": "2.0.0",
+                "tasks": [
                   {
-                    "type": "java",
-                    "name": "Launch",
-                    "request": "launch",
-                    "mainClass": "dev.marianoluiz.Main",
-                    "projectName": "hue",
-                    "preLaunchTask": "build",
+                    "label": "build",
+                    "type": "shell",
+                    "command": "mvn compile && echo Build Successful",
+                    "problemMatcher": []
                   }
                 ]
               }
               ```
-              <br><br>
-            - create the pre-launch task script or `task.json` to automate building the container
-
-                ```json
-                {
-                  "version": "2.0.0",
-                  "tasks": [
-                    {
-                      "label": "build",
-                      "type": "shell",
-                      "command": "mvn compile && echo Build Successful",
-                      "problemMatcher": []
-                    },
-                    {
-                      "label": "docker-build-run",
-                      "dependsOn": ["docker-build", "docker-run"],
-                      "dependsOrder": "sequence",
-                      "problemMatcher": []
-                    },
-                    {
-                      "label": "docker-build",
-                      "type": "shell",
-                      "command": "docker build -t hue .",
-                      "problemMatcher": []
-                    },
-                    {
-                      "label": "docker-run",
-                      "type": "shell",
-                      "command": "docker run --rm -it hue",
-                      "problemMatcher": []
-                    }
-                  ]
-                }
-                ```
-            <br><br>
+          <br><br>
 
       - Click `run and debug` to build and run.
 

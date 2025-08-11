@@ -2,3 +2,4 @@
 .devcontainer
 sample/
 target/
+*.hue
