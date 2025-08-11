@@ -46,8 +46,7 @@ public class Main
 
             System.out.println("File Content: " + content);
         } catch (IOException e) {
-            System.err.println("Error reading file " + filePath);
-            e.printStackTrace();
+            System.err.println("Error reading file " + filePath + ": " + e.getMessage());
             System.exit(1);
         }
 
