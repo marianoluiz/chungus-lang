@@ -94,7 +94,7 @@ A clean, minimal, sleek, general programming language.
               }
               ```
               <br><br>
-            - create the pre-launch task script or `task.json` for to automate building the container
+            - create the pre-launch task script or `task.json` to automate building the container
 
                 ```json
                 {
@@ -130,8 +130,9 @@ A clean, minimal, sleek, general programming language.
             <br><br>
 
       - Click `run and debug` to build and run.
-      ![Run and Debug](/docs/4.run-debug.png)
-      <br><br>
+
+        ![Run and Debug](/docs/4.run-debug.png)
+        <br><br>
 
 3. How to use GitHub to contribute?
 
