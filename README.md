@@ -1,20 +1,9 @@
-# Hue Language
+# CHUNGUS Language
 
-A clean, minimal, sleek, general programming language.
+A clean, minimal, general programming language.
 
 ## Tech Stack
-- Java, mvn, docker
-
-## Architecture
-- .hue -> .c -> machine lang
-
-## Steps
-  1. *Parsing* is taking raw code and turning it into a more abstract
-    representation of the code. Lexical & Syntetic Analysis.
-  2. *Transformation* takes this abstract representation and manipulates to do
-    whatever the compiler wants it to.
-  3. *Code Generation* takes the transformed representation of the code and
-    turns it into new code.
+- Python, tkinder, docker
 
 ## Get Started
 1. **Install Docker**

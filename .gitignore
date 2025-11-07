@@ -1,5 +1,2 @@
 .vscode/
 .devcontainer
-sample/
-target/
-*.hue
