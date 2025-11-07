@@ -28,18 +28,18 @@ A clean, minimal, general programming language.
 
       - Install extension
 
-        ![Remote Window Button](/docs/1.docker-ext.png)
+        ![Remote Window Button](/md_files/1.docker-ext.png)
         <br><br>
       
 
       - Click the `Remote Window Button`
 
-        ![Remote Window Button](/docs/2.remote-window.png)
+        ![Remote Window Button](/md_files/2.remote-window.png)
         <br><br>
 
       - Click the `reopen in container`
 
-        ![Remote Window Button](/docs/3.reopen-container.png)
+        ![Remote Window Button](/md_files/3.reopen-container.png)
         <br><br>
 
       - Configure the `.devcontainer` based on existing dockerfile
@@ -110,7 +110,7 @@ A clean, minimal, general programming language.
 
       - Click `run and debug` to build and run.
 
-        ![Run and Debug](/docs/4.run-debug.png)
+        ![Run and Debug](/md_files/4.run-debug.png)
         <br><br>
 
 3. How to use GitHub to contribute?
