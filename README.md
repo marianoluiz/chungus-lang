@@ -8,64 +8,6 @@ A clean, minimal, general programming language.
 1. Create a virtual environment. For CMD or PowerShell, run `python -m venv .venv`. For Bash, run `python3 -m venv .venv`.
 2. Activate the virtual environment. For CMD, run `.venv\Scripts\activate`. For PowerShell, run `.venv\Scripts\Activate.ps1`. For Bash, run `source .venv/bin/activate`. You can also use venv.
 
-## Planned Architecture
-```
-chungus-lang/                          # project root (/mnt/drive_d/projs/compiler/chungus-lang)
-├── README.md
-├── pyproject.toml
-├── LICENSE
-├── docs/                               # design notes, DFA diagrams, API docs
-│   └── dfa.md
-├── examples/                           # example source programs
-│   └── hello.chg
-├── scripts/                            # helper scripts (run, build, visualize)
-│   └── run_gui.sh
-├── src/
-│   └── chungus/
-│       ├── __init__.py
-│       ├── cli.py                      # small CLI wrapper (uses services)
-│       ├── gui.py                      # Tkinter GUI (calls services, no lexer logic)
-│       ├── token.py                    # Token dataclass + TokenType enum
-│       ├── dfa.py                      # State, Transition, InputCategory, helpers
-│       ├── trace.py                    # StateTraceEntry dataclass, trace utilities
-│       ├── utils.py                    # small helpers (positioning, categorization)
-│       ├── services/
-│       │   ├── __init__.py
-│       │   ├── lexer_service.py        # analyze_with_trace API -> (tokens, errors, trace)
-│       │   └── pipeline_service.py     # orchestrate lexer->parser->semantic for GUI/CLI
-│       ├── lexer/                      # lexer subsystem (pure, no UI)
-│       │   ├── __init__.py
-│       │   ├── core.py                 # LexerRunner: drives DFA, emits tokens & trace
-│       │   ├── rules.py                # tokenization rules, categories, delim definitions
-│       │   └── errors.py               # lexical error types
-│       ├── parser/                     # syntactic analyzer
-│       │   ├── __init__.py
-│       │   ├── core.py                 # parser driver (recursive descent / table-driven)
-│       │   ├── grammar.py              # grammar definitions / productions
-│       │   ├── ast.py                  # AST node classes & builders
-│       │   └── errors.py               # syntactic error reporting
-│       ├── semantic/                   # semantic analyzer & symbol table
-│       │   ├── __init__.py
-│       │   ├── analyzer.py             # type checking, scope checks, inference
-│       │   ├── symbol_table.py
-│       │   └── types.py
-│       ├── ir/                         # optional intermediate representation
-│       │   ├── __init__.py
-│       │   ├── nodes.py
-│       │   └── builder.py
-│       └── runtime/                    # interpreter / VM and standard library
-│           ├── __init__.py
-│           ├── vm.py
-│           └── stdlib.py
-├── tests/                              # unit/integration tests
-│   ├── test_lexer.py
-│   ├── test_trace.py
-│   ├── test_parser.py
-│   └── test_semantic.py
-├── tools/                              # dev tools: visualize DFA, generate diagrams
-│   └── visualize_dfa.py
-└── .gitignore
-```
 
 ## Setup Docker Instruction
 1. **Install Docker**
