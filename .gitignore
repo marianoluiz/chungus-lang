@@ -1,2 +1,5 @@
 .vscode/
 .devcontainer
+.venv
+skeg_lex.py
+__pycache__
