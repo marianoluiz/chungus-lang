@@ -6,8 +6,6 @@ from enum import Enum
 
 class ChungusLexerGUI:
     """
-    GUI-only copy of the GUI from top-level `lexer.py`.
-
     How to connect your lexer backend (examples below):
     - Provide a callable with signature: lexer_callback(source: str) -> (tokens: list, errors: list)
       - tokens: list of objects with attributes .type .lexeme .line .col  OR dicts with keys "type","lexeme","line","col"
@@ -83,7 +81,6 @@ class ChungusLexerGUI:
         except: self.token_font_bold = font.Font(family="Courier New", size=10, weight="bold")
         try: self.status_font = font.Font(family=default_font_family, size=9);
         except: self.status_font = font.Font(family="Arial", size=9)
-
 
         # --- Build UI ---
         self.build_menu()

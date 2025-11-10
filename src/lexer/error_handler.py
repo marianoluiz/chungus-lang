@@ -1,9 +1,6 @@
 """ This file is used for the error handling of the lexer """
 from constants import ATOMS
 
-def Test3():
-    print("Test for Error Handling")
-
 # Each error type below is a small object delivering a readable message.
 # They store the offending line and a (line_index, col_index) tuple so the message
 # can show the caret position for quick diagnostics in logs or GUI.
@@ -37,15 +34,15 @@ class DelimError():
         
         return error_message
 
-class UnfinishedAndamhie():
-    """Raised when a numeric/andamhie literal is syntactically incomplete."""
+class UnfinishedFloat():
+    """Raised when a int / float literal is syntactically incomplete."""
     def __init__(self, line: str, position: tuple[int, int], delims: list):
         self._line = line.replace('\n', '')
         self._position = position
         self._delims = shorten_delims(list(delims))
 
     def __str__(self):
-        error_message = f"Unfinished andamhie literal: expected any {self._delims}\n" \
+        error_message = f"Unfinished float literal: expected any {self._delims}\n" \
                         f" {self._position[0]+1:<5}|{self._line}\n" \
                         f"      |{' '*self._position[1]}^\n"
         
@@ -71,7 +68,7 @@ class UnclosedComment():
         self._position = position
 
     def __str__(self):
-        error_message = f"unclosed comment: expected '^/'\n" \
+        error_message = f"Unclosed comment: expected '###'\n" \
                         f" {self._position[0]+1:<5}|{self._line}\n" \
                         f"      |{' '*self._position[1]}^\n"
         
@@ -100,6 +97,6 @@ def shorten_delims(delims: list):
 
 if __name__ == '__main__':
     error_type = "UnknownError"
-    line = '      serve("Hello, World"); #'
+    line = '...'
     position = (6, 29)
     print(UnknownCharError(line, position))

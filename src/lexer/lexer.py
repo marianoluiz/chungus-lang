@@ -15,7 +15,7 @@ Key concepts:
   error objects from `error_handler`.
 """
 from constants import ATOMS,DELIMS
-from .error_handler import UnknownCharError, DelimError, UnclosedString, UnclosedComment, UnfinishedAndamhie
+from .error_handler import UnknownCharError, DelimError, UnclosedString, UnclosedComment, UnfinishedFloat
 from .td import STATES
 from .token import tokenize
 
@@ -164,7 +164,7 @@ class Lexer:
                 print(lexeme)
                 self.log += str(lexeme) + '\n'
                 continue
-            elif type(lexeme) is UnfinishedAndamhie:
+            elif type(lexeme) is UnfinishedFloat:
                 print(lexeme)
                 self.log += str(lexeme) + '\n'
                 continue
@@ -177,7 +177,6 @@ class Lexer:
                 # normal lexeme: append to lexeme list. 
                 # if returned is None (for ids), a complete Lexeme (keyword, str, int, float lit)
                 # print('appended lexeme')
-                print(type(lexeme))
                 self._lexemes.append(lexeme)
 
         # Convert collected lexemes + metadata into token_stream via tokenize()
@@ -229,7 +228,7 @@ class Lexer:
 
                 # Special check for unfinished numeric literal 
                 if state == NUMERIC_LIT_START and len(branches) == 1 and not STATES[state].isEnd:
-                    return UnfinishedAndamhie(self._source[self._index[0]], self._index, STATES[state].chars)
+                    return UnfinishedFloat(self._source[self._index[0]], self._index, STATES[state].chars)
 
                 # print(curr_char, 'char being compared to', STATES[state].chars)
                 # print('goes continue')
@@ -271,7 +270,7 @@ class Lexer:
                 return (curr_char + lexeme[0], curr_char + lexeme[0])
             if type(lexeme) is DelimError:
                 return lexeme
-            if type(lexeme) is UnfinishedAndamhie:
+            if type(lexeme) is UnfinishedFloat:
                 return lexeme
             if type(lexeme) is UnclosedString:
                 # unread the char we consumed before returning the UnclosedString error

@@ -40,10 +40,9 @@ def main():
     for tok in lexer.token_stream:
         print(tok)
 
-    # Uncomment to print human-readable error log
-    # if lexer.log:
-    #     print("---- Errors ----")
-    #     print(lexer.log)
+    if lexer.log:
+        print("---- Errors ----")
+        print(lexer.log)
 
 if __name__ == '__main__':
     main()

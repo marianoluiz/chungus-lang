@@ -13,9 +13,9 @@ Notes:
 - The function performs simple classification:
     - whitespace -> 'whitespace'
     - r'\n'     -> 'newline'
-    - numeric detection -> 'anda_literal' or 'andamhie_literal' (int/float)
-    - string starting with '"' -> 'chika_literal'
-    - comment marker '/^' -> 'comment'
+    - numeric detection -> 'int_literal' or 'float_literal' (int/float)
+    - string starting with ''' -> 'str_literal'
+    - comment marker '#' -> 'comment'
     - tuple lexemes are passed through unchanged
     - everything else -> 'id'
 - metadata is zipped with produced token tuples so consumer has positional info.
@@ -50,20 +50,20 @@ def tokenize(lexemes: list[str], metadata: list):
                 else:
                     fractional_part = fractional_part.rstrip('0')
                 lexeme = integer_part + ('.' + fractional_part if fractional_part else '')
-                token_stream.append((lexeme, 'andamhie_literal'))
+                token_stream.append((lexeme, 'float_literal'))
             else:
                 # Strip leading zeroes from integers
                 lexeme = lexeme.lstrip('0') or '0'
-                token_stream.append((lexeme, 'anda_literal'))
+                token_stream.append((lexeme, 'int_literal'))
             continue
         
-        # strings begin with a double-quote in this system
-        if lexeme[0] == '"':
-            token_stream.append((lexeme, "chika_literal"))
+        # strings begin with a single quote
+        if lexeme[0] == "'":
+            token_stream.append((lexeme, "str_literal"))
             continue
 
         # special comment marker '/^' used by the transition diagram
-        if lexeme[:2] == '/^':
+        if lexeme[:2] == '#':
             token_stream.append((lexeme, "comment"))
             continue
         
