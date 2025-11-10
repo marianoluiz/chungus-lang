@@ -5,24 +5,6 @@ import platform
 from enum import Enum
 
 class ChungusLexerGUI:
-    """
-    How to connect your lexer backend (examples below):
-    - Provide a callable with signature: lexer_callback(source: str) -> (tokens: list, errors: list)
-      - tokens: list of objects with attributes .type .lexeme .line .col  OR dicts with keys "type","lexeme","line","col"
-      - errors: list[str]
-    - Assign it before calling mainloop or after creating the GUI:
-        gui = ChungusLexerGUI(root)
-        gui.lexer_callback = analyze_with_trace  # your adapter that returns (tokens, errors)
-      or pass it at init as keyword arg: ChungusLexerGUI(root, lexer_callback=analyze)
-    - Example adapter to connect existing top-level Lexer:
-        def analyze_adapter(src):
-            from lexer import Lexer
-            lexer = Lexer(src)
-            tokens, errors = lexer.tokenize()
-            return tokens, errors
-    Note: This file intentionally does not import the lexer backend; connection is explicit.
-    """
-
     def __init__(self, root, lexer_callback=None):
         self.root = root
         root.title("Chungus Lexical Analyzer")
@@ -122,9 +104,6 @@ class ChungusLexerGUI:
 
         self.main_frame = tk.Frame(self.root, padx=25, pady=25)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
-
-        self.title_label = ttk.Label(self.main_frame, text="Chungus Lexical Analyzer", style='Title.TLabel', anchor="center")
-        self.title_label.pack(pady=(0, 25))
 
         self.paned_window = tk.PanedWindow(self.main_frame, orient=tk.HORIZONTAL, relief="flat", borderwidth=0, sashwidth=8, sashrelief="flat", showhandle=False)
         self.paned_window.pack(fill=tk.BOTH, expand=True)
@@ -435,10 +414,3 @@ class ChungusLexerGUI:
     def get_sample_code(self):
         """ Returns some sample Chungus code to pre-fill the text box. """
         return """"""
-
-# TO RUN GUI:
-
-""" if __name__ == "__main__":
-    root = tk.Tk()                       # Create the main window
-    app = ChungusLexerGUI(root)          # Create the GUI (pass the window)
-    root.mainloop()                      # Start the Tkinter event loop """

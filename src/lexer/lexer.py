@@ -80,7 +80,7 @@ class Lexer:
         return self._source[self._index[0]][self._index[1]]
 
     def is_EOF(self):
-        """Convenience check whether current char is EOF sentinel."""
+        """Convenience check whether current char is EOF sentinel. This returns True or False"""
         return self.get_curr_char() == "\0"
 
     def advance(self, count = 1):
@@ -132,6 +132,7 @@ class Lexer:
         while not self.is_EOF():
             # Store the start position for the next lexeme, it "bookmarks" the current cursor position (self._index) and saves it.
             metadata.append(self._index)
+            print('position: ', self._index)
             curr_char = self.get_curr_char()
 
             # Gets the character at the current cursor position.
@@ -211,8 +212,8 @@ class Lexer:
                     # if state != branches[-1] and state >= KEYWORD_LAST_STATE:
                     #     continue
 
-                    # if state is not id (under_alpha_num) and its a keyword / symbol, its a delimeter error
-                    if curr_char not in [*ATOMS['under_alpha_num']] and state <= SYMBOL_LAST_STATE:
+                    # if state is not id (under_alpha_num) and its a keyword, its a delimeter error
+                    if curr_char not in [*ATOMS['under_alpha_num']] and state <= KEYWORD_LAST_STATE:
                         return DelimError(self._source[self._index[0]], self._index, STATES[state].chars)
 
                 # EOF reached while not in an accepting state -> specific error types

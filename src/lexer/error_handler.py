@@ -13,10 +13,20 @@ class UnknownCharError():
         self._position = position
 
     def __str__(self):
-        error_message = f"unknown character: '{self._line[self._position[1]]}'\n" \
-                        f" {self._position[0]+1:<5}|{self._line}\n" \
-                        f"      |{' '*self._position[1]}^\n"
-        
+        # Safely handle positions that point at EOF (col == len(line))
+        line = self._line
+        line_no = self._position[0] + 1
+        col = self._position[1]
+
+        # if the index is inside the line
+        if 0 <= col < len(line):
+            char = line[col]
+        else:
+            char = '<EOF>'
+        caret_pos = min(col, len(line))
+        error_message = f"Unknown character: '{char}'\n" \
+                        f" {line_no:<5}|{line}\n" \
+                        f"      |{' '*caret_pos}^\n"
         return error_message
 
 class DelimError():
