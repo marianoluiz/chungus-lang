@@ -434,51 +434,7 @@ class ChungusLexerGUI:
 
     def get_sample_code(self):
         """ Returns some sample Chungus code to pre-fill the text box. """
-        return """# Sample Chungus Code
-###
-  Multi-line comments are supported.
-  Indentation matters! (2, 4, or 6 spaces)
-###
-
-fn greet(name = 'World')
-  show 'Hello, $(name)!'
-
-fn calculate_sum(a, b)
-  # This function adds two numbers
-  result = a + b
-  ret result
-
-# --- Main Program ---
-greet('Chungus User')
-greet() # Uses default value
-
-num1 = 15.5
-num2 = int('10') # Type casting example
-
-total = calculate_sum(num1, num2)
-show 'Sum of $(num1) and $(num2) is: $(total)'
-
-# --- Loop Example ---
-show '\\nLooping from 0 to 4:'
-for i in range(5)
-  show 'Iteration: $(i)'
-  if i == 3
-    show 'Skipping 3!'
-    skip # Continue keyword
-
-# --- Error Handling Example ---
-try
-  show '\\nAttempting division by zero...'
-  invalid_result = 100 / 0
-fail
-  show 'Error: Division by zero caught!'
-always
-  show 'Cleanup: Error handling finished.'
-
-# --- Error Examples ---
-# invalid syntax here ?
-# unterminated_string = 'hello
-"""
+        return """"""
 
 # TO RUN GUI:
 
