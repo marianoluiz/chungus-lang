@@ -109,73 +109,31 @@ class Lexer:
                 self._index = max(0, self._index[0] - 1), len(self._source_lines[self._index[0] - 1]) - 1
 
     def start(self):
-        """Top-level lexing loop.
-
-        - Appends current (line, col) into `lexeme_positions` before consuming a lexeme.
-        - Emits ' ' and raw '\\n' marker lexemes to preserve layout for the GUI.
-        - Delegates token extraction to lexemize(), which traverses the DFA.
-        - On error objects, logs the message and performs the documented cursor move.
-        """
-
-        # Store the starting position (line, column) of every lexeme. This is crucial for error messages later.
+        """Top-level lexing loop (collects lexemes + their start positions)."""
         lexeme_positions = []
-        
+
         while not self.is_at_end():
-            # Store the start position for the next lexeme, it "bookmarks" the current cursor position (self._index) and saves it.
-            lexeme_positions.append(self._index)
             curr_char = self.get_curr_char()
 
-            # Gets the character at the current cursor position.
-            # whitespace and newline are recorded as special lexemes to preserve positional info
-            if curr_char == ' ':
-                self._lexemes.append(r' ')
-                self.advance_cursor()
-                continue
-            elif curr_char == '\n':
-                self._lexemes.append(r'\n')
+            # Skip whitespace/newline entirely (no position recorded)
+            if curr_char in (' ', '\n'):
                 self.advance_cursor()
                 continue
 
-            # attempt to lexemize starting at current index
+            start_pos = self._index
             lexeme = self.lexemize()
 
-            # print('lexeme: ', lexeme)
-
-            # lexemize returns either: - a raw string (lexeme), a tuple for special cases, one of the error objects defined in error_handler
-            if type(lexeme) is UnknownCharError:
-                print(lexeme)
+            if isinstance(lexeme, (UnknownCharError, DelimError, UnfinishedFloat,
+                                   UnclosedString, UnclosedComment, UnexpectedEOF)):
                 self.log += str(lexeme) + '\n'
-                self.advance_cursor()
-            elif type(lexeme) is DelimError:
-                # delimiter errors: log but continue (may be recoverable)
-                print(lexeme)
-                self.log += str(lexeme) + '\n'
+                if isinstance(lexeme, UnknownCharError):
+                    self.advance_cursor()
                 continue
-            elif type(lexeme) is UnfinishedFloat:
-                print(lexeme)
-                self.log += str(lexeme) + '\n'
-                continue
-            elif type(lexeme) in [UnclosedString]:
-                # unclosed string -> log and advance_cursor to EOF to stop processing
-                print(lexeme)
-                self.log += str(lexeme) + '\n'
-                self.advance_cursor(len(''.join(self._source_lines)))
-            elif type(lexeme) is UnclosedComment:
-                print(lexeme)
-                self.log += str(lexeme) + '\n'
-                self.advance_cursor(len(''.join(self._source_lines)))
-            elif type(lexeme) is UnexpectedEOF:
-                # root-level EOF with no transition matched
-                print(lexeme)
-                self.log += str(lexeme) + '\n'
-                self.advance_cursor(len(''.join(self._source_lines)))
-            else:
-                # normal lexeme: append to lexeme list. 
-                # if returned is None (for ids), a complete Lexeme (keyword, str, int, float lit)
-                # print('appended lexeme')
-                self._lexemes.append(lexeme)
 
-        # Convert collected lexemes + lexeme_positions into token_stream via build_token_stream()
+            # Normal lexeme
+            self._lexemes.append(lexeme)
+            lexeme_positions.append(start_pos)
+
         self.token_stream = build_token_stream(self._lexemes, lexeme_positions)
 
     def lexemize(self, curr_state: int = 0):

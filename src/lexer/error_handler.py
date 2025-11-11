@@ -39,8 +39,6 @@ class DelimError():
     def __init__(self, line: str, position: tuple[int, int], delims: list):
         self._line = line.replace('\n', '')
         self._position = position
-        # shrink large delim sets for readability
-        self._delims = shorten_delims(list(delims))
 
     def __str__(self):
         error_message = f"Invalid Delimiter:\n" \
@@ -50,11 +48,10 @@ class DelimError():
         return error_message
 
 class UnfinishedFloat():
-    """Raised when a int / float literal is syntactically incomplete."""
+    """Raised when a int / float literal is incorrect"""
     def __init__(self, line: str, position: tuple[int, int], delims: list):
         self._line = line.replace('\n', '')
         self._position = position
-        self._delims = shorten_delims(list(delims))
 
     def __str__(self):
         error_message = f"Unfinished float literal: expected any {self._delims}\n" \
@@ -102,30 +99,3 @@ class UnexpectedEOF():
             f"      |{' '*self._position[1]}^\n"
         )
         return error_message
-
-def shorten_delims(delims: list):
-    """Utility to compact delim lists by replacing full ranges with readable spans.
-
-    Example: if all alphabet letters are present, they are replaced with 'A-Z'/'a-z'
-    to keep error messages concise.
-    """
-    if all(d in delims for d in ATOMS['all_alphabet']):
-        for d in ATOMS['all_alphabet']:
-            if d in delims:
-                delims.remove(d)
-        delims.append('A-Z')
-        delims.append('a-z')
-
-    if all(d in delims for d in ATOMS['all_num']):
-        for d in ATOMS['all_num']:
-            if d in delims:
-                delims.remove(d)
-        delims.append('0-9')
-
-    return delims
-
-if __name__ == '__main__':
-    error_type = "UnknownError"
-    line = '...'
-    position = (6, 29)
-    print(UnknownCharError(line, position))
