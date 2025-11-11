@@ -15,7 +15,7 @@ STRING_STATE_START = 224
 STRING_STATE_END = 226
 COMMENT_STATE_START = 162
 COMMENT_STATE_END = 171
-NUMERIC_LIT_START = 172
+NUMERIC_LIT_START = 175
 
 class Lexer:
     """High level wrapper around the DFA lexemizer.
@@ -23,19 +23,19 @@ class Lexer:
     Workflow:
     - __init__: split the input into lines and initialize cursor
     - start:    iterate, snapshot start positions, and collect raw lexemes
-    - build_token_stream: classify lexemes with their snapshot metadata
+    - build_token_stream: classify lexemes with their snapshot lexeme_positions
     """
 
-    def __init__(self, source: str):
+    def __init__(self, source_text: str):
         # Convert incoming source string to lines and ensure newline markers
-        source = source.splitlines()
+        source_text = source_text.splitlines()
 
-        if not source:
+        if not source_text:
             # for empty input error handling
-            self._source = ['']
+            self._source_lines = ['']
         else:
             # Preserve newline at the end of each line except possibly last (keeps positions simple); If it's not the last line, value is line + '\n'
-            self._source = [line + '\n' if x != len(source) - 1 else line for x, line in enumerate(source)]
+            self._source_lines = [line + '\n' if x != len(source_text) - 1 else line for x, line in enumerate(source_text)]
         """ The source code as a list of string"""
 
         self._index = 0, 0
@@ -52,7 +52,7 @@ class Lexer:
 
         # Useful debug print to see how source lines were split
         print('---- Splitted Source: ----')
-        print(self._source)
+        print(self._source_lines)
 
     ## TRACKING CHARACTERS
     def get_curr_char(self):
@@ -62,16 +62,16 @@ class Lexer:
         - When at/past the end of the final line, return \\0 to avoid IndexError.
         - Otherwise, return the source character at the current cursor.
         """
-        if self._index[1] >= len(self._source[-1]) and self._index[0] >= (len(self._source) - 1):
+        if self._index[1] >= len(self._source_lines[-1]) and self._index[0] >= (len(self._source_lines) - 1):
             return "\0"
         
-        return self._source[self._index[0]][self._index[1]]
+        return self._source_lines[self._index[0]][self._index[1]]
 
-    def is_EOF(self):
+    def is_at_end(self):
         """True if current character is the EOF sentinel."""
         return self.get_curr_char() == "\0"
 
-    def advance(self, count = 1):
+    def advance_cursor(self, count = 1):
         """Advance the cursor by `count` characters.
 
         - Wraps to the next line when the end of the current line is reached.
@@ -79,19 +79,19 @@ class Lexer:
         """
         for i in range(count):
             # guard conditions to avoid IndexError
-            if self._index[0] >= len(self._source) and self._index[1] >= len(self._source[0]):
+            if self._index[0] >= len(self._source_lines) and self._index[1] >= len(self._source_lines[0]):
                 return
             
             # checks if the column (self._index[1]) is at or past the last valid index of the current line.
             # This checks if the current line (self._index[0]) is NOT the last line in the file.
             # If both are true: (we are at the end of a line, and it's not the last line)...
-            if self._index[1] >= len(self._source[self._index[0]]) - 1 and self._index[0] < len(self._source)-1:
-                self._index = min(self._index[0] + 1, len(self._source)), 0
+            if self._index[1] >= len(self._source_lines[self._index[0]]) - 1 and self._index[0] < len(self._source_lines)-1:
+                self._index = min(self._index[0] + 1, len(self._source_lines)), 0
             else:
                 # move forward one column on same line
                 self._index = self._index[0], self._index[1] + 1
 
-    def reverse(self, count = 1):
+    def reverse_cursor(self, count = 1):
         """Move the cursor backward by `count` characters.
 
         Used by lexemize() to backtrack a single character when a deeper branch
@@ -106,35 +106,34 @@ class Lexer:
             # Is the line number greater than 0?
             elif self._index[0] > 0:
                 # move to end of previous line
-                self._index = max(0, self._index[0] - 1), len(self._source[self._index[0] - 1]) - 1
+                self._index = max(0, self._index[0] - 1), len(self._source_lines[self._index[0] - 1]) - 1
 
     def start(self):
         """Top-level lexing loop.
 
-        - Appends current (line, col) into `metadata` before consuming a lexeme.
+        - Appends current (line, col) into `lexeme_positions` before consuming a lexeme.
         - Emits ' ' and raw '\\n' marker lexemes to preserve layout for the GUI.
         - Delegates token extraction to lexemize(), which traverses the DFA.
         - On error objects, logs the message and performs the documented cursor move.
         """
 
         # Store the starting position (line, column) of every lexeme. This is crucial for error messages later.
-        metadata = []
+        lexeme_positions = []
         
-        while not self.is_EOF():
+        while not self.is_at_end():
             # Store the start position for the next lexeme, it "bookmarks" the current cursor position (self._index) and saves it.
-            metadata.append(self._index)
+            lexeme_positions.append(self._index)
             curr_char = self.get_curr_char()
 
             # Gets the character at the current cursor position.
             # whitespace and newline are recorded as special lexemes to preserve positional info
-            # TODO: use to check if there is error in spaces and newline
             if curr_char == ' ':
-                self._lexemes.append(' ')
-                self.advance()
+                self._lexemes.append(r' ')
+                self.advance_cursor()
                 continue
             elif curr_char == '\n':
                 self._lexemes.append(r'\n')
-                self.advance()
+                self.advance_cursor()
                 continue
 
             # attempt to lexemize starting at current index
@@ -142,14 +141,11 @@ class Lexer:
 
             # print('lexeme: ', lexeme)
 
-            # lexemize returns either:
-            # - a raw string (lexeme)
-            # - a tuple for special cases
-            # - one of the error objects defined in error_handler
+            # lexemize returns either: - a raw string (lexeme), a tuple for special cases, one of the error objects defined in error_handler
             if type(lexeme) is UnknownCharError:
                 print(lexeme)
                 self.log += str(lexeme) + '\n'
-                self.advance()
+                self.advance_cursor()
             elif type(lexeme) is DelimError:
                 # delimiter errors: log but continue (may be recoverable)
                 print(lexeme)
@@ -160,27 +156,27 @@ class Lexer:
                 self.log += str(lexeme) + '\n'
                 continue
             elif type(lexeme) in [UnclosedString]:
-                # unclosed string -> log and advance to EOF to stop processing
+                # unclosed string -> log and advance_cursor to EOF to stop processing
                 print(lexeme)
                 self.log += str(lexeme) + '\n'
-                self.advance(len(''.join(self._source)))
+                self.advance_cursor(len(''.join(self._source_lines)))
             elif type(lexeme) is UnclosedComment:
                 print(lexeme)
                 self.log += str(lexeme) + '\n'
-                self.advance(len(''.join(self._source)))
+                self.advance_cursor(len(''.join(self._source_lines)))
             elif type(lexeme) is UnexpectedEOF:
                 # root-level EOF with no transition matched
                 print(lexeme)
                 self.log += str(lexeme) + '\n'
-                self.advance(len(''.join(self._source)))
+                self.advance_cursor(len(''.join(self._source_lines)))
             else:
                 # normal lexeme: append to lexeme list. 
                 # if returned is None (for ids), a complete Lexeme (keyword, str, int, float lit)
                 # print('appended lexeme')
                 self._lexemes.append(lexeme)
 
-        # Convert collected lexemes + metadata into token_stream via build_token_stream()
-        self.token_stream = build_token_stream(self._lexemes, metadata)
+        # Convert collected lexemes + lexeme_positions into token_stream via build_token_stream()
+        self.token_stream = build_token_stream(self._lexemes, lexeme_positions)
 
     def lexemize(self, curr_state: int = 0):
         """Recursive DFA-driven lexeme extractor.
@@ -213,28 +209,22 @@ class Lexer:
             # if curr_char to is not equal to the state character/s (from the branch of curr_state)
             if curr_char not in TRANSITION_TABLE[state].accepted_chars:
                 if TRANSITION_TABLE[state].is_terminal:
-                    # special handling for reserved words and ID delimiting
-                    
-                    # TODO CHECK
-                    # if state != next_states[-1] and state >= KEYWORD_LAST_STATE:
-                    #     continue
-
                     # if state is not id (under_alpha_num) and its a keyword, its a delimeter error
                     if curr_char not in [*ATOMS['under_alpha_num']] and state <= KEYWORD_LAST_STATE:
-                        return DelimError(self._source[self._index[0]], self._index, TRANSITION_TABLE[state].accepted_chars)
+                        return DelimError(self._source_lines[self._index[0]], self._index, TRANSITION_TABLE[state].accepted_chars)
 
                 # EOF reached while not in an accepting state -> specific error types
                 if curr_char == '\0' and not TRANSITION_TABLE[state].is_terminal:
                     if state >= STRING_STATE_START and state <= STRING_STATE_END:
-                        return UnclosedString(self._source[self._index[0] - 1], self._index)
+                        return UnclosedString(self._source_lines[self._index[0] - 1], self._index)
 
                     if state >= COMMENT_STATE_START and state <= COMMENT_STATE_END:
-                        return UnclosedComment(self._source[self._index[0]-1], self._index)
+                        return UnclosedComment(self._source_lines[self._index[0]-1], self._index)
 
 
                 # Special check for unfinished numeric literal 
                 if state == NUMERIC_LIT_START and len(next_states) == 1 and not TRANSITION_TABLE[state].is_terminal:
-                    return UnfinishedFloat(self._source[self._index[0]], self._index, TRANSITION_TABLE[state].accepted_chars)
+                    return UnfinishedFloat(self._source_lines[self._index[0]], self._index, TRANSITION_TABLE[state].accepted_chars)
 
                 # print(curr_char, 'char being compared to', TRANSITION_TABLE[state].accepted_chars)
                 # print('goes continue')
@@ -254,7 +244,7 @@ class Lexer:
                 return ''  # other terminal marker
 
             # consume the current state in this branch and recurse deeper
-            self.advance()
+            self.advance_cursor()
             lexeme = self.lexemize(state) # the matched state earlier would be used for the next character
             # print('lexeme: ', lexeme, 'state', state)
 
@@ -271,13 +261,13 @@ class Lexer:
                 return lexeme
             if type(lexeme) is UnclosedString:
                 # unread the char we consumed before returning the UnclosedString error
-                self.reverse()
-                return UnclosedString(self._source[self._index[0]], self._index)
+                self.reverse_cursor()
+                return UnclosedString(self._source_lines[self._index[0]], self._index)
         
             # If returned None from Lexeme and not a complete token and not an error, we should backtrack for reserved words to transition to id. 
             # EX: shows -> line 4 -> 3 -> 2 -> 1
             if state <= KEYWORD_LAST_STATE:
-                self.reverse()
+                self.reverse_cursor()
 
         # print('ended loop')
 
@@ -285,12 +275,12 @@ class Lexer:
         if curr_state == 0:
             # At root and nothing matched -> unknown character        
             if self.get_curr_char() == '\0':
-                return UnexpectedEOF(self._source[self._index[0]], self._index)
+                return UnexpectedEOF(self._source_lines[self._index[0]], self._index)
             
-            return UnknownCharError(self._source[self._index[0]], self._index)
+            return UnknownCharError(self._source_lines[self._index[0]], self._index)
         if curr_state >= SYMBOL_STATE_START and curr_state <= SYMBOL_STATE_END:
             # These TRANSITION_TABLE correspond to delimiters; return delimiter error with expected accepted_chars
-            return DelimError(self._source[self._index[0]], self._index, TRANSITION_TABLE[state].accepted_chars)
+            return DelimError(self._source_lines[self._index[0]], self._index, TRANSITION_TABLE[state].accepted_chars)
         
         # EX: Return None if 'shows' (since it dont match the keyword show and it has No error. It would most likely go to id)
         # print('returned None')

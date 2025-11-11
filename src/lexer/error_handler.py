@@ -15,21 +15,23 @@ from src.constants import ATOMS, DELIMS
 class UnknownCharError():
     """Raised when an unexpected character is encountered at top-level."""
     def __init__(self, line: str, position: tuple[int, int]):
-        # store a version of the line without newline for pretty printing
-        self._line = line.replace('\n', '')
+        # keep raw for char extraction; keep printable (no trailing \n) for rendering
+        self._raw_line = line
+        self._line = line.rstrip('\n')
         self._position = position
 
     def __str__(self):
-        # Safely handle positions that point at EOF (col == len(line))
-        line = self._line
         line_no = self._position[0] + 1
         col = self._position[1]
-        char = line[col]
-        
-        caret_pos = min(col, len(line))
-        error_message = f"Unknown character: '{char}'\n" \
-                        f" {line_no:<5}|{line}\n" \
-                        f"      |{' ' * caret_pos}^\n"
+        # Determine display char safely from the raw line
+        if col >= len(self._raw_line):
+            ch = '<EOF>'
+        else:
+            ch = '<EOL>' if self._raw_line[col] == '\n' else self._raw_line[col]
+        caret_pos = min(col, len(self._line))
+        error_message = f"No Transition Matched, Unknown Character: '{ch}'\n" \
+                        f" {line_no:<5}|{self._line}\n" \
+                         f"      |{' ' * caret_pos}^\n"
         return error_message
 
 class DelimError():
