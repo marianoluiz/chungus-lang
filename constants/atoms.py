@@ -19,9 +19,14 @@ ATOMS = {
         ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~', '\t',
         *set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
     },
-    'comment_ascii': {
+    'single_comment_ascii': {
         ' ', '!', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', 
-        ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~', '\t',
+        ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~', '\t', ' ',
+        *set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
+    },
+    'multiline_comment_ascii': {
+        ' ', '!', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', 
+        ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~', '\t', '\n',
         *set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
     },
     # --- Composite Atoms ---

@@ -15,7 +15,7 @@ Key concepts:
   error objects from `error_handler`.
 """
 from constants import ATOMS,DELIMS
-from .error_handler import UnknownCharError, DelimError, UnclosedString, UnclosedComment, UnfinishedFloat
+from .error_handler import UnknownCharError, DelimError, UnclosedString, UnclosedComment, UnfinishedFloat, UnexpectedEOF
 from .td import STATES
 from .token import tokenize
 
@@ -24,11 +24,10 @@ KEYWORD_LAST_STATE = 117
 SYMBOL_STATE_START = 118
 SYMBOL_STATE_END = 161
 SYMBOL_LAST_STATE = SYMBOL_STATE_END
-SPECIAL_LOOKBACK_STATES = [202, 205] # for &&, ||
 STRING_STATE_START = 224
 STRING_STATE_END = 226
 COMMENT_STATE_START = 162
-COMMENT_STATE_END = 169
+COMMENT_STATE_END = 171
 NUMERIC_LIT_START = 172
 
 
@@ -48,7 +47,11 @@ class Lexer:
         source = source.splitlines()
         # Preserve newline at the end of each line except possibly last (keeps positions simple)
         # If it's not the last line, value is line + '\n'
-        self._source = [line + '\n' if x != len(source) - 1 else line for x, line in enumerate(source)]
+
+        if not source:
+            self._source = ['']
+        else:
+            self._source = [line + '\n' if x != len(source) - 1 else line for x, line in enumerate(source)]
         """ The source code as a list of string"""
 
         self._index = 0, 0
@@ -132,7 +135,6 @@ class Lexer:
         while not self.is_EOF():
             # Store the start position for the next lexeme, it "bookmarks" the current cursor position (self._index) and saves it.
             metadata.append(self._index)
-            print('position: ', self._index)
             curr_char = self.get_curr_char()
 
             # Gets the character at the current cursor position.
@@ -174,6 +176,15 @@ class Lexer:
                 print(lexeme)
                 self.log += str(lexeme) + '\n'
                 self.advance(len(''.join(self._source)))
+            elif type(lexeme) is UnclosedComment:
+                print(lexeme)
+                self.log += str(lexeme) + '\n'
+                self.advance(len(''.join(self._source)))
+            elif type(lexeme) is UnexpectedEOF:
+                # root-level EOF with no transition matched
+                print(lexeme)
+                self.log += str(lexeme) + '\n'
+                self.advance(len(''.join(self._source)))
             else:
                 # normal lexeme: append to lexeme list. 
                 # if returned is None (for ids), a complete Lexeme (keyword, str, int, float lit)
@@ -191,7 +202,7 @@ class Lexer:
         - For each candidate state:
             - if current char is allowed in state's chars, consume and recurse into child's branches
             - if child is terminal (no branches), return appropriate lexeme marker/value
-            - handle special cases: unclosed string/comment, unfinished numeric literal, reserved-word separation, etc.
+            - handle special cases: unclosed string/comment, unfinished numeric literal, reserved-word delim, etc.
         - If no branch matched:
             - when at root state, return UnknownCharError
             - for certain mid-states return DelimError or other error objects
@@ -218,13 +229,11 @@ class Lexer:
 
                 # EOF reached while not in an accepting state -> specific error types
                 if curr_char == '\0' and not STATES[state].isEnd:
-                
                     if state >= STRING_STATE_START and state <= STRING_STATE_END:
                         return UnclosedString(self._source[self._index[0] - 1], self._index)
 
-
-                    if state >= COMMENT_STATE_START and state <= COMMENT_STATE_END: # Unclosed comment will be returned
-                        return ''
+                    if state >= COMMENT_STATE_START and state <= COMMENT_STATE_END:
+                        return UnclosedComment(self._source[self._index[0]-1], self._index)
 
 
                 # Special check for unfinished numeric literal 
@@ -287,11 +296,10 @@ class Lexer:
 
         # No transition matched. 
         if curr_state == 0:
-            # At root and nothing matched -> unknown character
-            return UnknownCharError(self._source[self._index[0]], self._index)
-        if curr_state in SPECIAL_LOOKBACK_STATES:
-            # These states are special operators that require lookback handling
-            self.reverse()
+            # At root and nothing matched -> unknown character        
+            if self.get_curr_char() == '\0':
+                return UnexpectedEOF(self._source[self._index[0]], self._index)
+            
             return UnknownCharError(self._source[self._index[0]], self._index)
         if curr_state >= SYMBOL_STATE_START and curr_state <= SYMBOL_STATE_END:
             # These states correspond to delimiters; return delimiter error with expected chars
@@ -300,6 +308,3 @@ class Lexer:
         # EX: Return None if 'shows' (since it dont match the keyword show and it has No error. It would most likely go to id)
         # print('returned None')
         return None
-
-if __name__ == "__main__":
-    print("Starting")

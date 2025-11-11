@@ -198,12 +198,12 @@ STATES = {
 
     # --- Comments ---
     162: State('#', [163, 164, 165]),
-    163: State(ATOMS['comment_ascii'], [163, 164]),
+    163: State(ATOMS['single_comment_ascii'], [163, 164]),
     164: State({'\n'}, end=True),
     165: State('#', [166]),
     166: State('#', [167, 168]),
-    167: State(ATOMS['comment_ascii'], [167, 168]),
-    168: State('#', [169]), # Loop on #, exit on #
+    167: State(ATOMS['multiline_comment_ascii'], [167, 168]),
+    168: State('#', [169]),
     169: State('#', [170]),
     170: State('#', [171]),
     171: State(DELIMS['stmt_delim'], end=True),

@@ -374,6 +374,7 @@ class ChungusLexerGUI:
             return
 
         # Re-apply theme colors to tags before inserting
+        # Re-apply theme colors to tags before inserting
         c = self.colors
         self.token_tree.tag_configure('keyword', foreground=c["ACCENT_PURPLE"], font=self.token_font_bold)
         self.token_tree.tag_configure('literal', foreground=c["ACCENT_GREEN"])
@@ -387,28 +388,42 @@ class ChungusLexerGUI:
         self.token_tree.tag_configure('evenrow', background=c["TREE_EVEN_ROW"])
 
         for i, token in enumerate(tokens):
-            tag = 'token'; token_type_name = getattr(token, "type", token.get("type") if isinstance(token, dict) else "")
-            if hasattr(token_type_name, "name"): token_type_name = token_type_name.name
-            if isinstance(token_type_name, str):
-                if token_type_name.startswith('KEYWORD'): tag = 'keyword'
-                elif token_type_name.endswith('_LIT'): tag = 'literal'
-                elif token_type_name == 'IDENTIFIER': tag = 'identifier'
-                elif token_type_name.startswith('OP_'): tag = 'operator'
-                elif token_type_name.startswith('DELIM_'): tag = 'delimiter'
-                elif token_type_name.startswith('COMMENT_'): tag = 'comment'
-                elif token_type_name == 'EOF': tag = 'error'
-            # extract values
+            token_type_name = getattr(token, "type", token.get("type") if isinstance(token, dict) else "")
+            if hasattr(token_type_name, "name"):
+                token_type_name = token_type_name.name
+
             line = getattr(token, "line", token.get("line") if isinstance(token, dict) else "")
             col = getattr(token, "col", token.get("col") if isinstance(token, dict) else "")
-            lexeme = getattr(token, "lexeme", token.get("lexeme") if isinstance(token, dict) else str(token))
+            raw_lexeme = getattr(token, "lexeme", token.get("lexeme") if isinstance(token, dict) else str(token))
+            # Escape control chars for single-line display
+            lexeme = raw_lexeme.replace('\n', '\\n').replace('\t', '\\t').replace('\r', '\\r')
+
+            # Determine semantic tag
+            tag = 'identifier'
+            if token_type_name in ('int_literal', 'float_literal', 'str_literal'):
+                tag = 'literal'
+            elif token_type_name == 'comment':
+                tag = 'comment'
+            elif token_type_name.startswith(('OP_', 'ARITH_', 'REL_', 'LOG_')):
+                tag = 'operator'
+            elif token_type_name.startswith('DELIM_'):
+                tag = 'delimiter'
+            elif token_type_name.startswith('KEYWORD') or token_type_name in {
+                'always','and','array_add','array_remove','clear','elif','exit','false','float','for','in','int','nil',
+                'or','range','read','to','todo','true','try','while','show','skip','top'
+            }:
+                tag = 'keyword'
+
             row_tag = 'evenrow' if i % 2 == 0 else 'oddrow'
             self.token_tree.insert("", tk.END, values=(line, col, lexeme, token_type_name), tags=(tag, row_tag))
 
-
+        # Configure console tags once
         self.error_output.tag_configure("error", foreground=self.colors["ACCENT_RED"])
         self.error_output.tag_configure("success", foreground=self.colors["ACCENT_GREEN"])
-        if errors: self.error_output.insert(tk.END, "\n".join(errors), "error")
-        else: self.error_output.insert(tk.END, ">>> Lexical analysis complete. No errors found.", "success")
+        if errors:
+            self.error_output.insert(tk.END, "\n".join(errors), "error")
+        else:
+            self.error_output.insert(tk.END, ">>> Lexical analysis complete. No errors found.", "success")
         self.error_output.config(state=tk.DISABLED)
 
     def get_sample_code(self):

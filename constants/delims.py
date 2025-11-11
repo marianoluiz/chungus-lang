@@ -23,7 +23,7 @@ DELIMS = {
     },
     'arith_rel_not_op_delim': {
         *STMT_DELIM, *ATOMS['under_alpha_num'], 
-        *ATOMS['unary_negative_op'], '('
+        '('
     },
     'assign_op_delim': {
         *INLINE_DELIM, *ATOMS['under_alpha_num'], 

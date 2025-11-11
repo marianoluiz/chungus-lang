@@ -63,7 +63,7 @@ def tokenize(lexemes: list[str], metadata: list):
             continue
 
         # special comment marker '/^' used by the transition diagram
-        if lexeme[:2] == '#':
+        if lexeme[0] == '#':
             token_stream.append((lexeme, "comment"))
             continue
         

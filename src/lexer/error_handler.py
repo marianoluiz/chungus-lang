@@ -17,16 +17,12 @@ class UnknownCharError():
         line = self._line
         line_no = self._position[0] + 1
         col = self._position[1]
-
-        # if the index is inside the line
-        if 0 <= col < len(line):
-            char = line[col]
-        else:
-            char = '<EOF>'
+        char = line[col]
+        
         caret_pos = min(col, len(line))
         error_message = f"Unknown character: '{char}'\n" \
                         f" {line_no:<5}|{line}\n" \
-                        f"      |{' '*caret_pos}^\n"
+                        f"      |{' ' * caret_pos}^\n"
         return error_message
 
 class DelimError():
@@ -40,7 +36,7 @@ class DelimError():
     def __str__(self):
         error_message = f"Invalid Delimiter:\n" \
                         f" {self._position[0]+1:<5}|{self._line}\n" \
-                        f"      |{' '*self._position[1]}^\n"
+                        f"      |{' ' * self._position[1]}^\n"
         
         return error_message
 
@@ -82,6 +78,20 @@ class UnclosedComment():
                         f" {self._position[0]+1:<5}|{self._line}\n" \
                         f"      |{' '*self._position[1]}^\n"
         
+        return error_message
+
+class UnexpectedEOF():
+    """Raised at the root when input ends and no DFA transition matches."""
+    def __init__(self, line: str, position: tuple[int, int]):
+        self._line = line.replace('\n', '')
+        self._position = position
+
+    def __str__(self):
+        error_message = (
+            "Unexpected EOF: No transition matched\n"
+            f" {self._position[0]+1:<5}|{self._line}\n"
+            f"      |{' '*self._position[1]}^\n"
+        )
         return error_message
 
 def shorten_delims(delims: list):
