@@ -1,24 +1,11 @@
-"""
-Lexer module (src/lexer/lexer.py)
-
-This module implements a recursive DFA-based lexemizer for the Chungus
-project. The code is intentionally written to follow a transition-table
-approach where `STATES` (from `td.py`) describes allowed transitions.
-
-Key concepts:
-- Source is stored as a list of lines (each line ends with '\n' except possibly last).
-- _index is a tuple (line_index, col_index) representing the current cursor.
-- _lexemes collects raw lexeme strings (or special markers like ' ' and r'\n')
-- metadata is a list of cursor positions saved during tokenization (line,col) used by `tokenize`.
-- lexemize is implemented recursively: it explores possible transitions from a state,
-  consuming characters and returning either a string/tuple (the lexeme), or one of the
-  error objects from `error_handler`.
-"""
-from constants import ATOMS,DELIMS
+from src.constants import ATOMS, DELIMS
 from .error_handler import UnknownCharError, DelimError, UnclosedString, UnclosedComment, UnfinishedFloat, UnexpectedEOF
-from .td import STATES
-from .token import tokenize
+from .dfa_table import TRANSITION_TABLE
+from .token_builder import build_token_stream
 
+# Top-level DFA-based lexer. Produces a list of raw lexemes and then a token stream.
+# The DFA itself is encoded in src/lexer/td.py as TRANSITION_TABLE and traversed by lexemize().
+# Positions are tracked as a (line_index, col_index) tuple in self._index.
 
 KEYWORD_LAST_STATE = 117
 SYMBOL_STATE_START = 118
@@ -30,27 +17,24 @@ COMMENT_STATE_START = 162
 COMMENT_STATE_END = 171
 NUMERIC_LIT_START = 172
 
-
-# Lexer.token_stream stores lexemes and tokens
-# Lexer.log stores the error log
-
 class Lexer:
     """High level wrapper around the DFA lexemizer.
 
-    Instantiate with source text and call `start()` to build self._lexemes and self.token_stream.
-    The internal lexemizer is state-driven and returns special error objects when it encounters
-    problematic input (unclosed string, delim errors, etc.).
+    Workflow:
+    - __init__: split the input into lines and initialize cursor
+    - start:    iterate, snapshot start positions, and collect raw lexemes
+    - build_token_stream: classify lexemes with their snapshot metadata
     """
 
     def __init__(self, source: str):
         # Convert incoming source string to lines and ensure newline markers
         source = source.splitlines()
-        # Preserve newline at the end of each line except possibly last (keeps positions simple)
-        # If it's not the last line, value is line + '\n'
 
         if not source:
+            # for empty input error handling
             self._source = ['']
         else:
+            # Preserve newline at the end of each line except possibly last (keeps positions simple); If it's not the last line, value is line + '\n'
             self._source = [line + '\n' if x != len(source) - 1 else line for x, line in enumerate(source)]
         """ The source code as a list of string"""
 
@@ -61,7 +45,7 @@ class Lexer:
         """ collected lexeme strings (raw) """
 
         self.token_stream: list[dict] = []
-        """ token_stream will be populated by token.tokenize(...) after lexing. This would be ((lexeme), (line_index, column_index)) """
+        """ token_stream will be populated by token.build_token_stream(...) after lexing. This would be ((lexeme), (line_index, column_index)) """
 
         self.log = ""
         """ textual log of errors (human readable) """
@@ -72,10 +56,11 @@ class Lexer:
 
     ## TRACKING CHARACTERS
     def get_curr_char(self):
-        """Return the current character under cursor or \0 for EOF sentinel.
+        """Return the current character under cursor or \\0 for EOF sentinel.
 
-        Note: when at the final characters of the final line we treat further access
-        as EOF to avoid IndexError.
+        Edge cases:
+        - When at/past the end of the final line, return \\0 to avoid IndexError.
+        - Otherwise, return the source character at the current cursor.
         """
         if self._index[1] >= len(self._source[-1]) and self._index[0] >= (len(self._source) - 1):
             return "\0"
@@ -83,13 +68,14 @@ class Lexer:
         return self._source[self._index[0]][self._index[1]]
 
     def is_EOF(self):
-        """Convenience check whether current char is EOF sentinel. This returns True or False"""
+        """True if current character is the EOF sentinel."""
         return self.get_curr_char() == "\0"
 
     def advance(self, count = 1):
-        """Advance cursor by `count` characters, updating line/col.
+        """Advance the cursor by `count` characters.
 
-        This method properly moves to next line when end-of-line is reached.
+        - Wraps to the next line when the end of the current line is reached.
+        - No-op if already beyond the last character of the last line.
         """
         for i in range(count):
             # guard conditions to avoid IndexError
@@ -106,9 +92,10 @@ class Lexer:
                 self._index = self._index[0], self._index[1] + 1
 
     def reverse(self, count = 1):
-        """Move the cursor backwards by `count` characters.
+        """Move the cursor backward by `count` characters.
 
-        Used by lexemize to backtrack when a deeper branch doesn't produce a token.
+        Used by lexemize() to backtrack a single character when a deeper branch
+        ends in an error or needs to yield control back to an identifier path.
         """
         for i in range(count):
             # Is the cursor's column greater than 0
@@ -124,9 +111,10 @@ class Lexer:
     def start(self):
         """Top-level lexing loop.
 
-        Iterates the input character-by-character and uses `lexemize()` to extract lexemes.
-        Each lexeme has corresponding metadata (cursor position at its start) appended to `metadata`.
-        After lexemes are collected, `tokenize` is called to produce `self.token_stream`.
+        - Appends current (line, col) into `metadata` before consuming a lexeme.
+        - Emits ' ' and raw '\\n' marker lexemes to preserve layout for the GUI.
+        - Delegates token extraction to lexemize(), which traverses the DFA.
+        - On error objects, logs the message and performs the documented cursor move.
         """
 
         # Store the starting position (line, column) of every lexeme. This is crucial for error messages later.
@@ -191,44 +179,52 @@ class Lexer:
                 # print('appended lexeme')
                 self._lexemes.append(lexeme)
 
-        # Convert collected lexemes + metadata into token_stream via tokenize()
-        self.token_stream = tokenize(self._lexemes, metadata)
+        # Convert collected lexemes + metadata into token_stream via build_token_stream()
+        self.token_stream = build_token_stream(self._lexemes, metadata)
 
     def lexemize(self, curr_state: int = 0):
         """Recursive DFA-driven lexeme extractor.
 
-        Algorithm:
-        - Look up possible branch states from STATES[curr_state].branches
-        - For each candidate state:
-            - if current char is allowed in state's chars, consume and recurse into child's branches
-            - if child is terminal (no branches), return appropriate lexeme marker/value
-            - handle special cases: unclosed string/comment, unfinished numeric literal, reserved-word delim, etc.
-        - If no branch matched:
-            - when at root state, return UnknownCharError
-            - for certain mid-states return DelimError or other error objects
+        Strategy:
+        - For each outgoing `state` from the current node, check if the current
+          character is in TRANSITION_TABLE[state].chars.
+        - If matched:
+            - If `state` has no next_states, return a terminal sentinel:
+              '' for "keep building", or ('','') for typed placeholders (symbols).
+            - Otherwise consume 1 char, recurse into `state`, and combine the result.
+        - If unmatched:
+            - When TRANSITION_TABLE[state] is an accepting terminal: validate delimiters
+              for keywords to ensure proper token boundaries.
+            - For EOF while in certain subgraphs (STRING/COMMENT), return specific
+              error objects (UnclosedString/UnclosedComment).
+            - If in NUMERIC_LIT_START and still non-accepting, raise UnfinishedFloat.
+        - If none of the next_states match:
+            - At root (curr_state == 0), return UnknownCharError or UnexpectedEOF.
+            - In symbol subgraph, return DelimError with expected chars.
+            - Otherwise return None to let caller treat as identifier continuation.
         """
         # Get transitions from current state
-        branches = STATES[curr_state].branches
+        next_states = TRANSITION_TABLE[curr_state].next_states
 
         # Iterate through possible transitions
-        for state in branches:
+        for state in next_states:
             curr_char = self.get_curr_char()
 
             # if curr_char to is not equal to the state character/s (from the branch of curr_state)
-            if curr_char not in STATES[state].chars:
-                if STATES[state].isEnd:
+            if curr_char not in TRANSITION_TABLE[state].accepted_chars:
+                if TRANSITION_TABLE[state].is_terminal:
                     # special handling for reserved words and ID delimiting
                     
                     # TODO CHECK
-                    # if state != branches[-1] and state >= KEYWORD_LAST_STATE:
+                    # if state != next_states[-1] and state >= KEYWORD_LAST_STATE:
                     #     continue
 
                     # if state is not id (under_alpha_num) and its a keyword, its a delimeter error
                     if curr_char not in [*ATOMS['under_alpha_num']] and state <= KEYWORD_LAST_STATE:
-                        return DelimError(self._source[self._index[0]], self._index, STATES[state].chars)
+                        return DelimError(self._source[self._index[0]], self._index, TRANSITION_TABLE[state].accepted_chars)
 
                 # EOF reached while not in an accepting state -> specific error types
-                if curr_char == '\0' and not STATES[state].isEnd:
+                if curr_char == '\0' and not TRANSITION_TABLE[state].is_terminal:
                     if state >= STRING_STATE_START and state <= STRING_STATE_END:
                         return UnclosedString(self._source[self._index[0] - 1], self._index)
 
@@ -237,39 +233,30 @@ class Lexer:
 
 
                 # Special check for unfinished numeric literal 
-                if state == NUMERIC_LIT_START and len(branches) == 1 and not STATES[state].isEnd:
-                    return UnfinishedFloat(self._source[self._index[0]], self._index, STATES[state].chars)
+                if state == NUMERIC_LIT_START and len(next_states) == 1 and not TRANSITION_TABLE[state].is_terminal:
+                    return UnfinishedFloat(self._source[self._index[0]], self._index, TRANSITION_TABLE[state].accepted_chars)
 
-                # print(curr_char, 'char being compared to', STATES[state].chars)
+                # print(curr_char, 'char being compared to', TRANSITION_TABLE[state].accepted_chars)
                 # print('goes continue')
                 continue # Branch not matched move to next branch; If no other branch, stop the loop.
 
             # print('MATCHED curr_char to a state in an appropriate branch')
 
             # MATCHED: matched character to a state in the branch
-            print(f"{curr_state} -> {state}: {curr_char if len(STATES[state].branches) > 0 else 'end state'}")
+            print(f"{curr_state} -> {state}: {curr_char if len(TRANSITION_TABLE[state].next_states) > 0 else 'end state'}")
 
-            # END: If we matched a character and it is last state (If the state has no outgoing branches) it is a terminal -> return sentinel lexeme (base of recursion to communicate "I hit a terminal")
-            if len(STATES[state].branches) == 0:
+            # END: If we matched a character and it is last state (If the state has no outgoing next_states) it is a terminal -> return sentinel lexeme (base of recursion to communicate "I hit a terminal")
+            if len(TRANSITION_TABLE[state].next_states) == 0:
                 # small heuristic: reserved word, symbols return an empty typed pair placeholder
                 if state <= SYMBOL_LAST_STATE:
                     return ('','') 
+                
                 return ''  # other terminal marker
 
             # consume the current state in this branch and recurse deeper
             self.advance()
             lexeme = self.lexemize(state) # the matched state earlier would be used for the next character
             # print('lexeme: ', lexeme, 'state', state)
-
-            # lets say we are 4 deep in the recursion call
-            # keyword: shows
-            # s would not be consumed and it starts returning None
-            # in the first return (w), It continue to check the branch of 'w' until its done, after that return none
-            # in the second return (o), It continue to check the branch of 'o' until its done, after that return none
-            # in the third return (h), It continue to check the branch of 'h' until its done, after that return none
-            # in the fourth return (s), It continue to check the branch of 's' until its done, after that return none
-            # so we are back in the initial lexemize call (state 0), we continue starting from what we left (after the checking of 's' ('show' state branch)) so the next 's' would be the identifier state branch. thats how we move from reserved word to id.
-
 
             # lexeme may be various types: string, tuple, error object, or None
             if type(lexeme) is str:
@@ -302,8 +289,8 @@ class Lexer:
             
             return UnknownCharError(self._source[self._index[0]], self._index)
         if curr_state >= SYMBOL_STATE_START and curr_state <= SYMBOL_STATE_END:
-            # These states correspond to delimiters; return delimiter error with expected chars
-            return DelimError(self._source[self._index[0]], self._index, STATES[state].chars)
+            # These TRANSITION_TABLE correspond to delimiters; return delimiter error with expected accepted_chars
+            return DelimError(self._source[self._index[0]], self._index, TRANSITION_TABLE[state].accepted_chars)
         
         # EX: Return None if 'shows' (since it dont match the keyword show and it has No error. It would most likely go to id)
         # print('returned None')

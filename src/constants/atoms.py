@@ -1,5 +1,11 @@
-# This file (e.g., atoms.py) defines the base character sets (Atoms)
-# based on the "Regular Definition" tables. 
+"""Character sets (atoms) used to build DFA state acceptance lists.
+
+Groups:
+- Base alphabets and digits
+- ASCII subsets for strings and comments
+- Composite groups (alpha_num, under_alpha_num) used by identifiers
+- Operator categories, used to define delimiter sets in constants/delims.py
+"""
 
 ATOMS = {
     # --- Base Atoms ---
@@ -62,12 +68,3 @@ ATOMS = {
     'unary_negative_op': {'-'},
 }
 
-def ascii_except(chars: list[chr] = []):
-    chars = list(chars) if type(chars) is str else chars
-    ascii = ATOMS['ascii'].copy()
-    for char in chars:
-        ascii.remove(char)
-    return ascii
-
-if __name__ == '__main__':
-    print('/' not in ATOMS["ascii_string"])

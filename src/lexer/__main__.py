@@ -1,19 +1,15 @@
-""" This file is the entry point of the package.
+"""CLI entry point for the lexer package.
 
-It loads a test file from src/test/lexer_test.chg, runs the Lexer and prints:
-- the raw lexemes (Lexer._lexemes)
-- the token stream returned by src.lexer.tokenize
-- any error log text (Lexer.log) if available
+Behavior:
+- Loads src/test/lexer_test.chg
+- Runs the DFA-based lexer
+- Prints the collected raw lexemes, the token stream, and any error logs
+
+Usage:
+    python -m src.lexer
 """
 import sys, os
-
-# This takes the project path and adds it to sys.path, which is Python's list of all directories to search when you import something.
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..')))
-
-# from lexer import *
-# from token import *
-# from error_handler import *
-from src.lexer.lexer import Lexer
+from src.lexer.dfa_lexer import Lexer
 
 def main():
     # This takes the test folder path

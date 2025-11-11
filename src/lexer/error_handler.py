@@ -1,5 +1,12 @@
-""" This file is used for the error handling of the lexer """
-from constants import ATOMS
+"""Error object definitions for the lexer.
+
+Each class captures:
+- the offending line (with trailing newline stripped for pretty printing)
+- the (line_index, col_index) tuple where the error occurred
+
+Stringification (__str__) renders a caret under the offending column.
+"""
+from src.constants import ATOMS, DELIMS
 
 # Each error type below is a small object delivering a readable message.
 # They store the offending line and a (line_index, col_index) tuple so the message

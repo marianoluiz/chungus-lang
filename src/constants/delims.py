@@ -1,5 +1,12 @@
-# This file (e.g., delimiters.py) defines the Delimiter sets
-# by importing and using the base ATOMS.
+"""Delimiter sets used by accepting states to validate token boundaries.
+
+Categories:
+- inline_delim: space-like separators usable mid-statement
+- stmt_delim: separators that can end a statement (includes newline)
+- id_delim: characters that can legally follow an identifier
+- dtype_lit_delim: characters that can follow a type or literal
+- method_delim, paren/bracket open/close, comma, assign_op, etc.
+"""
 
 from .atoms import ATOMS
 

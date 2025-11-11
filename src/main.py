@@ -1,9 +1,6 @@
-import os
-import sys
-
 import tkinter as tk
 from src.gui import ChungusLexerGUI
-from src.lexer.lexer import Lexer
+from src.lexer.dfa_lexer import Lexer
 
 def lexer_adapter(source: str):
     """
