@@ -5,31 +5,31 @@
 """
 build_token_stream(raw_lexeme, metadata)
 
-Parameters:
-  raw_lexeme : list[str|tuple]
-      Sequence of lexeme items in source order. Each element is either:
-        - str  : plain lexeme text (identifier, number, string body, comment body, whitespace marker)
-        - tuple: already typed special lexeme (('if','keyword_if') style placeholder)
-  metadata   : list[tuple[int,int]]
-      Parallel sequence of (line_index, col_index) cursor snapshots taken before
-      each lexeme was parsed. Length must match raw_lexeme (extra metadata is ignored by zip).
+    Parameters:
+    raw_lexeme : list[str|tuple]
+        Sequence of lexeme items in source order. Each element is either:
+            - str  : plain lexeme text (identifier, number, string body, comment body, whitespace marker)
+            - tuple: already typed special lexeme (('if','keyword_if') style placeholder)
+    metadata   : list[tuple[int,int]]
+        Parallel sequence of (line_index, col_index) cursor snapshots taken before
+        each lexeme was parsed. Length must match raw_lexeme (extra metadata is ignored by zip).
 
-Classification rules (order matters):
-  ' '              -> (' ', 'whitespace')
-  r'\n'            -> ('\\n', 'newline')
-  tuple            -> passed through unchanged (already typed)
-  number / number.float -> int_literal / float_literal (single '.' allowed)
-  starting with "'" -> str_literal
-  starting with '#' -> comment (single or multi-line already fused)
-  else              -> id
+    Classification rules (order matters):
+    ' '              -> (' ', 'whitespace')
+    r'\n'            -> ('\\n', 'newline')
+    tuple            -> passed through unchanged (already typed)
+    number / number.float -> int_literal / float_literal (single '.' allowed)
+    starting with "'" -> str_literal
+    starting with '#' -> comment (single or multi-line already fused)
+    else              -> id
 
-Return:
-  list[ ((lexeme_text, token_type), (line_index, col_index)) ]
+    Return:
+    list[ ((lexeme_text, token_type), (line_index, col_index)) ]
 
-Notes:
-- Newline is tracked as the literal two‑character sequence '\\n' (not an actual line break).
-- Trailing newline token (if any) is dropped to avoid an empty GUI row.
-- Numeric normalization is NOT performed here (original spelling preserved).
+    Notes:
+    - Newline is tracked as the literal two‑character sequence '\\n' (not an actual line break).
+    - Trailing newline token (if any) is dropped to avoid an empty GUI row.
+    - Numeric normalization is NOT performed here (original spelling preserved).
 """
 
 def build_token_stream(raw_lexeme: list[str], metadata: list[tuple[int, int]]):

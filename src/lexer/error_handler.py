@@ -1,10 +1,10 @@
 """Error object definitions for the lexer.
 
-Each class captures:
-- the offending line (with trailing newline stripped for pretty printing)
-- the (line_index, col_index) tuple where the error occurred
+    Each class captures:
+    - the offending line (with trailing newline stripped for pretty printing)
+    - the (line_index, col_index) tuple where the error occurred
 
-Stringification (__str__) renders a caret under the offending column.
+    Stringification (__str__) renders a caret under the offending column.
 """
 from src.constants import ATOMS, DELIMS
 

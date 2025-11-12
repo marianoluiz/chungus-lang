@@ -139,23 +139,23 @@ class Lexer:
     def lexemize(self, curr_state: int = 0):
         """Recursive DFA-driven lexeme extractor.
 
-        Strategy:
-        - For each outgoing `state` from the current node, check if the current
-          character is in TRANSITION_TABLE[state].chars.
-        - If matched:
-            - If `state` has no next_states, return a terminal sentinel:
-              '' for "keep building", or ('','') for typed placeholders (symbols).
-            - Otherwise consume 1 char, recurse into `state`, and combine the result.
-        - If unmatched:
-            - When TRANSITION_TABLE[state] is an accepting terminal: validate delimiters
-              for keywords to ensure proper token boundaries.
-            - For EOF while in certain subgraphs (STRING/COMMENT), return specific
-              error objects (UnclosedString/UnclosedComment).
-            - If in NUMERIC_LIT_START and still non-accepting, raise UnfinishedFloat.
-        - If none of the next_states match:
-            - At root (curr_state == 0), return UnknownCharError or UnexpectedEOF.
-            - In symbol subgraph, return DelimError with expected chars.
-            - Otherwise return None to let caller treat as identifier continuation.
+            Strategy:
+            - For each outgoing `state` from the current node, check if the current
+            character is in TRANSITION_TABLE[state].chars.
+            - If matched:
+                - If `state` has no next_states, return a terminal sentinel:
+                '' for "keep building", or ('','') for typed placeholders (symbols).
+                - Otherwise consume 1 char, recurse into `state`, and combine the result.
+            - If unmatched:
+                - When TRANSITION_TABLE[state] is an accepting terminal: validate delimiters
+                for keywords to ensure proper token boundaries.
+                - For EOF while in certain subgraphs (STRING/COMMENT), return specific
+                error objects (UnclosedString/UnclosedComment).
+                - If in NUMERIC_LIT_START and still non-accepting, raise UnfinishedFloat.
+            - If none of the next_states match:
+                - At root (curr_state == 0), return UnknownCharError or UnexpectedEOF.
+                - In symbol subgraph, return DelimError with expected chars.
+                - Otherwise return None to let caller treat as identifier continuation.
         """
         # Get transitions from current state
         next_states = TRANSITION_TABLE[curr_state].next_states

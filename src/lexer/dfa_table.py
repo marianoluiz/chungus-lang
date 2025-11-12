@@ -1,36 +1,36 @@
 """DFA Transition Table for the Chungus lexer.
 
-Structure:
-- TransitionState: a node in the DFA
-    accepted_chars : iterable (set/list) of allowed characters at this node
-    next_states    : list[int] of target state IDs (ordered for disambiguation)
-    is_terminal    : bool indicating an accepting (token boundary) state
+    Structure:
+    - TransitionState: a node in the DFA
+        accepted_chars : iterable (set/list) of allowed characters at this node
+        next_states    : list[int] of target state IDs (ordered for disambiguation)
+        is_terminal    : bool indicating an accepting (token boundary) state
 
-TRANSITION_TABLE:
-    int state_id -> TransitionState
+    TRANSITION_TABLE:
+        int state_id -> TransitionState
 
-Subgraph layout (state ID ranges):
-    1..117   : keywords / reserved words
-    118..161 : operators, delimiters, punctuation
-    162..171 : comments
-               - 162 '#' entry
-               - Single-line: 163* -> 164 (newline)
-               - Multi-line: ### open (165->166->167 loop) then ### close (168->169->170->171)
-    172..174 : identifiers (start, body loop, delimiter check)
-    175..226 : numeric literals
-               - 175 optional unary '-'
-               - 176..213 whole number (up to 19 digits, every other state terminal)
-               - 214 '.' decimal point
-               - 215..226 fractional part (up to 6 digits, every other state terminal)
-    227..230 : single-quoted string literals
+    Subgraph layout (state ID ranges):
+        1..117   : keywords / reserved words
+        118..161 : operators, delimiters, punctuation
+        162..171 : comments
+                - 162 '#' entry
+                - Single-line: 163* -> 164 (newline)
+                - Multi-line: ### open (165->166->167 loop) then ### close (168->169->170->171)
+        172..174 : identifiers (start, body loop, delimiter check)
+        175..226 : numeric literals
+                - 175 optional unary '-'
+                - 176..213 whole number (up to 19 digits, every other state terminal)
+                - 214 '.' decimal point
+                - 215..226 fractional part (up to 6 digits, every other state terminal)
+        227..230 : single-quoted string literals
 
-Terminal states:
-- is_terminal=True means: lexemize stops path here and validates the following delimiter
-- Delimiter sets sourced from constants.DELIMS
+    Terminal states:
+    - is_terminal=True means: lexemize stops path here and validates the following delimiter
+    - Delimiter sets sourced from constants.DELIMS
 
-Notes:
-- Keyword prefixes that continue into identifiers will backtrack one char (handled in lexer.lexemize).
-- The initial state (0) holds fan‑out into all possible leading token characters.
+    Notes:
+    - Keyword prefixes that continue into identifiers will backtrack one char (handled in lexer.lexemize).
+    - The initial state (0) holds fan‑out into all possible leading token characters.
 """
 
 from src.constants import ATOMS, DELIMS
