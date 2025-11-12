@@ -1,4 +1,3 @@
-# ...existing code...
 import tkinter as tk
 from tkinter import ttk, scrolledtext, font, messagebox, filedialog
 import platform
