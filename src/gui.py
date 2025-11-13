@@ -346,7 +346,10 @@ class ChungusLexerGUI:
         self.error_output.delete("1.0", tk.END)
         for item in self.token_tree.get_children(): self.token_tree.delete(item)
 
-        source_code = self.code_input.get("1.0", tk.END)
+        # source_code = self.code_input.get("1.0", tk.END)
+
+        # Exclude Text widget's trailing newline sentinel
+        source_code = self.code_input.get("1.0", "end-1c")
 
         if callable(self.lexer_callback):
             try:

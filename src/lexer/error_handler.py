@@ -29,7 +29,7 @@ class UnknownCharError():
         else:
             ch = '<EOL>' if self._raw_line[col] == '\n' else self._raw_line[col]
         caret_pos = min(col, len(self._line))
-        error_message = f"No Transition Matched, Unknown Character: '{ch}'\n" \
+        error_message = f"Unknown Character: '{ch}'\n" \
                         f" {line_no:<5}|{self._line}\n" \
                          f"      |{' ' * caret_pos}^\n"
         return error_message
@@ -52,7 +52,7 @@ class UnfinishedFloat():
     def __init__(self, line: str, position: tuple[int, int], delims: list):
         self._line = line.replace('\n', '')
         self._position = position
-
+        self._delims = delims
     def __str__(self):
         error_message = f"Unfinished float literal: expected any {self._delims}\n" \
                         f" {self._position[0]+1:<5}|{self._line}\n" \
@@ -67,7 +67,7 @@ class UnclosedString():
         self._position = position
 
     def __str__(self):
-        error_message = f"Unclosed string: expected '\"'\n" \
+        error_message = f"String State Error\n" \
                         f" {self._position[0]+1:<5}|{self._line}\n" \
                         f"      |{' '*self._position[1]}^\n"
         
@@ -80,7 +80,7 @@ class UnclosedComment():
         self._position = position
 
     def __str__(self):
-        error_message = f"Unclosed comment: expected '###'\n" \
+        error_message = f"Comment State Error\n" \
                         f" {self._position[0]+1:<5}|{self._line}\n" \
                         f"      |{' '*self._position[1]}^\n"
         

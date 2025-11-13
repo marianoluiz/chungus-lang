@@ -11,8 +11,8 @@ KEYWORD_LAST_STATE = 117
 SYMBOL_STATE_START = 118
 SYMBOL_STATE_END = 161
 SYMBOL_LAST_STATE = SYMBOL_STATE_END
-STRING_STATE_START = 224
-STRING_STATE_END = 226
+STRING_STATE_START = 227
+STRING_STATE_END = 230
 COMMENT_STATE_START = 162
 COMMENT_STATE_END = 171
 NUMERIC_LIT_START = 175
@@ -28,14 +28,13 @@ class Lexer:
 
     def __init__(self, source_text: str):
         # Convert incoming source string to lines and ensure newline markers
-        source_text = source_text.splitlines()
+        source_text = source_text.splitlines(keepends=True)
 
         if not source_text:
             # for empty input error handling
             self._source_lines = ['']
         else:
-            # Preserve newline at the end of each line except possibly last (keeps positions simple); If it's not the last line, value is line + '\n'
-            self._source_lines = [line + '\n' if x != len(source_text) - 1 else line for x, line in enumerate(source_text)]
+            self._source_lines = source_text
         """ The source code as a list of string"""
 
         self._index = 0, 0
@@ -114,20 +113,25 @@ class Lexer:
 
         while not self.is_at_end():
             curr_char = self.get_curr_char()
+            start_pos = self._index
 
-            # Skip whitespace/newline entirely (no position recorded)
-            if curr_char in (' ', '\n'):
+            if curr_char == ' ':
+                self._lexemes.append(' ')
+                lexeme_positions.append(start_pos)
+                self.advance_cursor()
+                continue
+            if curr_char == '\n':
+                self._lexemes.append(r'\n')
+                lexeme_positions.append(start_pos)
                 self.advance_cursor()
                 continue
 
-            start_pos = self._index
             lexeme = self.lexemize()
 
-            if isinstance(lexeme, (UnknownCharError, DelimError, UnfinishedFloat,
+            if isinstance(lexeme, (UnknownCharError, DelimError,
                                    UnclosedString, UnclosedComment, UnexpectedEOF)):
                 self.log += str(lexeme) + '\n'
-                if isinstance(lexeme, UnknownCharError):
-                    self.advance_cursor()
+                self.advance_cursor()
                 continue
 
             # Normal lexeme
@@ -166,23 +170,23 @@ class Lexer:
 
             # if curr_char to is not equal to the state character/s (from the branch of curr_state)
             if curr_char not in TRANSITION_TABLE[state].accepted_chars:
+
                 if TRANSITION_TABLE[state].is_terminal:
                     # if state is not id (under_alpha_num) and its a keyword, its a delimeter error
                     if curr_char not in [*ATOMS['under_alpha_num']] and state <= KEYWORD_LAST_STATE:
                         return DelimError(self._source_lines[self._index[0]], self._index, TRANSITION_TABLE[state].accepted_chars)
 
+                # Newline / EOL inside a string subgraph -> unclosed string
+                if curr_char == '\n' and (curr_state >= STRING_STATE_START and curr_state <= STRING_STATE_END):
+                    return UnclosedString(self._source_lines[self._index[0]], self._index)
+
                 # EOF reached while not in an accepting state -> specific error types
-                if curr_char == '\0' and not TRANSITION_TABLE[state].is_terminal:
-                    if state >= STRING_STATE_START and state <= STRING_STATE_END:
-                        return UnclosedString(self._source_lines[self._index[0] - 1], self._index)
+                if curr_char == '\0' and not TRANSITION_TABLE[curr_state].is_terminal:
+                    if curr_state >= STRING_STATE_START and curr_state < STRING_STATE_END:
+                        return UnclosedString(self._source_lines[self._index[0]], self._index)
 
-                    if state >= COMMENT_STATE_START and state <= COMMENT_STATE_END:
-                        return UnclosedComment(self._source_lines[self._index[0]-1], self._index)
-
-
-                # Special check for unfinished numeric literal 
-                if state == NUMERIC_LIT_START and len(next_states) == 1 and not TRANSITION_TABLE[state].is_terminal:
-                    return UnfinishedFloat(self._source_lines[self._index[0]], self._index, TRANSITION_TABLE[state].accepted_chars)
+                    if curr_state >= COMMENT_STATE_START and curr_state <= COMMENT_STATE_END:
+                        return UnclosedComment(self._source_lines[self._index[0]], self._index)
 
                 # print(curr_char, 'char being compared to', TRANSITION_TABLE[state].accepted_chars)
                 # print('goes continue')
@@ -211,16 +215,14 @@ class Lexer:
                 return curr_char + lexeme
             if type(lexeme) is tuple:
                 # tuple expected to carry structured information; combine and return
-                # show -> ('')('') -> ('w')('w') -> ('ow')('ow') -> ('how')('how') -> ('show')('show')
+                # EX. show -> ('')('') -> ('w')('w') -> ('ow')('ow') -> ('how')('how') -> ('show')('show')
                 return (curr_char + lexeme[0], curr_char + lexeme[0])
             if type(lexeme) is DelimError:
                 return lexeme
-            if type(lexeme) is UnfinishedFloat:
-                return lexeme
             if type(lexeme) is UnclosedString:
-                # unread the char we consumed before returning the UnclosedString error
-                self.reverse_cursor()
-                return UnclosedString(self._source_lines[self._index[0]], self._index)
+                return lexeme
+            if type(lexeme) is UnclosedComment:
+                return lexeme
         
             # If returned None from Lexeme and not a complete token and not an error, we should backtrack for reserved words to transition to id. 
             # EX: shows -> line 4 -> 3 -> 2 -> 1
@@ -238,8 +240,7 @@ class Lexer:
             return UnknownCharError(self._source_lines[self._index[0]], self._index)
         if curr_state >= SYMBOL_STATE_START and curr_state <= SYMBOL_STATE_END:
             # These TRANSITION_TABLE correspond to delimiters; return delimiter error with expected accepted_chars
-            return DelimError(self._source_lines[self._index[0]], self._index, TRANSITION_TABLE[state].accepted_chars)
+            return DelimError(self._source_lines[self._index[0]], self._index, TRANSITION_TABLE[curr_state].accepted_chars)
         
         # EX: Return None if 'shows' (since it dont match the keyword show and it has No error. It would most likely go to id)
-        # print('returned None')
         return None

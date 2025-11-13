@@ -69,9 +69,5 @@ def build_token_stream(raw_lexeme: list[str], metadata: list[tuple[int, int]]):
         # Fallback classification: identifier (id)
         token_list.append((lexeme_str, 'id'))
 
-    # Drop trailing synthetic newline token (optional cosmetic step)
-    if token_list and token_list[-1][1] == 'newline':
-        token_list.pop()
-
     # Zip tokens with positional metadata (any metadata overflow is ignored by zip)
     return [(token_data, pos) for token_data, pos in zip(token_list, metadata)]
