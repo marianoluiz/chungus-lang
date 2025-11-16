@@ -3,3 +3,5 @@
 .venv
 skeg_lex.py
 __pycache__
+.study.py
+.sample_parser

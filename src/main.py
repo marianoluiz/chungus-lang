@@ -1,6 +1,7 @@
 import tkinter as tk
 from src.gui import ChungusLexerGUI
 from src.lexer.dfa_lexer import Lexer
+from src.syntax.syntax_test import Parser
 
 def lexer_adapter(source: str):
     """
@@ -9,9 +10,11 @@ def lexer_adapter(source: str):
     and a list of error strings.
     """
 
+    tokens = []
+    errors = []
+
     lexer = Lexer(source)
     lexer.start()
-    tokens = []
 
     # Lexer.token_stream: [ ((lexeme, token_type), (line_index, col_index)), ... ]
     for (lex_pair, pos) in lexer.token_stream:
@@ -26,9 +29,19 @@ def lexer_adapter(source: str):
             "col": col_idx + 1
         })
 
-    errors = lexer.log.splitlines() if lexer.log else []
-    return tokens, errors
+    if lexer.log:
+        # lexer.log already contains readable error blocks, one per line (splitlines)
+        errors.extend(lexer.log.splitlines())
 
+    # Run syntax parser and surface parser errors (if any)
+    parser = Parser()
+    parse_result = parser.parse(source)
+
+    if parse_result.errors:
+        # parser.parse returns SyntaxResult; append parser.log (human readable)
+        errors.append(parse_result.log or "\n".join(parse_result.errors))
+
+    return tokens, errors
 
 if __name__ == "__main__":
     root = tk.Tk()

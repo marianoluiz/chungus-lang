@@ -1,0 +1,264 @@
+// Chungus Language Lark Grammar (UPDATED)
+
+start: program
+
+program: global_statement global_statement_tail
+
+global_statement: general_statement
+                | function_statement
+
+global_statement_tail: global_statement global_statement_tail
+                     | NEWLINE
+                     | 
+
+general_statement: id_statement NEWLINE
+                 | output_statement NEWLINE
+                 | system_command_statement NEWLINE
+                 | control_structure_statement
+                 | error_handling_statement NEWLINE
+                 | todo_statement NEWLINE
+                 | array_manip_statement NEWLINE
+
+id_statement: ID id_tail
+
+id_tail: unary_suffix
+       | "=" id_value
+
+unary_suffix: UN_PLUS
+            | UN_MINUS
+
+id_value: assignment_value
+        | READ
+
+assignment_value: type_casting
+                | expr
+
+type_casting: INT "(" int_float_str_lit ")"
+            | FLOAT "(" int_float_str_lit ")"
+
+// ─────────── EXPRESSIONS ───────────
+
+expr: logical_or_expr
+
+logical_or_expr: logical_and_expr logical_or_expr_tail
+logical_or_expr_tail: OR logical_and_expr logical_or_expr_tail
+                    | 
+
+logical_and_expr: logical_not_expr logical_and_expr_tail
+logical_and_expr_tail: AND logical_not_expr logical_and_expr_tail
+                     | 
+
+logical_not_expr: NOT bool_primary
+                | bool_primary
+
+bool_primary: "(" expr ")"
+            | TRUE eq_expr_tail
+            | FALSE eq_expr_tail
+            | eq_expr
+
+eq_expr: rel_expr eq_expr_tail
+eq_expr_tail: EQ_EQ rel_expr eq_expr_tail
+            | NOT_EQ rel_expr eq_expr_tail
+            | 
+
+rel_expr: arith_expr rel_expr_tail
+rel_expr_tail: rel_op arith_expr rel_expr_tail
+             | 
+
+rel_op: GT
+      | LT
+      | GE
+      | LE
+
+arith_expr: term arith_expr_tail
+arith_expr_tail: "+" term arith_expr_tail
+               | "-" term arith_expr_tail
+               | 
+
+term: factor term_tail
+term_tail: "*" factor term_tail
+         | "/" factor term_tail
+         | FLOORDIV factor term_tail
+         | "%" factor term_tail
+         | 
+
+factor: power factor_tail
+factor_tail: POW factor
+           | 
+
+power: int_float_lit
+     | ID
+     | "(" expr ")"
+
+// ─────────── LITERALS / ARRAY RULES ───────────
+
+literal: int_float_str_bool_lit
+       | "[" element_list "]"
+
+int_float_str_lit: STR_LITERAL
+                 | int_float_lit
+
+int_float_str_bool_lit: int_float_str_lit
+                      | TRUE
+                      | FALSE
+
+int_float_lit: INT_LITERAL
+             | FLOAT_LITERAL
+
+array_fncall_opt: "[" element_list "]"
+                | "(" arg_list_opt ")"
+                | 
+
+element_list: array_element array_tail
+            | 
+
+array_tail: "," array_element array_tail
+          | 
+
+array_element: literal
+             | ID
+
+arg_list_opt: arg_list
+            | 
+
+arg_list: pos_arg def_arg_opt
+        | def_arg
+
+pos_arg: un_defined_arg pos_arg_tail
+pos_arg_tail: "," un_defined_arg pos_arg_tail
+            | 
+
+def_arg: defined_arg def_arg_tail
+def_arg_tail: "," defined_arg def_arg_tail
+            | 
+
+def_arg_opt: "," def_arg
+           | 
+
+defined_arg: ID "=" expr
+un_defined_arg: expr
+
+// ─────────── OUTPUT / SYSTEM COMMANDS ───────────
+
+output_statement: SHOW output_value
+output_value: ID
+            | STR_LITERAL
+
+system_command_statement: CLR
+                        | EXIT
+
+// ─────────── CONTROL STRUCTURES ───────────
+
+control_structure_statement: conditional_statement
+                           | looping_statement
+
+conditional_statement: if_block elif_block else_block
+
+if_block: IF condition NEWLINE local_statement CLOSE NEWLINE
+elif_block: ELIF condition NEWLINE local_statement CLOSE NEWLINE elif_block
+          | 
+else_block: ELSE NEWLINE local_statement CLOSE NEWLINE
+          | 
+
+condition: expr
+
+local_statement: general_statement local_statement_tail
+local_statement_tail: local_statement local_statement_tail
+                    | 
+
+looping_statement: for_statement
+                 | while_statement
+
+for_statement: FOR ID IN range_expression NEWLINE local_statement CLOSE NEWLINE
+
+range_expression: RANGE "(" expression_list ")"
+expression_list: expr range_tail_1
+
+range_tail_1: "," expr range_tail_2
+            | 
+range_tail_2: "," expr
+            | 
+
+while_statement: WHILE condition NEWLINE local_statement CLOSE NEWLINE
+
+// ─────────── FUNCTIONS ───────────
+
+function_statement: FN ID "(" param ")" NEWLINE local_statement return_opt CLOSE NEWLINE
+
+param: arg_list_opt
+
+return_opt: return_statement
+          | 
+
+return_statement: RET expr NEWLINE
+
+// ─────────── ERROR HANDLING ───────────
+
+error_handling_statement: try_block fail_block error_handling_tail
+
+error_handling_tail: always_block
+                   | 
+
+try_block: TRY NEWLINE local_statement CLOSE NEWLINE
+fail_block: FAIL NEWLINE local_statement CLOSE NEWLINE
+always_block: ALWAYS NEWLINE local_statement CLOSE NEWLINE
+
+// ─────────── TODO ───────────
+
+todo_statement: TODO
+
+// ─────────── ARRAY MANIPULATION ───────────
+
+array_manip_statement: ARRAY_ADD "(" ID array_fncall_opt "," expr ")"
+                     | ARRAY_REMOVE "(" ID array_fncall_opt "," expr ")"
+
+// ─────────── TERMINALS ───────────
+
+AND: "and"
+OR: "or"
+NOT: "!"
+TRUE: "true"
+FALSE: "false"
+READ: "read"
+SHOW: "show"
+CLR: "clr"
+EXIT: "exit"
+IF: "if"
+ELIF: "elif"
+ELSE: "else"
+WHILE: "while"
+FOR: "for"
+IN: "in"
+RANGE: "range"
+FN: "fn"
+RET: "ret"
+TRY: "try"
+FAIL: "fail"
+ALWAYS: "always"
+TODO: "todo"
+ARRAY_ADD: "array_add"
+ARRAY_REMOVE: "array_remove"
+INT: "int"
+FLOAT: "float"
+CLOSE: "close"
+
+UN_PLUS: "++"
+UN_MINUS: "--"
+
+FLOORDIV: "//"
+POW: "**"
+
+EQ_EQ: "=="
+NOT_EQ: "!="
+GT: ">"
+LT: "<"
+GE: ">="
+LE: "<="
+
+ID: /[a-zA-Z_][a-zA-Z0-9_]*/
+INT_LITERAL: /[0-9]+/
+FLOAT_LITERAL: /[0-9]+\.[0-9]+/
+STR_LITERAL: /'([^'\\]|\\.)*'/
+NEWLINE: /\r?\n/
+
+%ignore /[ \t]+/
