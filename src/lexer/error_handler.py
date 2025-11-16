@@ -29,7 +29,7 @@ class UnknownCharError():
         else:
             ch = '<EOL>' if self._raw_line[col] == '\n' else self._raw_line[col]
         caret_pos = min(col, len(self._line))
-        error_message = f"Unknown Character: '{ch}'\n" \
+        error_message = f"Unknown Character / Delimeter: '{ch}'\n" \
                         f" {line_no:<5}|{self._line}\n" \
                          f"      |{' ' * caret_pos}^\n"
         return error_message

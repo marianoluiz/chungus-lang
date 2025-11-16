@@ -1,1 +1,12 @@
-code = "id id = 'hello'"
+-- function --
+
+fn id()
+
+show 'hello'
+
+ret id
+
+
+close
+
+

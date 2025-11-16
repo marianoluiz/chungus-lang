@@ -31,16 +31,21 @@ def lexer_adapter(source: str):
 
     if lexer.log:
         # lexer.log already contains readable error blocks, one per line (splitlines)
+        errors.append("Lexical Error/s:")
         errors.extend(lexer.log.splitlines())
 
-    # Run syntax parser and surface parser errors (if any)
+    # Run Lark syntax parser and surface parser errors (if any)
     parser = Parser()
     parse_result = parser.parse(source)
 
     if parse_result.errors:
         # parser.parse returns SyntaxResult; append parser.log (human readable)
+        errors.append("Syntax Error/s:")
         errors.append(parse_result.log or "\n".join(parse_result.errors))
 
+
+
+    
     return tokens, errors
 
 if __name__ == "__main__":

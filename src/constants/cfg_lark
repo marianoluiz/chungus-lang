@@ -1,14 +1,17 @@
-// Chungus Language Lark Grammar (UPDATED)
+// Chungus Language Lark Grammar (NEW CFG)
 
 start: program
 
-program: global_statement global_statement_tail
+program: newline_opt global_statement global_statement_tail
+
+newline_opt: NEWLINE newline_opt
+           | 
 
 global_statement: general_statement
                 | function_statement
 
 global_statement_tail: global_statement global_statement_tail
-                     | NEWLINE
+                     | NEWLINE global_statement_tail
                      | 
 
 general_statement: id_statement NEWLINE
@@ -29,6 +32,7 @@ unary_suffix: UN_PLUS
 
 id_value: assignment_value
         | READ
+        | "[" element_list "]"
 
 assignment_value: type_casting
                 | expr
@@ -56,10 +60,16 @@ bool_primary: "(" expr ")"
             | FALSE eq_expr_tail
             | eq_expr
 
-eq_expr: rel_expr eq_expr_tail
-eq_expr_tail: EQ_EQ rel_expr eq_expr_tail
-            | NOT_EQ rel_expr eq_expr_tail
+eq_expr: rel_expr_or_str_primary eq_expr_tail
+
+eq_expr_tail: EQ_EQ rel_expr_or_str_primary eq_expr_tail
+            | NOT_EQ rel_expr_or_str_primary eq_expr_tail
             | 
+
+rel_expr_or_str_primary: rel_expr
+                       | str_primary
+
+str_primary: STR_LITERAL
 
 rel_expr: arith_expr rel_expr_tail
 rel_expr_tail: rel_op arith_expr rel_expr_tail
@@ -87,7 +97,7 @@ factor_tail: POW factor
            | 
 
 power: int_float_lit
-     | ID
+     | ID array_fncall_opt
      | "(" expr ")"
 
 // ─────────── LITERALS / ARRAY RULES ───────────
@@ -105,9 +115,14 @@ int_float_str_bool_lit: int_float_str_lit
 int_float_lit: INT_LITERAL
              | FLOAT_LITERAL
 
-array_fncall_opt: "[" element_list "]"
+array_fncall_opt: "[" call_element_list "]" array_call_tail
                 | "(" arg_list_opt ")"
                 | 
+
+call_element_list: INT_LITERAL
+
+array_call_tail: "[" call_element_list "]" array_call_tail
+               | 
 
 element_list: array_element array_tail
             | 
@@ -152,19 +167,21 @@ system_command_statement: CLR
 control_structure_statement: conditional_statement
                            | looping_statement
 
-conditional_statement: if_block elif_block else_block
+conditional_statement: if_block elif_block else_block CLOSE NEWLINE
 
-if_block: IF condition NEWLINE local_statement CLOSE NEWLINE
-elif_block: ELIF condition NEWLINE local_statement CLOSE NEWLINE elif_block
+if_block: IF condition NEWLINE local_statement NEWLINE
+elif_block: ELIF condition NEWLINE local_statement NEWLINE elif_block
           | 
-else_block: ELSE NEWLINE local_statement CLOSE NEWLINE
+else_block: ELSE NEWLINE local_statement NEWLINE
           | 
 
 condition: expr
 
-local_statement: general_statement local_statement_tail
-local_statement_tail: local_statement local_statement_tail
-                    | 
+local_statement: newline_opt general_statement general_statement_tail
+
+general_statement_tail: NEWLINE general_statement_tail
+                      | general_statement general_statement_tail
+                      | 
 
 looping_statement: for_statement
                  | while_statement
@@ -187,21 +204,21 @@ function_statement: FN ID "(" param ")" NEWLINE local_statement return_opt CLOSE
 
 param: arg_list_opt
 
-return_opt: return_statement
+return_opt: return_statement newline_opt
           | 
 
 return_statement: RET expr NEWLINE
 
 // ─────────── ERROR HANDLING ───────────
 
-error_handling_statement: try_block fail_block error_handling_tail
+error_handling_statement: try_block fail_block error_handling_tail CLOSE NEWLINE
 
 error_handling_tail: always_block
                    | 
 
-try_block: TRY NEWLINE local_statement CLOSE NEWLINE
-fail_block: FAIL NEWLINE local_statement CLOSE NEWLINE
-always_block: ALWAYS NEWLINE local_statement CLOSE NEWLINE
+try_block: TRY NEWLINE local_statement 
+fail_block: FAIL NEWLINE local_statement 
+always_block: ALWAYS NEWLINE local_statement 
 
 // ─────────── TODO ───────────
 
@@ -255,7 +272,7 @@ LT: "<"
 GE: ">="
 LE: "<="
 
-ID: /[a-zA-Z_][a-zA-Z0-9_]*/
+ID: /(?!(and|or|true|false|read|show|clr|exit|if|elif|else|while|for|in|range|fn|ret|try|fail|always|todo|array_add|array_remove|int|float|close)\b)/ /[a-zA-Z_][a-zA-Z0-9_]*/
 INT_LITERAL: /[0-9]+/
 FLOAT_LITERAL: /[0-9]+\.[0-9]+/
 STR_LITERAL: /'([^'\\]|\\.)*'/

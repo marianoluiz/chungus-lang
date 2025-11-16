@@ -1,118 +1,160 @@
-1 <program> → <global_statement> <global_statement_tail>
-2 <global_statement> → <general_statement>
-3 <global_statement> → <function_statement>
-4 <global_statement_tail> → <global_statement> <global_statement_tail>
-5 <global_statement_tail> → newline
-6 <global_statement_tail> → λ
-8 <general_statement> → <id_statement> newline
-9 <general_statement> → <output_statement> newline
+1  <program> → <global_statement> <global_statement_tail> 
+
+2  <global_statement> → <general_statement>
+3  <global_statement> → <function_statement>
+
+4  <global_statement_tail> → <global_statement> <global_statement_tail>
+5  <global_statement_tail> → newline
+6  <global_statement_tail> → λ
+
+8  <general_statement> → <id_statement> newline
+9  <general_statement> → <output_statement> newline
 10 <general_statement> → <system_command_statement> newline
-11 <general_statement> → <control_structure_statement> newline
+11 <general_statement> → <control_structure_statement>
 12 <general_statement> → <error_handling_statement> newline
 13 <general_statement> → <todo_statement> newline
 14 <general_statement> → <array_manip_statement> newline
+
 15 <id_statement> → id <id_tail>
 16 <id_tail> → <unary_suffix>
 17 <id_tail> → = <id_value>
+
 18 <unary_suffix> → ++
 19 <unary_suffix> → --
+
 20 <id_value> → <assignment_value>
 21 <id_value> → read
+
 22 <assignment_value> → <type_casting>
 23 <assignment_value> → <expr>
+
 24 <type_casting> → int(<int_float_str_lit>)
 25 <type_casting> → float(<int_float_str_lit>)
+
 26 <expr> → <logical_or_expr>
+
 27 <logical_or_expr> → <logical_and_expr> <logical_or_expr_tail>
 28 <logical_or_expr_tail> → or <logical_and_expr> <logical_or_expr_tail>
 29 <logical_or_expr_tail> → λ
+
 30 <logical_and_expr> → <logical_not_expr> <logical_and_expr_tail>
 31 <logical_and_expr_tail> → and <logical_not_expr> <logical_and_expr_tail>
 32 <logical_and_expr_tail> → λ
+
 33 <logical_not_expr> → ! <bool_primary>
 34 <logical_not_expr> → <bool_primary>
+
 35 <bool_primary> → ( <expr> )
 36 <bool_primary> → true <eq_expr_tail>
 37 <bool_primary> → false <eq_expr_tail>
 38 <bool_primary> → <eq_expr>
+
 39 <eq_expr> → <rel_expr> <eq_expr_tail>
 40 <eq_expr_tail> → == <rel_expr> <eq_expr_tail>
 41 <eq_expr_tail> → != <rel_expr> <eq_expr_tail>
 42 <eq_expr_tail> → λ
+
 43 <rel_expr> → <arith_expr> <rel_expr_tail>
 44 <rel_expr_tail> → <rel_op> <arith_expr> <rel_expr_tail>
 45 <rel_expr_tail> → λ
+
 46 <rel_op> → >
 47 <rel_op> → <
 48 <rel_op> → >=
 49 <rel_op> → <=
+
 50 <arith_expr> → <term> <arith_expr_tail>
 51 <arith_expr_tail> → + <term> <arith_expr_tail>
 52 <arith_expr_tail> → - <term> <arith_expr_tail>
 53 <arith_expr_tail> → λ
+
 54 <term> → <factor> <term_tail>
 55 <term_tail> → * <factor> <term_tail>
 56 <term_tail> → / <factor> <term_tail>
 57 <term_tail> → // <factor> <term_tail>
 58 <term_tail> → % <factor> <term_tail>
 59 <term_tail> → λ
+
 60 <factor> → <power> <factor_tail>
 61 <factor_tail> → ** <factor>
 62 <factor_tail> → λ
+
 63 <power> → <int_float_lit>
 64 <power> → id
 65 <power> → ( <expr> )
+
 66 <literal> → <int_float_str_bool_lit>
 67 <literal> → [ <element_list> ]
+
 68 <int_float_str_lit> → str_literal
 69 <int_float_str_lit> → <int_float_lit>
+
 70 <int_float_str_bool_lit> → <int_float_str_lit>
 71 <int_float_str_bool_lit> → true
 72 <int_float_str_bool_lit> → false
+
 73 <int_float_lit> → int_literal
 74 <int_float_lit> → float_literal
+
 75 <array_fncall_opt> → [ <element_list> ]
 76 <array_fncall_opt> → ( <arg_list_opt> )
 77 <array_fncall_opt> → λ
+
 78 <element_list> → <array_element> <array_tail>
 79 <element_list> → λ
+
 80 <array_tail> → , <array_element> <array_tail>
 81 <array_tail> → λ
+
 82 <array_element> → <literal>
 83 <array_element> → id
+
 84 <arg_list_opt> → <arg_list>
 85 <arg_list_opt> → λ
+
 86 <arg_list> → <pos_arg> <def_arg_opt>
 87 <arg_list> → <def_arg>
+
 88 <pos_arg> → <un_defined_arg> <pos_arg_tail>
-89 <pos_arg_tail> → , <un_defined_arg> <pos_arg_tail>
+89 <pos_arg_tail> → ,<un_defined_arg> <pos_arg_tail>
 90 <pos_arg_tail> → λ
+
 91 <def_arg> → <defined_arg> <def_arg_tail>
-92 <def_arg_tail> → , <defined_arg> <def_arg_tail>
+92 <def_arg_tail> → ,<defined_arg> <def_arg_tail>
 93 <def_arg_tail> → λ
-94 <def_arg_opt> → , <def_arg>
+
+94 <def_arg_opt> → ,<def_arg>
 95 <def_arg_opt> → λ
+
 96 <defined_arg> → id = <expr>
 98 <un_defined_arg> → <expr>
+
 99 <output_statement> → show <output_value>
 100 <output_value> → id
 101 <output_value> → str_literal
+
 102 <system_command_statement> → clr
 103 <system_command_statement> → exit
+
 104 <control_structure_statement> → <conditional_statement>
 105 <control_structure_statement> → <looping_statement>
+
 106 <conditional_statement> → <if_block> <elif_block> <else_block>
+
 107 <if_block> → if <condition> newline <local_statement> close newline
-108 <elif_block> → elif <condition> newline <local_statement> close newline <elif_block>
+108 <elif_block> → elif <condition> newline <local_statement> close newline
 109 <elif_block> → λ
 110 <else_block> → else newline <local_statement> close newline
 111 <else_block> → λ
+
 112 <condition> → <expr>
 113 <local_statement> → <general_statement_list>
 114 <general_statement_list> → <general_statement> <general_statement_list>
 115 <general_statement_list> → λ
+
 116 <looping_statement> → <for_statement>
 117 <looping_statement> → <while_statement>
+
 118 <for_statement> → for id in <range_expression> newline <local_statement> close newline
 119 <range_expression> → range ( <expression_list> )
 120 <expression_list> → <expr> <range_tail_1>
@@ -120,18 +162,22 @@
 122 <range_tail_1> → λ
 123 <range_tail_2> → , <expr>
 124 <range_tail_2> → λ
+
 125 <while_statement> → while <condition> newline <local_statement> close newline
+
 126 <function_statement> → fn id ( <param> ) newline <local_statement> <return_opt> close newline
 127 <param> → <arg_list_opt>
 128 <return_opt> → <return_statement>
 129 <return_opt> → λ
 130 <return_statement> → ret <expr> newline
+
 131 <error_handling_statement> → <try_block> <fail_block> <error_handling_tail>
 132 <error_handling_tail> → <always_block>
 133 <error_handling_tail> → λ
 134 <try_block> → try newline <local_statement> close newline
 135 <fail_block> → fail newline <local_statement> close newline
 136 <always_block> → always newline <local_statement> close newline
+
 137 <todo_statement> → todo
 138 <array_manip_statement> → array_add ( id <array_fncall_opt> , <expr> )
 139 <array_manip_statement> → array_remove ( id <array_fncall_opt> , <expr> )

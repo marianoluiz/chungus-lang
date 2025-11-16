@@ -6,7 +6,7 @@ from enum import Enum
 class ChungusLexerGUI:
     def __init__(self, root, lexer_callback=None):
         self.root = root
-        root.title("Chungus Lexical Analyzer")
+        root.title("Chungus Compiler")
         root.geometry("1200x820")
 
         # Hook: set this to a function(source)->(tokens, errors)
@@ -125,7 +125,7 @@ class ChungusLexerGUI:
         self.code_input.bind("<KeyRelease>", self.update_status_bar)
         self.code_input.bind("<ButtonRelease>", self.update_status_bar)
 
-        self.analyze_button = tk.Button(self.left_frame, text="Analyze Code", command=self.run_lexer, font=self.label_font_bold, relief="flat", borderwidth=0, padx=20, pady=10)
+        self.analyze_button = tk.Button(self.left_frame, text="Run", command=self.run_lexer, font=self.label_font_bold, relief="flat", borderwidth=0, padx=20, pady=10)
         self.analyze_button.pack(fill=tk.X, pady=18)
 
         self.error_label = ttk.Label(self.left_frame, text="Console Output", style='Bold.TLabel')
@@ -306,8 +306,8 @@ class ChungusLexerGUI:
 
     def show_about(self):
          messagebox.showinfo(
-            "About Chungus Lexical Analyzer",
-            "Chungus Language Lexical Analyzer\n\n"
+            "About Chungus Compiler",
+            "Chungus Language Compiler\n\n"
             "Version: 1.0\n"
             "Created by:\n"
             "- Goyena, Shawn Kieffer E.\n- Cantal, Henkepeck T.\n- Capiral, Luis Gabriel A.\n"
