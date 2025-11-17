@@ -173,10 +173,10 @@ control_structure_statement: conditional_statement
 
 conditional_statement: if_block elif_block else_block CLOSE NEWLINE
 
-if_block: IF condition NEWLINE local_statement NEWLINE
-elif_block: ELIF condition NEWLINE local_statement NEWLINE elif_block
+if_block: IF condition NEWLINE local_statement 
+elif_block: ELIF condition NEWLINE local_statement elif_block
           | 
-else_block: ELSE NEWLINE local_statement NEWLINE
+else_block: ELSE NEWLINE local_statement
           | 
 
 condition: expr
