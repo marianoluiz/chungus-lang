@@ -13,15 +13,15 @@
         1..117   : keywords / reserved words
         118..161 : operators, delimiters, punctuation
         162..171 : comments
-                - 162 '#' entry
-                - Single-line: 163* -> 164 (newline)
-                - Multi-line: ### open (165->166->167 loop) then ### close (168->169->170->171)
+                 - 162 '#' entry
+                 - Single-line: 163* -> 164 (newline)
+                 - Multi-line: ### open (165->166->167 loop) then ### close (168->169->170->171)
         172..174 : identifiers (start, body loop, delimiter check)
         175..226 : numeric literals
-                - 175 optional unary '-'
-                - 176..213 whole number (up to 19 digits, every other state terminal)
-                - 214 '.' decimal point
-                - 215..226 fractional part (up to 6 digits, every other state terminal)
+                 - 175 optional unary '-'
+                 - 176..213 whole number (up to 19 digits, every other state terminal)
+                 - 214 '.' decimal point
+                 - 215..226 fractional part (up to 6 digits, every other state terminal)
         227..230 : single-quoted string literals
 
     Terminal states:
@@ -43,8 +43,8 @@ class TransitionState:
 
 TRANSITION_TABLE = {
     0: TransitionState('initial', [1, 27, 31, 43, 62, 69, 73, 76, 88, 99, 112, 118, 
-                        122, 126, 130, 132, 136, 140, 144, 148, 152, 154, 156, 
-                        158, 160, 162, 172, 175, 176, 227]),
+                                   122, 126, 130, 132, 136, 140, 144, 148, 152, 154, 156, 
+                                   158, 160, 162, 172, 175, 176, 227]),
     1: TransitionState('a', [2, 8, 11]),
     2: TransitionState('l', [3]),
     3: TransitionState('w', [4]),
@@ -72,7 +72,10 @@ TRANSITION_TABLE = {
     25: TransitionState('e', [26]),
     26: TransitionState(DELIMS['method_delim'], is_terminal=True),
     27: TransitionState('c', [28]),
-    28: TransitionState('l', [29]),
+    
+    # --- MODIFIED: Branched to 'clr' (29) and 'close' (231) ---
+    28: TransitionState('l', [29, 231]), 
+    
     29: TransitionState('r', [30]),
     30: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
     31: TransitionState('e', [32, 39]),
@@ -288,5 +291,11 @@ TRANSITION_TABLE = {
     227: TransitionState("'", [228, 229]),
     228: TransitionState(ATOMS['string_ascii'], [228, 229]),
     229: TransitionState("'", [230]),
-    230: TransitionState(DELIMS['stmt_delim'], is_terminal=True)
+    230: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
+
+    # --- ADDED: 'close' keyword path (branched from state 28) check mo na lang ito King ---
+    231: TransitionState('o', [232]),
+    232: TransitionState('s', [233]),
+    233: TransitionState('e', [234]),
+    234: TransitionState(DELIMS['stmt_delim'], is_terminal=True)
 }
