@@ -56,18 +56,19 @@ logical_not_expr: NOT bool_primary
                 | bool_primary
 
 bool_primary: "(" expr ")"
-            | TRUE eq_expr_tail
-            | FALSE eq_expr_tail
             | eq_expr
 
-eq_expr: rel_expr_or_str_primary eq_expr_tail
+eq_expr: comp_operand eq_expr_tail
 
-eq_expr_tail: EQ_EQ rel_expr_or_str_primary eq_expr_tail
-            | NOT_EQ rel_expr_or_str_primary eq_expr_tail
+comp_operand: rel_expr
+            | str_primary
+            | TRUE
+            | FALSE
+
+
+eq_expr_tail: EQ_EQ comp_operand eq_expr_tail
+            | NOT_EQ comp_operand eq_expr_tail
             | 
-
-rel_expr_or_str_primary: rel_expr
-                       | str_primary
 
 str_primary: STR_LITERAL
 
@@ -96,9 +97,12 @@ factor: power factor_tail
 factor_tail: POW factor
            | 
 
-power: int_float_lit
+power: neg_opt int_float_lit
      | ID array_fncall_opt
      | "(" expr ")"
+
+neg_opt: "-"
+       | 
 
 // ─────────── LITERALS / ARRAY RULES ───────────
 

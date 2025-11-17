@@ -350,7 +350,7 @@ class ChungusLexerGUI:
 
         # Exclude Text widget's trailing newline sentinel
         source_code = self.code_input.get("1.0", "end-1c")
-
+        source_code = source_code.expandtabs(4)
         if callable(self.lexer_callback):
             try:
                 tokens, errors = self.lexer_callback(source_code)
@@ -398,7 +398,9 @@ class ChungusLexerGUI:
             col = getattr(token, "col", token.get("col") if isinstance(token, dict) else "")
             raw_lexeme = getattr(token, "lexeme", token.get("lexeme") if isinstance(token, dict) else str(token))
             # Escape control chars for single-line display
-            lexeme = raw_lexeme.replace('\n', '\\n').replace('\t', '\\t').replace('\r', '\\r')
+            lexeme = raw_lexeme.replace('\n', '\\n').replace('\r', '\\r')
+            # Convert any real tab characters to spaces for display (use same width as expandtabs)
+            lexeme = lexeme.replace('\t', '    ')
 
             # Determine semantic tag
             tag = 'identifier'

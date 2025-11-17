@@ -31,9 +31,12 @@ class Lexer:
         source_text = source_text.splitlines(keepends=True)
 
         if not source_text:
-            # for empty input error handling
-            self._source_lines = ['']
+            # For empty input, create a single empty line that ends with newline
+            self._source_lines = ['\n']
         else:
+            # add newline at end of statement
+            if not source_text[-1].endswith('\n'):
+                source_text[-1] = source_text[-1] + '\n'
             self._source_lines = source_text
         """ The source code as a list of string"""
 

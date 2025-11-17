@@ -96,6 +96,9 @@ class Parser:
         lex.start()
         
         try:
+            if not source.endswith('\n'):
+                source = source + '\n'
+
             tree = _PARSER.parse(source)
             return SyntaxResult(tree=tree, errors=[], log="Parse successful.")
         
