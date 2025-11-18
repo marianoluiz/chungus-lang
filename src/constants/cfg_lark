@@ -282,4 +282,10 @@ FLOAT_LITERAL: /[0-9]+\.[0-9]+/
 STR_LITERAL: /'([^'\\]|\\.)*'/
 NEWLINE: /\r?\n/
 
+M_COMMENT: /(?s)###.*?###/
+S_COMMENT: /#[^\n]*/
+
+%ignore M_COMMENT
+%ignore S_COMMENT
+
 %ignore /[ \t]+/
