@@ -7,15 +7,15 @@ from .token_builder import build_token_stream
 # The DFA itself is encoded in src/lexer/td.py as TRANSITION_TABLE and traversed by lexemize().
 # Positions are tracked as a (line_index, col_index) tuple in self._index.
 
-KEYWORD_LAST_STATE = 117
-SYMBOL_STATE_START = 118
-SYMBOL_STATE_END = 161
+KEYWORD_LAST_STATE = 121
+SYMBOL_STATE_START = 122
+SYMBOL_STATE_END = 165
 SYMBOL_LAST_STATE = SYMBOL_STATE_END
-STRING_STATE_START = 227
-STRING_STATE_END = 230
-COMMENT_STATE_START = 162
-COMMENT_STATE_END = 171
-NUMERIC_LIT_START = 175
+STRING_STATE_START = 231
+STRING_STATE_END = 234
+COMMENT_STATE_START = 166
+COMMENT_STATE_END = 175
+NUMERIC_LIT_START = 179
 
 class Lexer:
     """High level wrapper around the DFA lexemizer.
