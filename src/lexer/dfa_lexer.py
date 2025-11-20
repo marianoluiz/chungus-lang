@@ -56,7 +56,7 @@ class Lexer:
         print('---- Splitted Source: ----')
         print(self._source_lines)
 
-    ## TRACKING CHARACTERS
+    # TRACKING CHARACTERS
     def get_curr_char(self):
         """Return the current character under cursor or \\0 for EOF sentinel.
 
@@ -66,14 +66,14 @@ class Lexer:
         """
         if self._index[1] >= len(self._source_lines[-1]) and self._index[0] >= (len(self._source_lines) - 1):
             return "\0"
-        
+
         return self._source_lines[self._index[0]][self._index[1]]
 
     def is_at_end(self):
         """True if current character is the EOF sentinel."""
         return self.get_curr_char() == "\0"
 
-    def advance_cursor(self, count = 1):
+    def advance_cursor(self, count=1):
         """Advance the cursor by `count` characters.
 
         - Wraps to the next line when the end of the current line is reached.
@@ -83,17 +83,18 @@ class Lexer:
             # guard conditions to avoid IndexError
             if self._index[0] >= len(self._source_lines) and self._index[1] >= len(self._source_lines[0]):
                 return
-            
+
             # checks if the column (self._index[1]) is at or past the last valid index of the current line.
             # This checks if the current line (self._index[0]) is NOT the last line in the file.
             # If both are true: (we are at the end of a line, and it's not the last line)...
             if self._index[1] >= len(self._source_lines[self._index[0]]) - 1 and self._index[0] < len(self._source_lines)-1:
-                self._index = min(self._index[0] + 1, len(self._source_lines)), 0
+                self._index = min(
+                    self._index[0] + 1, len(self._source_lines)), 0
             else:
                 # move forward one column on same line
                 self._index = self._index[0], self._index[1] + 1
 
-    def reverse_cursor(self, count = 1):
+    def reverse_cursor(self, count=1):
         """Move the cursor backward by `count` characters.
 
         Used by lexemize() to backtrack a single character when a deeper branch
@@ -108,7 +109,8 @@ class Lexer:
             # Is the line number greater than 0?
             elif self._index[0] > 0:
                 # move to end of previous line
-                self._index = max(0, self._index[0] - 1), len(self._source_lines[self._index[0] - 1]) - 1
+                self._index = max(
+                    0, self._index[0] - 1), len(self._source_lines[self._index[0] - 1]) - 1
 
     def start(self):
         """Top-level lexing loop (collects lexemes + their start positions)."""
@@ -193,24 +195,27 @@ class Lexer:
 
                 # print(curr_char, 'char being compared to', TRANSITION_TABLE[state].accepted_chars)
                 # print('goes continue')
-                continue # Branch not matched move to next branch; If no other branch, stop the loop.
+                # Branch not matched move to next branch; If no other branch, stop the loop.
+                continue
 
             # print('MATCHED curr_char to a state in an appropriate branch')
 
             # MATCHED: matched character to a state in the branch
-            print(f"{curr_state} -> {state}: {curr_char if len(TRANSITION_TABLE[state].next_states) > 0 else 'end state'}")
+            print(
+                f"{curr_state} -> {state}: {curr_char if len(TRANSITION_TABLE[state].next_states) > 0 else 'end state'}")
 
             # END: If we matched a character and it is last state (If the state has no outgoing next_states) it is a terminal -> return sentinel lexeme (base of recursion to communicate "I hit a terminal")
             if len(TRANSITION_TABLE[state].next_states) == 0:
                 # small heuristic: reserved word, symbols return an empty typed pair placeholder
                 if state <= SYMBOL_LAST_STATE:
-                    return ('','') 
-                
+                    return ('', '')
+
                 return ''  # other terminal marker
 
             # consume the current state in this branch and recurse deeper
             self.advance_cursor()
-            lexeme = self.lexemize(state) # the matched state earlier would be used for the next character
+            # the matched state earlier would be used for the next character
+            lexeme = self.lexemize(state)
             # print('lexeme: ', lexeme, 'state', state)
 
             # lexeme may be various types: string, tuple, error object, or None
@@ -226,24 +231,24 @@ class Lexer:
                 return lexeme
             if type(lexeme) is UnclosedComment:
                 return lexeme
-        
-            # If returned None from Lexeme and not a complete token and not an error, we should backtrack for reserved words to transition to id. 
+
+            # If returned None from Lexeme and not a complete token and not an error, we should backtrack for reserved words to transition to id.
             # EX: shows -> line 4 -> 3 -> 2 -> 1
             if state <= KEYWORD_LAST_STATE:
                 self.reverse_cursor()
 
         # print('ended loop')
 
-        # No transition matched. 
+        # No transition matched.
         if curr_state == 0:
-            # At root and nothing matched -> unknown character        
+            # At root and nothing matched -> unknown character
             if self.get_curr_char() == '\0':
                 return UnexpectedEOF(self._source_lines[self._index[0]], self._index)
-            
+
             return UnknownCharError(self._source_lines[self._index[0]], self._index)
         if curr_state >= SYMBOL_STATE_START and curr_state <= SYMBOL_STATE_END:
             # These TRANSITION_TABLE correspond to delimiters; return delimiter error with expected accepted_chars
             return DelimError(self._source_lines[self._index[0]], self._index, TRANSITION_TABLE[curr_state].accepted_chars)
-        
+
         # EX: Return None if 'shows' (since it dont match the keyword show and it has No error. It would most likely go to id)
         return None
