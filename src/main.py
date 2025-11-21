@@ -33,6 +33,7 @@ def lexer_adapter(source: str):
         # lexer.log already contains readable error blocks, one per line (splitlines)
         errors.append("Lexical Error/s:")
         errors.extend(lexer.log.splitlines())
+        return tokens, errors
 
     # Run Lark syntax parser and surface parser errors (if any)
     parser = Parser()
@@ -43,9 +44,6 @@ def lexer_adapter(source: str):
         errors.append("Syntax Error/s:")
         errors.append(parse_result.log or "\n".join(parse_result.errors))
 
-
-
-    
     return tokens, errors
 
 if __name__ == "__main__":

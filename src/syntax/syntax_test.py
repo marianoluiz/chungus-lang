@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from lark import Lark, UnexpectedInput, UnexpectedToken, UnexpectedCharacters
-from src.lexer.dfa_lexer import Lexer  # keep if you want to run your lexer too
 from typing import Iterable, Set
 
 # --- user-friendly token name mapping (extend as needed) ---
@@ -39,7 +38,25 @@ TOKEN_NAME_MAP = {
     'LE': '<=',
     'FLOORDIV': '//',
     'POW': '**',
-    'NEWLINE': r'\r?\n'
+    'NEWLINE': 'newline',
+    'EQUAL': '=',
+    'CLOSE': 'close',
+    'INT': 'int',
+    'FLOAT': 'float',
+    'INT_LITERAL': 'int_literal',
+    'FLOAT_LITERAL': 'float_literal',
+    'STR_LITERAL': 'str_literal',
+    'ID': 'id',
+    'PLUS': '+',
+    'MINUS': '-',
+    'STAR': '*',
+    'SLASH': '/',
+    'PERCENT': '%',
+    'COMMA': ',',
+    'LPAR': '(', 
+    'RPAR': ')',  
+    'LSQB': '[',
+    'RSQB': ']',
 }
 
 # --- load grammar once ---
