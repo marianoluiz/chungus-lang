@@ -35,14 +35,14 @@ def lexer_adapter(source: str):
         errors.extend(lexer.log.splitlines())
         return tokens, errors
 
-    # Run Lark syntax parser and surface parser errors (if any)
-    parser = Parser()
-    parse_result = parser.parse(source)
+    # # Run Lark syntax parser and surface parser errors (if any)
+    # parser = Parser()
+    # parse_result = parser.parse(source)
 
-    if parse_result.errors:
-        # parser.parse returns SyntaxResult; append parser.log (human readable)
-        errors.append("Syntax Error/s:")
-        errors.append(parse_result.log or "\n".join(parse_result.errors))
+    # if parse_result.errors:
+    #     # parser.parse returns SyntaxResult; append parser.log (human readable)
+    #     errors.append("Syntax Error/s:")
+    #     errors.append(parse_result.log or "\n".join(parse_result.errors))
 
     return tokens, errors
 

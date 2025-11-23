@@ -136,6 +136,12 @@ class Lexer:
             if isinstance(lexeme, (UnknownCharError, DelimError,
                                    UnclosedString, UnclosedComment, UnexpectedEOF)):
                 self.log += str(lexeme) + '\n'
+
+                # For delimiter errors: DO NOT skip the character.
+                if isinstance(lexeme, DelimError):
+                    # Do not advance cursor — retry lexing this character
+                    continue
+
                 self.advance_cursor()
                 continue
 
@@ -177,9 +183,12 @@ class Lexer:
             if curr_char not in TRANSITION_TABLE[state].accepted_chars:
 
                 if TRANSITION_TABLE[state].is_terminal:
-                    # if state is not id (under_alpha_num) and its a keyword, its a delimeter error
-                    if curr_char not in [*ATOMS['under_alpha_num']] and state <= KEYWORD_LAST_STATE:
-                        return DelimError(self._source_lines[self._index[0]], self._index, TRANSITION_TABLE[state].accepted_chars)
+                    # Keyword terminal + next char can extend into an identifier -> allow fallback (no error)
+                    if state <= KEYWORD_LAST_STATE and curr_char in ATOMS['under_alpha_num']:
+                        continue
+
+                    # Otherwise delimiter invalid for this terminal
+                    return DelimError(self._source_lines[self._index[0]], self._index, TRANSITION_TABLE[state].accepted_chars)
 
                 # Newline / EOL inside a string subgraph -> unclosed string
                 if curr_char == '\n' and (curr_state >= STRING_STATE_START and curr_state <= STRING_STATE_END):
@@ -241,8 +250,8 @@ class Lexer:
 
         # No transition matched.
         if curr_state == 0:
-            # At root and nothing matched -> unknown character
             if self.get_curr_char() == '\0':
+                # At root and nothing matched -> unknown character
                 return UnexpectedEOF(self._source_lines[self._index[0]], self._index)
 
             return UnknownCharError(self._source_lines[self._index[0]], self._index)
