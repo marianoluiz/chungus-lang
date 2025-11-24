@@ -45,7 +45,7 @@ DELIMS = {
     'paren_close_delim': {
         *STMT_DELIM, *ATOMS['relational_op'],
         *ATOMS['arithmetic_op'], *ATOMS['logical_and_or_op'],
-        ')', ']', ','
+        ')', ','
     },
     'bracket_open_delim': {
         *INLINE_DELIM, *ATOMS['under_alpha_num'],

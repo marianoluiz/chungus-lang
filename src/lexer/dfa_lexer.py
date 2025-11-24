@@ -11,12 +11,11 @@ KEYWORD_LAST_STATE = 121
 SYMBOL_STATE_START = 122
 SYMBOL_STATE_END = 165
 SYMBOL_LAST_STATE = SYMBOL_STATE_END
-STRING_STATE_START = 231
-STRING_STATE_END = 234
+STRING_STATE_START = 230
+STRING_STATE_END = 233
 MULTI_COMMENT_STATE_START = 169
 MULTI_COMMENT_STATE_END = 174
-NUMERIC_LIT_START = 179
-FLOAT_DOT_STATE = 218
+FLOAT_DOT_STATE = 217
 
 class Lexer:
     """High level wrapper around the DFA lexemizer.
@@ -144,6 +143,10 @@ class Lexer:
                     continue
                 # For an unfinished float after '.', do not skip the following delimiter
                 if isinstance(lexeme, UnfinishedFloat):
+                    continue
+
+                # Do not advance; newline will be tokenized in next iteration
+                if isinstance(lexeme, UnclosedString):
                     continue
 
                 self.advance_cursor()
