@@ -13,9 +13,10 @@ SYMBOL_STATE_END = 165
 SYMBOL_LAST_STATE = SYMBOL_STATE_END
 STRING_STATE_START = 231
 STRING_STATE_END = 234
-COMMENT_STATE_START = 166
-COMMENT_STATE_END = 175
+MULTI_COMMENT_STATE_START = 169
+MULTI_COMMENT_STATE_END = 174
 NUMERIC_LIT_START = 179
+FLOAT_DOT_STATE = 218
 
 class Lexer:
     """High level wrapper around the DFA lexemizer.
@@ -133,13 +134,16 @@ class Lexer:
 
             lexeme = self.lexemize()
 
-            if isinstance(lexeme, (UnknownCharError, DelimError,
+            if isinstance(lexeme, (UnknownCharError, DelimError, UnfinishedFloat,
                                    UnclosedString, UnclosedComment, UnexpectedEOF)):
                 self.log += str(lexeme) + '\n'
 
                 # For delimiter errors: DO NOT skip the character.
                 if isinstance(lexeme, DelimError):
                     # Do not advance cursor — retry lexing this character
+                    continue
+                # For an unfinished float after '.', do not skip the following delimiter
+                if isinstance(lexeme, UnfinishedFloat):
                     continue
 
                 self.advance_cursor()
@@ -175,7 +179,7 @@ class Lexer:
         # Get transitions from current state
         next_states = TRANSITION_TABLE[curr_state].next_states
 
-        # Iterate through possible transitions
+        # Iterate through possible transitions, state is different from curr_state
         for state in next_states:
             curr_char = self.get_curr_char()
 
@@ -194,13 +198,11 @@ class Lexer:
                 if curr_char == '\n' and (curr_state >= STRING_STATE_START and curr_state <= STRING_STATE_END):
                     return UnclosedString(self._source_lines[self._index[0]], self._index)
 
-                # EOF reached while not in an accepting state -> specific error types
-                if curr_char == '\0' and not TRANSITION_TABLE[curr_state].is_terminal:
-                    if curr_state >= STRING_STATE_START and curr_state < STRING_STATE_END:
-                        return UnclosedString(self._source_lines[self._index[0]], self._index)
-
-                    if curr_state >= COMMENT_STATE_START and curr_state <= COMMENT_STATE_END:
-                        return UnclosedComment(self._source_lines[self._index[0]], self._index)
+                # EOF / newline inside an unterminated multiline comment: point caret at last char before newline/EOF
+                if (curr_char == '\n' or curr_char == '\0') and (curr_state >= MULTI_COMMENT_STATE_START and curr_state <= MULTI_COMMENT_STATE_END):
+                    line_idx, col_idx = self._index
+                    err_pos = (line_idx, max(0, col_idx ))
+                    return UnclosedComment(self._source_lines[line_idx], err_pos)
 
                 # print(curr_char, 'char being compared to', TRANSITION_TABLE[state].accepted_chars)
                 # print('goes continue')
@@ -240,6 +242,8 @@ class Lexer:
                 return lexeme
             if type(lexeme) is UnclosedComment:
                 return lexeme
+            if type(lexeme) is UnfinishedFloat:
+                return lexeme
 
             # If returned None from Lexeme and not a complete token and not an error, we should backtrack for reserved words to transition to id.
             # EX: shows -> line 4 -> 3 -> 2 -> 1
@@ -248,7 +252,21 @@ class Lexer:
 
         # print('ended loop')
 
+
+
+
         # No transition matched.
+        # --- Added unfinished-float detection ---
+        # We are at the state AFTER consuming '.' (state 218); cursor sits on the next char.
+        # If that next char is a delimiter (no digit consumed), raise UnfinishedFloat.
+        if curr_state == FLOAT_DOT_STATE:
+            curr_char = self.get_curr_char()
+            if curr_char not in ATOMS['all_num']:
+                line_idx, col_idx = self._index
+                err_pos = (line_idx, col_idx)
+                return UnfinishedFloat(self._source_lines[line_idx], err_pos, list(ATOMS['all_num']))
+
+
         if curr_state == 0:
             if self.get_curr_char() == '\0':
                 # At root and nothing matched -> unknown character

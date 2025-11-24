@@ -29,7 +29,7 @@ class UnknownCharError():
         else:
             ch = '<EOL>' if self._raw_line[col] == '\n' else self._raw_line[col]
         caret_pos = min(col, len(self._line))
-        error_message = f"Invalid Character / Delimeter: '{ch}'\n" \
+        error_message = f"Invalid Character: '{ch}'\n" \
                         f" {line_no:<5}|{self._line}\n" \
                          f"      |{' ' * caret_pos}^\n"
         return error_message
@@ -67,7 +67,7 @@ class UnclosedString():
         self._position = position
 
     def __str__(self):
-        error_message = f"Invalid String\n" \
+        error_message = f"Unclosed String\n" \
                         f" {self._position[0]+1:<5}|{self._line}\n" \
                         f"      |{' '*self._position[1]}^\n"
         
@@ -80,7 +80,7 @@ class UnclosedComment():
         self._position = position
 
     def __str__(self):
-        error_message = f"Invalid Comment\n" \
+        error_message = f"Unclosed Comment\n" \
                         f" {self._position[0]+1:<5}|{self._line}\n" \
                         f"      |{' '*self._position[1]}^\n"
         

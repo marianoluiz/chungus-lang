@@ -29,7 +29,7 @@ DELIMS = {
         *INLINE_DELIM, '('
     },
     'arith_rel_not_op_delim': {
-        *STMT_DELIM, *ATOMS['under_alpha_num'], 
+        *INLINE_DELIM, *ATOMS['under_alpha_num'], 
         '('
     },
     'assign_op_delim': {
@@ -38,7 +38,7 @@ DELIMS = {
         '(', '[', "'"
     },
     'paren_open_delim': {
-        *STMT_DELIM, *ATOMS['under_alpha_num'],
+        *INLINE_DELIM, *ATOMS['under_alpha_num'],
         *ATOMS['unary_negative_op'], *ATOMS['logical_not_op'],
         '(', '[', ')', "'"
     },
@@ -48,17 +48,14 @@ DELIMS = {
         ')', ']', ','
     },
     'bracket_open_delim': {
-        *STMT_DELIM, *ATOMS['under_alpha_num'],
+        *INLINE_DELIM, *ATOMS['under_alpha_num'],
         *ATOMS['unary_negative_op'], *ATOMS['logical_not_op'],
         '(', '[', "'"
     },
     'bracket_close_delim': {
-        *STMT_DELIM, '[', ')', ']', ','
+        *STMT_DELIM, '[', ')', ']', ',', '='
     },
     'comma_delim': {
-        *STMT_DELIM, *ATOMS['under_alpha_num'], "'"
+        *INLINE_DELIM, *ATOMS['under_alpha_num'], "'"
     },
-    'terminator_delim': {
-        *STMT_DELIM, *ATOMS['under_alpha_num']
-    }
 }
