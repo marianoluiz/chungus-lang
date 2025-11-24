@@ -12,6 +12,5 @@ A clean, minimal, general programming language.
   - Run the lexer module `python -m src.lexer` (It would use the test file: `lexer_test.chg`)
 
 ## How to contribute in project?
-- make sure to create git branch before any changes.
-- git add, commit, push to your branch.
-- you can make a new branch to merge your changes with the main then pull request.
+- Make sure to create git branch before any changes. Do `git branch` to check which branch you are in. `git checkout -b <name>`. You can now apply changes in the code.
+- Merge your changes with the main try `git fetch` then `git merge origin/main`, then push to a remote branch.
