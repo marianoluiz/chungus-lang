@@ -20,12 +20,11 @@ FLOAT_DOT_STATE = 217
 class Lexer:
     """High level wrapper around the DFA lexemizer.
 
-    Workflow:
-    - __init__: split the input into lines and initialize cursor
-    - start:    iterate, snapshot start positions, and collect raw lexemes
-    - build_token_stream: classify lexemes with their snapshot lexeme_positions
-    """
-
+        Workflow:
+        - __init__: split the input into lines and initialize cursor
+        - start:    iterate, snapshot start positions, and collect raw lexemes
+        - build_token_stream: classify lexemes with their snapshot lexeme_positions
+        """
     def __init__(self, source_text: str):
         # Convert incoming source string to lines and ensure newline markers
         source_text = source_text.splitlines(keepends=True)

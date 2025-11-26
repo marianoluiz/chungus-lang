@@ -50,12 +50,12 @@ DELIMS = {
     'bracket_open_delim': {
         *INLINE_DELIM, *ATOMS['under_alpha_num'],
         *ATOMS['unary_negative_op'], *ATOMS['logical_not_op'],
-        '(', '[', "'"
+        '(', '[', ']',"'"
     },
     'bracket_close_delim': {
         *STMT_DELIM, '[', ')', ']', ',', '='
     },
     'comma_delim': {
-        *INLINE_DELIM, *ATOMS['under_alpha_num'], "'"
+        *INLINE_DELIM, *ATOMS['under_alpha_num'], "'", '['
     },
 }
