@@ -1,0 +1,5 @@
+a = 8
+b = 3
+c = a - b
+
+show 'Result: $(c)'

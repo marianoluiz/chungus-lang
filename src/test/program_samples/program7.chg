@@ -1,0 +1,3 @@
+show 'Enter text: '
+t = read
+show 'You typed: $(t)'

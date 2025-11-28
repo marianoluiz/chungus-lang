@@ -1,0 +1,9 @@
+fn multiply(a, b)
+    ret a * b
+close
+
+x = 3
+y = 4
+result = multiply(x, y)
+
+show result

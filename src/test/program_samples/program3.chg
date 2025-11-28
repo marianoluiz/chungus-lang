@@ -1,0 +1,11 @@
+show 'Enter value: '
+v = read
+
+try
+    num = int(v)
+fail
+    show 'Invalid\n'
+    num = 0
+always
+    show 'Done\n'
+close

@@ -1,0 +1,4 @@
+arr = [10, 20, 30]
+
+show 'First: $(arr[0])'
+show 'Second: $(arr[1])'

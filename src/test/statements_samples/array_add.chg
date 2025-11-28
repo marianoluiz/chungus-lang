@@ -1,0 +1,3 @@
+numbers = [10, 20, 30]
+array_add(numbers, 40)
+show 'After adding: $(numbers[3])'

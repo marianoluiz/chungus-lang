@@ -1,0 +1,7 @@
+try
+    x = 10 / 0
+fail
+    show 'Error'
+always
+    show 'Done'
+close

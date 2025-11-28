@@ -1,0 +1,6 @@
+fn square(x)
+    result = x * x
+    ret result
+close
+value = square(6)
+show 'Square is $(value)'

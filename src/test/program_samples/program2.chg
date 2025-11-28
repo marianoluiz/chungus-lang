@@ -1,0 +1,7 @@
+num = 5
+
+if num > 10
+    show 'Big\n'
+else
+    show 'Small\n'
+close

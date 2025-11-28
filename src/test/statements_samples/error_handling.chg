@@ -1,0 +1,7 @@
+try
+    x = 10 / 0
+fail
+    show 'Error caught: Division by zero!\n'
+always
+    show 'This always executes.\n'
+close
