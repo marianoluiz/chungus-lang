@@ -61,9 +61,32 @@ pip-compile requirements.in && pip-sync requirements.txt
 pip-compile requirements-dev.in && pip-sync requirements.txt requirements-dev.txt
 ```
 
-Notes:
-- Do not manually edit [requirements.txt](requirements.txt) or [requirements-dev.txt](requirements-dev.txt). They are generated.
-- The project pins `lark` in [requirements-dev.in](requirements-dev.in) for parser work and uses `pytest` and `pip-tools`.
+## Testing
+
+Tests are written with pytest (see [src/test/test_lexer.py](src/test/test_lexer.py)).
+
+
+1) Run tests from the project root:
+```sh
+# all tests
+pytest -q
+
+# a specific file
+pytest src/test/test_lexer.py -q
+
+# a single test function
+pytest src/test/test_lexer.py::test_unfinished_float_reports_error -q
+
+# verbose / fail fast
+pytest -vv -x
+```
+
+2) VS Code Test Explorer:
+- Command Palette → “Python: Configure Tests”
+- Test framework: pytest
+- Test folder: src/test
+- Use the Testing sidebar to run/debug tests, or right-click a test to run it.
+
 
 ## How to contribute in project?
 - Make sure to create git branch before any changes. Do `git branch` to check which branch you are in. `git checkout -b <name>`. You can now apply changes in the code.
