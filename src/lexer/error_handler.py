@@ -47,14 +47,15 @@ class DelimError():
         
         return error_message
 
-class UnfinishedFloat():
+class FloatDotError():
     """Raised when a int / float literal is incorrect"""
     def __init__(self, line: str, position: tuple[int, int], delims: list):
         self._line = line.replace('\n', '')
         self._position = position
         self._delims = delims
     def __str__(self):
-        error_message = f"Unfinished float literal: expected any {self._delims}\n" \
+        #  error_message = f"Unfinished float literal: expected any {self._delims}\n" \
+        error_message = f"Invalid Delimiter:\n" \
                         f" {self._position[0]+1:<5}|{self._line}\n" \
                         f"      |{' '*self._position[1]}^\n"
         

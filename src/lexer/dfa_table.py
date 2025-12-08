@@ -323,7 +323,7 @@ TRANSITION_TABLE = {
 
     # === STRING LITERAL (231–234) ===
 
-    231: TransitionState("'", [232]),
+    231: TransitionState("'", [232, 233]),
     232: TransitionState(ATOMS['string_ascii'], [232, 233]),
     233: TransitionState("'", [234]),
     234: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),

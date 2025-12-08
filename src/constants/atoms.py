@@ -65,6 +65,6 @@ ATOMS = {
     'logical_not_op': {'!'}, 
     'assignment_op': {'='},
     'unary_incdec_op': {'-', '+'},
-    'unary_negative_op': {'-'},
+    'unary_negative_op': {'~'},
 }
 

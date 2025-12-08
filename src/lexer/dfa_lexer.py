@@ -1,5 +1,5 @@
 from src.constants import ATOMS, DELIMS
-from .error_handler import UnknownCharError, DelimError, UnclosedString, UnclosedComment, UnfinishedFloat, UnexpectedEOF
+from .error_handler import UnknownCharError, DelimError, UnclosedString, UnclosedComment, FloatDotError, UnexpectedEOF
 from .dfa_table import TRANSITION_TABLE
 from .token_builder import build_token_stream
 
@@ -16,6 +16,8 @@ STRING_STATE_END = 234
 MULTI_COMMENT_STATE_START = 169
 MULTI_COMMENT_STATE_END = 174
 FLOAT_DOT_STATE = 218
+FLOAT_START_STATE = 179
+FLOAT_END_STATE = 230
 
 class Lexer:
     """High level wrapper around the DFA lexemizer.
@@ -36,22 +38,13 @@ class Lexer:
             # add newline at end of statement
             if not source_text[-1].endswith('\n'):
                 source_text[-1] = source_text[-1] + '\n'
-            self._source_lines = source_text
-        """ The source code as a list of string"""
+            self._source_lines = source_text # The source code as a list of string
+        self._index = 0, 0                  # _index: tuple (line_index, column_index) """
+        self._lexemes: list[str] = []       # collected lexeme strings (raw) """
+        self.token_stream: list[dict] = []  # token_stream will be populated by token.build_token_stream(...) after lexing. This would be ((lexeme), (line_index, column_index))
+        self.log = ""                       # textual log of errors (human readable)
 
-        self._index = 0, 0
-        """ _index: tuple (line_index, column_index) """
-
-        self._lexemes: list[str] = []
-        """ collected lexeme strings (raw) """
-
-        self.token_stream: list[dict] = []
-        """ token_stream will be populated by token.build_token_stream(...) after lexing. This would be ((lexeme), (line_index, column_index)) """
-
-        self.log = ""
-        """ textual log of errors (human readable) """
-
-        # DEBUG SWITCH
+        # Debug switch
         self._debug = debug
         def _dbg(msg: str):
             if self._debug:
@@ -139,7 +132,7 @@ class Lexer:
 
             lexeme = self.lexemize()
 
-            if isinstance(lexeme, (UnknownCharError, DelimError, UnfinishedFloat,
+            if isinstance(lexeme, (UnknownCharError, DelimError, FloatDotError,
                                    UnclosedString, UnclosedComment, UnexpectedEOF)):
                 self.log += str(lexeme) + '\n'
 
@@ -148,7 +141,7 @@ class Lexer:
                     # Do not advance cursor — retry lexing this character
                     continue
                 # For an unfinished float after '.', do not skip the following delimiter
-                if isinstance(lexeme, UnfinishedFloat):
+                if isinstance(lexeme, FloatDotError):
                     continue
 
                 # Do not advance; newline will be tokenized in next iteration
@@ -179,7 +172,7 @@ class Lexer:
                 for keywords to ensure proper token boundaries.
                 - For EOF while in certain subgraphs (STRING/COMMENT), return specific
                 error objects (UnclosedString/UnclosedComment).
-                - If in NUMERIC_LIT_START and still non-accepting, raise UnfinishedFloat.
+                - If in NUMERIC_LIT_START and still non-accepting, raise FloatDotError.
             - If none of the next_states match:
                 - At root (curr_state == 0), return UnknownCharError or UnexpectedEOF.
                 - In symbol subgraph, return DelimError with expected chars.
@@ -206,19 +199,9 @@ class Lexer:
                 # Newline / EOL inside a string subgraph -> unclosed string
                 if curr_char == '\n' and (curr_state >= STRING_STATE_START and curr_state <= STRING_STATE_END):
                     return UnclosedString(self._source_lines[self._index[0]], self._index)
-
-                # EOF / newline inside an unterminated multiline comment: point caret at last char before newline/EOF
-                if (curr_char == '\n' or curr_char == '\0') and (curr_state >= MULTI_COMMENT_STATE_START and curr_state <= MULTI_COMMENT_STATE_END):
-                    line_idx, col_idx = self._index
-                    err_pos = (line_idx, max(0, col_idx ))
-                    return UnclosedComment(self._source_lines[line_idx], err_pos)
-
-                # print(curr_char, 'char being compared to', TRANSITION_TABLE[state].accepted_chars)
-                # print('goes continue')
-                # Branch not matched move to next branch; If no other branch, stop the loop.
+                
+                # Branch not matched move to next branch; If no other branch, stop the loop (move to no transition matched if elses line 257)
                 continue
-
-            # print('MATCHED curr_char to a state in an appropriate branch')
 
             # MATCHED: matched character to a state in the branch
             self._dbg(
@@ -237,7 +220,6 @@ class Lexer:
             self.advance_cursor()
             # the matched state earlier would be used for the next character
             lexeme = self.lexemize(state)
-            # print('lexeme: ', lexeme, 'state', state)
 
             # lexeme may be various types: string, tuple, error object, or None
             if type(lexeme) is str:
@@ -252,7 +234,7 @@ class Lexer:
                 return lexeme
             if type(lexeme) is UnclosedComment:
                 return lexeme
-            if type(lexeme) is UnfinishedFloat:
+            if type(lexeme) is FloatDotError:
                 return lexeme
 
             # If returned None from Lexeme and not a complete token and not an error, we should backtrack for reserved words to transition to id.
@@ -260,22 +242,27 @@ class Lexer:
             if state <= KEYWORD_LAST_STATE:
                 self.reverse_cursor()
 
-        # print('ended loop')
+            # standalone ~ will be invalid and reversed. the others would not reverse if there is DelimError
+            if state >= FLOAT_START_STATE and state <= FLOAT_END_STATE:
+                self.reverse_cursor()
 
-
-
+            if state >= MULTI_COMMENT_STATE_START and state <= MULTI_COMMENT_STATE_END:
+                self.reverse_cursor()
+            
+            # if 'SADASD  ->  Unknown Char: ''' and tokenized id
+            # if state >= STRING_STATE_START and state <= STRING_STATE_END:
+            #     self.reverse_cursor()
 
         # No transition matched.
         # --- Added unfinished-float detection ---
         # We are at the state AFTER consuming '.' (state 218); cursor sits on the next char.
-        # If that next char is a delimiter (no digit consumed), raise UnfinishedFloat.
+        # If that next char is a delimiter (no digit consumed), raise FloatDotError.
         if curr_state == FLOAT_DOT_STATE:
             curr_char = self.get_curr_char()
             if curr_char not in ATOMS['all_num']:
                 line_idx, col_idx = self._index
-                err_pos = (line_idx, col_idx)
-                return UnfinishedFloat(self._source_lines[line_idx], err_pos, list(ATOMS['all_num']))
-
+                err_pos = (line_idx, max(0, col_idx - 1)) # max to avoid future errors of negative. tho thats prob not possible
+                return FloatDotError(self._source_lines[line_idx], err_pos, list(ATOMS['all_num']))
 
         if curr_state == 0:
             if self.get_curr_char() == '\0':

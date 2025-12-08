@@ -50,9 +50,9 @@ def build_token_stream(raw_lexeme: list[str], metadata: list[tuple[int, int]]):
         if type(lexeme_str) is tuple:
             token_list.append(lexeme_str)
             continue
-
+        
         # Numeric literal (allow one dot for floats). isdigit() after stripping one dot.
-        if lexeme_str.replace('.', '', 1).isdigit():
+        if lexeme_str.replace('~','', 1).replace('.', '', 1).isdigit():
             token_list.append((lexeme_str, 'float_literal' if '.' in lexeme_str else 'int_literal'))
             continue
         

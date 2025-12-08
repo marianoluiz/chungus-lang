@@ -13,7 +13,7 @@ def lexer_adapter(source: str):
     tokens = []
     errors = []
 
-    lexer = Lexer(source)
+    lexer = Lexer(source, debug=False)
     lexer.start()
 
     # Lexer.token_stream: [ ((lexeme, token_type), (line_index, col_index)), ... ]
