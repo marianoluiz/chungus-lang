@@ -72,10 +72,10 @@ Tests are written with pytest (see [src/test/test_lexer.py](src/test/test_lexer.
 pytest -q
 
 # a specific file
-pytest src/test/test_lexer.py -q
+pytest -q test/test_lexer_statements.py
 
 # a single test function
-pytest src/test/test_lexer.py::test_unfinished_float_reports_error -q
+pytest test/test_lexer_statements.py::test_statement_token_sequence
 
 # verbose / fail fast
 pytest -vv -x
