@@ -10,12 +10,12 @@ Categories:
 
 from .atoms import ATOMS
 
-INLINE_DELIM = {' ', '\t'}
-STMT_DELIM = {' ', '\t', '\n'}
+INLINE_DELIM = {' ', }
+STMT_DELIM = {' ', '\n'}
 
 DELIMS = {
-    'inline_delim': {' ', '\t'},
-    'stmt_delim': {' ', '\t', '\n'},
+    'inline_delim': {' '},
+    'stmt_delim': {' ', '\n'},
     'id_delim': {
         *STMT_DELIM, *ATOMS['assignment_op'], *ATOMS['arithmetic_op'],
         *ATOMS['relational_op'], *ATOMS['unary_incdec_op'],

@@ -1,5 +1,5 @@
 from src.constants import ATOMS, DELIMS
-from .error_handler import UnknownCharError, DelimError, UnclosedString, UnclosedComment, FloatDotError, UnexpectedEOF
+from .error_handler import UnknownCharError, DelimError, FloatDotError, UnexpectedEOF
 from .dfa_table import TRANSITION_TABLE
 from .token_builder import build_token_stream
 
@@ -18,6 +18,8 @@ MULTI_COMMENT_STATE_END = 174
 FLOAT_DOT_STATE = 218
 FLOAT_START_STATE = 179
 FLOAT_END_STATE = 230
+TWO_CHAR_OPERATOR_STATES = (125, 129, 133, 139, 143, 147, 151, 155)
+
 
 class Lexer:
     """High level wrapper around the DFA lexemizer.
@@ -39,6 +41,7 @@ class Lexer:
             if not source_text[-1].endswith('\n'):
                 source_text[-1] = source_text[-1] + '\n'
             self._source_lines = source_text # The source code as a list of string
+
         self._index = 0, 0                  # _index: tuple (line_index, column_index) """
         self._lexemes: list[str] = []       # collected lexeme strings (raw) """
         self.token_stream: list[dict] = []  # token_stream will be populated by token.build_token_stream(...) after lexing. This would be ((lexeme), (line_index, column_index))
@@ -132,20 +135,12 @@ class Lexer:
 
             lexeme = self.lexemize()
 
-            if isinstance(lexeme, (UnknownCharError, DelimError, FloatDotError,
-                                   UnclosedString, UnclosedComment, UnexpectedEOF)):
+            if isinstance(lexeme, (UnknownCharError, DelimError, UnexpectedEOF)):
                 self.log += str(lexeme) + '\n'
 
                 # For delimiter errors: DO NOT skip the character.
                 if isinstance(lexeme, DelimError):
                     # Do not advance cursor — retry lexing this character
-                    continue
-                # For an unfinished float after '.', do not skip the following delimiter
-                if isinstance(lexeme, FloatDotError):
-                    continue
-
-                # Do not advance; newline will be tokenized in next iteration
-                if isinstance(lexeme, UnclosedString):
                     continue
 
                 self.advance_cursor()
@@ -158,26 +153,6 @@ class Lexer:
         self.token_stream = build_token_stream(self._lexemes, lexeme_positions)
 
     def lexemize(self, curr_state: int = 0):
-        """Recursive DFA-driven lexeme extractor.
-
-            Strategy:
-            - For each outgoing `state` from the current node, check if the current
-            character is in TRANSITION_TABLE[state].chars.
-            - If matched:
-                - If `state` has no next_states, return a terminal sentinel:
-                '' for "keep building", or ('','') for typed placeholders (symbols).
-                - Otherwise consume 1 char, recurse into `state`, and combine the result.
-            - If unmatched:
-                - When TRANSITION_TABLE[state] is an accepting terminal: validate delimiters
-                for keywords to ensure proper token boundaries.
-                - For EOF while in certain subgraphs (STRING/COMMENT), return specific
-                error objects (UnclosedString/UnclosedComment).
-                - If in NUMERIC_LIT_START and still non-accepting, raise FloatDotError.
-            - If none of the next_states match:
-                - At root (curr_state == 0), return UnknownCharError or UnexpectedEOF.
-                - In symbol subgraph, return DelimError with expected chars.
-                - Otherwise return None to let caller treat as identifier continuation.
-        """
         # Get transitions from current state
         next_states = TRANSITION_TABLE[curr_state].next_states
 
@@ -192,14 +167,15 @@ class Lexer:
                     # Keyword terminal + next char can extend into an identifier -> allow fallback (no error)
                     if state <= KEYWORD_LAST_STATE and curr_char in ATOMS['under_alpha_num']:
                         continue
+                    
+                    # Two Character Operators
+                    if state in TWO_CHAR_OPERATOR_STATES:
+                        # Step back one so the built lexeme becomes single '+'/'-'
+                        self.reverse_cursor()
 
                     # Otherwise delimiter invalid for this terminal
                     return DelimError(self._source_lines[self._index[0]], self._index, TRANSITION_TABLE[state].accepted_chars)
 
-                # Newline / EOL inside a string subgraph -> unclosed string
-                if curr_char == '\n' and (curr_state >= STRING_STATE_START and curr_state <= STRING_STATE_END):
-                    return UnclosedString(self._source_lines[self._index[0]], self._index)
-                
                 # Branch not matched move to next branch; If no other branch, stop the loop (move to no transition matched if elses line 257)
                 continue
 
@@ -208,12 +184,11 @@ class Lexer:
                 f"{curr_state} -> {state}: {curr_char if len(TRANSITION_TABLE[state].next_states) > 0 else 'end state'}"
             )
 
-            # END: If we matched a character and it is last state (If the state has no outgoing next_states) it is a terminal -> return sentinel lexeme (base of recursion to communicate "I hit a terminal")
+            # END: If we matched a TOKEN and it is last state (If the state has no outgoing next_states) it is a terminal -> return sentinel lexeme (base of recursion to communicate "I hit a terminal")
             if len(TRANSITION_TABLE[state].next_states) == 0:
                 # small heuristic: reserved word, symbols return an empty typed pair placeholder
                 if state <= SYMBOL_LAST_STATE:
                     return ('', '')
-
                 return ''  # other terminal marker
 
             # consume the current state in this branch and recurse deeper
@@ -230,12 +205,6 @@ class Lexer:
                 return (curr_char + lexeme[0], curr_char + lexeme[0])
             if type(lexeme) is DelimError:
                 return lexeme
-            if type(lexeme) is UnclosedString:
-                return lexeme
-            if type(lexeme) is UnclosedComment:
-                return lexeme
-            if type(lexeme) is FloatDotError:
-                return lexeme
 
             # If returned None from Lexeme and not a complete token and not an error, we should backtrack for reserved words to transition to id.
             # EX: shows -> line 4 -> 3 -> 2 -> 1
@@ -250,29 +219,15 @@ class Lexer:
                 self.reverse_cursor()
             
             # if 'SADASD  ->  Unknown Char: ''' and tokenized id
-            # if state >= STRING_STATE_START and state <= STRING_STATE_END:
-            #     self.reverse_cursor()
+            if state >= STRING_STATE_START and state <= STRING_STATE_END:
+                self.reverse_cursor()
 
         # No transition matched.
-        # --- Added unfinished-float detection ---
-        # We are at the state AFTER consuming '.' (state 218); cursor sits on the next char.
-        # If that next char is a delimiter (no digit consumed), raise FloatDotError.
-        if curr_state == FLOAT_DOT_STATE:
-            curr_char = self.get_curr_char()
-            if curr_char not in ATOMS['all_num']:
-                line_idx, col_idx = self._index
-                err_pos = (line_idx, max(0, col_idx - 1)) # max to avoid future errors of negative. tho thats prob not possible
-                return FloatDotError(self._source_lines[line_idx], err_pos, list(ATOMS['all_num']))
-
         if curr_state == 0:
             if self.get_curr_char() == '\0':
                 # At root and nothing matched -> unknown character
                 return UnexpectedEOF(self._source_lines[self._index[0]], self._index)
 
             return UnknownCharError(self._source_lines[self._index[0]], self._index)
-        if curr_state >= SYMBOL_STATE_START and curr_state <= SYMBOL_STATE_END:
-            # These TRANSITION_TABLE correspond to delimiters; return delimiter error with expected accepted_chars
-            return DelimError(self._source_lines[self._index[0]], self._index, TRANSITION_TABLE[curr_state].accepted_chars)
-
         # EX: Return None if 'shows' (since it dont match the keyword show and it has No error. It would most likely go to id)
         return None
