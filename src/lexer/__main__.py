@@ -12,8 +12,8 @@ import sys, os
 from src.lexer.dfa_lexer import Lexer
 
 def main():
-    # This takes the test folder path
-    test_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'test', 'lexer_test.chg'))
+    # This takes the input folder path
+    test_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'lexer_input.chg'))
     
     try:
         with open(test_path, 'r', encoding='utf-8') as f:
@@ -23,7 +23,7 @@ def main():
         return
 
     # create the lexer and run the lexemizer
-    lexer = Lexer(source_code)
+    lexer = Lexer(source_code, debug=True)
     lexer.start()
 
     # Print raw lexemes (useful to inspect how the DFA segmented input)

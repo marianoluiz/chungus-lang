@@ -11,11 +11,11 @@ KEYWORD_LAST_STATE = 121
 SYMBOL_STATE_START = 122
 SYMBOL_STATE_END = 165
 SYMBOL_LAST_STATE = SYMBOL_STATE_END
-STRING_STATE_START = 230
-STRING_STATE_END = 233
+STRING_STATE_START = 231
+STRING_STATE_END = 234
 MULTI_COMMENT_STATE_START = 169
 MULTI_COMMENT_STATE_END = 174
-FLOAT_DOT_STATE = 217
+FLOAT_DOT_STATE = 218
 
 class Lexer:
     """High level wrapper around the DFA lexemizer.
@@ -25,7 +25,7 @@ class Lexer:
         - start:    iterate, snapshot start positions, and collect raw lexemes
         - build_token_stream: classify lexemes with their snapshot lexeme_positions
         """
-    def __init__(self, source_text: str):
+    def __init__(self, source_text: str, debug: bool = False):
         # Convert incoming source string to lines and ensure newline markers
         source_text = source_text.splitlines(keepends=True)
 
@@ -51,9 +51,16 @@ class Lexer:
         self.log = ""
         """ textual log of errors (human readable) """
 
+        # DEBUG SWITCH
+        self._debug = debug
+        def _dbg(msg: str):
+            if self._debug:
+                print(msg)
+        self._dbg = _dbg
+
         # Useful debug print to see how source lines were split
-        print('---- Splitted Source: ----')
-        print(self._source_lines)
+        self._dbg('---- Splitted Source: ----')
+        self._dbg(self._source_lines)
 
     # TRACKING CHARACTERS
     def get_curr_char(self):
@@ -214,8 +221,9 @@ class Lexer:
             # print('MATCHED curr_char to a state in an appropriate branch')
 
             # MATCHED: matched character to a state in the branch
-            print(
-                f"{curr_state} -> {state}: {curr_char if len(TRANSITION_TABLE[state].next_states) > 0 else 'end state'}")
+            self._dbg(
+                f"{curr_state} -> {state}: {curr_char if len(TRANSITION_TABLE[state].next_states) > 0 else 'end state'}"
+            )
 
             # END: If we matched a character and it is last state (If the state has no outgoing next_states) it is a terminal -> return sentinel lexeme (base of recursion to communicate "I hit a terminal")
             if len(TRANSITION_TABLE[state].next_states) == 0:
