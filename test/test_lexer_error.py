@@ -8,10 +8,10 @@ if ROOT not in sys.path:
 import csv
 import io
 import pytest
-from src.lexer.dfa_lexer import Lexer  # [`src.lexer.dfa_lexer.Lexer`](src/lexer/dfa_lexer.py)
+from src.lexer.dfa_lexer import Lexer
 
 def _run_lexer(src: str) -> str:
-    lx = Lexer(src, debug=True)
+    lx = Lexer(src, debug=False)
     lx.start()
     return lx.log.strip()
 
@@ -20,34 +20,40 @@ def _rows():
     with open(path, "r", encoding="utf-8") as f:
         reader = csv.reader(f)
         next(reader)  # skip header
-        print('reader: ', reader)
-        for row in reader:
-            print('row: ', row)
-            # Some rows contain extra commas in Expected Output; join remaining cells
-            if not row:
-                continue
-            src = row[0]
-            expected = ",".join(row[1:]).strip() # if there are other cols, combine in
-            # Normalize CRLFs if any
-            expected = expected.replace("\r\n", "\n").replace("\r", "\n")
-            yield src, expected
 
-@pytest.mark.parametrize("src,expected", list(_rows()))
+        for row in reader:
+            # row:  ['abc123 = 10', 'NO LEXICAL ERROR/S'] ...
+            print(row)
+            src = row[0]                # The source code, col 1
+            expected = row[1].strip()   # Expected Error, col 2
+
+            # Normalize CRLFs and CR to LF if any, since spreadsheets do use CRLFs
+            expected = expected.replace("\r\n", "\n").replace("\r", "\n")   
+
+            yield src, expected         # return one at a time
+
+""" the src, expected will be extracted from the _rows() at this parametrizing test """
+@pytest.mark.parametrize("src,expected", _rows()) 
 def test_error_data_csv_cases(src, expected):
-    # Some rows contain quoted multi-line samples; normalize newlines
-    src = io.StringIO(src).getvalue()
+    # pytest.mark.parametrize is LIKE a loop that runs testcase per testcase
+    # _rows() returns a generator, which pytest automatically does the next()
+
+    print(src, expected)
+
     log = _run_lexer(src)
     if expected == "NO LEXICAL ERROR/S":
         assert log == ""
     else:
         # Presence checks
         for line in expected.splitlines():
-            if line.strip():
+            if line.strip():                        # If the result is empty (""), skip that line.
                 assert line.strip() in log          # EXPECTED must be in LOG
 
         # Count helper
         def _count(label: str, expected_text: str, log_text: str):
+            # counts how many lines in expected_text contain the substring label.
             exp = sum(1 for line in expected_text.splitlines() if label in line)
+
             if exp > 0:
                 act = log_text.count(label)
                 assert act == exp, f"Expected {exp} {label} errors, got {act}"

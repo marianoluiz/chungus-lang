@@ -20,12 +20,12 @@ for,Invalid Delimiter
 range,Invalid Delimiter
 TRUE,NO LEXICAL ERROR/S
 x = 0,NO LEXICAL ERROR/S
-x = -0,NO LEXICAL ERROR/S
+x = ~0,NO LEXICAL ERROR/S
 x = 9999999999999999999,NO LEXICAL ERROR/S
 x = 1234567890,NO LEXICAL ERROR/S
-x = -99999,NO LEXICAL ERROR/S
+x = ~99999,NO LEXICAL ERROR/S
 x = 000123,NO LEXICAL ERROR/S
-x = -0007,NO LEXICAL ERROR/S
+x = ~0007,NO LEXICAL ERROR/S
 x = 12 34,NO LEXICAL ERROR/S
 x = 1.0,NO LEXICAL ERROR/S
 "x = 1,000",NO LEXICAL ERROR/S
@@ -33,9 +33,10 @@ f = 1.23,NO LEXICAL ERROR/S
 f = -0.000001,NO LEXICAL ERROR/S
 f = 00012.3400,NO LEXICAL ERROR/S
 f = 0.0,NO LEXICAL ERROR/S
-f = -0.000000,NO LEXICAL ERROR/S
+f = ~0.000000,NO LEXICAL ERROR/S
 f = .123,Invalid Character
-f = 123.,Invalid Delimiter
+f = 123.,"Invalid Delimiter
+Invalid Character"
 f = 12.34.56,"Invalid Delimiter
 Invalid Character"
 "f = 12,34.56",NO LEXICAL ERROR/S
@@ -48,14 +49,14 @@ s = '\nLine',NO LEXICAL ERROR/S
 s = '\$Dollar',NO LEXICAL ERROR/S
 s = 'Value: $(x)',NO LEXICAL ERROR/S
 s = '$(myVar) world',NO LEXICAL ERROR/S
-s = 'hello,Unclosed String
+s = 'hello, Invalid Character
 "s = ""hello""","Invalid Character
+Invalid Character
+Invalid Delimiter"
+"s = 'line1
+line2'","Invalid Character
 Invalid Delimiter
 Invalid Character"
-"s = 'line1
-line2'","Unclosed String
-Invalid Delimiter
-Unclosed String"
 s = '\'quote\'',"Invalid Delimiter
 Invalid Delimiter
 Invalid Character"
@@ -67,13 +68,20 @@ x = 10 # inline comment,NO LEXICAL ERROR/S
 "### multi
 line
 comment ###",NO LEXICAL ERROR/S
-### unclosed comment,Unclosed Comment
+### unclosed comment,"Invalid Delimiter
+Invalid Delimiter"
 x=5###comment###,Invalid Delimiter
 ### ###,NO LEXICAL ERROR/S
 x = 1 ### comment ### y = 2,NO LEXICAL ERROR/S
 #,NO LEXICAL ERROR/S
-### ### ###,Unclosed Comment
-### # inside still comment ###,NO LEXICAL ERROR/S
+### ### ###,"Invalid Delimiter
+Invalid Delimiter"
+### # inside still comment ###,"Invalid Delimiter
+Invalid Delimiter
+Invalid Delimiter
+Invalid Delimiter
+Invalid Delimiter
+Invalid Delimiter"
 a = b + c * d - e,NO LEXICAL ERROR/S
 a = 1**2**3,NO LEXICAL ERROR/S
 x = -5,NO LEXICAL ERROR/S
@@ -152,9 +160,9 @@ x=1 ###c###,NO LEXICAL ERROR/S
 x=1 #c##,"Invalid Delimiter
 Invalid Delimiter"
 x=\t1,"Invalid Delimiter
-Invalid Character "
+Invalid Character"
 x=\n,"Invalid Delimiter
-Invalid Character "
+Invalid Character"
 x = 1 # comment more,NO LEXICAL ERROR/S
 x = 1 ### comment ### more,NO LEXICAL ERROR/S
 x = 1 ###c###,NO LEXICAL ERROR/S
@@ -162,7 +170,7 @@ x = 000000000001,NO LEXICAL ERROR/S
 x = -0000000000007,NO LEXICAL ERROR/S
 x = 0000000,NO LEXICAL ERROR/S
 x = 000.123,NO LEXICAL ERROR/S
-x = -.123,"Invalid Delimiter
+x = ~.123,"Invalid Character
 Invalid Character"
 x = +123,NO LEXICAL ERROR/S
 x = 1_234,Invalid Delimiter
@@ -170,22 +178,24 @@ x = 12 34,NO LEXICAL ERROR/S
 x = 1.234567,NO LEXICAL ERROR/S
 x = 1.000000,NO LEXICAL ERROR/S
 x = 1.0.0,"Invalid Delimiter
-Invalid Character: "
+Invalid Character"
 x = .0001,Invalid Character
 "x = 12,34",NO LEXICAL ERROR/S
 "x = 1,2,3,4",NO LEXICAL ERROR/S
 x = 1-2,NO LEXICAL ERROR/S
-x = 1--2,NO LEXICAL ERROR/S
-x = 1++2,NO LEXICAL ERROR/S
-x = 1+-2,NO LEXICAL ERROR/S
-x = 12345678901234567890,NO LEXICAL ERROR/S
+x = 1--2,Invalid Delimiter
+x = 1++2,Invalid Delimiter
+x = 1+-2,Invalid Delimiter
+x = 12345678901234567890,Invalid Delimiter
+x = 1234567890123456789.1234567,Invalid Delimiter
 x = 12.34e10,Invalid Delimiter
 x = -0.0,NO LEXICAL ERROR/S
 x = 00.00,NO LEXICAL ERROR/S
-x = 123.,Invalid Delimiter 
-x = -.,"Invalid Delimiter
-Invalid Character: "
-x = .,Invalid Character: 
+x = 123.,"Invalid Delimiter
+Invalid Character" 
+x = ~.,"Invalid Character
+Invalid Character"
+x = .,Invalid Character
 s = '\n',NO LEXICAL ERROR/S
 s = '\t',NO LEXICAL ERROR/S
 s = '\$',NO LEXICAL ERROR/S
@@ -199,31 +209,40 @@ s = '$(123)',NO LEXICAL ERROR/S
 s = '$(var_name)',NO LEXICAL ERROR/S
 s = '$(fn())',NO LEXICAL ERROR/S
 s = ''',"Invalid Delimiter
-Unclosed String"
+Invalid Character"
 "s = 'line1
- line2'","Unclosed String
+ line2'","Invalid Character
 Invalid Delimiter
-Unclosed String"
-"s = ""'""","Invalid Character: 
-Unclosed String"
+Invalid Character"
+s = ""'"","Invalid Character
+Invalid Character
+Invalid Character
+Invalid Character
+Invalid Character
+"
 s = '\''',Invalid Delimiter
 s = ''''''',"Invalid Delimiter
 Invalid Delimiter
 Invalid Delimiter
-Unclosed String"
+Invalid Character"
 s = '$(a b)',NO LEXICAL ERROR/S
 s = '$(a!b)',NO LEXICAL ERROR/S
 "s='\\
- '",NO LEXICAL ERROR/S
+ '","Invalid Character
+Invalid Character
+Invalid Character
+Invalid Character"
 s='test\ ',NO LEXICAL ERROR/S
 s='\x',NO LEXICAL ERROR/S
 s='C:\\path',NO LEXICAL ERROR/S
 s='C:\path',NO LEXICAL ERROR/S
-s='O\'Connor',NO LEXICAL ERROR/S
+s='O\'Connor',"Invalid Delimiter
+Invalid Delimiter
+Invalid Character"
 s='$(unknownVar)',NO LEXICAL ERROR/S
 s='123$(x)456',NO LEXICAL ERROR/S
 s='\'',"Invalid Delimiter
-Unclosed String"
+Invalid Character"
 s='abc\\\\def',NO LEXICAL ERROR/S
 s='$(read)',NO LEXICAL ERROR/S
 s='$(range)',NO LEXICAL ERROR/S
@@ -232,7 +251,10 @@ s='$(false)',NO LEXICAL ERROR/S
 s='$(nil)',NO LEXICAL ERROR/S
 s='$(true)',NO LEXICAL ERROR/S
 s='$(123abc)',NO LEXICAL ERROR/S
-"s=""wrong""",NO LEXICAL ERROR/S
+"s=""wrong""","Invalid Delimiter
+Invalid Character
+Invalid Delimiter
+Invalid Character"
 s='ends with backslash\',NO LEXICAL ERROR/S
 s='tab:\tnewline:\n',NO LEXICAL ERROR/S
 ### comment ###,NO LEXICAL ERROR/S
@@ -240,47 +262,71 @@ s='tab:\tnewline:\n',NO LEXICAL ERROR/S
 "### c1
  c2
  c3 ###",NO LEXICAL ERROR/S
-###nested###comment###,NO LEXICAL ERROR/S
-### not closed,NO LEXICAL ERROR/S
+###nested###comment###,"Invalid Delimiter
+Invalid Delimiter
+Invalid Delimiter
+Invalid Delimiter"
+### not closed,"Invalid Delimiter
+Invalid Delimiter"
 ### ### text,NO LEXICAL ERROR/S
 x=1 ###c### 2,NO LEXICAL ERROR/S
-### # inside ###,NO LEXICAL ERROR/S
+### # inside ###,"Invalid Delimiter
+Invalid Delimiter
+Invalid Delimiter
+Invalid Delimiter
+Invalid Delimiter
+Invalid Delimiter"
 ### ### ### ###,NO LEXICAL ERROR/S
 ### ###x,Invalid Delimiter
 "### 
    
   ###",NO LEXICAL ERROR/S
 ### \###,NO LEXICAL ERROR/S
-###$%#@!###,NO LEXICAL ERROR/S
+###$%#@!###,"Invalid Delimiter
+Invalid Delimiter
+Invalid Delimiter
+Invalid Delimiter
+Invalid Delimiter
+Invalid Delimiter"
 ### ### x=y,NO LEXICAL ERROR/S
 ### ### #,NO LEXICAL ERROR/S
 #######,Invalid Delimiter
 ##########,"Invalid Delimiter
-Unclosed Comment"
+Invalid Delimiter
+Invalid Delimiter
+Invalid Delimiter"
 ### 123 ###,NO LEXICAL ERROR/S
 ###a###b,Invalid Delimiter
 x###comment###,Invalid Delimiter
 x###c###y,"Invalid Delimiter
 Invalid Delimiter"
-x=1+++2,Invalid Delimiter
-x=1---2,Invalid Delimiter
+x=1+++2,"Invalid Delimiter
+Invalid Delimiter"
+x=1---2,"Invalid Delimiter
+Invalid Delimiter"
 x=!--x,"Invalid Delimiter
 Invalid Delimiter"
 x=!!true,Invalid Delimiter
 x = 1/**/2,"Invalid Delimiter
+Invalid Delimiter
 Invalid Delimiter"
 x = 1//2,NO LEXICAL ERROR/S
-x = 1////2,Invalid Delimiter
+x = 1////2,"Invalid Delimiter
+Invalid Delimiter"
 x = **2,NO LEXICAL ERROR/S
-x **= 2,Invalid Delimiter
+x **= 2,"Invalid Delimiter
+Invalid Delimiter"
 x = ===,"Invalid Delimiter
+Invalid Delimiter
 Invalid Delimiter"
 x = !==,"Invalid Delimiter
+Invalid Delimiter
 Invalid Delimiter"
 x = >>,"Invalid Delimiter
 Invalid Delimiter"
 x = <<,"Invalid Delimiter
 Invalid Delimiter"
 x = <==>,"Invalid Delimiter
+Invalid Delimiter
 Invalid Delimiter
 Invalid Delimiter"
