@@ -1,9 +1,0 @@
-for i in range(0, 10)
-    if i == 5
-        skip
-    close
-    if i == 8
-        stop
-    close
-    show 'i = $(i)\n'
-close

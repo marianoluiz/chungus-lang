@@ -1,3 +1,0 @@
-items = ['a', 'b', 'c', 'd']
-array_remove(items, 1)
-show 'After removal, new index 1: $(items[1])'

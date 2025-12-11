@@ -46,47 +46,7 @@ class DelimError():
                         f"      |{' ' * self._position[1]}^\n"
         
         return error_message
-
-class FloatDotError():
-    """Raised when a int / float literal is incorrect"""
-    def __init__(self, line: str, position: tuple[int, int], delims: list):
-        self._line = line.replace('\n', '')
-        self._position = position
-        self._delims = delims
-    def __str__(self):
-        #  error_message = f"Unfinished float literal: expected any {self._delims}\n" \
-        error_message = f"Invalid Delimiter:\n" \
-                        f" {self._position[0]+1:<5}|{self._line}\n" \
-                        f"      |{' '*self._position[1]}^\n"
-        
-        return error_message
-
-class UnclosedString():
-    """Raised when a string literal reaches EOF without a closing quote."""
-    def __init__(self, line: str, position: tuple[int, int]):
-        self._line = line.replace('\n', '')
-        self._position = position
-
-    def __str__(self):
-        error_message = f"Unclosed String\n" \
-                        f" {self._position[0]+1:<5}|{self._line}\n" \
-                        f"      |{' '*self._position[1]}^\n"
-        
-        return error_message
-
-class UnclosedComment():
-    """Raised when a comment is not properly terminated."""
-    def __init__(self, line: str, position: tuple[int, int]):
-        self._line = line.replace('\n', '')
-        self._position = position
-
-    def __str__(self):
-        error_message = f"Unclosed Comment\n" \
-                        f" {self._position[0]+1:<5}|{self._line}\n" \
-                        f"      |{' '*self._position[1]}^\n"
-        
-        return error_message
-
+    
 class UnexpectedEOF():
     """Raised at the root when input ends and no DFA transition matches."""
     def __init__(self, line: str, position: tuple[int, int]):

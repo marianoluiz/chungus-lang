@@ -1,0 +1,82 @@
+Test Case,Expected Output,
+"a = 10
+b = 20
+c = a + b
+show 'Sum is $(c)'","[""id"",""="",""int_literal"",""id"",""="",""int_literal"",""id"",""="",""id"",""+"",""id"",""show"",""str_literal""]",assignment.chg
+"numbers = [10, 20, 30]
+array_add(numbers, 40)
+show 'After adding: $(numbers[3])'","[""id"",""="",""["",""int_literal"","","",""int_literal"","","",""int_literal"",""]"",""array_add"",""("",""id"","","",""int_literal"","")"",""show"",""str_literal""]",array_add.chg
+"arr = [1, 2, 3, 4]
+show 'Second element: $(arr[1])'","[""id"",""="",""["",""int_literal"","","",""int_literal"","","",""int_literal"","","",""int_literal"",""]"",""show"",""str_literal""]",array_index.chg
+"items = ['a', 'b', 'c', 'd']
+array_remove(items, 1)
+show 'After removal, new index 1: $(items[1])'","[""id"",""="",""["",""str_literal"","","",""str_literal"","","",""str_literal"","","",""str_literal"",""]"",""array_remove"",""("",""id"","","",""int_literal"","")"",""show"",""str_literal""]",array_remove.chg
+"if true
+    show 'Inside block'
+close","[""if"",""true"",""show"",""str_literal"",""close""]",close_statement.chg
+"score = 85
+if score >= 90
+    show 'Grade: A'
+elif score >= 75
+    show 'Grade: B'
+else
+    show 'Grade: C'
+close","[""id"",""="",""int_literal"",""if"",""id"","">="",""int_literal"",""show"",""str_literal"",""elif"",""id"","">="",""int_literal"",""show"",""str_literal"",""else"",""show"",""str_literal"",""close""]",conditional.chg
+"try
+    x = 10 / 0
+fail
+    show 'Err... zero!'
+always
+    show 'This always executes.'
+close","[""try"",""id"",""="",""int_literal"",""/"",""int_literal"",""fail"",""show"",""str_literal"",""always"",""show"",""str_literal"",""close""]",error_handling.chg
+"for i in range(5)
+    show '$(i)'
+close","[""for"",""id"",""in"",""range"",""("",""int_literal"","")"",""show"",""str_literal"",""close""]",for_loop.chg
+"fn multiply(x)
+    result = x * x
+    ret result
+close
+
+square = multiply(5)
+show '$(square)'","[""fn"",""id"",""("",""id"","")"",""id"",""="",""id"",""*"",""id"",""ret"",""id"",""close"",""id"",""="",""id"",""("",""int_literal"","")"",""show"",""str_literal""]",function.chg
+"show 'Enter: '
+v = read
+show 'You typed: $(v)'","[""show"",""str_literal"",""id"",""="",""read"",""show"",""str_literal""]",input.chg
+"for i in range(0, 10)
+    if i == 5
+        skip
+    close
+    if i == 8
+        stop
+    close
+    show '$(i)'
+close","[""for"",""id"",""in"",""range"",""("",""int_literal"","","",""int_literal"","")"",""if"",""id"",""=="",""int_literal"",""skip"",""close"",""if"",""id"",""=="",""int_literal"",""stop"",""close"",""show"",""str_literal"",""close""]",loop_control.chg
+"msg = 'Hello'
+show 'Message shown'","[""id"",""="",""str_literal"",""show"",""str_literal""]",output.chg
+"show 'Start'
+clr
+show 'Done'
+exit","[""show"",""str_literal"",""clr"",""show"",""str_literal"",""exit""]",system.chg
+"fn future()
+    todo
+close","[""fn"",""id"",""("","")"",""todo"",""close""]",todo.chg
+"show 'Enter: '
+v = read
+v = int(v)
+v = float(v)
+show 'Converted'
+show 'Done'","[""show"",""str_literal"",""id"",""="",""read"",""id"",""="",""int"",""("",""id"","")"",""id"",""="",""float"",""("",""id"","")"",""show"",""str_literal"",""show"",""str_literal""]",type_cast.chg
+"x = 5
+x++
+x--
+show 'Done'","[""id"",""="",""int_literal"",""id"",""++"",""id"",""--"",""show"",""str_literal""]",unary.chg
+"i = 10
+while i > 0
+    show '$(i)'
+    i = i - 1
+close","[""id"",""="",""int_literal"",""while"",""id"","">"",""int_literal"",""show"",""str_literal"",""id"",""="",""id"",""-"",""int_literal"",""close""]",while_loop.chg
+"# single comment 
+
+### multiline comment ###","[""comment"", ""comment""]",comments
+ 'string',"[""str_literal""]",string literal
+### uncompleted multiline that becomes single,"[""comment""]",uncomplete comment

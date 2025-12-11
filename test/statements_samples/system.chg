@@ -1,4 +1,0 @@
-show 'Screen will clear now...'
-clr
-show 'Program will now exit.'
-exit

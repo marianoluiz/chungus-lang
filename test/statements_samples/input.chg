@@ -1,3 +1,0 @@
-show 'Enter your name: '
-name = read
-show 'Hello, $(name)'

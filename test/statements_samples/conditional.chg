@@ -1,8 +1,0 @@
-score = 85
-if score >= 90
-    show 'Grade: A'
-elif score >= 75
-    show 'Grade: B'
-else
-    show 'Grade: C'
-close

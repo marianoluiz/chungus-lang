@@ -1,5 +1,5 @@
 from src.constants import ATOMS, DELIMS
-from .error_handler import UnknownCharError, DelimError, FloatDotError, UnexpectedEOF
+from .error_handler import UnknownCharError, DelimError, UnexpectedEOF
 from .dfa_table import TRANSITION_TABLE
 from .token_builder import build_token_stream
 
@@ -13,13 +13,13 @@ SYMBOL_STATE_END = 165
 SYMBOL_LAST_STATE = SYMBOL_STATE_END
 STRING_STATE_START = 231
 STRING_STATE_END = 234
-MULTI_COMMENT_STATE_START = 169
-MULTI_COMMENT_STATE_END = 174
+MULTI_COMMENT_STATE_START = 166
+MULTI_COMMENT_STATE_END = 175
 FLOAT_DOT_STATE = 218
 FLOAT_START_STATE = 179
 FLOAT_END_STATE = 230
-TWO_CHAR_OPERATOR_STATES = (125, 129, 133, 139, 143, 147, 151, 155)
-
+TWO_CHAR_OPERATOR_END_STATES = (125, 129, 133, 139, 143, 147, 151, 155)
+COMMENT_STRING_END_STATES = (175, 234 )
 
 class Lexer:
     """High level wrapper around the DFA lexemizer.
@@ -149,7 +149,6 @@ class Lexer:
             # Normal lexeme
             self._lexemes.append(lexeme)
             lexeme_positions.append(start_pos)
-
         self.token_stream = build_token_stream(self._lexemes, lexeme_positions)
 
     def lexemize(self, curr_state: int = 0):
@@ -168,10 +167,13 @@ class Lexer:
                     if state <= KEYWORD_LAST_STATE and curr_char in ATOMS['under_alpha_num']:
                         continue
                     
-                    # Two Character Operators
-                    if state in TWO_CHAR_OPERATOR_STATES:
-                        # Step back one so the built lexeme becomes single '+'/'-'
-                        self.reverse_cursor()
+                    # Two Character Operators Completed but wrong delimiter
+                    if state in TWO_CHAR_OPERATOR_END_STATES:
+                        continue
+                    
+                    # String and Comment Completed but wrong Delimiter
+                    if state in COMMENT_STRING_END_STATES:
+                        continue
 
                     # Otherwise delimiter invalid for this terminal
                     return DelimError(self._source_lines[self._index[0]], self._index, TRANSITION_TABLE[state].accepted_chars)
@@ -197,6 +199,9 @@ class Lexer:
             lexeme = self.lexemize(state)
 
             # lexeme may be various types: string, tuple, error object, or None
+            # str: int, float, comment, string,
+            # tuple: reserved words, symbols
+            # DelimError: full token but wrong delimeter
             if type(lexeme) is str:
                 return curr_char + lexeme
             if type(lexeme) is tuple:
@@ -211,15 +216,16 @@ class Lexer:
             if state <= KEYWORD_LAST_STATE:
                 self.reverse_cursor()
 
-            # standalone ~ will be invalid and reversed. the others would not reverse if there is DelimError
-            if state >= FLOAT_START_STATE and state <= FLOAT_END_STATE:
+            if SYMBOL_STATE_START <= state <= SYMBOL_STATE_END:
                 self.reverse_cursor()
 
-            if state >= MULTI_COMMENT_STATE_START and state <= MULTI_COMMENT_STATE_END:
+            if FLOAT_START_STATE <= state <= FLOAT_END_STATE:
+                self.reverse_cursor()
+
+            if MULTI_COMMENT_STATE_START <= state <= MULTI_COMMENT_STATE_END:
                 self.reverse_cursor()
             
-            # if 'SADASD  ->  Unknown Char: ''' and tokenized id
-            if state >= STRING_STATE_START and state <= STRING_STATE_END:
+            if STRING_STATE_START <= state <= STRING_STATE_END:
                 self.reverse_cursor()
 
         # No transition matched.
@@ -228,6 +234,7 @@ class Lexer:
                 # At root and nothing matched -> unknown character
                 return UnexpectedEOF(self._source_lines[self._index[0]], self._index)
 
+            # Will return directly to start
             return UnknownCharError(self._source_lines[self._index[0]], self._index)
         # EX: Return None if 'shows' (since it dont match the keyword show and it has No error. It would most likely go to id)
         return None

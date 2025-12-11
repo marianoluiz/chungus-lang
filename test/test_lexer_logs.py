@@ -16,14 +16,13 @@ def _run_lexer(src: str) -> str:
     return lx.log.strip()
 
 def _rows():
-    path = "test/error_data.csv"
+    path = "test/test_lexer_logs_data.csv"
     with open(path, "r", encoding="utf-8") as f:
         reader = csv.reader(f)
         next(reader)  # skip header
 
         for row in reader:
             # row:  ['abc123 = 10', 'NO LEXICAL ERROR/S'] ...
-            print(row)
             src = row[0]                # The source code, col 1
             expected = row[1].strip()   # Expected Error, col 2
 
@@ -34,11 +33,10 @@ def _rows():
 
 """ the src, expected will be extracted from the _rows() at this parametrizing test """
 @pytest.mark.parametrize("src,expected", _rows()) 
-def test_error_data_csv_cases(src, expected):
+def test_lexer_logs(src, expected):
     # pytest.mark.parametrize is LIKE a loop that runs testcase per testcase
     # _rows() returns a generator, which pytest automatically does the next()
 
-    print(src, expected)
 
     log = _run_lexer(src)
     if expected == "NO LEXICAL ERROR/S":
@@ -58,7 +56,6 @@ def test_error_data_csv_cases(src, expected):
                 act = log_text.count(label)
                 assert act == exp, f"Expected {exp} {label} errors, got {act}"
     
-        # Optional: assert exact count of delimiter errors inferred from expected
         # Exact counts for known error types
         _count("Invalid Delimiter", expected, log)
         _count("Invalid Character", expected, log)

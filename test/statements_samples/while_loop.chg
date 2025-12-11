@@ -1,5 +1,0 @@
-counter = 3
-while counter > 0
-    show 'Counter: $(counter)\n'
-    counter = counter - 1
-close
