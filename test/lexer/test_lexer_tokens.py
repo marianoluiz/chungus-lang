@@ -18,7 +18,7 @@ def _run_lexer(src: str) -> str:
 
 
 def _rows():
-    path = "test/test_lexer_tokens_data.csv"
+    path = "test/lexer/test_lexer_tokens_data.csv"
     with open(path, "r", encoding="utf-8") as f:
         reader = csv.reader(f)
         next(reader)  # skip header
