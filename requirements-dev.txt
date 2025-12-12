@@ -20,6 +20,8 @@ pip-tools==7.5.2
     # via -r requirements-dev.in
 pluggy==1.6.0
     # via pytest
+pyflakes==3.4.0
+    # via -r requirements-dev.in
 pygments==2.19.2
     # via pytest
 pyproject-hooks==1.2.0

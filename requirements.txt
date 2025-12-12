@@ -4,5 +4,3 @@
 #
 #    pip-compile requirements.in
 #
-
-    # via -r requirements.in

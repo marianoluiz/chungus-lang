@@ -1,19 +1,19 @@
 import os
 import sys
+import csv
+import pytest
+from src.lexer.dfa_lexer import Lexer
 # Add src as root
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-import csv
-import io
-import pytest
-from src.lexer.dfa_lexer import Lexer
 
 def _run_lexer(src: str) -> str:
     lx = Lexer(src, debug=False)
     lx.start()
     return lx.log.strip()
+
 
 def _rows():
     path = "test/test_lexer_logs_data.csv"
@@ -27,16 +27,16 @@ def _rows():
             expected = row[1].strip()   # Expected Error, col 2
 
             # Normalize CRLFs and CR to LF if any, since spreadsheets do use CRLFs
-            expected = expected.replace("\r\n", "\n").replace("\r", "\n")   
+            expected = expected.replace("\r\n", "\n").replace("\r", "\n")
 
             yield src, expected         # return one at a time
 
-""" the src, expected will be extracted from the _rows() at this parametrizing test """
-@pytest.mark.parametrize("src,expected", _rows()) 
+
+@pytest.mark.parametrize("src,expected", _rows())
 def test_lexer_logs(src, expected):
+    """ the src, expected will be extracted from the _rows() at this parametrizing test """
     # pytest.mark.parametrize is LIKE a loop that runs testcase per testcase
     # _rows() returns a generator, which pytest automatically does the next()
-
 
     log = _run_lexer(src)
     if expected == "NO LEXICAL ERROR/S":
@@ -55,7 +55,7 @@ def test_lexer_logs(src, expected):
             if exp > 0:
                 act = log_text.count(label)
                 assert act == exp, f"Expected {exp} {label} errors, got {act}"
-    
+
         # Exact counts for known error types
         _count("Invalid Delimiter", expected, log)
         _count("Invalid Character", expected, log)
