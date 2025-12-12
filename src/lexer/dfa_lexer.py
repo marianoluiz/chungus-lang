@@ -18,8 +18,6 @@ MULTI_COMMENT_STATE_END = 175
 FLOAT_DOT_STATE = 218
 FLOAT_START_STATE = 179
 FLOAT_END_STATE = 230
-TWO_CHAR_OPERATOR_END_STATES = (125, 129, 133, 139, 143, 147, 151, 155)
-COMMENT_STRING_END_STATES = (175, 234 )
 
 class Lexer:
     """High level wrapper around the DFA lexemizer.
@@ -167,14 +165,6 @@ class Lexer:
                     if state <= KEYWORD_LAST_STATE and curr_char in ATOMS['under_alpha_num']:
                         continue
                     
-                    # Two Character Operators Completed but wrong delimiter
-                    if state in TWO_CHAR_OPERATOR_END_STATES:
-                        continue
-                    
-                    # String and Comment Completed but wrong Delimiter
-                    if state in COMMENT_STRING_END_STATES:
-                        continue
-
                     # Otherwise delimiter invalid for this terminal
                     return DelimError(self._source_lines[self._index[0]], self._index, TRANSITION_TABLE[state].accepted_chars)
 
@@ -216,6 +206,7 @@ class Lexer:
             if state <= KEYWORD_LAST_STATE:
                 self.reverse_cursor()
 
+            # I don't think this would ever get triggered since its upto 2 char only and delim error would move on and not revert
             if SYMBOL_STATE_START <= state <= SYMBOL_STATE_END:
                 self.reverse_cursor()
 

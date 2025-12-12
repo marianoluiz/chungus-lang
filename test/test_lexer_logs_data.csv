@@ -1,422 +1,322 @@
-Test Case,Expected Output,Actual Output,Test Result
-abc123 = 10,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-_temp = 5,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-A_B_C_D = 99,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x1y2z3 = 'test',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-______ = 0,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-helloWorld = true,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-temp_var_27 = 93,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-bigBIGsmallSmall = 22,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-variable123name = nil,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-1abc = 10,Invalid Delimiter,Invalid Delimiter,
-TRUE,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-FALSE,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-nil,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-read,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-show,Invalid Delimiter,Invalid Delimiter,
-clr,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-exit,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-for,Invalid Delimiter,Invalid Delimiter,
-range,Invalid Delimiter,Invalid Delimiter,
-TRUE,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 0,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = ~0,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 9999999999999999999,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 1234567890,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = ~99999,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 000123,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = ~0007,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 12 34,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 1.0,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-"x = 1,000",NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-f = 1.23,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-f = -0.000001,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-f = 00012.3400,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-f = 0.0,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-f = ~0.000000,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-f = .123,Invalid Character,Invalid Character,
+Test Case,Expected Output
+abc123 = 10,NO LEXICAL ERROR/S
+_temp = 5,NO LEXICAL ERROR/S
+A_B_C_D = 99,NO LEXICAL ERROR/S
+x1y2z3 = 'test',NO LEXICAL ERROR/S
+______ = 0,NO LEXICAL ERROR/S
+helloWorld = true,NO LEXICAL ERROR/S
+temp_var_27 = 93,NO LEXICAL ERROR/S
+bigBIGsmallSmall = 22,NO LEXICAL ERROR/S
+variable123name = nil,NO LEXICAL ERROR/S
+1abc = 10,Invalid Delimiter
+TRUE,NO LEXICAL ERROR/S
+FALSE,NO LEXICAL ERROR/S
+nil,NO LEXICAL ERROR/S
+read,NO LEXICAL ERROR/S
+show,Invalid Delimiter
+clr,NO LEXICAL ERROR/S
+exit,NO LEXICAL ERROR/S
+for,Invalid Delimiter
+range,Invalid Delimiter
+TRUE,NO LEXICAL ERROR/S
+x = 0,NO LEXICAL ERROR/S
+x = ~0,NO LEXICAL ERROR/S
+x = 9999999999999999999,NO LEXICAL ERROR/S
+x = 1234567890,NO LEXICAL ERROR/S
+x = ~99999,NO LEXICAL ERROR/S
+x = 000123,NO LEXICAL ERROR/S
+x = ~0007,NO LEXICAL ERROR/S
+x = 12 34,NO LEXICAL ERROR/S
+x = 1.0,NO LEXICAL ERROR/S
+"x = 1,000",NO LEXICAL ERROR/S
+f = 1.23,NO LEXICAL ERROR/S
+f = -0.000001,NO LEXICAL ERROR/S
+f = 00012.3400,NO LEXICAL ERROR/S
+f = 0.0,NO LEXICAL ERROR/S
+f = ~0.000000,NO LEXICAL ERROR/S
+f = .123,Invalid Character
 f = 123.,"Invalid Delimiter
-Invalid Character","Invalid Delimiter
-Invalid Character",
+Invalid Character"
 f = 12.34.56,"Invalid Delimiter
-Invalid Character","Invalid Delimiter
-Invalid Character",
-"f = 12,34.56",NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-f = 1.234567,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = 'hello',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = '',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = ' ',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = '\tTabbed',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = '\nLine',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = '\$Dollar',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = 'Value: $(x)',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = '$(myVar) world',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = 'hello,Invalid Character,Invalid Character,
+Invalid Character"
+"f = 12,34.56",NO LEXICAL ERROR/S
+f = 1.234567,NO LEXICAL ERROR/S
+s = 'hello',NO LEXICAL ERROR/S
+s = '',NO LEXICAL ERROR/S
+s = ' ',NO LEXICAL ERROR/S
+s = '\tTabbed',NO LEXICAL ERROR/S
+s = '\nLine',NO LEXICAL ERROR/S
+s = '\$Dollar',NO LEXICAL ERROR/S
+s = 'Value: $(x)',NO LEXICAL ERROR/S
+s = '$(myVar) world',NO LEXICAL ERROR/S
+s = 'hello,Invalid Character
 "s = ""hello""","Invalid Character
 Invalid Character
-Invalid Delimiter","Invalid Character
-Invalid Character
-Invalid Delimiter",
+Invalid Delimiter"
 "s = 'line1
 line2'","Invalid Character
 Invalid Delimiter
-Invalid Character","Invalid Character
+Invalid Character"
+s = '\'quote\'',"Invalid Delimiter
 Invalid Delimiter
-Invalid Character",
-s = '\'quote\'',"Invalid Character
-Invalid Character
-Invalid Character
-Invalid Delimiter
-Invalid Character","Invalid Character
-Invalid Character
-Invalid Character
-Invalid Delimiter
-Invalid Character
-",
-s = '\\test',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = '$(UnknownVar)',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = '$(fn())',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-# this is a comment,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 10 # inline comment,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
+Invalid Character"
+s = '\\test',NO LEXICAL ERROR/S
+s = '$(UnknownVar)',NO LEXICAL ERROR/S
+s = '$(fn())',NO LEXICAL ERROR/S
+# this is a comment,NO LEXICAL ERROR/S
+x = 10 # inline comment,NO LEXICAL ERROR/S
 "### multi
 line
-comment ###",NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
+comment ###",NO LEXICAL ERROR/S
 ### unclosed comment,"Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter",
-x=5###comment###,Invalid Delimiter,Invalid Delimiter,
-### ###,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 1 ### comment ### y = 2,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-#,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
+Invalid Delimiter"
+x=5###comment###,Invalid Delimiter
+### ###,NO LEXICAL ERROR/S
+x = 1 ### comment ### y = 2,NO LEXICAL ERROR/S
+#,NO LEXICAL ERROR/S
 ### ### ###,"Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter",
+Invalid Delimiter"
 ### # inside still comment ###,"Invalid Delimiter
 Invalid Delimiter
 Invalid Delimiter
 Invalid Delimiter
 Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter",
-a = b + c * d - e,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-a = 1**2**3,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = -5,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-count++,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-value--,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = !true,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = a//b,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = a % b,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = a == b != c,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
+Invalid Delimiter"
+a = b + c * d - e,NO LEXICAL ERROR/S
+a = 1**2**3,NO LEXICAL ERROR/S
+x = -5,NO LEXICAL ERROR/S
+count++,NO LEXICAL ERROR/S
+value--,NO LEXICAL ERROR/S
+x = !true,NO LEXICAL ERROR/S
+x = a//b,NO LEXICAL ERROR/S
+x = a % b,NO LEXICAL ERROR/S
+x = a == b != c,NO LEXICAL ERROR/S
 `++x,"Invalid Character
-Invalid Delimiter","Invalid Character
-Invalid Delimiter",
-arr = [],NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-"arr = [1,2,3]",NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-"arr = ['a','b','c']",NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-"arr = [true,false,nil]",NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-"arr = [1, 2 ,3 , 4]",NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-arr = [1 2 3],NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-"arr = [1, 'a', 3.14, true, nil]",NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-"nested = [[1,2],[3,4]]",NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-arr = [,Invalid Delimiter,Invalid Delimiter,
-"arr = [x, y, z]",NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x=1 y=2,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x =     5,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-y=10,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-z=3,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x=1   #comment,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-"fn compute(x,y)",NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-ret x,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-close,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-fn fnVar(),NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-fn 123bad(),Invalid Delimiter,Invalid Delimiter,
-"value = [1,2,3][0]",NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-show 'Result: $(value)',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-read,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = (1+2)*3,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
+Invalid Delimiter"
+arr = [],NO LEXICAL ERROR/S
+"arr = [1,2,3]",NO LEXICAL ERROR/S
+"arr = ['a','b','c']",NO LEXICAL ERROR/S
+"arr = [true,false,nil]",NO LEXICAL ERROR/S
+"arr = [1, 2 ,3 , 4]",NO LEXICAL ERROR/S
+arr = [1 2 3],NO LEXICAL ERROR/S
+"arr = [1, 'a', 3.14, true, nil]",NO LEXICAL ERROR/S
+"nested = [[1,2],[3,4]]",NO LEXICAL ERROR/S
+arr = [,Invalid Delimiter
+"arr = [x, y, z]",NO LEXICAL ERROR/S
+x=1 y=2,NO LEXICAL ERROR/S
+x =     5,NO LEXICAL ERROR/S
+y=10,NO LEXICAL ERROR/S
+z=3,NO LEXICAL ERROR/S
+x=1   #comment,NO LEXICAL ERROR/S
+"fn compute(x,y)",NO LEXICAL ERROR/S
+ret x,NO LEXICAL ERROR/S
+close,NO LEXICAL ERROR/S
+fn fnVar(),NO LEXICAL ERROR/S
+fn 123bad(),Invalid Delimiter
+"value = [1,2,3][0]",NO LEXICAL ERROR/S
+show 'Result: $(value)',NO LEXICAL ERROR/S
+read,NO LEXICAL ERROR/S
+x = (1+2)*3,NO LEXICAL ERROR/S
 @$invalid = 10,"Invalid Character
-Invalid Character","Invalid Character
-Invalid Character",
-_x__y___z = 1,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-a_b_c_d_e_f_g = 2,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-_____a1_____ = 3,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-a___________________b = 4,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-loooooooooooooooooooooongID = 5,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-_0_1_2_3 = 10,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-Az_zA09 = 11,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-__CaseSensitive__ = 1,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-var123var456var789 = 1,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-a____ = 2,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-_AaAaaAAa_ = 3,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x_y_z_123_456 = 7,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-_xYzZyX_ = 9,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-___x__9__x___ = 3,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-identifier__identifier = 10,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-a1_b2_c3_d4 = x,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-UPPERlowerUPPER123 = 1,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-a_____ = 1,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-_a_1_2_3_4_ = 4,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-var__name__collide = 2,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-X = _y_,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-_ = _,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-a9_9__9 = 9,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-a_____b_____c = 1,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-a b = 1,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x=1,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 2,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x= 3,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x=4,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x=5,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 7,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 8,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 9,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 10,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x y = 1,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x=1 y=2 z=3,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x=1 #tab before comment,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x=1 ###c###,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
+Invalid Character"
+_x__y___z = 1,NO LEXICAL ERROR/S
+a_b_c_d_e_f_g = 2,NO LEXICAL ERROR/S
+_____a1_____ = 3,NO LEXICAL ERROR/S
+a___________________b = 4,NO LEXICAL ERROR/S
+loooooooooooooooooooooongID = 5,NO LEXICAL ERROR/S
+_0_1_2_3 = 10,NO LEXICAL ERROR/S
+Az_zA09 = 11,NO LEXICAL ERROR/S
+__CaseSensitive__ = 1,NO LEXICAL ERROR/S
+var123var456var789 = 1,NO LEXICAL ERROR/S
+a____ = 2,NO LEXICAL ERROR/S
+_AaAaaAAa_ = 3,NO LEXICAL ERROR/S
+x_y_z_123_456 = 7,NO LEXICAL ERROR/S
+_xYzZyX_ = 9,NO LEXICAL ERROR/S
+___x__9__x___ = 3,NO LEXICAL ERROR/S
+identifier__identifier = 10,NO LEXICAL ERROR/S
+a1_b2_c3_d4 = x,NO LEXICAL ERROR/S
+UPPERlowerUPPER123 = 1,NO LEXICAL ERROR/S
+a_____ = 1,NO LEXICAL ERROR/S
+_a_1_2_3_4_ = 4,NO LEXICAL ERROR/S
+var__name__collide = 2,NO LEXICAL ERROR/S
+X = _y_,NO LEXICAL ERROR/S
+_ = _,NO LEXICAL ERROR/S
+a9_9__9 = 9,NO LEXICAL ERROR/S
+a_____b_____c = 1,NO LEXICAL ERROR/S
+a b = 1,NO LEXICAL ERROR/S
+x=1,NO LEXICAL ERROR/S
+x = 2,NO LEXICAL ERROR/S
+x= 3,NO LEXICAL ERROR/S
+x=4,NO LEXICAL ERROR/S
+x=5,NO LEXICAL ERROR/S
+x = 7,NO LEXICAL ERROR/S
+x = 8,NO LEXICAL ERROR/S
+x = 9,NO LEXICAL ERROR/S
+x = 10,NO LEXICAL ERROR/S
+x y = 1,NO LEXICAL ERROR/S
+x=1 y=2 z=3,NO LEXICAL ERROR/S
+x=1 #tab before comment,NO LEXICAL ERROR/S
+x=1 ###c###,NO LEXICAL ERROR/S
 x=1 #c##,"Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter",
+Invalid Delimiter"
 x=\t1,"Invalid Delimiter
-Invalid Character","Invalid Delimiter
-Invalid Character",
+Invalid Character"
 x=\n,"Invalid Delimiter
-Invalid Character","Invalid Delimiter
-Invalid Character",
-x = 1 # comment more,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 1 ### comment ### more,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 1 ###c###,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 000000000001,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = -0000000000007,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 0000000,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 000.123,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
+Invalid Character"
+x = 1 # comment more,NO LEXICAL ERROR/S
+x = 1 ### comment ### more,NO LEXICAL ERROR/S
+x = 1 ###c###,NO LEXICAL ERROR/S
+x = 000000000001,NO LEXICAL ERROR/S
+x = -0000000000007,NO LEXICAL ERROR/S
+x = 0000000,NO LEXICAL ERROR/S
+x = 000.123,NO LEXICAL ERROR/S
 x = ~.123,"Invalid Character
-Invalid Character","Invalid Character
-Invalid Character",
-x = +123,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 1_234,Invalid Delimiter,Invalid Delimiter,
-x = 12 34,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 1.234567,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 1.000000,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
+Invalid Character"
+x = +123,NO LEXICAL ERROR/S
+x = 1_234,Invalid Delimiter
+x = 12 34,NO LEXICAL ERROR/S
+x = 1.234567,NO LEXICAL ERROR/S
+x = 1.000000,NO LEXICAL ERROR/S
 x = 1.0.0,"Invalid Delimiter
-Invalid Character","Invalid Delimiter
-Invalid Character",
-x = .0001,Invalid Character,Invalid Character,
-"x = 12,34",NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-"x = 1,2,3,4",NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 1-2,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 1--2,Invalid Delimiter,Invalid Delimiter,
-x = 1++2,Invalid Delimiter,Invalid Delimiter,
-x = 1+-2,Invalid Delimiter,Invalid Delimiter,
-x = 12345678901234567890,Invalid Delimiter,Invalid Delimiter,
-x = 1234567890123456789.1234567,Invalid Delimiter,Invalid Delimiter,
-x = 12.34e10,Invalid Delimiter,Invalid Delimiter,
-x = -0.0,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 00.00,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
+Invalid Character"
+x = .0001,Invalid Character
+"x = 12,34",NO LEXICAL ERROR/S
+"x = 1,2,3,4",NO LEXICAL ERROR/S
+x = 1-2,NO LEXICAL ERROR/S
+x = 1--2,Invalid Delimiter
+x = 1++2,Invalid Delimiter
+x = 1+-2,Invalid Delimiter
+x = 12345678901234567890,Invalid Delimiter
+x = 1234567890123456789.1234567,Invalid Delimiter
+x = 12.34e10,Invalid Delimiter
+x = -0.0,NO LEXICAL ERROR/S
+x = 00.00,NO LEXICAL ERROR/S
 x = 123.,"Invalid Delimiter
-Invalid Character","Invalid Delimiter
-Invalid Character",
+Invalid Character"
 x = ~.,"Invalid Character
-Invalid Character","Invalid Character
-Invalid Character",
-x = .,Invalid Character,Invalid Character,
-s = '\n',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = '\t',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = '\$',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = '\\',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = '\',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = 'a\\b\\c',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = '$(x)',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = '$(x)$(y)$(z)',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = '$()',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = '$(123)',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = '$(var_name)',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = '$(fn())',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = ''',Invalid Character,Invalid Character,
+Invalid Character"
+x = .,Invalid Character
+s = '\n',NO LEXICAL ERROR/S
+s = '\t',NO LEXICAL ERROR/S
+s = '\$',NO LEXICAL ERROR/S
+s = '\\',NO LEXICAL ERROR/S
+s = '\',NO LEXICAL ERROR/S
+s = 'a\\b\\c',NO LEXICAL ERROR/S
+s = '$(x)',NO LEXICAL ERROR/S
+s = '$(x)$(y)$(z)',NO LEXICAL ERROR/S
+s = '$()',NO LEXICAL ERROR/S
+s = '$(123)',NO LEXICAL ERROR/S
+s = '$(var_name)',NO LEXICAL ERROR/S
+s = '$(fn())',NO LEXICAL ERROR/S
+s = ''',Invalid Character
 "s = 'line1
  line2'","Invalid Character
 Invalid Delimiter
-Invalid Character","Invalid Character
-Invalid Delimiter
-Invalid Character",
+Invalid Character"
 "s = """"'""""","Invalid Character
 Invalid Character
 Invalid Character
 Invalid Character
-Invalid Character","Invalid Character
-Invalid Character
-Invalid Character
-Invalid Character
-Invalid Character
-",
-s = '\''',Invalid Delimiter,Invalid Delimiter,
-s = ''''''',"Invalid Character
-Invalid Character
-Invalid Character
-Invalid Character
-Invalid Character","Invalid Character
-Invalid Character
-Invalid Character
-Invalid Character
-Invalid Character",
-s = '$(a b)',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s = '$(a!b)',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
+Invalid Character"
+s = '\''',Invalid Delimiter
+s = ''''''',"Invalid Delimiter
+Invalid Delimiter
+Invalid Delimiter
+Invalid Character"
+s = '$(a b)',NO LEXICAL ERROR/S
+s = '$(a!b)',NO LEXICAL ERROR/S
 "s='\\
  '","Invalid Character
 Invalid Character
 Invalid Character
-Invalid Character","Invalid Character
-Invalid Character
-Invalid Character
-Invalid Character",
-s='test\ ',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s='\x',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s='C:\\path',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s='C:\path',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
+Invalid Character"
+s='test\ ',NO LEXICAL ERROR/S
+s='\x',NO LEXICAL ERROR/S
+s='C:\\path',NO LEXICAL ERROR/S
+s='C:\path',NO LEXICAL ERROR/S
 s='O\'Connor',"Invalid Delimiter
 Invalid Delimiter
-Invalid Character","Invalid Delimiter
-Invalid Delimiter
-Invalid Character",
-s='$(unknownVar)',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s='123$(x)456',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
+Invalid Character"
+s='$(unknownVar)',NO LEXICAL ERROR/S
+s='123$(x)456',NO LEXICAL ERROR/S
 s='\'',"Invalid Delimiter
-Invalid Character","Invalid Delimiter
-Invalid Character",
-s='abc\\\\def',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s='$(read)',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s='$(range)',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s='$(if)',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s='$(false)',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s='$(nil)',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s='$(true)',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s='$(123abc)',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
+Invalid Character"
+s='abc\\\\def',NO LEXICAL ERROR/S
+s='$(read)',NO LEXICAL ERROR/S
+s='$(range)',NO LEXICAL ERROR/S
+s='$(if)',NO LEXICAL ERROR/S
+s='$(false)',NO LEXICAL ERROR/S
+s='$(nil)',NO LEXICAL ERROR/S
+s='$(true)',NO LEXICAL ERROR/S
+s='$(123abc)',NO LEXICAL ERROR/S
 "s=""wrong""","Invalid Delimiter
 Invalid Character
 Invalid Delimiter
-Invalid Character","Invalid Delimiter
-Invalid Character
-Invalid Delimiter
-Invalid Character",
-s='ends with backslash\',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-s='tab:\tnewline:\n',NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-### comment ###,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-### ###### ###,Invalid Delimiter,Invalid Delimiter,
+Invalid Character"
+s='ends with backslash\',NO LEXICAL ERROR/S
+s='tab:\tnewline:\n',NO LEXICAL ERROR/S
+### comment ###,NO LEXICAL ERROR/S
+### ###### ###,Invalid Delimiter
 "### c1
  c2
- c3 ###",NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
+ c3 ###",NO LEXICAL ERROR/S
 ###nested###comment###,"Invalid Delimiter
 Invalid Delimiter
 Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter",
+Invalid Delimiter"
 ### not closed,"Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter",
-### ### text,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x=1 ###c### 2,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
+Invalid Delimiter"
+### ### text,NO LEXICAL ERROR/S
+x=1 ###c### 2,NO LEXICAL ERROR/S
 ### # inside ###,"Invalid Delimiter
 Invalid Delimiter
 Invalid Delimiter
 Invalid Delimiter
 Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter",
-### ### ### ###,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-### ###x,Invalid Delimiter,Invalid Delimiter,
+Invalid Delimiter"
+### ### ### ###,NO LEXICAL ERROR/S
+### ###x,Invalid Delimiter
 "### 
    
-  ###",NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-### \###,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
+  ###",NO LEXICAL ERROR/S
+### \###,NO LEXICAL ERROR/S
 ###$%#@!###,"Invalid Delimiter
 Invalid Delimiter
 Invalid Delimiter
 Invalid Delimiter
 Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter",
-### ### x=y,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-### ### #,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-#######,Invalid Delimiter,Invalid Delimiter,
+Invalid Delimiter"
+### ### x=y,NO LEXICAL ERROR/S
+### ### #,NO LEXICAL ERROR/S
+#######,Invalid Delimiter
 ##########,"Invalid Delimiter
 Invalid Delimiter
 Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter",
-### 123 ###,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-###a###b,Invalid Delimiter,Invalid Delimiter,
-x###comment###,Invalid Delimiter,Invalid Delimiter,
+Invalid Delimiter"
+### 123 ###,NO LEXICAL ERROR/S
+###a###b,Invalid Delimiter
+x###comment###,Invalid Delimiter
 x###c###y,"Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter",
-x=1+++2,"Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter",
-x=1---2,"Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter",
+Invalid Delimiter"
+x=1+++2,Invalid Delimiter
+x=1---2,Invalid Delimiter
 x=!--x,"Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter",
-x=!!true,Invalid Delimiter,Invalid Delimiter,
+Invalid Delimiter"
+x=!!true,Invalid Delimiter
 x = 1/**/2,"Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter",
-x = 1//2,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x = 1////2,"Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter",
-x = **2,NO LEXICAL ERROR/S,NO LEXICAL ERROR/S,
-x **= 2,"Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter",
+Invalid Delimiter"
+x = 1//2,NO LEXICAL ERROR/S
+x = 1////2,Invalid Delimiter
+x = **2,NO LEXICAL ERROR/S
+x **= 2,Invalid Delimiter
 x = ===,"Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter",
+Invalid Delimiter"
 x = !==,"Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter",
+Invalid Delimiter"
 x = >>,"Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter",
+Invalid Delimiter"
 x = <<,"Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter",
+Invalid Delimiter"
 x = <==>,"Invalid Delimiter
 Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter","Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter
-Invalid Delimiter",
+Invalid Delimiter"
