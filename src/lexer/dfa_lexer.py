@@ -47,14 +47,15 @@ class Lexer:
 
         # Debug switch
         self._debug = debug
-        def _dbg(msg: str):
-            if self._debug:
-                print(msg)
-        self._dbg = _dbg
 
         # Useful debug print to see how source lines were split
         self._dbg('---- Splitted Source: ----')
         self._dbg(self._source_lines)
+
+    def _dbg(self, msg: str):
+        """ Debug print message function """
+        if self._debug:
+            print(msg)
 
     # TRACKING CHARACTERS
     def get_curr_char(self):

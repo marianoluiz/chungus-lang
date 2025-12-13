@@ -8,7 +8,7 @@ Behavior:
 Usage:
     python -m src.lexer
 """
-import sys, os
+import os
 from src.lexer.dfa_lexer import Lexer
 
 def main():
