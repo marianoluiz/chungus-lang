@@ -1,12 +1,2 @@
--- function --
-
-fn id()
-
-show 'hello'
-
-ret id
-
-
-close
-
+show 1
 
