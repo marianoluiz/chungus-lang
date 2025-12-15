@@ -26,12 +26,12 @@ ATOMS = {
         *set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
     },
     'single_comment_ascii': {
-        ' ', '!', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', 
+        ' ', '!', '$', '%', '&', '"', "'", '(', ')', '*', '+', ',', '-', '.', '/', 
         ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~', ' ',
         *set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
     },
     'multiline_comment_ascii': {
-        ' ', '!', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', 
+        ' ', '!', '$', '%', '&', '"', "'", '(', ')', '*', '+', ',', '-', '.', '/', 
         ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~', '\n',
         *set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
     },

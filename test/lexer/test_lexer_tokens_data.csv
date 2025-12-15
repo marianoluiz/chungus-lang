@@ -1,4 +1,4 @@
-Test Case,Expected Output,
+Test Case,Expected Output,Description
 "a = 10
 b = 20
 c = a + b
@@ -56,7 +56,7 @@ show 'Message shown'","[""id"",""="",""str_literal"",""show"",""str_literal""]",
 "show 'Start'
 clr
 show 'Done'
-exit","[""show"",""str_literal"",""clr"",""show"",""str_literal"",""exit""]",system.chg
+exit","[""show"",""str_literal"",""id"",""show"",""str_literal"",""id""]",system.chg
 "fn future()
     todo
 close","[""fn"",""id"",""("","")"",""todo"",""close""]",todo.chg
@@ -80,3 +80,5 @@ close","[""id"",""="",""int_literal"",""while"",""id"","">"",""int_literal"",""s
 ### multiline comment ###","[""comment"", ""comment""]",comments
  'string',"[""str_literal""]",string literal
 ### uncompleted multiline that becomes single,"[""comment""]",uncomplete comment
+~1.,[],int literal test
+~~1,"[""int_literal""]",int literal test

@@ -1,7 +1,8 @@
 import tkinter as tk
 from src.gui import ChungusLexerGUI
 from src.lexer.dfa_lexer import Lexer
-from src.syntax.syntax_test import Parser
+# from src.syntax.syntax_test import Parser
+from src.syntax.rd_parser import RDParser
 
 def lexer_adapter(source: str):
     """
@@ -16,7 +17,7 @@ def lexer_adapter(source: str):
     lexer = Lexer(source, debug=False)
     lexer.start()
 
-    # Lexer.token_stream: [ ((lexeme, token_type), (line_index, col_index)), ... ]
+    # Lexer.token_stream: [ ((type, lexeme), (line, col)), ... ]
     for (lex_pair, pos) in lexer.token_stream:
 
         lexeme, ttype = lex_pair
@@ -29,10 +30,12 @@ def lexer_adapter(source: str):
             "col": col_idx + 1
         })
 
+
+    
     if lexer.log:
-        # lexer.log already contains readable error blocks, one per line (splitlines)
         errors.append("Lexical Error/s:")
         errors.extend(lexer.log.splitlines())
+        # End if have lexical error
         return tokens, errors
 
     # # Run Lark syntax parser and surface parser errors (if any)
@@ -43,6 +46,13 @@ def lexer_adapter(source: str):
     #     # parser.parse returns SyntaxResult; append parser.log (human readable)
     #     errors.append("Syntax Error/s:")
     #     errors.append(parse_result.log or "\n".join(parse_result.errors))
+
+    # parser = RDParser(tokens, source, debug=True)
+    # parse_result = parser.parse()
+
+    # if parse_result.errors:
+    #     errors.append("Syntax Error/s:")
+    #     errors.extend(parse_result.errors.splitlines())
 
     return tokens, errors
 

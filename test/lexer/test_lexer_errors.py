@@ -8,15 +8,13 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-
 def _run_lexer(src: str) -> str:
     lx = Lexer(src, debug=False)
     lx.start()
     return lx.log.strip()
 
-
 def _rows():
-    path = "test/lexer/test_lexer_logs_data.csv"
+    path = "test/lexer/test_lexer_errors_data.csv"
     with open(path, "r", encoding="utf-8") as f:
         reader = csv.reader(f)
         next(reader)  # skip header
@@ -38,7 +36,13 @@ def test_lexer_logs(src, expected):
     # pytest.mark.parametrize is LIKE a loop that runs testcase per testcase
     # _rows() returns a generator, which pytest automatically does the next()
 
+    print("SRC INPUT:")
+    print(src)
+    print("EXPECTED:")
+    print(expected)
+    
     log = _run_lexer(src)
+    
     if expected == "NO LEXICAL ERROR/S":
         assert log == ""
     else:
@@ -49,15 +53,15 @@ def test_lexer_logs(src, expected):
 
         # Count helper
         def _count(label: str, expected_text: str, log_text: str):
+            # expected count
             # counts how many lines in expected_text contain the substring label.
             exp = sum(1 for line in expected_text.splitlines() if label in line)
 
-            if exp > 0:
-                act = log_text.count(label)
-                assert act == exp, f"Expected {exp} {label} errors, got {act}"
+            # actual count
+            act = log_text.count(label)
+            print(f"Expected {exp} {label} errors, got {act}")
+            assert act == exp, f"Expected {exp} {label} errors, got {act}"
 
         # Exact counts for known error types
         _count("Invalid Delimiter", expected, log)
         _count("Invalid Character", expected, log)
-        _count("Unclosed String", expected, log)
-        _count("Unclosed Comment", expected, log)

@@ -51,8 +51,8 @@ s = 'Value: $(x)',NO LEXICAL ERROR/S
 s = '$(myVar) world',NO LEXICAL ERROR/S
 s = 'hello,Invalid Character
 "s = ""hello""","Invalid Character
-Invalid Character
-Invalid Delimiter"
+Invalid Delimiter
+Invalid Character"
 "s = 'line1
 line2'","Invalid Character
 Invalid Delimiter
@@ -186,6 +186,7 @@ x = 1-2,NO LEXICAL ERROR/S
 x = 1--2,Invalid Delimiter
 x = 1++2,Invalid Delimiter
 x = 1+-2,Invalid Delimiter
+x = 1+~2,NO LEXICAL ERROR/S
 x = 12345678901234567890,Invalid Delimiter
 x = 1234567890123456789.1234567,Invalid Delimiter
 x = 12.34e10,Invalid Delimiter
@@ -208,7 +209,8 @@ s = '$()',NO LEXICAL ERROR/S
 s = '$(123)',NO LEXICAL ERROR/S
 s = '$(var_name)',NO LEXICAL ERROR/S
 s = '$(fn())',NO LEXICAL ERROR/S
-s = ''',Invalid Character
+s = ''',"Invalid Delimiter
+Invalid Character"
 "s = 'line1
  line2'","Invalid Character
 Invalid Delimiter
@@ -320,3 +322,6 @@ Invalid Delimiter"
 x = <==>,"Invalid Delimiter
 Invalid Delimiter
 Invalid Delimiter"
+x = ~~1.,"Invalid Character
+Invalid Delimiter
+Invalid Character"

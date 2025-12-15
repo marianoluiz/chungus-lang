@@ -86,6 +86,7 @@ pytest -vv -x
 - Test framework: pytest
 - Test folder: src/test
 - Use the Testing sidebar to run/debug tests, or right-click a test to run it.
+- If action not found, try: Cmd/Ctrl + Shift + P → Reload Window
 
 ## Linting (flake8)
 
