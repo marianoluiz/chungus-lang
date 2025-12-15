@@ -1,39 +1,3 @@
-"""DFA Transition Table for the Chungus lexer.
-
-    Structure:
-    - TransitionState: a node in the DFA
-        accepted_chars : iterable (set/list) of allowed characters at this node
-        next_states    : list[int] of target state IDs (ordered for disambiguation)
-        is_terminal    : bool indicating an accepting (token boundary) state
-
-    TRANSITION_TABLE:
-        int state_id -> TransitionState
-
-    Subgraph layout (state ID ranges):
-        1..121   : keywords / reserved words (added 'close')
-        122..165 : operators, delimiters, punctuation
-        166..175 : comments
-                 - 166 '#' entry
-                 - Single-line: 167* -> 168 (newline)
-                 - Multi-line: ### open (169->170->171 loop) then ### close (172->173->174->175)
-        176..178 : identifiers (start, body loop, delimiter check)
-        179..230 : numeric literals
-                 - 179 optional unary '-'
-                 - 180..217 whole number (up to 19 digits, every other state terminal)
-                 - 218 '.' decimal point
-                 - 219..230 fractional part (up to 6 digits, every other state terminal)
-        231..234 : single-quoted string literals
-
-    Terminal states:
-    - is_terminal=True means: lexemize stops path here and validates the following delimiter
-    - Delimiter sets sourced from constants.DELIMS
-
-    Notes:
-    - Keyword prefixes that continue into identifiers will backtrack one char (handled in lexer.lexemize).
-    - The initial state (0) holds fan‑out into all possible leading token characters.
-    - The next states must have the delimeter states at the last since we check if TRANSITION_TABLE[state].is_terminal, to return a delimeter error
-"""
-
 from src.constants import ATOMS, DELIMS
 
 class TransitionState:
@@ -43,11 +7,12 @@ class TransitionState:
         self.is_terminal = is_terminal
 
 TRANSITION_TABLE = {
-    0: TransitionState('initial', [1, 27, 35, 47, 66, 73, 77, 80, 92, 103, 116, 122, 
-                                   126, 130, 134, 136, 140, 144, 148, 152, 156, 158, 160, 
-                                   162, 164, 166, 176, 179, 180, 231]),
-    
-    # --- Keywords (1-121) ---
+    # --- Initial State ---
+    0: TransitionState('initial', [1, 27, 33, 41, 60, 67, 70, 82, 93, 106, 112, 116, 
+                                   120, 124, 126, 130, 134, 138, 142, 146, 148, 150, 
+                                   152, 154, 156, 166, 169, 170, 221]),
+
+    # --- Keywords: 'a' (always, and, array_remove) ---
     1: TransitionState('a', [2, 8, 11]),
     2: TransitionState('l', [3]),
     3: TransitionState('w', [4]),
@@ -74,257 +39,261 @@ TRANSITION_TABLE = {
     24: TransitionState('v', [25]),
     25: TransitionState('e', [26]),
     26: TransitionState(DELIMS['method_delim'], is_terminal=True),
+
+    # --- Keywords: 'c', 'e', 'f', 'i' (close, elif, else, false, fail, float, fn, for, if, in, int) ---
     27: TransitionState('c', [28]),
-    
-    28: TransitionState('l', [29, 31]), 
-    
-    29: TransitionState('r', [30]),
-    30: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
-    
-    31: TransitionState('o', [32]),
-    32: TransitionState('s', [33]),
+    28: TransitionState('l', [29]),
+    29: TransitionState('o', [30]),
+    30: TransitionState('s', [31]),
+    31: TransitionState('e', [32]),
+    32: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
+
     33: TransitionState('e', [34]),
-    34: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
+    34: TransitionState('l', [38, 35]), 
+    35: TransitionState('i', [36]),
+    36: TransitionState('f', [37]),
+    37: TransitionState(DELIMS['inline_delim'], is_terminal=True),
+    38: TransitionState('s', [39]),
+    39: TransitionState('e', [40]),
+    40: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
 
-    35: TransitionState('e', [36, 43]),
-    36: TransitionState('l', [37, 40]),
-    37: TransitionState('i', [38]),
-    38: TransitionState('f', [39]),
-    39: TransitionState(DELIMS['inline_delim'], is_terminal=True),
-    40: TransitionState('s', [41]),
-    41: TransitionState('e', [42]),
-    42: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
-    43: TransitionState('x', [44]),
-    44: TransitionState('i', [45]),
-    45: TransitionState('t', [46]),
-    46: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
-    47: TransitionState('f', [48, 56, 61, 63]),
-    48: TransitionState('a', [49, 53]),
-    49: TransitionState('l', [50]),
-    50: TransitionState('s', [51]),
-    51: TransitionState('e', [52]),
-    52: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-    53: TransitionState('i', [54]),
-    54: TransitionState('l', [55]),
-    55: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
-    56: TransitionState('l', [57]),
+    41: TransitionState('f', [55, 57, 42, 50]), # n(55), o(57), a(42), l(50)
+    42: TransitionState('a', [47, 43]), # i(47), l(43)
+    43: TransitionState('l', [44]),
+    44: TransitionState('s', [45]),
+    45: TransitionState('e', [46]),
+    46: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+    47: TransitionState('i', [48]),
+    48: TransitionState('l', [49]),
+    49: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
+    50: TransitionState('l', [51]),
+    51: TransitionState('o', [52]),
+    52: TransitionState('a', [53]),
+    53: TransitionState('t', [54]),
+    54: TransitionState(DELIMS['method_delim'], is_terminal=True),
+    55: TransitionState('n', [56]),
+    56: TransitionState(DELIMS['inline_delim'], is_terminal=True),
     57: TransitionState('o', [58]),
-    58: TransitionState('a', [59]),
-    59: TransitionState('t', [60]),
-    60: TransitionState(DELIMS['method_delim'], is_terminal=True),
-    61: TransitionState('n', [62]),
+    58: TransitionState('r', [59]),
+    59: TransitionState(DELIMS['inline_delim'], is_terminal=True),
+
+    60: TransitionState('i', [61, 63]),
+    61: TransitionState('f', [62]),
     62: TransitionState(DELIMS['inline_delim'], is_terminal=True),
-    63: TransitionState('o', [64]),
-    64: TransitionState('r', [65]),
-    65: TransitionState(DELIMS['inline_delim'], is_terminal=True),
-    66: TransitionState('i', [67, 69]),
-    67: TransitionState('f', [68]),
-    68: TransitionState(DELIMS['inline_delim'], is_terminal=True),
-    69: TransitionState('n', [70, 71]),
-    70: TransitionState(DELIMS['inline_delim'], is_terminal=True),
-    71: TransitionState('t', [72]),
-    72: TransitionState(DELIMS['method_delim'], is_terminal=True),
-    73: TransitionState('n', [74]),
-    74: TransitionState('i', [75]),
-    75: TransitionState('l', [76]),
-    76: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-    77: TransitionState('o', [78]),
-    78: TransitionState('r', [79]),
-    79: TransitionState(DELIMS['inline_delim'], is_terminal=True),
-    80: TransitionState('r', [81, 86]),
-    81: TransitionState('a', [82]),
-    82: TransitionState('n', [83]),
-    83: TransitionState('g', [84]),
-    84: TransitionState('e', [85]),
-    85: TransitionState(DELIMS['method_delim'], is_terminal=True),
-    86: TransitionState('e', [87, 90]),
-    87: TransitionState('a', [88]),
-    88: TransitionState('d', [89]),
-    89: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
-    90: TransitionState('t', [91]),
-    91: TransitionState(DELIMS['inline_delim'], is_terminal=True),
-    92: TransitionState('t', [93, 97]),
-    93: TransitionState('o', [94]),
-    94: TransitionState('d', [95]),
+    63: TransitionState('n', [65, 64]), # t(65), delim(64)
+    64: TransitionState(DELIMS['inline_delim'], is_terminal=True),
+    65: TransitionState('t', [66]),
+    66: TransitionState(DELIMS['method_delim'], is_terminal=True),
+
+    # --- Keywords: 'o', 'r', 't', 's', 'w' (or, range, read, ret, todo, true, try, show, skip, stop, while) ---
+    67: TransitionState('o', [68]),
+    68: TransitionState('r', [69]),
+    69: TransitionState(DELIMS['inline_delim'], is_terminal=True),
+
+    70: TransitionState('r', [76, 71]), # e(76), a(71)
+    71: TransitionState('a', [72]),
+    72: TransitionState('n', [73]),
+    73: TransitionState('g', [74]),
+    74: TransitionState('e', [75]),
+    75: TransitionState(DELIMS['method_delim'], is_terminal=True),
+    76: TransitionState('e', [80, 77]), # t(80), a(77)
+    77: TransitionState('a', [78]),
+    78: TransitionState('d', [79]),
+    79: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
+    80: TransitionState('t', [81]),
+    81: TransitionState(DELIMS['inline_delim'], is_terminal=True),
+
+    82: TransitionState('t', [87, 83]), # r(87), o(83)
+    83: TransitionState('o', [84]),
+    84: TransitionState('d', [85]),
+    85: TransitionState('o', [86]),
+    86: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
+    87: TransitionState('r', [91, 88]), # y(91), u(88)
+    88: TransitionState('u', [89]),
+    89: TransitionState('e', [90]),
+    90: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+    91: TransitionState('y', [92]),
+    92: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
+
+    93: TransitionState('s', [98, 102, 94]), # k(98), t(102), h(94)
+    94: TransitionState('h', [95]),
     95: TransitionState('o', [96]),
-    96: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
-    97: TransitionState('r', [98, 101]),
-    98: TransitionState('u', [99]),
-    99: TransitionState('e', [100]),
-    100: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-    101: TransitionState('y', [102]),
-    102: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
-    103: TransitionState('s', [104, 108, 112]),
-    104: TransitionState('h', [105]),
-    105: TransitionState('o', [106]),
+    96: TransitionState('w', [97]),
+    97: TransitionState(DELIMS['inline_delim'], is_terminal=True),
+    98: TransitionState('k', [99]),
+    99: TransitionState('i', [100]),
+    100: TransitionState('p', [101]),
+    101: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
+    102: TransitionState('t', [103]),
+    103: TransitionState('o', [104]),
+    104: TransitionState('p', [105]),
+    105: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
+
     106: TransitionState('w', [107]),
-    107: TransitionState(DELIMS['inline_delim'], is_terminal=True),
-    108: TransitionState('k', [109]),
-    109: TransitionState('i', [110]),
-    110: TransitionState('p', [111]),
-    111: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
-    112: TransitionState('t', [113]),
-    113: TransitionState('o', [114]),
-    114: TransitionState('p', [115]),
+    107: TransitionState('h', [108]),
+    108: TransitionState('i', [109]),
+    109: TransitionState('l', [110]),
+    110: TransitionState('e', [111]),
+    111: TransitionState(DELIMS['inline_delim'], is_terminal=True),
+
+    # --- Operators: Arithmetic (+, -, *, %, /) ---
+    112: TransitionState('+', [114, 113]),
+    113: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
+    114: TransitionState('+', [115]),
     115: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
-    116: TransitionState('w', [117]),
-    117: TransitionState('h', [118]),
-    118: TransitionState('i', [119]),
-    119: TransitionState('l', [120]),
-    120: TransitionState('e', [121]),
-    121: TransitionState(DELIMS['inline_delim'], is_terminal=True),
 
-    # --- Operators (122-165) ---
-    122: TransitionState('+', [124, 123]),
+    116: TransitionState('-', [118, 117]),
+    117: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
+    118: TransitionState('-', [119]),
+    119: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
+
+    120: TransitionState('*', [122, 121]),
+    121: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
+    122: TransitionState('*', [123]),
     123: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
-    124: TransitionState('+', [125]),
-    125: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
-    126: TransitionState('-', [128, 127]),
+
+    124: TransitionState('%', [125]),
+    125: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
+
+    126: TransitionState('/', [128, 127]),
     127: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
-    128: TransitionState('-', [129]),
-    129: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
-    130: TransitionState('*', [132, 131]),
-    131: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
-    132: TransitionState('*', [133]),
+    128: TransitionState('/', [129]),
+    129: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
+
+    # --- Operators: Relational/Assignment (=, !, <, >) ---
+    130: TransitionState('=', [132, 131]),
+    131: TransitionState(DELIMS['assign_op_delim'], is_terminal=True),
+    132: TransitionState('=', [133]),
     133: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
-    134: TransitionState('%', [135]),
+
+    134: TransitionState('!', [136, 135]),
     135: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
-    136: TransitionState('/', [138, 137]),
+    136: TransitionState('=', [137]),
     137: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
-    138: TransitionState('/', [139]),
+
+    138: TransitionState('<', [140, 139]),
     139: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
-    140: TransitionState('=', [142, 141]),
-    141: TransitionState(DELIMS['assign_op_delim'], is_terminal=True),
-    142: TransitionState('=', [143]),
+    140: TransitionState('=', [141]),
+    141: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
+
+    142: TransitionState('>', [144, 143]),
     143: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
-    144: TransitionState('!', [146, 145]),
+    144: TransitionState('=', [145]),
     145: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
-    146: TransitionState('=', [147]),
-    147: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
-    148: TransitionState('<', [150, 149]),
-    149: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
-    150: TransitionState('=', [151]),
-    151: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
-    152: TransitionState('>', [154, 153]),
-    153: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
-    154: TransitionState('=', [155]),
-    155: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
-    156: TransitionState('(', [157]),
-    157: TransitionState(DELIMS['paren_open_delim'], is_terminal=True),
-    158: TransitionState(')', [159]),
-    159: TransitionState(DELIMS['paren_close_delim'], is_terminal=True),
-    160: TransitionState('[', [161]),
-    161: TransitionState(DELIMS['bracket_open_delim'], is_terminal=True),
-    162: TransitionState(']', [163]),
-    163: TransitionState(DELIMS['bracket_close_delim'], is_terminal=True),
-    164: TransitionState(',', [165]),
-    165: TransitionState(DELIMS['comma_delim'], is_terminal=True),
 
-    # --- Comments (166-175) ---
-    166: TransitionState('#', [169, 167, 168]),
-    167: TransitionState(ATOMS['single_comment_ascii'], [167, 168]),
-    168: TransitionState({'\n'}, is_terminal=True),
-    169: TransitionState('#', [170]),
-    170: TransitionState('#', [172, 171]),
-    171: TransitionState(ATOMS['multiline_comment_ascii'], [172, 171]),
-    172: TransitionState('#', [173]),
-    173: TransitionState('#', [174]),
-    174: TransitionState('#', [175]),
-    175: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
+    # --- Delimiters ---
+    146: TransitionState('(', [147]),
+    147: TransitionState(DELIMS['paren_open_delim'], is_terminal=True),
+    148: TransitionState(')', [149]),
+    149: TransitionState(DELIMS['paren_close_delim'], is_terminal=True),
+    150: TransitionState('[', [151]),
+    151: TransitionState(DELIMS['bracket_open_delim'], is_terminal=True),
+    152: TransitionState(']', [153]),
+    153: TransitionState(DELIMS['bracket_close_delim'], is_terminal=True),
+    154: TransitionState(',', [155]),
+    155: TransitionState(DELIMS['comma_delim'], is_terminal=True),
 
-    # --- Identifiers (176-178) ---
-    176: TransitionState({*ATOMS['all_alphabet'], '_'}, [177, 178]),
-    177: TransitionState(ATOMS['under_alpha_num'], [177, 178]),
-    178: TransitionState(DELIMS['id_delim'], is_terminal=True),
+    # --- Comments ---
+    156: TransitionState('#', [159, 157, 158]), # #->159, ascii->157
+    157: TransitionState(ATOMS['single_comment_ascii'], [157, 158]),
+    158: TransitionState('\n', is_terminal=True),
+    159: TransitionState('#', [160]),
+    160: TransitionState('#', [162, 161]),
+    161: TransitionState(ATOMS['multiline_comment_ascii'], [162, 161]),
+    162: TransitionState('#', [163]),
+    163: TransitionState('#', [164]),
+    164: TransitionState('#', [165]),
+    165: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
 
-    # --- Numeric Literals (179–230) ---
+    # --- Identifiers ---
+    166: TransitionState({*ATOMS['all_alphabet'], '_'}, [167, 168]),
+    167: TransitionState(ATOMS['under_alpha_num'], [167, 168]),
+    168: TransitionState(DELIMS['id_delim'], is_terminal=True),
 
-    179: TransitionState('~', [180]),
-    180: TransitionState(ATOMS['all_num'], [182, 218, 181]),
+    # --- Numeric Literals (Integers) ---
+    169: TransitionState('~', [170]), # Handles explicit negative
+    
+    # Chain of integers logic (170 is after 1 digit, 172 after 2, etc.)
+    170: TransitionState(ATOMS['all_num'], [172, 208, 171]),
+    171: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    172: TransitionState(ATOMS['all_num'], [174, 208, 173]),
+    173: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    174: TransitionState(ATOMS['all_num'], [176, 208, 175]),
+    175: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    176: TransitionState(ATOMS['all_num'], [178, 208, 177]),
+    177: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    178: TransitionState(ATOMS['all_num'], [180, 208, 179]),
+    179: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    180: TransitionState(ATOMS['all_num'], [182, 208, 181]),
     181: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    182: TransitionState(ATOMS['all_num'], [184, 218, 183]),
+    182: TransitionState(ATOMS['all_num'], [184, 208, 183]),
     183: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    184: TransitionState(ATOMS['all_num'], [186, 218, 185]),
+    184: TransitionState(ATOMS['all_num'], [186, 208, 185]),
     185: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    186: TransitionState(ATOMS['all_num'], [188, 218, 187]),
+    186: TransitionState(ATOMS['all_num'], [188, 208, 187]),
     187: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    188: TransitionState(ATOMS['all_num'], [190, 218, 189]),
+    188: TransitionState(ATOMS['all_num'], [190, 208, 189]),
     189: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    190: TransitionState(ATOMS['all_num'], [192, 218, 191]),
+    190: TransitionState(ATOMS['all_num'], [192, 208, 191]),
     191: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    192: TransitionState(ATOMS['all_num'], [194, 218, 193]),
+    192: TransitionState(ATOMS['all_num'], [194, 208, 193]),
     193: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    194: TransitionState(ATOMS['all_num'], [196, 218, 195]),
+    194: TransitionState(ATOMS['all_num'], [196, 208, 195]),
     195: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    196: TransitionState(ATOMS['all_num'], [198, 218, 197]),
+    196: TransitionState(ATOMS['all_num'], [198, 208, 197]),
     197: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    198: TransitionState(ATOMS['all_num'], [200, 218, 199]),
+    198: TransitionState(ATOMS['all_num'], [200, 208, 199]),
     199: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    200: TransitionState(ATOMS['all_num'], [202, 218, 201]),
+    200: TransitionState(ATOMS['all_num'], [202, 208, 201]),
     201: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    202: TransitionState(ATOMS['all_num'], [204, 218, 203]),
+    202: TransitionState(ATOMS['all_num'], [204, 208, 203]),
     203: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    204: TransitionState(ATOMS['all_num'], [206, 218, 205]),
+    204: TransitionState(ATOMS['all_num'], [206, 208, 205]),
     205: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    206: TransitionState(ATOMS['all_num'], [208, 218, 207]),
+    206: TransitionState(ATOMS['all_num'], [208, 207]), # No more digits after this state, only delim or dot
     207: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    208: TransitionState(ATOMS['all_num'], [210, 218, 209]),
-    209: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+    # --- Numeric Literals (Decimals) ---
+    208: TransitionState('.', [209]),
+    209: TransitionState(ATOMS['all_num'], [211, 210]),
+    210: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    210: TransitionState(ATOMS['all_num'], [212, 218, 211]),
-    211: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+    211: TransitionState(ATOMS['all_num'], [213, 212]),
+    212: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    212: TransitionState(ATOMS['all_num'], [214, 218, 213]),
-    213: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+    213: TransitionState(ATOMS['all_num'], [215, 214]),
+    214: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    214: TransitionState(ATOMS['all_num'], [216, 218, 215]),
-    215: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+    215: TransitionState(ATOMS['all_num'], [217, 216]),
+    216: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    216: TransitionState(ATOMS['all_num'], [218, 217]),
-    217: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+    217: TransitionState(ATOMS['all_num'], [219, 218]),
+    218: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-
-    # === DECIMAL CHAIN ===
-
-    218: TransitionState('.', [219]),
-
-    219: TransitionState(ATOMS['all_num'], [221, 220]),
+    219: TransitionState(ATOMS['all_num'], [220]), # Max decimal precision reached
     220: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    221: TransitionState(ATOMS['all_num'], [223, 222]),
-    222: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    223: TransitionState(ATOMS['all_num'], [225, 224]),
+    # --- String Literals ---
+    221: TransitionState("'", [223, 222]), # 223 is empty string close, 222 is char
+    222: TransitionState(ATOMS['string_ascii'], [223, 222]), # Loop on 222 or close at 223
+    223: TransitionState("'", [224]),
     224: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    225: TransitionState(ATOMS['all_num'], [227, 226]),
-    226: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    227: TransitionState(ATOMS['all_num'], [229, 228]),
-    228: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    229: TransitionState(ATOMS['all_num'], [230]),
-    230: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-
-    # === STRING LITERAL (231–234) ===
-
-    231: TransitionState("'", [232, 233]),
-    232: TransitionState(ATOMS['string_ascii'], [232, 233]),
-    233: TransitionState("'", [234]),
-    234: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 }

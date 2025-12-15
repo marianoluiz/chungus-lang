@@ -7,17 +7,19 @@ from .token_builder import build_token_stream
 # The DFA itself is encoded in src/lexer/td.py as TRANSITION_TABLE and traversed by lexemize().
 # Positions are tracked as a (line_index, col_index) tuple in self._index.
 
-KEYWORD_LAST_STATE = 121
-SYMBOL_STATE_START = 122
-SYMBOL_STATE_END = 165
-SYMBOL_LAST_STATE = SYMBOL_STATE_END
-STRING_STATE_START = 231
-STRING_STATE_END = 234
-MULTI_COMMENT_STATE_START = 166
-MULTI_COMMENT_STATE_END = 175
-FLOAT_DOT_STATE = 218
-FLOAT_START_STATE = 179
-FLOAT_END_STATE = 230
+KEYWORD_LAST_STATE = 111
+SYMBOL_STATE_START = 112
+SYMBOL_STATE_END = 155
+
+MULTI_COMMENT_STATE_START = 156
+MULTI_COMMENT_STATE_END = 165
+
+FLOAT_DOT_STATE = 208
+FLOAT_START_STATE = 169
+FLOAT_END_STATE = 220
+
+STRING_STATE_START = 221
+STRING_STATE_END = 224
 
 class Lexer:
     """High level wrapper around the DFA lexemizer.
@@ -180,7 +182,7 @@ class Lexer:
             # END: If we matched a TOKEN and it is last state (If the state has no outgoing next_states) it is a terminal -> return sentinel lexeme (base of recursion to communicate "I hit a terminal")
             if len(TRANSITION_TABLE[state].next_states) == 0:
                 # small heuristic: reserved word, symbols return an empty typed pair placeholder
-                if state <= SYMBOL_LAST_STATE:
+                if state <= SYMBOL_STATE_END:
                     return ('', '')
                 return ''  # other terminal marker
 
