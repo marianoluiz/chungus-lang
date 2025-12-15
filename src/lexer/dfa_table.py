@@ -1,9 +1,52 @@
+"""
+DFA transition table for the lexer.
+
+This module defines the deterministic finite automaton used by the lexer to
+recognize tokens. The DFA is expressed explicitly as a transition table where
+each state encodes:
+
+- accepted characters
+- possible next states
+- whether the state can legally terminate a token
+
+This file is intentionally data-heavy and should be treated as a language
+specification rather than control logic.
+"""
+
 from src.constants import ATOMS, DELIMS
 
 class TransitionState:
-    def __init__(self, accepted_chars: list[str], next_states: list[int] = [], is_terminal = False):
-        self.accepted_chars = [accepted_chars] if type(accepted_chars) is str else accepted_chars
-        self.next_states = [next_states] if type(next_states) is int else next_states
+    """
+    Single DFA transition node.
+
+    Attributes:
+        accepted_chars (set[str]):
+            Characters accepted at this state.
+        next_states (list[int]):
+            Indices of possible next DFA states.
+        is_terminal (bool):
+            True if this state can legally end a token.
+    """
+    def __init__(
+        self,
+        accepted_chars: str | set[str],
+        next_states: int | list[int] | None = None,
+        is_terminal: bool = False,
+    ):  
+        
+        # Normalize accepted characters to a set
+        self.accepted_chars = (
+            {accepted_chars}
+            if isinstance(accepted_chars, str)
+            else set(accepted_chars)
+        )
+
+        # Normalize next states to a list
+        self.next_states = (
+            []
+            if next_states is None
+            else [next_states] if isinstance(next_states, int) else list(next_states)
+        )
         self.is_terminal = is_terminal
 
 TRANSITION_TABLE = {
@@ -12,7 +55,7 @@ TRANSITION_TABLE = {
                                    120, 124, 126, 130, 134, 138, 142, 146, 148, 150, 
                                    152, 154, 156, 166, 169, 170, 221]),
 
-    # --- Keywords: 'a' (always, and, array_remove) ---
+    # --- Keywords: always, and, array_remove ---
     1: TransitionState('a', [2, 8, 11]),
     2: TransitionState('l', [3]),
     3: TransitionState('w', [4]),
@@ -40,7 +83,7 @@ TRANSITION_TABLE = {
     25: TransitionState('e', [26]),
     26: TransitionState(DELIMS['method_delim'], is_terminal=True),
 
-    # --- Keywords: 'c', 'e', 'f', 'i' (close, elif, else, false, fail, float, fn, for, if, in, int) ---
+    # --- Keywords: close, elif, else ---
     27: TransitionState('c', [28]),
     28: TransitionState('l', [29]),
     29: TransitionState('o', [30]),
@@ -57,8 +100,9 @@ TRANSITION_TABLE = {
     39: TransitionState('e', [40]),
     40: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
 
-    41: TransitionState('f', [55, 57, 42, 50]), # n(55), o(57), a(42), l(50)
-    42: TransitionState('a', [47, 43]), # i(47), l(43)
+    # --- Keywords: false, fail, float, fn, for ---
+    41: TransitionState('f', [55, 57, 42, 50]),
+    42: TransitionState('a', [47, 43]),
     43: TransitionState('l', [44]),
     44: TransitionState('s', [45]),
     45: TransitionState('e', [46]),
@@ -85,37 +129,37 @@ TRANSITION_TABLE = {
     65: TransitionState('t', [66]),
     66: TransitionState(DELIMS['method_delim'], is_terminal=True),
 
-    # --- Keywords: 'o', 'r', 't', 's', 'w' (or, range, read, ret, todo, true, try, show, skip, stop, while) ---
+    # --- Keywords: or, range, read, ret, todo, true, try, show, skip, stop, while ---
     67: TransitionState('o', [68]),
     68: TransitionState('r', [69]),
     69: TransitionState(DELIMS['inline_delim'], is_terminal=True),
 
-    70: TransitionState('r', [76, 71]), # e(76), a(71)
+    70: TransitionState('r', [76, 71]),
     71: TransitionState('a', [72]),
     72: TransitionState('n', [73]),
     73: TransitionState('g', [74]),
     74: TransitionState('e', [75]),
     75: TransitionState(DELIMS['method_delim'], is_terminal=True),
-    76: TransitionState('e', [80, 77]), # t(80), a(77)
+    76: TransitionState('e', [80, 77]),
     77: TransitionState('a', [78]),
     78: TransitionState('d', [79]),
     79: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
     80: TransitionState('t', [81]),
     81: TransitionState(DELIMS['inline_delim'], is_terminal=True),
 
-    82: TransitionState('t', [87, 83]), # r(87), o(83)
+    82: TransitionState('t', [87, 83]),
     83: TransitionState('o', [84]),
     84: TransitionState('d', [85]),
     85: TransitionState('o', [86]),
     86: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
-    87: TransitionState('r', [91, 88]), # y(91), u(88)
+    87: TransitionState('r', [91, 88]),
     88: TransitionState('u', [89]),
     89: TransitionState('e', [90]),
     90: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
     91: TransitionState('y', [92]),
     92: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
 
-    93: TransitionState('s', [98, 102, 94]), # k(98), t(102), h(94)
+    93: TransitionState('s', [98, 102, 94]),
     94: TransitionState('h', [95]),
     95: TransitionState('o', [96]),
     96: TransitionState('w', [97]),
@@ -137,6 +181,7 @@ TRANSITION_TABLE = {
     111: TransitionState(DELIMS['inline_delim'], is_terminal=True),
 
     # --- Operators: Arithmetic (+, -, *, %, /) ---
+    # --- Operators: Relational/Assignment (=, !, <, >) ---
     112: TransitionState('+', [114, 113]),
     113: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
     114: TransitionState('+', [115]),
@@ -160,7 +205,7 @@ TRANSITION_TABLE = {
     128: TransitionState('/', [129]),
     129: TransitionState(DELIMS['arith_rel_not_op_delim'], is_terminal=True),
 
-    # --- Operators: Relational/Assignment (=, !, <, >) ---
+    # --- Operators: Relational/Assignment (=, !, <, >, <=, >=) ---
     130: TransitionState('=', [132, 131]),
     131: TransitionState(DELIMS['assign_op_delim'], is_terminal=True),
     132: TransitionState('=', [133]),
@@ -194,6 +239,8 @@ TRANSITION_TABLE = {
     155: TransitionState(DELIMS['comma_delim'], is_terminal=True),
 
     # --- Comments ---
+    # Single-line: '#' ... '\n'
+    # Multi-line:  '###' ... '###'
     156: TransitionState('#', [159, 157, 158]), # #->159, ascii->157
     157: TransitionState(ATOMS['single_comment_ascii'], [157, 158]),
     158: TransitionState('\n', is_terminal=True),
@@ -210,10 +257,10 @@ TRANSITION_TABLE = {
     167: TransitionState(ATOMS['under_alpha_num'], [167, 168]),
     168: TransitionState(DELIMS['id_delim'], is_terminal=True),
 
-    # --- Numeric Literals (Integers) ---
-    169: TransitionState('~', [170]), # Handles explicit negative
+    # --- Numeric Literals (Integers and Floats) ---
+    # Integers: 19 digit, Float: 6 digit 
+    169: TransitionState('~', [170]), # explicit negative
     
-    # Chain of integers logic (170 is after 1 digit, 172 after 2, etc.)
     170: TransitionState(ATOMS['all_num'], [172, 208, 171]),
     171: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
@@ -271,7 +318,6 @@ TRANSITION_TABLE = {
     206: TransitionState(ATOMS['all_num'], [208, 207]), # No more digits after this state, only delim or dot
     207: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    # --- Numeric Literals (Decimals) ---
     208: TransitionState('.', [209]),
     209: TransitionState(ATOMS['all_num'], [211, 210]),
     210: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
@@ -292,8 +338,9 @@ TRANSITION_TABLE = {
     220: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
     # --- String Literals ---
-    221: TransitionState("'", [223, 222]), # 223 is empty string close, 222 is char
-    222: TransitionState(ATOMS['string_ascii'], [223, 222]), # Loop on 222 or close at 223
+    # Single-quoted strings, no escape sequences.
+    221: TransitionState("'", [223, 222]),
+    222: TransitionState(ATOMS['string_ascii'], [223, 222]),
     223: TransitionState("'", [224]),
     224: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 }

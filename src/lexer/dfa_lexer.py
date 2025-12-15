@@ -1,34 +1,44 @@
+"""
+DFA-based lexer.
+
+This module traverses a precomputed DFA transition table to convert source text
+into raw lexemes, then builds a token stream with source positions.
+
+- DFA definition: dfa_table.TRANSITION_TABLE
+- Cursor tracked as (line_index, column_index)
+- Error handling delegated to error_handler
+"""
+
 from src.constants import ATOMS, DELIMS
 from .error_handler import UnknownCharError, DelimError, UnexpectedEOF
 from .dfa_table import TRANSITION_TABLE
 from .token_builder import build_token_stream
 
-# Top-level DFA-based lexer. Produces a list of raw lexemes and then a token stream.
-# The DFA itself is encoded in src/lexer/td.py as TRANSITION_TABLE and traversed by lexemize().
-# Positions are tracked as a (line_index, col_index) tuple in self._index.
-
+# State ranges used for semantic backtracking and classification.
+# These must match the DFA transition diagram.
 KEYWORD_LAST_STATE = 111
 SYMBOL_STATE_START = 112
 SYMBOL_STATE_END = 155
-
 MULTI_COMMENT_STATE_START = 156
 MULTI_COMMENT_STATE_END = 165
-
 FLOAT_DOT_STATE = 208
 FLOAT_START_STATE = 169
 FLOAT_END_STATE = 220
-
 STRING_STATE_START = 221
 STRING_STATE_END = 224
 
 class Lexer:
-    """High level wrapper around the DFA lexemizer.
+    """
+    High-level wrapper around the DFA lexemizer.
 
-        Workflow:
-        - __init__: split the input into lines and initialize cursor
-        - start:    iterate, snapshot start positions, and collect raw lexemes
-        - build_token_stream: classify lexemes with their snapshot lexeme_positions
-        """
+    Public API:
+    - start(): runs lexing and populates self.token_stream
+
+    Workflow:
+    - __init__: split input into lines and initialize cursor
+    - start:    collect raw lexemes and their start positions
+    - build_token_stream: classify lexemes into tokens
+    """
     def __init__(self, source_text: str, debug: bool = False):
         # Convert incoming source string to lines and ensure newline markers
         source_text = source_text.splitlines(keepends=True)
@@ -64,8 +74,8 @@ class Lexer:
         """Return the current character under cursor or \\0 for EOF sentinel.
 
         Edge cases:
-        - When at/past the end of the final line, return \\0 to avoid IndexError.
-        - Otherwise, return the source character at the current cursor.
+        - When at/past the end of the final line, return \\0.
+        - Otherwise, return the source character at the cursor.
         """
         if self._index[1] >= len(self._source_lines[-1]) and self._index[0] >= (len(self._source_lines) - 1):
             return "\0"
@@ -139,9 +149,9 @@ class Lexer:
             if isinstance(lexeme, (UnknownCharError, DelimError, UnexpectedEOF)):
                 self.log += str(lexeme) + '\n'
 
-                # For delimiter errors: DO NOT skip the character.
+                # Delimiter errors do not consume input:
+                # the same character must be re-lexed in a different context.
                 if isinstance(lexeme, DelimError):
-                    # Do not advance cursor — retry lexing this character
                     continue
 
                 self.advance_cursor()
@@ -153,6 +163,15 @@ class Lexer:
         self.token_stream = build_token_stream(self._lexemes, lexeme_positions)
 
     def lexemize(self, curr_state: int = 0):
+        """
+        Recursive DFA traversal.
+
+        Returns:
+        - str:      accumulated lexeme
+        - tuple:    reserved words or symbols
+        - None:     valid prefix that must fallback (e.g. keyword → identifier)
+        - Error:    lexing error
+        """
         # Get transitions from current state
         next_states = TRANSITION_TABLE[curr_state].next_states
 
