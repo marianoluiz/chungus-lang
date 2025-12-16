@@ -11,10 +11,11 @@ Usage:
 import os
 from src.lexer.dfa_lexer import Lexer
 
+
 def main():
     # This takes the input folder path
     test_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'lexer_input.chg'))
-    
+
     try:
         with open(test_path, 'r', encoding='utf-8') as f:
             source_code = f.read()
@@ -39,6 +40,7 @@ def main():
     if lexer.log:
         print("---- Errors ----")
         print(lexer.log)
+
 
 if __name__ == '__main__':
     main()

@@ -9,7 +9,7 @@ into raw lexemes, then builds a token stream with source positions.
 - Error handling delegated to error_handler
 """
 
-from src.constants import ATOMS, DELIMS
+from src.constants import ATOMS
 from .error_handler import UnknownCharError, DelimError, UnexpectedEOF
 from .dfa_table import TRANSITION_TABLE
 from .token_builder import build_token_stream
@@ -26,6 +26,7 @@ FLOAT_START_STATE = 169
 FLOAT_END_STATE = 220
 STRING_STATE_START = 221
 STRING_STATE_END = 224
+
 
 class Lexer:
     """
@@ -50,11 +51,11 @@ class Lexer:
             # add newline at end of statement
             if not source_text[-1].endswith('\n'):
                 source_text[-1] = source_text[-1] + '\n'
-            self._source_lines = source_text # The source code as a list of string
+            self._source_lines = source_text  # The source code as a list of string
 
         self._index = 0, 0                  # _index: tuple (line_index, column_index) """
         self._lexemes: list[str] = []       # collected lexeme strings (raw) """
-        self.token_stream: list[dict] = []  # token_stream will be populated by token.build_token_stream(...) after lexing. This would be ((lexeme), (line_index, column_index))
+        self.token_stream: list[dict] = []  # ((lexeme), (line_index, column_index)) - populated by build_token_stream()
         self.log = ""                       # textual log of errors (human readable)
 
         # Debug switch
@@ -186,7 +187,7 @@ class Lexer:
                     # Keyword terminal + next char can extend into an identifier -> allow fallback (no error)
                     if state <= KEYWORD_LAST_STATE and curr_char in ATOMS['under_alpha_num']:
                         continue
-                    
+
                     # Otherwise delimiter invalid for this terminal
                     return DelimError(self._source_lines[self._index[0]], self._index, TRANSITION_TABLE[state].accepted_chars)
 
@@ -244,10 +245,10 @@ class Lexer:
         # No transition matched.
         if curr_state == 0:
             if self.get_curr_char() == '\0':
-                # At root and nothing matched -> unknown character
                 return UnexpectedEOF(self._source_lines[self._index[0]], self._index)
-
+            # At root and nothing matched -> unknown character
             # Will return directly to start
             return UnknownCharError(self._source_lines[self._index[0]], self._index)
+        
         # EX: Return None if 'shows' (since it dont match the keyword show and it has No error. It would most likely go to id)
         return None
