@@ -37,6 +37,7 @@ class TransitionState:
         # Normalize accepted characters to a set
         self.accepted_chars = (
             {accepted_chars}
+            # prevents splitting a whole string into characters
             if isinstance(accepted_chars, str)
             else set(accepted_chars)
         )
@@ -45,7 +46,8 @@ class TransitionState:
         self.next_states = (
             []
             if next_states is None
-            else [next_states] if isinstance(next_states, int) else list(next_states)
+            # separated because an int is not iterable
+            else [next_states] if isinstance(next_states, int) else list(next_states)   
         )
         self.is_terminal = is_terminal
 
@@ -315,7 +317,7 @@ TRANSITION_TABLE = {
     204: TransitionState(ATOMS['all_num'], [206, 208, 205]),
     205: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    206: TransitionState(ATOMS['all_num'], [208, 207]), # No more digits after this state, only delim or dot
+    206: TransitionState(ATOMS['all_num'], [208, 207]),
     207: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
     208: TransitionState('.', [209]),

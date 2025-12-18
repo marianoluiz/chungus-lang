@@ -1,6 +1,10 @@
 # CHUNGUS Language
 A clean, minimal, general programming language.
 
+<p align="center">
+  <img src="docs/landing.png" alt="Chungus Compiler" width="800" />
+</p>
+
 ## Tech Stack
 - Python
 
