@@ -5,3 +5,4 @@ __pycache__
 .study.py
 .sample_parser
 cfg_bkp.txt
+.pytest_cache
