@@ -1,0 +1,48 @@
+Test Name,Source Code,Expected AST,Expected Errors,Notes,Readable AST
+func_return_expr,"fn f() 
+show 'hi'
+ret 1+2 
+close","└─ program
+   └─ function: f
+      ├─ general_statement
+      │  └─ output_statement
+      │     └─ str_literal: 'hi'
+      └─ return_statement
+         └─ +
+            ├─ int_literal: 1
+            └─ int_literal: 2",,Return expression,"{
+    'kind': 'program',
+    'children': [
+        {
+            'kind': 'function',
+            'value': 'f',
+            'children': [
+                {
+                    'kind': 'general_statement',
+                    'children': [
+                        {
+                            'kind': 'output_statement',
+                            'children': [
+                                {'kind': 'str_literal', 'value': 'hi'}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'kind': 'return_statement',
+                    'children': [
+                        {
+                            'kind': '+',
+                            'children': [
+                                {'kind': 'int_literal', 'value': 1},
+                                {'kind': 'int_literal', 'value': 2}
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
+"
