@@ -1,0 +1,5 @@
+fn f() 
+ show 'id'
+ret 1+2 
+close
+

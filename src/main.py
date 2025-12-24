@@ -39,13 +39,13 @@ def lexer_adapter(source: str):
         return tokens, errors
 
     # Run Lark syntax parser and surface parser errors (if any)
-    parser = Parser()
-    parse_result = parser.parse(source)
+    # parser = Parser()
+    # parse_result = parser.parse(source)
 
-    if parse_result.errors:
-        # parser.parse returns SyntaxResult; append parser.log (human readable)
-        errors.append("Syntax Error/s:")
-        errors.append(parse_result.log or "\n".join(parse_result.errors))
+    # if parse_result.errors:
+    #     # parser.parse returns SyntaxResult; append parser.log (human readable)
+    #     errors.append("Syntax Error/s:")
+    #     errors.append(parse_result.log or "\n".join(parse_result.errors))
 
     # parser = RDParser(tokens, source, debug=True)
     # parse_result = parser.parse()
