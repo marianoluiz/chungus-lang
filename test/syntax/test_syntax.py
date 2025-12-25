@@ -71,16 +71,8 @@ def test_syntax(src, expected_ast, expected_error):
     assert lx.log.strip() == "", f"Lexer produced errors:\n{lx.log}"
        
     # Build token dicts expected by RDParser
-    tokens = []
-    for (lex_pair, pos) in lx.token_stream:
-        lexeme, ttype = lex_pair
-        line_idx, col_idx = pos
-        tokens.append({
-            "type": ttype,
-            "lexeme": lexeme,
-            "line": line_idx + 1,
-            "col": col_idx + 1
-    })
+    tokens = lx.token_stream
+
 
     # Run parser
     parser = RDParser(tokens, src, debug=False)

@@ -1,5 +1,7 @@
+from typing import List
 from src.lexer.dfa_lexer import Lexer
 from src.syntax.rd_parser import RDParser
+from src.constants.token import Token
 import os
 
 # ------------------- Pretty Print -------------------
@@ -42,17 +44,7 @@ def main():
     lexer.start()
 
     # Lexer.token_stream: [ ((type, lexeme), (line, col)), ... ]
-    for (lex_pair, pos) in lexer.token_stream:
-
-        lexeme, ttype = lex_pair
-        line_idx, col_idx = pos
-
-        tokens.append({
-            "type": ttype,
-            "lexeme": lexeme,
-            "line": line_idx + 1,
-            "col": col_idx + 1
-        })
+    tokens: List[Token] = lexer.token_stream
     
     if lexer.log:
         errors.append("Lexical Error/s:")
@@ -69,15 +61,12 @@ def main():
         errors.extend(parse_result.errors)
 
     # Display AST tree
-    if parse_result.tree is not None:
-        print_ast(parse_result.tree)
-    else:
-        print("No AST generated.")
 
-    return tokens, errors
+
+    return tokens, errors, parse_result
 
 if __name__ == '__main__':
-    tokens, errors = main()
+    tokens, errors, parse_result = main()
     
     # print("\n\nTOKENS:")
     # for t in tokens:
@@ -86,6 +75,11 @@ if __name__ == '__main__':
     #         f"(line {t['line']}, col {t['col']})"
     #     )
     
+    if parse_result.tree is not None:
+        print_ast(parse_result.tree)
+    else:
+        print("No AST generated.")
+        
     if errors:
         print("\nERRORS:")
         print("\n".join(errors))

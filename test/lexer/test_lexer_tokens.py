@@ -16,7 +16,6 @@ def _run_lexer(src: str) -> str:
     lx.start()
     return lx.token_stream
 
-
 def _rows():
     path = "test/lexer/test_lexer_tokens_data.csv"
     with open(path, "r", encoding="utf-8") as f:
@@ -36,9 +35,11 @@ def _rows():
 
 def _get_types_in_order(lex_token_stream):
     """ Get all types from source code """
-    return [ttype for ((lexeme, ttype), _) in lex_token_stream
-            if (ttype not in ("whitespace", "newline"))]
-
+    return [
+        tok.type 
+        for tok in lex_token_stream
+        if (tok.type not in ("whitespace", "newline"))
+    ]
 
 @pytest.mark.parametrize("src, expected, test_details", _rows())
 def test_lexer_tokens(src, expected, test_details):

@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from src.lexer.dfa_lexer import Lexer 
 from typing import List, Optional, Tuple
+from src.constants.token import Token
 
 @dataclass
 class ASTNode:
@@ -61,10 +62,10 @@ class RDParser:
     See `docs/ast_structure.md` for full AST node hierarchy.
     """
     def __init__(self, tokens: List[dict], source: str, debug: bool = False):
+        self.tokens: List[Token] = tokens   #  [ Token(lexeme, type, line, col), ... ]
         self._source = source
         self._lines = source.splitlines(keepends=False)
         self._i = 0          # current token index
-        self.tokens: List[dict] = tokens   #  [ ((lexeme, token_type), (line_index, col_index)), ... ]
         self.errors: List[str] = []
         self._debug = debug        # Debug switch
 
@@ -77,7 +78,7 @@ class RDParser:
     def _skip_trivia(self):
         """ Skip newline and whitespaces """
         while self._i < len(self.tokens) and \
-            self.tokens[self._i]["type"] in SKIP_TOKENS:
+            self.tokens[self._i].type in SKIP_TOKENS:
             self._i += 1
     
     def _curr(self) -> dict:
@@ -91,39 +92,35 @@ class RDParser:
             else:
                 line_no = 1
                 col_no = 1
-            return {
-                "type": "EOF",
-                "lexeme": "",
-                "line": line_no,
-                "col": col_no
-            }
+
+            return Token(type="EOF", lexeme="", line=line_no, col=col_no)
         
         return self.tokens[self._i]
 
     def _match(self, *types: str) -> bool:
         """ Returns boolean if current type matches passed types """
-        return self._curr()["type"] in types
+        return self._curr().type in types
     
     def _advance(self) -> dict:
         """ Gets the current token,  Moves the pointer forward by 1, Returns the consumed token"""
         self._skip_trivia()
         tok = self._curr()
-        if tok['type'] != 'EOF':
+        if tok.type != 'EOF':
             self._i += 1
         return tok
     
     def _error(self, expected: List[str], context: str):
         tok = self._curr()
 
-        # If tok['line'] is a valid line number, get that line from self._lines; otherwise use an empty string
-        line_text = self._lines[tok['line'] - 1] if 1 <= tok['line'] <= len(self._lines) else ""
+        # If tok.line is a valid line number, get that line from self._lines; otherwise use an empty string
+        line_text = self._lines[tok.line - 1] if 1 <= tok.line <= len(self._lines) else ""
         
-        err_block = str(UnexpectedError(line_text, (tok['line'], tok['col'])))
+        err_block = str(UnexpectedError(line_text, (tok.line, tok.col)))
         expected_list = ", ".join(sorted(expected))
         msg = (
             f"{err_block}"
-            f"Unexpected token in {context} at line {tok['line']} col {tok['col']}: "
-            f"{tok['type'] or tok['lexeme']}\n"
+            f"Unexpected token in {context} at line {tok.line} col {tok.col}: "
+            f"{tok.type or tok.lexeme}\n"
             f"Expected any: {expected_list}"
         )
         
@@ -165,7 +162,7 @@ class RDParser:
     
         # check if next is id or else error
         if self._match(ID_T):
-            fn_name = self._advance()['lexeme']
+            fn_name = self._advance().lexeme
         else:
             self._error([ID_T], 'function_name')
 
@@ -225,7 +222,7 @@ class RDParser:
         left  = self._logical_and_expr()
 
         while self._match('or'):
-            op = self.advance()['lexeme']
+            op = self.advance().lexeme
             right = self.self._logical_and_expr()
             left = ASTNode(op, children=[left, right])
         return left
@@ -234,7 +231,7 @@ class RDParser:
         left = self._logical_not_expr()
 
         while self._match('and'):
-            op = self.advance()['lexeme']
+            op = self.advance().lexeme
             right = self.self._logical_not_expr()
             left = ASTNode(op, children=[left, right])
         return left
@@ -253,7 +250,7 @@ class RDParser:
         left = self._comp_operand()
 
         while self._match('==', '!='):
-            op = self._advance()['lexeme']
+            op = self._advance().lexeme
             right = self._comp_operand()
             left = ASTNode(op, children=[left, right])
         
@@ -262,16 +259,16 @@ class RDParser:
     def _comp_operand(self) -> ASTNode:
         # can be rel_expr, str_literal, true, false
         if self._match(STR_LIT_T):
-            return ASTNode('str_literal', value=self._advance()['lexeme'])
+            return ASTNode('str_literal', value=self._advance().lexeme)
         if self._match('true', 'false'):
-            return ASTNode('bool_literal', value=self._advance()['lexeme'])
+            return ASTNode('bool_literal', value=self._advance().lexeme)
         return self._rel_expr()
     
     def _rel_expr(self) -> ASTNode:
         left = self._arith_expr()
 
         while self._match('>', '>=', '<', '<='):
-            op = self._advance()['lexeme']
+            op = self._advance().lexeme
             right = self._arith_expr()
             left = ASTNode(op, children=[left, right])
         
@@ -281,7 +278,7 @@ class RDParser:
         left = self._term()
 
         while self._match('+', '-'):
-            op = self._advance()['lexeme']
+            op = self._advance().lexeme
             right = self._term()
             left = ASTNode(op, children=[left, right])
         
@@ -291,7 +288,7 @@ class RDParser:
         left = self._factor()
 
         while self._match('*', '/', '//', '%'):
-            op = self._advance()['lexeme']
+            op = self._advance().lexeme
             right = self._factor()
             left = ASTNode(op, children=[left, right])
         
@@ -301,7 +298,7 @@ class RDParser:
         left = self._power()
 
         while self._match('**'):
-            op = self._advance()['lexeme']
+            op = self._advance().lexeme
             right = self._power()
             left = ASTNode(op, children=[left, right])
         
@@ -310,14 +307,14 @@ class RDParser:
     def _power(self) -> ASTNode:
         if self._match(INT_LIT_T, FLOAT_LIT_T):
             tok = self._advance()
-            kind = INT_LIT_T if tok['type'] == INT_LIT_T else FLOAT_LIT_T
-            return ASTNode(kind, value=tok['lexeme'])
+            kind = INT_LIT_T if tok.type == INT_LIT_T else FLOAT_LIT_T
+            return ASTNode(kind, value=tok.lexeme)
         if self._match(STR_LIT_T):
             tok = self._advance()
-            return ASTNode('str_literal', value=tok['lexeme'])
+            return ASTNode('str_literal', value=tok.lexeme)
         if self._match(ID_T):
             tok = self._advance()
-            node = ASTNode('id', value=tok['lexeme'])
+            node = ASTNode('id', value=tok.lexeme)
             # handle function call or indexing
             if self._match('(', '['):
                 node = self._postfix_tail(node)
@@ -410,8 +407,8 @@ class RDParser:
     def _output_statement(self) -> ASTNode:
         self._advance()     # consume 'show'
         if self._match(ID_T):
-            return ASTNode('output_statement', children=[ASTNode('id', value=self._advance()['lexeme'])])
+            return ASTNode('output_statement', children=[ASTNode('id', value=self._advance().lexeme)])
         if self._match(STR_LIT_T):
-            return ASTNode('output_statement', children=[ASTNode('str_literal', value=self._advance()['lexeme'])])
+            return ASTNode('output_statement', children=[ASTNode('str_literal', value=self._advance().lexeme)])
         
         self._error([ID_T, STR_LIT_T], 'output_value')

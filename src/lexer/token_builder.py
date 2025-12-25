@@ -1,7 +1,3 @@
-# Token classification post‑pass.
-# Takes raw lexemes (produced by Lexer.start / lexemize) and pairs them with their
-# start position metadata to form the final token stream consumed by the GUI.
-
 """
 build_token_stream(raw_lexeme, metadata)
 
@@ -31,12 +27,18 @@ build_token_stream(raw_lexeme, metadata)
     - Trailing newline token (if any) is dropped to avoid an empty GUI row.
     - Numeric normalization is NOT performed here (original spelling preserved).
 """
+from typing import List, Tuple
+from src.constants.token import Token
 
 def build_token_stream(raw_lexeme: list[str], metadata: list[tuple[int, int]]):
-    token_list = []
+    """
+    Convert raw lexemes + positions into list[Token].
+    """
+    token_list: List[Tuple[str, str]] = []
 
     for lexeme_str in raw_lexeme:
-        # Preserve surface spaces (used by GUI for spacing visualization)
+        # classification rules (whitespace/newline/tuple/number/string/comment/id)...
+        # map to type_name and surface_lexeme variables
         if lexeme_str == ' ':
             token_list.append((lexeme_str, 'whitespace'))
             continue
@@ -69,5 +71,13 @@ def build_token_stream(raw_lexeme: list[str], metadata: list[tuple[int, int]]):
         # Fallback classification: identifier (id)
         token_list.append((lexeme_str, 'id'))
 
+    # Attach positional metadata
+    tokens_with_pos: List[Token] = []
+
     # Zip tokens with positional metadata (any metadata overflow is ignored by zip)
-    return [(token_data, pos) for token_data, pos in zip(token_list, metadata)]
+    for tok, (line_idx, col_idx) in zip(token_list, metadata):
+        # unpack tuple: tok can be (lexeme_text, token_type)
+        lexeme_text, token_type = tok
+        tokens_with_pos.append(Token(lexeme_text, token_type, line_idx + 1, col_idx + 1))
+
+    return tokens_with_pos

@@ -13,6 +13,7 @@ from src.constants import ATOMS
 from .error_handler import UnknownCharError, DelimError, UnexpectedEOF
 from .dfa_table import TRANSITION_TABLE
 from .token_builder import build_token_stream
+from src.constants.token import Token
 
 # State ranges used for semantic backtracking and classification.
 # These must match the DFA transition diagram.
@@ -62,7 +63,7 @@ class Lexer:
 
         self._index = 0, 0                  # _index: tuple (line_index, column_index) """
         self._lexemes: list[str] = []       # collected lexeme strings (raw) """
-        self.token_stream: list[dict] = []  # ((lexeme), (line_index, column_index)) - populated by build_token_stream()
+        self.token_stream: list[Token] = []  # ((lexeme), (line_index, column_index)) - populated by build_token_stream()
         self.log = ""                       # textual log of errors (human readable)
 
         # Debug switch
