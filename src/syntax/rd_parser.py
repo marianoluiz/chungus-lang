@@ -53,6 +53,13 @@ SKIP_TOKENS = {"whitespace", "newline"}
 LITERAL_TYPES = {INT_LIT_T, FLOAT_LIT_T, STR_LIT_T, 'true', 'false'}
 
 class RDParser:
+    """
+    RDParser module.
+
+    Parses source code into an AST.
+
+    See `docs/ast_structure.md` for full AST node hierarchy.
+    """
     def __init__(self, tokens: List[dict], source: str, debug: bool = False):
         self._source = source
         self._lines = source.splitlines(keepends=False)
@@ -185,6 +192,7 @@ class RDParser:
         else:
             self._error(['close'], 'function_declaration')
 
+        # We will add 1. params, then 2. local_nodes, then 3. ret_nodes
         children = []
 
         if params:

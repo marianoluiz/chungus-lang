@@ -41,6 +41,13 @@ class Lexer:
     - build_token_stream: classify lexemes into tokens
     """
     def __init__(self, source_text: str, debug: bool = False):
+        """
+        Initialize lexer with source text.
+
+        Args:
+            source_text: full program source as a single string
+            debug: enable debug printing
+        """
         # Convert incoming source string to lines and ensure newline markers
         source_text = source_text.splitlines(keepends=True)
 
@@ -66,16 +73,17 @@ class Lexer:
         self._dbg(self._source_lines)
 
     def _dbg(self, msg: str):
-        """ Debug print message function """
+        """Print debug message when debug mode is enabled."""
         if self._debug:
             print(msg)
 
     # TRACKING CHARACTERS
     def get_curr_char(self):
-        """Return the current character under cursor or \\0 for EOF sentinel.
+        """
+        Return the current character under cursor or '\\0' for EOF sentinel.
 
         Edge cases:
-        - When at/past the end of the final line, return \\0.
+        - When at/past the end of the final line, return '\\0'.
         - Otherwise, return the source character at the cursor.
         """
         if self._index[1] >= len(self._source_lines[-1]) and self._index[0] >= (len(self._source_lines) - 1):
@@ -88,7 +96,8 @@ class Lexer:
         return self.get_curr_char() == "\0"
 
     def advance_cursor(self, count=1):
-        """Advance the cursor by `count` characters.
+        """
+        Advance the cursor by `count` characters.
 
         - Wraps to the next line when the end of the current line is reached.
         - No-op if already beyond the last character of the last line.
@@ -109,10 +118,11 @@ class Lexer:
                 self._index = self._index[0], self._index[1] + 1
 
     def reverse_cursor(self, count=1):
-        """Move the cursor backward by `count` characters.
+        """
+        Move the cursor backward by `count` characters.
 
-        Used by lexemize() to backtrack a single character when a deeper branch
-        ends in an error or needs to yield control back to an identifier path.
+        Used by lexemize() to backtrack when a branch ends in an error or
+        when a longer branch must fall back to an identifier path.
         """
         for i in range(count):
             # Is the cursor's column greater than 0
@@ -127,7 +137,12 @@ class Lexer:
                     0, self._index[0] - 1), len(self._source_lines[self._index[0] - 1]) - 1
 
     def start(self):
-        """Top-level lexing loop (collects lexemes + their start positions)."""
+        """
+        Top-level lexing loop (collects lexemes + their start positions).
+
+        After completion sets self.token_stream via build_token_stream.
+        Errors are appended to self.log.
+        """
         lexeme_positions = []
 
         while not self.is_at_end():
@@ -167,11 +182,14 @@ class Lexer:
         """
         Recursive DFA traversal.
 
+        Args:
+            curr_state: current DFA state index
+
         Returns:
-        - str:      accumulated lexeme
-        - tuple:    reserved words or symbols
-        - None:     valid prefix that must fallback (e.g. keyword → identifier)
-        - Error:    lexing error
+            - str: accumulated lexeme
+            - tuple: reserved words or symbols (typed placeholder)
+            - None: valid prefix that must fallback (e.g. keyword → identifier)
+            - Error object: UnknownCharError / DelimError / UnexpectedEOF
         """
         # Get transitions from current state
         next_states = TRANSITION_TABLE[curr_state].next_states

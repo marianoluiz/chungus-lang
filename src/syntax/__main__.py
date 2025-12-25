@@ -3,7 +3,6 @@ from src.syntax.rd_parser import RDParser
 import os
 
 # ------------------- Pretty Print -------------------
-# ------------------- Pretty Print -------------------
 def print_ast(node, prefix: str = "", is_last: bool = True):
     # choose branch symbol
     connector = "└─ " if is_last else "├─ "
