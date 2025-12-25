@@ -55,9 +55,24 @@ LITERAL_TYPES = {INT_LIT_T, FLOAT_LIT_T, STR_LIT_T, 'true', 'false'}
 
 class RDParser:
     """
-    RDParser module.
+    Recursive-Descent Parser (RDParser).
 
-    Parses source code into an AST.
+    Parses a stream of Tokens (produced by the Lexer) into an Abstract Syntax Tree (AST).
+
+    Attributes:
+        tokens (List[Token]): List of tokens to parse.
+        _source (str): Original source code string.
+        _lines (List[str]): Source code split into lines for error reporting.
+        _i (int): Current token index.
+        errors (List[str]): List of parse error messages encountered.
+        _debug (bool): Debug mode flag. Prints debug messages if True.
+
+    Grammar Support:
+        - Functions: 'fn' ... 'close'
+        - Statements: 'show', 'ret', etc.
+        - Expressions: logical, arithmetic, relational, function calls, array indexing
+        - Literals: int, float, string, boolean
+        - Identifiers
 
     See `docs/ast_structure.md` for full AST node hierarchy.
     """
@@ -65,7 +80,7 @@ class RDParser:
         self.tokens: List[Token] = tokens   #  [ Token(lexeme, type, line, col), ... ]
         self._source = source
         self._lines = source.splitlines(keepends=False)
-        self._i = 0          # current token index
+        self._i = 0                # current token index
         self.errors: List[str] = []
         self._debug = debug        # Debug switch
 
@@ -76,13 +91,21 @@ class RDParser:
     
     # --------------------- Helpers ---------------------
     def _skip_trivia(self):
-        """ Skip newline and whitespaces """
+        """
+        Skip non-essential tokens such as whitespace and newline.
+        Advances the token index to the next significant token.
+        """
         while self._i < len(self.tokens) and \
             self.tokens[self._i].type in SKIP_TOKENS:
             self._i += 1
     
     def _curr(self) -> dict:
-        """ Returns current token, skips whitespaces """
+        """
+        Get the current token after skipping trivia.
+
+        Returns:
+            Token: The current Token object, or a synthetic EOF token if at end.
+        """
         self._skip_trivia()
         if self._i >= len(self.tokens):
             # Place EOF at the end of the last source line so the caret prints after the line text.
@@ -98,11 +121,24 @@ class RDParser:
         return self.tokens[self._i]
 
     def _match(self, *types: str) -> bool:
-        """ Returns boolean if current type matches passed types """
+        """
+        Check if the current token's type matches any of the given types.
+
+        Args:
+            *types: Variable length token type arguments to match.
+
+        Returns:
+            bool: True if the current token type matches any of the types, False otherwise.
+        """
         return self._curr().type in types
     
     def _advance(self) -> dict:
-        """ Gets the current token,  Moves the pointer forward by 1, Returns the consumed token"""
+        """
+        Consume the current token and move the pointer forward.
+
+        Returns:
+            Token: The token that was consumed.
+        """
         self._skip_trivia()
         tok = self._curr()
         if tok.type != 'EOF':
@@ -110,6 +146,16 @@ class RDParser:
         return tok
     
     def _error(self, expected: List[str], context: str):
+        """
+        Raise a ParseError with a detailed caret-style message.
+
+        Args:
+            expected (List[str]): List of expected token types.
+            context (str): Description of the parsing context (e.g., 'function_name').
+
+        Raises:
+            ParseError: Always raises with formatted error message.
+        """
         tok = self._curr()
 
         # If tok.line is a valid line number, get that line from self._lines; otherwise use an empty string
@@ -128,7 +174,12 @@ class RDParser:
         raise ParseError(msg)
 
     def parse(self) -> ParseResult:
-        """ Main function to parse """
+        """
+        Parse the token stream into an AST.
+
+        Returns:
+            ParseResult: Contains the root ASTNode and list of errors encountered.
+        """
 
         try:
             tree = self._program()
@@ -144,6 +195,12 @@ class RDParser:
 
     # --- Program ---
     def _program(self) -> ASTNode:
+        """
+        Parse the top-level program structure.
+
+        Returns:
+            ASTNode: Root ASTNode representing the program.
+        """
         funcs = self._function_statements()
         # stmt = self._general_statement()
         # tail = self._general_statement_tail()
@@ -151,6 +208,12 @@ class RDParser:
         return ASTNode('program', children=funcs)
 
     def _function_statements(self) -> List[ASTNode]:
+        """
+        Parse a sequence of function declarations.
+
+        Returns:
+            List[ASTNode]: List of function AST nodes.
+        """
         nodes = []
         while self._match('fn'):
             nodes.append(self._function_statement())
@@ -158,6 +221,12 @@ class RDParser:
         
     # --- Function ---
     def _function_statement(self) -> ASTNode:
+        """
+        Parse a single function declaration.
+
+        Returns:
+            ASTNode: AST node representing the function with children nodes for parameters, locals, and return.
+        """
         self._advance()  # consume 'fn'
     
         # check if next is id or else error
@@ -202,7 +271,14 @@ class RDParser:
 
         return ASTNode('function', value=fn_name, children=children)
 
-    def _arg_list_opt(self) -> ASTNode:
+
+    def _arg_list_opt(self) -> List[ASTNode]:
+        """
+        Parse an optional comma-separated argument list.
+
+        Returns:
+            List[ASTNode]: List of expression AST nodes representing arguments.
+        """
         args: List[ASTNode] = []
 
         if not self._match(')'):
@@ -216,9 +292,21 @@ class RDParser:
             return args
     # --- Expr ---
     def _expr(self) -> ASTNode:
+        """
+        Parse an expression (logical OR).
+
+        Returns:
+            ASTNode: Expression AST node.
+        """
         return self._logical_or_expr()
     
     def _logical_or_expr(self) -> ASTNode:
+        """
+        Parse logical OR expressions.
+
+        Returns:
+            ASTNode: AST node representing logical OR operations.
+        """
         left  = self._logical_and_expr()
 
         while self._match('or'):
@@ -228,6 +316,12 @@ class RDParser:
         return left
     
     def _logical_and_expr(self) -> ASTNode:
+        """
+        Parse logical AND expressions.
+
+        Returns:
+            ASTNode: AST node representing logical AND operations.
+        """
         left = self._logical_not_expr()
 
         while self._match('and'):
@@ -237,6 +331,12 @@ class RDParser:
         return left
 
     def _logical_not_expr(self) -> ASTNode:
+        """
+        Parse logical NOT expressions.
+
+        Returns:
+            ASTNode: AST node representing logical NOT operation or the next expression.
+        """
         if self._match('!'):
             self.advance()
 
@@ -247,6 +347,13 @@ class RDParser:
         return self._eq_expr() 
 
     def _eq_expr(self) -> ASTNode:
+        """
+        Parse equality expressions (==, !=).
+
+        Returns:
+            ASTNode: AST node representing equality operations.
+        """
+
         left = self._comp_operand()
 
         while self._match('==', '!='):
@@ -257,6 +364,12 @@ class RDParser:
         return left
     
     def _comp_operand(self) -> ASTNode:
+        """
+        Parse a comparison operand: literal, boolean, or relational expression.
+
+        Returns:
+            ASTNode: AST node representing the operand.
+        """
         # can be rel_expr, str_literal, true, false
         if self._match(STR_LIT_T):
             return ASTNode('str_literal', value=self._advance().lexeme)
@@ -265,6 +378,12 @@ class RDParser:
         return self._rel_expr()
     
     def _rel_expr(self) -> ASTNode:
+        """
+        Parse relational expressions (>, >=, <, <=).
+
+        Returns:
+            ASTNode: AST node representing relational operations.
+        """
         left = self._arith_expr()
 
         while self._match('>', '>=', '<', '<='):
@@ -275,6 +394,12 @@ class RDParser:
         return left
 
     def _arith_expr(self) -> ASTNode:
+        """
+        Parse arithmetic expressions (+, -).
+
+        Returns:
+            ASTNode: AST node representing addition/subtraction operations.
+        """
         left = self._term()
 
         while self._match('+', '-'):
@@ -285,6 +410,12 @@ class RDParser:
         return left
 
     def _term(self) -> ASTNode:
+        """
+        Parse multiplicative expressions (*, /, //, %).
+
+        Returns:
+            ASTNode: AST node representing multiplication/division/modulo operations.
+        """
         left = self._factor()
 
         while self._match('*', '/', '//', '%'):
@@ -295,6 +426,12 @@ class RDParser:
         return left
     
     def _factor(self) -> ASTNode:
+        """
+        Parse power expressions (**).
+
+        Returns:
+            ASTNode: AST node representing power operations.
+        """
         left = self._power()
 
         while self._match('**'):
@@ -305,6 +442,12 @@ class RDParser:
         return left
     
     def _power(self) -> ASTNode:
+        """
+        Parse primary expressions: literals, identifiers, function calls, grouping.
+
+        Returns:
+            ASTNode: AST node representing the primary expression.
+        """
         if self._match(INT_LIT_T, FLOAT_LIT_T):
             tok = self._advance()
             kind = INT_LIT_T if tok.type == INT_LIT_T else FLOAT_LIT_T
@@ -335,6 +478,15 @@ class RDParser:
         return ASTNode('error_expr')
     
     def _postfix_tail(self, node: ASTNode) -> ASTNode:
+        """
+        Parse postfix operations: function calls and array indexing.
+
+        Args:
+            node (ASTNode): Base AST node (identifier).
+
+        Returns:
+            ASTNode: AST node after applying postfix operations.
+        """
         if self._match('('):
             self._advance()
 
@@ -368,6 +520,12 @@ class RDParser:
         return node
 
     def _local_statements(self) -> ASTNode:
+        """
+        Parse local statements inside a function (e.g., 'show').
+
+        Returns:
+            List[ASTNode]: List of AST nodes representing local statements.
+        """
         nodes: List[ASTNode] = []
 
         general_starts = {'show'}
@@ -387,6 +545,12 @@ class RDParser:
         return nodes
     
     def _return_opt(self) -> Optional[ASTNode]:
+        """
+        Parse an optional return statement.
+
+        Returns:
+            ASTNode | None: AST node for return statement if present.
+        """
         if self._match('ret'):
             self._advance()
 
@@ -395,6 +559,13 @@ class RDParser:
         return None
     
     def _general_statement(self) -> ASTNode:
+        """
+        Parse a general statement (e.g., output, control statements).
+
+        Returns:
+            ASTNode: AST node representing the statement.
+        """
+
         # Branches requiring trailing newline (except control_structure_statement)
         if self._match('show'):
             node = self._output_statement()
@@ -405,6 +576,12 @@ class RDParser:
         ], "general_statement")
 
     def _output_statement(self) -> ASTNode:
+        """
+        Parse a 'show' statement.
+
+        Returns:
+            ASTNode: AST node representing the output statement.
+        """
         self._advance()     # consume 'show'
         if self._match(ID_T):
             return ASTNode('output_statement', children=[ASTNode('id', value=self._advance().lexeme)])
