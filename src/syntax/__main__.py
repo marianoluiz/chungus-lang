@@ -46,22 +46,19 @@ def main():
     # Lexer.token_stream: [ ((type, lexeme), (line, col)), ... ]
     tokens: List[Token] = lexer.token_stream
     
-    if lexer.log:
-        errors.append("Lexical Error/s:")
-        errors.extend(lexer.log.splitlines())
-        # End if have lexical error
-        return tokens, errors
-
     # Tokens: [ {type, token_type, line_index, col_index}, ... ]
     parser = RDParser(tokens, source_code, debug=True)
     parse_result = parser.parse()
 
+    if lexer.log:
+        errors.append("Lexical Error/s:")
+        errors.extend(lexer.log.splitlines())
+        # End if have lexical error
+        return tokens, errors, parse_result
+
     if parse_result.errors:
         errors.append("Syntax Error/s:")
         errors.extend(parse_result.errors)
-
-    # Display AST tree
-
 
     return tokens, errors, parse_result
 

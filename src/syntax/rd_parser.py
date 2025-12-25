@@ -180,7 +180,6 @@ class RDParser:
         Returns:
             ParseResult: Contains the root ASTNode and list of errors encountered.
         """
-
         try:
             tree = self._program()
             return ParseResult(tree, self.errors)
@@ -202,10 +201,11 @@ class RDParser:
             ASTNode: Root ASTNode representing the program.
         """
         funcs = self._function_statements()
-        # stmt = self._general_statement()
+        stmt = self._general_statement()
         # tail = self._general_statement_tail()
 
-        return ASTNode('program', children=funcs)
+        children = funcs + [stmt]
+        return ASTNode('program', children=children)
 
     def _function_statements(self) -> List[ASTNode]:
         """
@@ -289,7 +289,7 @@ class RDParser:
                 self._advance()
                 args.append(self._expr())
 
-            return args
+        return args
     # --- Expr ---
     def _expr(self) -> ASTNode:
         """
@@ -310,8 +310,8 @@ class RDParser:
         left  = self._logical_and_expr()
 
         while self._match('or'):
-            op = self.advance().lexeme
-            right = self.self._logical_and_expr()
+            op = self._advance().lexeme
+            right = self._logical_and_expr()
             left = ASTNode(op, children=[left, right])
         return left
     
@@ -322,11 +322,18 @@ class RDParser:
         Returns:
             ASTNode: AST node representing logical AND operations.
         """
+
+        # Advance handle errors
+        expected = [ '!', '(', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true' ]
+
+        if not self._match(*expected):
+            return self._error(expected, 'logical_or_expr')
+
         left = self._logical_not_expr()
 
         while self._match('and'):
-            op = self.advance().lexeme
-            right = self.self._logical_not_expr()
+            op = self._advance().lexeme
+            right = self._logical_not_expr()
             left = ASTNode(op, children=[left, right])
         return left
 
@@ -337,8 +344,15 @@ class RDParser:
         Returns:
             ASTNode: AST node representing logical NOT operation or the next expression.
         """
+
+        # Advance handle errors
+        expected = [ '!', '(', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true' ]
+
+        if not self._match(*expected):
+            return self._error(expected, 'logical_and_expr')
+
         if self._match('!'):
-            self.advance()
+            self._advance()
 
             right = self._eq_expr()
             return ASTNode('!', children=[right])
@@ -370,11 +384,20 @@ class RDParser:
         Returns:
             ASTNode: AST node representing the operand.
         """
+
+        # Advance handle errors
+        expected = [ '(', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true' ]
+
+        if not self._match(*expected):
+            return self._error(expected, 'comp_operand')
+
         # can be rel_expr, str_literal, true, false
         if self._match(STR_LIT_T):
             return ASTNode('str_literal', value=self._advance().lexeme)
+        
         if self._match('true', 'false'):
             return ASTNode('bool_literal', value=self._advance().lexeme)
+        
         return self._rel_expr()
     
     def _rel_expr(self) -> ASTNode:
@@ -452,15 +475,19 @@ class RDParser:
             tok = self._advance()
             kind = INT_LIT_T if tok.type == INT_LIT_T else FLOAT_LIT_T
             return ASTNode(kind, value=tok.lexeme)
+        
         if self._match(STR_LIT_T):
             tok = self._advance()
             return ASTNode('str_literal', value=tok.lexeme)
+        
         if self._match(ID_T):
             tok = self._advance()
             node = ASTNode('id', value=tok.lexeme)
+
             # handle function call or indexing
             if self._match('(', '['):
                 node = self._postfix_tail(node)
+
             return node
 
         if self._match('('):
@@ -473,10 +500,10 @@ class RDParser:
             else:
                 self._error([')'], 'expression')
                 return node
-        
+
         self._error([INT_LIT_T, FLOAT_LIT_T, STR_LIT_T, ID_T, '('], 'power')
-        return ASTNode('error_expr')
-    
+
+
     def _postfix_tail(self, node: ASTNode) -> ASTNode:
         """
         Parse postfix operations: function calls and array indexing.
@@ -565,8 +592,11 @@ class RDParser:
         Returns:
             ASTNode: AST node representing the statement.
         """
+        if self._match(ID_T):
+            id_name = self._advance().lexeme
+            node = self._id_statement_tail(id_name)
+            return ASTNode('general_statement', children=[node])
 
-        # Branches requiring trailing newline (except control_structure_statement)
         if self._match('show'):
             node = self._output_statement()
             return ASTNode('general_statement', children=[node])
@@ -574,6 +604,82 @@ class RDParser:
         self._error([
             ID_T,'show','clr','exit','if','while','for','try','todo','array_add','array_remove'
         ], "general_statement")
+    
+    def _id_statement_tail(self, id_name: str) -> ASTNode:
+        """ 
+        Parses next of id.
+
+        Returns:
+            ASTNode: AST node representing the id_statement_tail.
+        """
+
+        # Unary statement: ++ or --
+        if self._match('++', '--'):
+            return ASTNode('unary_statement', value=self._advance().lexeme, children=[ASTNode('id', value=id_name)])
+        
+        # Assignment statement: = <assignment_value>
+        elif self._match('='):
+            node = self._assignment_value()
+            return ASTNode('assignment_statement', value=id_name, children=[node])
+        
+        # Function call: ( <arg_list_opt> )
+        elif self._match('('):
+            self._advance()
+            args = self._arg_list_opt()
+
+            if self._match(')'):
+                self._advance()
+            else:
+                self.error([')'], 'function_call')
+
+            # We will add 1. args
+            children = []
+
+            if args:
+                children.append(ASTNode('args', children=args))
+
+            return ASTNode('function_call', value=id_name, children=children)
+        
+        # Array indexing assignment: [<index>] <index_loop> = <assignment_value>
+        elif self._match('['):
+            indices = []
+            while self._match('['):
+                self._advance()
+                idx = self._expr()
+                indices.append(idx)
+                if self._match(']'):
+                    self._advance()
+                else:
+                    self._error([']'], 'index_loop')
+            if self._match('='):
+                self._advance()
+                value = self._assignment_value()
+        else:
+            self._error(['++', '--', '=', '(', '['], 'id_statement_tail')
+
+
+    def _assignment_value(self):
+        self._advance()
+        
+        if self._match('read'):
+            self._advance()
+            return ASTNode('read')
+        
+        elif self._match('int', 'float'):
+            cast_method = self._advance().lexeme
+            
+            if self._match('('):
+                self._advance()
+
+                expr = self._expr()
+
+                if self._match(')'):
+                    self._advance()
+                else:
+                    self._error([')'], 'type_casting')
+                
+                return ASTNode('type_casting', value=cast_method, children=[expr])
+
 
     def _output_statement(self) -> ASTNode:
         """
@@ -585,7 +691,7 @@ class RDParser:
         self._advance()     # consume 'show'
         if self._match(ID_T):
             return ASTNode('output_statement', children=[ASTNode('id', value=self._advance().lexeme)])
-        if self._match(STR_LIT_T):
+        elif self._match(STR_LIT_T):
             return ASTNode('output_statement', children=[ASTNode('str_literal', value=self._advance().lexeme)])
-        
-        self._error([ID_T, STR_LIT_T], 'output_value')
+        else:
+            self._error([ID_T, STR_LIT_T], 'output_value')
