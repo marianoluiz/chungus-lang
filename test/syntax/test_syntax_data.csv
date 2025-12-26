@@ -69,89 +69,103 @@ Expected any: (, ++, --, =, [",id stmt
    show 'hi'
 close
 
-show 'hi'",NO SYNTAX ERROR,
+show 'hi'",NO SYNTAX ERROR,fn 
 "fn id(1 an)
    show 'hi'
 close
 
 show 'hi'","line 1 col 9
-Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",expr param
 "fn id(1 and )
    show 'hi'
 close
 
 show 'hi'","line 1 col 13
-Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",
+Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",expr param
 "fn id(1 or )
    show 'hi'
 close
 
 show 'hi'","line 1 col 12
-Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",
+Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",expr param
 "fn id(1 == )
    show 'hi'
 close
 
 show 'hi'","line 1 col 12
-Expected any: (, false, float_literal, id, int_literal, str_literal, true",
+Expected any: (, false, float_literal, id, int_literal, str_literal, true",expr param
 "fn id(1 + )
    show 'hi'
 close
 
 show 'hi'","line 1 col 11
-Expected any: (, float_literal, id, int_literal",
+Expected any: (, float_literal, id, int_literal",expr param
+"fn x()
+ show 'hi'
+ ret 
+close
+
+show 'hi'","line 4 col 1
+Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",ret
+"fn x()
+ show 'hi'
+ // 
+close
+
+show 'hi'","line 3 col 2
+Expected any: array_add, array_remove, close, for, id, if, ret, show, todo, try, while",close must be included
 "fn id(1)
    show 'hi'
 close
 
-id()",NO SYNTAX ERROR,
+id()",NO SYNTAX ERROR,fn call
 "fn id(1)
    show 'hi'
 close
 
 id(idx an)","line 5 col 8
-Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
+Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",arg 
 "fn id(1)
    show 'hi'
 close
 
 id(idx(1) id )","line 5 col 11
-Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",arg 
 "fn id(1)
    show 'hi'
 close
 
 id(idx(1 )","line 5 col 11
-Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",arg 
 "fn id(1)
    show 'hi'
 close
 
 id(idx[1] id","line 5 col 11
-Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",arg 
 "fn id(1)
    show 'hi'
 close
 
-id(idx[1][1])",NO SYNTAX ERROR,
+id(idx[1][1])",NO SYNTAX ERROR,arg 
 "fn id(1)
    show 'hi'
 close
 
 id(idx[1][1] id","line 5 col 14
-Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",arg 
 "fn id(1)
    show 'hi'
 close
 
 id(idx + )","line 5 col 10
-Expected any: (, float_literal, id, int_literal",
+Expected any: (, float_literal, id, int_literal",arg 
 "fn id(1)
    show 'hi'
 close
 
 id(idx and )","line 5 col 12
-Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",
+Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",arg 
 id = read,NO SYNTAX ERROR,read
 id = int(),"line 1 col 10
 Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",typecast req 1

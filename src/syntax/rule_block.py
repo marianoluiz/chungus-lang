@@ -19,7 +19,7 @@ from src.constants.token import ID_T, INT_LIT_T, FLOAT_LIT_T, STR_LIT_T, BOOL_LI
 from src.syntax.ast import ASTNode
 
 
-class BlockStmtRules:    
+class BlockStmtRules():    
     """
     Statement parsing mixin that implements function/conditional/loop/error-block rules.
 
@@ -52,31 +52,31 @@ class BlockStmtRules:
         self._advance()  # consume 'fn'
     
         # check if next is id or else error
-        if self._match(ID_T):
-            fn_name = self._advance().lexeme
-        else:
+        if not self._match(ID_T):
             self._error([ID_T], 'function_name')
 
-        # check if next is ( or else error
-        if self._match('('):
-            self._advance()
-            params = self._arg_list_opt()
-            
-            # check if next is ) or else error
-            if self._match(')'):
-                self._advance()
-            else:
-                self._error([')'], 'function_declaration')
+        fn_name = self._advance().lexeme
 
-        else:
+        # check if next is ( or else error
+        if not self._match('('):
             self._error(['('], 'function_declaration')
+
+        self._advance()
+        params = self._arg_list_opt()
+            
+        # check if next is ) or else error
+        if not self._match(')'):
+            self._error([')'], 'function_declaration')
+
+        self._advance()
 
         # check inside the function block
         fn_nodes = []
 
         # require 1 local statement
         fn_nodes.append(self._general_statement())
-
+        
+        # 0 or many local statement
         while not self._match('ret', 'close'):
             fn_nodes.append(self._general_statement())
 
