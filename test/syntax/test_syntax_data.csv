@@ -12,3 +12,103 @@ close
 
 show 'hi'","line 1 col 11
 Expected any: (, float_literal, id, int_literal",param expr
+id++,NO SYNTAX ERROR,unary stmt
+id(),NO SYNTAX ERROR,
+id fun,"line 1 col 4
+Expected any: (, ++, --, =, [",id stmt
+"fn id()
+   show 'hi'
+close
+
+show 'hi'",NO SYNTAX ERROR,
+"fn id(1 an)
+   show 'hi'
+close
+
+show 'hi'","line 1 col 9
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
+"fn id(1 and )
+   show 'hi'
+close
+
+show 'hi'","line 1 col 13
+Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",
+"fn id(1 or )
+   show 'hi'
+close
+
+show 'hi'","line 1 col 12
+Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",
+"fn id(1 == )
+   show 'hi'
+close
+
+show 'hi'","line 1 col 12
+Expected any: (, false, float_literal, id, int_literal, str_literal, true",
+"fn id(1 + )
+   show 'hi'
+close
+
+show 'hi'","line 1 col 11
+Expected any: (, float_literal, id, int_literal",
+"fn id(1)
+   show 'hi'
+close
+
+id()",NO SYNTAX ERROR,
+"fn id(1)
+   show 'hi'
+close
+
+id(idx an)","line 5 col 8
+Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
+"fn id(1)
+   show 'hi'
+close
+
+id(idx(1) id )","line 5 col 11
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
+"fn id(1)
+   show 'hi'
+close
+
+id(idx(1 )","line 5 col 11
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
+"fn id(1)
+   show 'hi'
+close
+
+id(idx[1] id","line 5 col 11
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
+"fn id(1)
+   show 'hi'
+close
+
+id(idx[1][1])",NO SYNTAX ERROR,
+"fn id(1)
+   show 'hi'
+close
+
+id(idx[1][1] id","line 5 col 14
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
+"fn id(1)
+   show 'hi'
+close
+
+id(idx + )","line 5 col 10
+Expected any: (, float_literal, id, int_literal",
+"fn id(1)
+   show 'hi'
+close
+
+id(idx and )","line 5 col 12
+Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",
+id = read,NO SYNTAX ERROR,read
+id = int(),"line 1 col 10
+Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",typecast req 1
+id = int(1 and ),"line 1 col 16
+Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",typecast expr
+id = int(1 + ),"line 1 col 14
+Expected any: (, float_literal, id, int_literal",typecast expr
+id = int(1 an ),"line 1 col 12
+Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",typecast expr

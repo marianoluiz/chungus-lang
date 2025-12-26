@@ -286,26 +286,49 @@ class RDParser:
             '!=', '%', ')', '*', '**', '+', ',', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or'
         }
 
+        FOLLOW_ID_POSTFIX = {'(', '['}  # only valid after id/postfix expressions
+        FOLLOW_NESTED_INDEX = {'['}
+
         if not self._match(')'):
-            args.append(self._expr())
+            # parse expression if not empty 
+            node = self._expr()
+            args.append(node)
 
             # If after parsing an expression we don't see a comma, a closing paren,
             # or any operator that can continue the expression, produce a clearer error.
-            if not self._match(*FOLLOW_AFTER_ARG):
-                self._error(sorted(list(FOLLOW_AFTER_ARG)), 'function_declaration')
+            allowed = FOLLOW_AFTER_ARG
+
+            if node.kind in ('id'):
+                allowed = allowed | FOLLOW_ID_POSTFIX # adds all elements from POSTFIX_TOKS into allowed.
+
+            if node.kind in ('index'):
+                allowed = allowed | FOLLOW_NESTED_INDEX # adds all elements from FOLLOW_NESTED_INDEX into allowed.
+
+            if not self._match(*allowed):
+                self._error(sorted(list(allowed)), 'function_declaration')
 
             # additional comma-separated expressions
             while self._match(','):
                 self._advance()
-                args.append(self._expr())
+                node = self._expr()
+                args.append(node)
 
                 # If we don't see a comma, a closing paren,
                 # or any operator that can continue the expression, produce a clearer error.
-                if not self._match(*FOLLOW_AFTER_ARG):
-                    self._error(sorted(list(FOLLOW_AFTER_ARG)), 'function_declaration')
+                allowed = FOLLOW_AFTER_ARG
 
+                if node.kind in ('id'):
+                    allowed = allowed | FOLLOW_ID_POSTFIX # adds all elements from POSTFIX_TOKS into allowed.
+
+                if node.kind in ('index'):
+                    allowed = allowed | FOLLOW_NESTED_INDEX # adds all elements from POSTFIX_TOKS into allowed.
+
+                if not self._match(*allowed):
+                    self._error(sorted(list(allowed)), 'function_declaration')
 
         return args
+    
+
     # --- Expr ---
     def _expr(self) -> ASTNode:
         """
@@ -559,6 +582,7 @@ class RDParser:
         # if it is array reference
         if indices:
             return ASTNode('index', children=[node] + indices)
+        
         # if it is function call
         return node
 
@@ -607,6 +631,8 @@ class RDParser:
             if not self._match(*FOLLOW_AFTER_RET):
                 self._error(sorted(list(FOLLOW_AFTER_RET)), 'return')
 
+            return node
+        
         return None
     
     def _general_statement(self) -> ASTNode:
@@ -692,10 +718,20 @@ class RDParser:
         elif self._match('int', 'float'):
             cast_method = self._advance().lexeme
             
+            FOLLOW_AFTER_TYPECAST = {
+                '!=', '%', ')', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or'
+            }
+
             if self._match('('):
                 self._advance()
 
                 expr = self._expr()
+
+                # If after parsing an expression we don't see a comma, a closing paren,
+                # or any operator that can continue the expression, produce a clearer error.
+                if not self._match(*FOLLOW_AFTER_TYPECAST):
+                    self._error(sorted(list(FOLLOW_AFTER_TYPECAST)), 'typecasting')
+
 
                 if self._match(')'):
                     self._advance()
