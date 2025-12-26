@@ -1,4 +1,4 @@
-fn id(1)
+fn id(a(1), a[1][1])
    show 'hi'
 close
 
@@ -11,29 +11,33 @@ fn id(1)
 close
 
 for x in range (1, 2) 
- todo
+    skip
+    stop
 close
 
 array_add(x, 1)
 array_remove(x, 1)
 
 id = 1
-id()
+id(id[1][1])
 
 
-id[1]
-id[1][2]
+id[2][a] = 1
+id[1] = 1 + 1
+
 
 if x
-show 'if block'
+    show 'if block'
 elif x
-show 'elif block'
+    show 'elif block'
 else 
-show 'else block'
+    show 'else block'
 close
 
 while x
-show 'while blk'
+    show 'while blk'
+    skip
+    stop
 close
 
 try 
