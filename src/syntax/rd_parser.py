@@ -375,7 +375,7 @@ class RDParser:
         expected = [ '!', '(', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true' ]
 
         if not self._match(*expected):
-            return self._error(expected, 'logical_or_expr')
+            self._error(expected, 'logical_or_expr')
 
         left = self._logical_not_expr()
 
@@ -397,7 +397,7 @@ class RDParser:
         expected = [ '!', '(', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true' ]
 
         if not self._match(*expected):
-            return self._error(expected, 'logical_and_expr')
+            self._error(expected, 'logical_and_expr')
 
         if self._match('!'):
             self._advance()
@@ -437,7 +437,7 @@ class RDParser:
         expected = [ '(', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true' ]
 
         if not self._match(*expected):
-            return self._error(expected, 'comp_operand')
+            self._error(expected, 'comp_operand')
 
         # can be rel_expr, str_literal, true, false
         if self._match(STR_LIT_T):
@@ -581,7 +581,7 @@ class RDParser:
             # array indexing / loop
             self._advance()
 
-            idx = self._expr()
+            idx = self._index()
             indices.append(idx)
 
             if self._match(']'):
@@ -694,7 +694,7 @@ class RDParser:
             if self._match(')'):
                 self._advance()
             else:
-                self.error([')'], 'function_call')
+                self._error([')'], 'function_call')
 
             # We will add 1. args
             children = []
@@ -708,23 +708,42 @@ class RDParser:
         elif self._match('['):
             indices = []
 
+            # indexed variable array
             while self._match('['):
                 self._advance()
 
-                idx = self._expr()
+                idx = self._index()
 
                 indices.append(idx)
 
-                if self._match(']'):
-                    self._advance()
-                else:
+                if not self._match(']'):
                     self._error([']'], 'index_loop')
 
-            if self._match('='):
                 self._advance()
-                value = self._assignment_value()
+
+            # = after indexed variable array
+            if not self._match('='):
+                self._error(['='], 'id_statement_tail')
+
+            value = self._assignment_value()
+
+            return ASTNode('array_idx_assignment', value=id_name, children=[value])
+            
+
         else:
             self._error(['++', '--', '=', '(', '['], 'id_statement_tail')
+
+    
+    def _index(self):
+        """ Returns id or int_literal """
+        if self._match(INT_LIT_T):
+            return ASTNode(INT_LIT_T, value=self._advance().lexeme)
+
+        elif self._match(ID_T):
+            return ASTNode(ID_T, value=self._advance().lexeme)
+
+        else:
+            self._error([INT_LIT_T, ID_T], '_index')
 
 
     def _assignment_value(self):
