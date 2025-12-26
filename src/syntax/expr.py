@@ -1,7 +1,33 @@
+"""
+Expression parsing rules (ExprRules).
+
+Provides the ExprRules mixin used by the recursive-descent parser (`RDParser`)
+to parse all expression productions (logical, comparison, arithmetic,
+power, postfix calls/indexing, literals and grouping).
+
+Expectations:
+- Mixed into a class that implements the ParserCore API:
+  - self._match(*types) -> bool
+  - self._advance() -> Token
+  - self._error(expected: List[str], context: str) -> raises ParseError
+- Relies on helpers such as `_arg_list_opt()` and `_postfix_tail()` provided
+  elsewhere in the parser mixins.
+
+Public symbols:
+- ExprRules: mixin containing expression parsing methods.
+
+See also: [`ASTNode`](src/syntax/ast.py), token constants like [`ID_T`](src/constants/token.py).
+"""
 from src.constants.token import ID_T, INT_LIT_T, FLOAT_LIT_T, STR_LIT_T, BOOL_LIT_T, SKIP_TOKENS
 from src.syntax.ast import ASTNode
 
 class ExprRules:
+    """
+    Mixin implementing expression parsing rules.
+
+    Each method parses a specific production and returns an `ASTNode`
+    representing the parsed subtree.
+    """
     def _expr(self) -> ASTNode:
         """
         Parse an expression (logical OR).

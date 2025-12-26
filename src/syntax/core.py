@@ -1,10 +1,33 @@
+"""
+Parser core utilities used by RDParser mixins.
+
+This module exposes ParserCore, a tiny reusable base that provides:
+- cursor management: _curr(), _advance(), _skip_trivia()
+- token matching: _match(...)
+- error reporting: _error(expected, context) -> raises ParseError
+
+The mixins that implement grammar rules (e.g. ExprRules, BlockStmtRules)
+expect an object that implements these helpers (RDParser inherits ParserCore).
+"""
 from typing import List, Optional
 from src.syntax.errors import ParseError, UnexpectedError
 from src.constants.token import Token, SKIP_TOKENS
 
 class ParserCore:
-    """ Utility class """
+    """
+    Minimal parsing runtime helpers.
 
+    Intended to be mixed into or inherited by a recursive-descent parser.
+    Provides safe token access, skipping of trivia, and a single point to
+    format and raise parse errors.
+
+    Attributes (expected to be set by the concrete parser):
+        tokens: List[Token] - token stream to parse
+        _lines: List[str] - original source split into lines (for error caret display)
+        _i: int - current index into tokens
+        _debug: bool - enable debug printing
+        errors: List[str] - optional error accumulator (parser may use)
+    """
 
     def _dbg(self, msg: str):
         """

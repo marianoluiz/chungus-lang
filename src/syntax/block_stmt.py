@@ -1,9 +1,33 @@
+"""
+Block statement parsing rules.
+
+This module provides BlockStmtRules, a mixin containing the top-level block and
+statement parsing routines used by the recursive-descent parser `RDParser`.
+
+The mixin expects to be mixed into a class that implements the ParserCore API:
+- self._match(*types) -> bool
+- self._advance() -> Token
+- self._error(expected: List[str], context: str) -> raises ParseError
+- self._expr(), self._general_statement(), etc. provided by other rule mixins.
+
+Public symbols:
+- BlockStmtRules: mixin with functions to parse function declarations, conditionals,
+  loops and try/fail blocks.
+"""
 from typing import List, Optional
 from src.constants.token import ID_T, INT_LIT_T, FLOAT_LIT_T, STR_LIT_T, BOOL_LIT_T, SKIP_TOKENS
 from src.syntax.ast import ASTNode
 
-class BlockStmtRules:    
 
+class BlockStmtRules:    
+    """
+    Statement parsing mixin that implements function/conditional/loop/error-block rules.
+
+    Usage:
+        class RDParser(ParserCore, ExprRules, BlockStmtRules):
+            ...
+    The methods raise parse errors via self._error(...) when encountering invalid input.
+    """
 
     def _function_statements(self) -> List[ASTNode]:
         """
@@ -79,9 +103,16 @@ class BlockStmtRules:
 
     def _conditional_statement(self) -> ASTNode:
         """
-        Parse a conditional:
-          if <condition> <local_statements> (elif <condition> <local_statements>)* (else <local_statements>)? close
-        Returns an AST node with children: one 'if' node, zero-or-more 'elif' nodes, optional 'else' node.
+        Parse an if/elif/else conditional block.
+
+        Grammar (informal):
+            if <expr> <general_statement>+ (elif <expr> <general_statement>+)* (else <general_statement>+)? close
+
+        Returns:
+            ASTNode: `conditional_statement` node containing:
+                - one `if` node (cond + body)
+                - zero-or-more `elif` nodes (cond + body)
+                - optional `else` node (body)
         """
         # Accept being called when current token is 'if' (or, to be tolerant, 'elif')
         if self._match('if'):
@@ -159,9 +190,11 @@ class BlockStmtRules:
 
     def _looping_statement(self) -> ASTNode:
         """
-        Parse for/while looping statements.
-        for -> for id in range ( <expression_list> ) <local_loop_statement> close
-        while -> while <condition> <local_loop_statement> close
+        Parse `for` and `while` loop statements.
+
+        Returns:
+            ASTNode: `for` node (value = loop var, children = range exprs + body)
+                     or `while` node (children = cond + body).
         """
         if self._match('for'):
             self._advance()
@@ -258,8 +291,16 @@ class BlockStmtRules:
 
     def _error_handling_statement(self) -> ASTNode:
         """
-        Parse try / fail / (optional always) close block.
-        try <local_statement> fail <local_statement> (always <local_statement>)? close
+        Parse try/fail/(optional)always blocks.
+
+        Grammar (informal):
+            try <general_statement>+ fail <general_statement>+ (always <general_statement>+)? close
+
+        Returns:
+            ASTNode: `error_handling` node with children:
+                - `try` (children = try body)
+                - `fail` (children = fail body)
+                - optional `always` (children = always body)
         """
         # try block
         if not self._match('try'):

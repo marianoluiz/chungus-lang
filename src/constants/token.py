@@ -13,4 +13,4 @@ INT_LIT_T = 'int_literal'
 FLOAT_LIT_T = 'float_literal'
 STR_LIT_T = 'str_literal'
 BOOL_LIT_T = 'bool_literal'
-SKIP_TOKENS = {"whitespace", "newline"}
+SKIP_TOKENS = {"whitespace", "newline", "comment"}
