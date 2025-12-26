@@ -65,8 +65,8 @@ function_call_statement: "(" arg_list_opt ")"
 
 // ─────────── TYPE CASTING ───────────
 
-type_casting: INT "(" int_float_str_lit ")"
-            | FLOAT "(" int_float_str_lit ")"
+type_casting: INT "(" expr ")"
+            | FLOAT "(" expr ")"
 
 // ─────────── ARRAY ELEMENTS ───────────
 
