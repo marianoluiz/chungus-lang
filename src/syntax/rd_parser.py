@@ -42,7 +42,7 @@ FLOAT_LIT_T = 'float_literal'
 STR_LIT_T = 'str_literal'
 
 KEYWORDS = {
-    'and','or','true','false','read','show','clr','exit','if','elif','else','while','for','in','range',
+    'and','or','true','false','read','show','if','elif','else','while','for','in','range',
     'fn','ret','try','fail','always','todo','array_add','array_remove','int','float','close'
 }
 OPERATORS = {
@@ -201,10 +201,12 @@ class RDParser:
             ASTNode: Root ASTNode representing the program.
         """
         funcs = self._function_statements()
-        stmt = self._general_statement()
-        # tail = self._general_statement_tail()
+        general_stmts = [self._general_statement()]
 
-        children = funcs + [stmt]
+        while not self._match('EOF'):
+            general_stmts.append(self._general_statement())
+
+        children = funcs + general_stmts
         return ASTNode('program', children=children)
 
     def _function_statements(self) -> List[ASTNode]:
@@ -250,7 +252,14 @@ class RDParser:
             self._error(['('], 'function_declaration')
 
         # check inside the function block
-        locals_nodes = self._local_statements()
+        fn_nodes = []
+
+        # require 1 local statement
+        fn_nodes.append(self._general_statement())
+
+        while not self._match('ret', 'close'):
+            fn_nodes.append(self._general_statement())
+
         ret_node = self._return_opt()
 
         if self._match('close'):
@@ -264,7 +273,7 @@ class RDParser:
         if params:
             children.append(ASTNode('params', children=params))
         
-        children.extend(locals_nodes)
+        children.extend(fn_nodes)
 
         if ret_node:
             children.append(ret_node)
@@ -286,8 +295,8 @@ class RDParser:
             '!=', '%', ')', '*', '**', '+', ',', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or'
         }
 
-        FOLLOW_ID_POSTFIX = {'(', '['}  # only valid after id/postfix expressions
-        FOLLOW_NESTED_INDEX = {'['}
+        FOLLOW_ID_POSTFIX = {'(', '['}  # only valid after id in expressions
+        FOLLOW_NESTED_INDEX = {'['}     # only valid after index postfix in expressions
 
         if not self._match(')'):
             # parse expression if not empty 
@@ -438,7 +447,8 @@ class RDParser:
             return ASTNode('bool_literal', value=self._advance().lexeme)
         
         return self._rel_expr()
-    
+
+
     def _rel_expr(self) -> ASTNode:
         """
         Parse relational expressions (>, >=, <, <=).
@@ -586,31 +596,6 @@ class RDParser:
         # if it is function call
         return node
 
-    def _local_statements(self) -> ASTNode:
-        """
-        Parse local statements inside a function (e.g., 'show').
-
-        Returns:
-            List[ASTNode]: List of AST nodes representing local statements.
-        """
-        nodes: List[ASTNode] = []
-
-        general_starts = {'show'}
-
-        if self._match('ret', 'close', 'EOF'):
-            # missing required local statement
-            self._error(list(general_starts), 'function_body')
-        
-        while not self._match('ret', 'close', 'EOF'):
-            if self._match('show'):
-                nodes.append(self._general_statement())
-                continue
-
-            self._error(['show'], "local_statement")
-            self._advance()
-            
-        return nodes
-    
     def _return_opt(self) -> Optional[ASTNode]:
         """
         Parse an optional return statement.
@@ -642,18 +627,47 @@ class RDParser:
         Returns:
             ASTNode: AST node representing the statement.
         """
+
+        # identifier-starting statement (assignment, call, unary, indexed assignment)
         if self._match(ID_T):
             id_name = self._advance().lexeme
             node = self._id_statement_tail(id_name)
             return ASTNode('general_statement', children=[node])
 
-        if self._match('show'):
+        # output
+        elif self._match('show'):
             node = self._output_statement()
             return ASTNode('general_statement', children=[node])
 
-        self._error([
-            ID_T,'show','clr','exit','if','while','for','try','todo','array_add','array_remove'
-        ], "general_statement")
+        # conditional (if / elif / else ... close)
+        elif self._match('if'):
+            node = self._conditional_statement()
+            return ASTNode('general_statement', children=[node])
+
+        # looping (for / while)
+        elif self._match('for', 'while'):
+            node = self._looping_statement()
+            return ASTNode('general_statement', children=[node])
+
+        # error handling (try / fail / always ... close)
+        elif self._match('try'):
+            node = self._error_handling_statement()
+            return ASTNode('general_statement', children=[node])
+
+        # todo
+        elif self._match('todo'):
+            self._advance()
+            return ASTNode('general_statement', children=[ASTNode('todo')])
+
+        # array manipulation helpers
+        elif self._match('array_add', 'array_remove'):
+            node = self._array_manip_statement()
+            return ASTNode('general_statement', children=[node])
+        
+        else:
+            self._error([
+                ID_T, 'show', 'if', 'while', 'for', 'try', 'todo', 'array_add', 'array_remove'
+            ], "general_statement")
     
     def _id_statement_tail(self, id_name: str) -> ASTNode:
         """ 
@@ -693,14 +707,19 @@ class RDParser:
         # Array indexing assignment: [<index>] <index_loop> = <assignment_value>
         elif self._match('['):
             indices = []
+
             while self._match('['):
                 self._advance()
+
                 idx = self._expr()
+
                 indices.append(idx)
+
                 if self._match(']'):
                     self._advance()
                 else:
                     self._error([']'], 'index_loop')
+
             if self._match('='):
                 self._advance()
                 value = self._assignment_value()
@@ -711,10 +730,12 @@ class RDParser:
     def _assignment_value(self):
         self._advance()
         
+        # input method
         if self._match('read'):
             self._advance()
             return ASTNode('read')
         
+        # typecast method
         elif self._match('int', 'float'):
             cast_method = self._advance().lexeme
             
@@ -739,6 +760,81 @@ class RDParser:
                     self._error([')'], 'type_casting')
                 
                 return ASTNode('type_casting', value=cast_method, children=[expr])
+        
+        elif self._match('['):
+            self._advance()
+            elements = self._element_list_opt()
+        
+            if self._match(']'):
+                self._advance()
+            else:
+                self._error([']'], 'array_literal')
+
+            return ASTNode('array_literal', children=elements)
+
+        else:
+            return self._expr()
+    
+
+    def _element_list_opt(self) -> List[ASTNode]:
+        """
+        Parse optional element_list (can be empty).
+        element_list -> array_element ( , array_element )*
+        """
+        elements: List[ASTNode] = []
+        # empty element list allowed
+        if self._match(']'):
+            return elements
+
+        # at least one element
+        elements.append(self._array_element())
+        while self._match(','):
+            self._advance()
+            # allow trailing empty? (grammar says element_list -> lambda or element)
+            # parse next element
+            elements.append(self._array_element())
+
+        return elements
+
+
+    def _array_element(self) -> ASTNode:
+        """
+        Parse a single array element:
+          int/float/str/bool literal | id | [ <element_list> ]
+        """
+        if self._match(INT_LIT_T, FLOAT_LIT_T):
+            tok = self._advance()
+            kind = INT_LIT_T if tok.type == INT_LIT_T else FLOAT_LIT_T
+            return ASTNode(kind, value=tok.lexeme)
+
+        elif self._match(STR_LIT_T):
+            tok = self._advance()
+            return ASTNode('str_literal', value=tok.lexeme)
+
+        elif self._match('true', 'false'):
+            tok = self._advance()
+            return ASTNode('bool_literal', value=tok.lexeme)
+
+        elif self._match(ID_T):
+            tok = self._advance()
+            node = ASTNode('id', value=tok.lexeme)
+            # allow postfix (call/index) as an element
+            if self._match('(', '['):
+                node = self._postfix_tail(node)
+            return node
+
+        elif self._match('['):
+            # nested array literal
+            self._advance()
+            elems = self._element_list_opt()
+            if self._match(']'):
+                self._advance()
+                return ASTNode('array_literal', children=elems)
+            else:
+                self._error([']'], 'array_literal')
+
+        else:
+            self._error([INT_LIT_T, FLOAT_LIT_T, STR_LIT_T, 'true', 'false', ID_T, '['], 'array_element')
 
 
     def _output_statement(self) -> ASTNode:
@@ -755,3 +851,268 @@ class RDParser:
             return ASTNode('output_statement', children=[ASTNode('str_literal', value=self._advance().lexeme)])
         else:
             self._error([ID_T, STR_LIT_T], 'output_value')
+
+
+    def _conditional_statement(self) -> ASTNode:
+        """
+        Parse a conditional:
+          if <condition> <local_statements> (elif <condition> <local_statements>)* (else <local_statements>)? close
+        Returns an AST node with children: one 'if' node, zero-or-more 'elif' nodes, optional 'else' node.
+        """
+        # Accept being called when current token is 'if' (or, to be tolerant, 'elif')
+        if self._match('if'):
+            self._advance()
+        else:
+            self._error(['if'], 'conditional_statement')
+
+        # condition expression
+        cond = self._expr()
+
+        # parse local statements until we hit elif / else / close
+        if self._match('elif', 'else', 'close'):
+            self._error(['general_statement'], 'if_block')
+
+        if_nodes: List[ASTNode] = []
+
+        # require one general statement
+        if_nodes.append(self._general_statement())
+
+        while not self._match('elif', 'else', 'close'):
+            if_nodes.append(self._general_statement())
+
+        if_node = ASTNode('if', children=[cond] + if_nodes)
+
+        # zero-or-more elif blocks
+        elif_nodes: List[ASTNode] = []
+        while self._match('elif'):
+            self._advance()
+            cond_e = self._expr()
+
+            if self._match('elif', 'else', 'close'):
+                self._error(['general_statement'], 'elif_block')
+
+            elif_body: List[ASTNode] = []
+
+            # require 1 general statement
+            elif_body.append(self._general_statement())
+
+            while not self._match('elif', 'else', 'close'):
+                elif_body.append(self._general_statement())
+
+            elif_nodes.append(ASTNode('elif', children=[cond_e] + elif_body))
+
+        # optional else block
+        else_node: Optional[ASTNode] = None
+        if self._match('else'):
+            self._advance()
+
+            if self._match('elif', 'else', 'close'):
+                self._error(['general_statement'], 'else_block')
+
+            else_body: List[ASTNode] = []
+
+            # require one general statement
+            else_body.append(self._general_statement())
+
+            while not self._match('close'):
+                else_body.append(self._general_statement())
+
+            else_node = ASTNode('else', children=else_body)
+
+        # final close
+        if self._match('close'):
+            self._advance()
+        else:
+            self._error(['close'], 'conditional_statement')
+
+        # if node is already a list and we add it
+        children = [if_node] + elif_nodes
+        if else_node:
+            children.append(else_node)
+        return ASTNode('conditional_statement', children=children)
+
+
+    def _looping_statement(self) -> ASTNode:
+        """
+        Parse for/while looping statements.
+        for -> for id in range ( <expression_list> ) <local_loop_statement> close
+        while -> while <condition> <local_loop_statement> close
+        """
+        if self._match('for'):
+            self._advance()
+
+            if not self._match(ID_T):
+                self._error([ID_T], 'for_statement')
+
+            loop_var = self._advance().lexeme
+
+            if not self._match('in'):
+                self._error(['in'], 'for_statement')
+
+            self._advance()
+
+            # range ( <expression_list> )
+            if not self._match('range'):
+                self._error(['range'], 'for_statement')
+
+            self._advance()
+
+            if not self._match('('):
+                self._error(['('], 'range_expression')
+
+            self._advance()
+
+            # expression_list -> maybe empty per grammar; handle empty or expressions separated by commas
+            exprs: List[ASTNode] = []
+
+            # up to 3 range expression
+            # first expression (required)
+            exprs.append(self._expr())
+
+            # optional second expression
+            if self._match(','):
+                self._advance()
+                exprs.append(self._expr())
+
+                # optional third expression
+                if self._match(','):
+                    self._advance()
+                    exprs.append(self._expr())
+
+                    # no more than 3 expressions allowed
+                    if self._match(','):
+                        self._error([')'], 'range_expression')
+            
+            if not self._match(')'):
+                self._error([')'], 'range_expression')
+            self._advance()
+
+            # local loop statements until 'close'
+            body: List[ASTNode] = []
+            if self._match('close'):
+                self._error(['general_statement', 'skip', 'stop'], 'for_body')
+
+            while not self._match('close'):
+                if self._match('skip', 'stop'):
+                    tok = self._advance()
+                    body.append(ASTNode('loop_control', value=tok.lexeme))
+                else:
+                    body.append(self._general_statement())
+
+            if self._match('close'):
+                self._advance()
+            else:
+                self._error(['close'], 'for_statement')
+
+            return ASTNode('for', value=loop_var, children=exprs + body)
+
+        elif self._match('while'):
+            self._advance()
+            cond = self._expr()
+
+            body: List[ASTNode] = []
+            if self._match('close'):
+                self._error(['general_statement', 'skip', 'stop'], 'while_body')
+            while not self._match('close'):
+                if self._match('skip', 'stop'):
+                    tok = self._advance()
+                    body.append(ASTNode('loop_control', value=tok.lexeme))
+                else:
+                    body.append(self._general_statement())
+
+            if self._match('close'):
+                self._advance()
+            else:
+                self._error(['close'], 'while_statement')
+
+            return ASTNode('while', children=[cond] + body)
+
+        else:
+            self._error(['for', 'while'], 'looping_statement')
+
+
+    def _error_handling_statement(self) -> ASTNode:
+        """
+        Parse try / fail / (optional always) close block.
+        try <local_statement> fail <local_statement> (always <local_statement>)? close
+        """
+        # try block
+        if not self._match('try'):
+            self._error(['try'], 'error_handling_statement')
+        self._advance()
+
+        try_body: List[ASTNode] = []
+        if self._match('fail', 'always', 'close'):
+            self._error(['general_statement'], 'try_block')
+        while not self._match('fail', 'always', 'close'):
+            try_body.append(self._general_statement())
+
+        if not self._match('fail'):
+            self._error(['fail'], 'error_handling_statement')
+        self._advance()
+
+        # fail block
+        fail_body: List[ASTNode] = []
+        if self._match('always', 'close'):
+            self._error(['general_statement'], 'fail_block')
+        while not self._match('always', 'close'):
+            fail_body.append(self._general_statement())
+
+        # optional always block
+        always_node: Optional[ASTNode] = None
+        if self._match('always'):
+            self._advance()
+            if self._match('close'):
+                self._error(['general_statement'], 'always_block')
+            always_body: List[ASTNode] = []
+            while not self._match('close'):
+                always_body.append(self._general_statement())
+            always_node = ASTNode('always', children=always_body)
+
+        # final close
+        if self._match('close'):
+            self._advance()
+        else:
+            self._error(['close'], 'error_handling_statement')
+
+        children = [ASTNode('try', children=try_body), ASTNode('fail', children=fail_body)]
+        if always_node:
+            children.append(always_node)
+        return ASTNode('error_handling', children=children)
+
+
+    def _array_manip_statement(self) -> ASTNode:
+        """
+        Parse array_add(id, expr) and array_remove(id, expr)
+        """
+        if self._match('array_add', 'array_remove'):
+            op_tok = self._advance()
+            op = op_tok.type
+
+            if not self._match('('):
+                self._error(['('], 'array_manip_statement')
+            self._advance()
+
+            if not self._match(ID_T):
+                self._error([ID_T], 'array_manip_statement')
+
+            tok = self._advance()
+            id_node = ASTNode('id', value=tok.lexeme)
+
+            # allow index tail after the id (e.g., id[1][2])
+            if self._match('['):
+                id_node = self._postfix_tail(id_node)
+
+            if not self._match(','):
+                self._error([','], 'array_manip_statement')
+            self._advance()
+
+            expr_node = self._expr()
+
+            if not self._match(')'):
+                self._error([')'], 'array_manip_statement')
+            self._advance()
+
+            return ASTNode(op, children=[id_node, expr_node])
+
+        self._error(['array_add', 'array_remove'], 'array_manip_statement')
