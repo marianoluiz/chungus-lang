@@ -14,9 +14,12 @@ Public symbols:
 - BlockStmtRules: mixin with functions to parse function declarations, conditionals,
   loops and try/fail blocks.
 """
-from typing import List, Optional
-from src.constants.token import ID_T, INT_LIT_T, FLOAT_LIT_T, STR_LIT_T, BOOL_LIT_T, SKIP_TOKENS
+from typing import List, Optional, TYPE_CHECKING
+from src.constants.token import ID_T
 from src.syntax.ast import ASTNode
+
+# helps editor understand "self" in mixin methods is an RDParser instance
+if TYPE_CHECKING: from src.syntax.rd_parser import RDParser
 
 
 class BlockStmtRules():    
@@ -29,7 +32,7 @@ class BlockStmtRules():
     The methods raise parse errors via self._error(...) when encountering invalid input.
     """
 
-    def _function_statements(self) -> List[ASTNode]:
+    def _function_statements(self: "RDParser") -> List[ASTNode]:
         """
         Parse a sequence of function declarations.
 
@@ -42,13 +45,18 @@ class BlockStmtRules():
         return nodes
 
 
-    def _function_statement(self) -> ASTNode:
+    def _function_statement(self: "RDParser") -> ASTNode:
         """
         Parse a single function declaration.
 
         Returns:
             ASTNode: AST node representing the function with children nodes for parameters, locals, and return.
         """
+
+        FOLLOW_FUNC_GEN_STMT = {
+            'array_add', 'array_remove', 'close', 'for', 'id', 'if', 'ret', 'show', 'todo', 'try', 'while'
+        }
+
         self._advance()  # consume 'fn'
     
         # check if next is id or else error
@@ -78,6 +86,10 @@ class BlockStmtRules():
         
         # 0 or many local statement
         while not self._match('ret', 'close'):
+
+            if not self._match(*FOLLOW_FUNC_GEN_STMT):
+                self._error(sorted(list(FOLLOW_FUNC_GEN_STMT)), 'function_body')
+
             fn_nodes.append(self._general_statement())
 
         ret_node = self._return_opt()
@@ -92,7 +104,7 @@ class BlockStmtRules():
 
         if params:
             children.append(ASTNode('params', children=params))
-        
+
         children.extend(fn_nodes)
 
         if ret_node:
@@ -101,7 +113,7 @@ class BlockStmtRules():
         return ASTNode('function', value=fn_name, children=children)
 
 
-    def _conditional_statement(self) -> ASTNode:
+    def _conditional_statement(self: "RDParser") -> ASTNode:
         """
         Parse an if/elif/else conditional block.
 
@@ -188,7 +200,7 @@ class BlockStmtRules():
         return ASTNode('conditional_statement', children=children)
 
 
-    def _looping_statement(self) -> ASTNode:
+    def _looping_statement(self: "RDParser") -> ASTNode:
         """
         Parse `for` and `while` loop statements.
 
@@ -289,7 +301,7 @@ class BlockStmtRules():
             self._error(['for', 'while'], 'looping_statement')
 
 
-    def _error_handling_statement(self) -> ASTNode:
+    def _error_handling_statement(self: "RDParser") -> ASTNode:
         """
         Parse try/fail/(optional)always blocks.
 

@@ -16,9 +16,12 @@ Expectations:
 Public symbols:
 - SingleStmt: mixin with statement-level parsing routines.
 """
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 from src.constants.token import ID_T, INT_LIT_T, STR_LIT_T, BOOL_LIT_T, FLOAT_LIT_T, SKIP_TOKENS
 from src.syntax.ast import ASTNode
+
+# helps editor understand "self" in mixin methods is an RDParser instance
+if TYPE_CHECKING: from src.syntax.rd_parser import RDParser
 
 
 class SingleStmtRules:
@@ -29,7 +32,7 @@ class SingleStmtRules:
     raise parse errors via `self._error(...)` when input violates grammar.
     """
     
-    def _program(self) -> ASTNode:
+    def _program(self: "RDParser") -> ASTNode:
         """
         Parse the top-level program structure.
 
@@ -46,7 +49,7 @@ class SingleStmtRules:
         return ASTNode('program', children=children)
 
 
-    def _general_statement(self) -> ASTNode:
+    def _general_statement(self: "RDParser") -> ASTNode:
         """
         Parse a general statement (e.g., output, control statements).
 
@@ -96,7 +99,7 @@ class SingleStmtRules:
             ], "general_statement")
 
 
-    def _arg_list_opt(self) -> List[ASTNode]:
+    def _arg_list_opt(self: "RDParser") -> List[ASTNode]:
         """
         Parse an optional comma-separated argument list.
 
@@ -153,7 +156,7 @@ class SingleStmtRules:
         return args
 
 
-    def _return_opt(self) -> Optional[ASTNode]:
+    def _return_opt(self: "RDParser") -> Optional[ASTNode]:
         """
         Parse an optional return statement.
 
@@ -178,7 +181,7 @@ class SingleStmtRules:
         return None
 
 
-    def _array_element(self) -> ASTNode:
+    def _array_element(self: "RDParser") -> ASTNode:
         """
         Parse a single array element (literal, id, or nested array).
 
@@ -220,7 +223,7 @@ class SingleStmtRules:
             self._error([INT_LIT_T, FLOAT_LIT_T, STR_LIT_T, 'true', 'false', ID_T, '['], 'array_element')
 
 
-    def _element_list_opt(self) -> List[ASTNode]:
+    def _element_list_opt(self: "RDParser") -> List[ASTNode]:
         """
         Parse an optional, possibly-empty list of array literal elements.
 
@@ -243,7 +246,7 @@ class SingleStmtRules:
         return elements
 
 
-    def _output_statement(self) -> ASTNode:
+    def _output_statement(self: "RDParser") -> ASTNode:
         """
         Parse a 'show' statement.
 
@@ -324,7 +327,7 @@ class SingleStmtRules:
             self._error(['++', '--', '=', '(', '['], 'id_statement_tail')
 
 
-    def _assignment_value(self):
+    def _assignment_value(self: "RDParser"):
         self._advance()
         
         # input method
@@ -373,7 +376,7 @@ class SingleStmtRules:
             return self._expr()
 
 
-    def _array_manip_statement(self) -> ASTNode:
+    def _array_manip_statement(self: "RDParser") -> ASTNode:
         """
         Parse array_add(id, expr) and array_remove(id, expr)
         """

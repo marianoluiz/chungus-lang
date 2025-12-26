@@ -23,7 +23,7 @@ class RDParser(ParserCore, ExprRules, SingleStmtRules, BlockStmtRules):
 
     See `docs/ast_structure.md` for full AST node hierarchy.
     """
-    def __init__(self, tokens: List[dict], source: str, debug: bool = False):
+    def __init__(self: "RDParser", tokens: List[dict], source: str, debug: bool = False):
         self.tokens: List[Token] = tokens   #  [ Token(lexeme, type, line, col), ... ]
         self._source = source
         self._lines = source.splitlines(keepends=False)
@@ -32,7 +32,7 @@ class RDParser(ParserCore, ExprRules, SingleStmtRules, BlockStmtRules):
         self._debug = debug        # Debug switch
 
 
-    def parse(self) -> ParseResult:
+    def parse(self: "RDParser") -> ParseResult:
         """
         Parse the token stream into an AST.
 

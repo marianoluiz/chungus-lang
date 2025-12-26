@@ -18,8 +18,13 @@ Public symbols:
 
 See also: [`ASTNode`](src/syntax/ast.py), token constants like [`ID_T`](src/constants/token.py).
 """
+from typing import TYPE_CHECKING
 from src.constants.token import ID_T, INT_LIT_T, FLOAT_LIT_T, STR_LIT_T, BOOL_LIT_T, SKIP_TOKENS
 from src.syntax.ast import ASTNode
+
+# helps editor understand "self" in mixin methods is an RDParser instance
+if TYPE_CHECKING: from src.syntax.rd_parser import RDParser
+
 
 class ExprRules:
     """
@@ -28,7 +33,7 @@ class ExprRules:
     Each method parses a specific production and returns an `ASTNode`
     representing the parsed subtree.
     """
-    def _expr(self) -> ASTNode:
+    def _expr(self: "RDParser") -> ASTNode:
         """
         Parse an expression (logical OR).
 
@@ -37,7 +42,7 @@ class ExprRules:
         """
         return self._logical_or_expr()
     
-    def _logical_or_expr(self) -> ASTNode:
+    def _logical_or_expr(self: "RDParser") -> ASTNode:
         """
         Parse logical OR expressions.
 
@@ -52,7 +57,7 @@ class ExprRules:
             left = ASTNode(op, children=[left, right])
         return left
     
-    def _logical_and_expr(self) -> ASTNode:
+    def _logical_and_expr(self: "RDParser") -> ASTNode:
         """
         Parse logical AND expressions.
 
@@ -74,7 +79,7 @@ class ExprRules:
             left = ASTNode(op, children=[left, right])
         return left
 
-    def _logical_not_expr(self) -> ASTNode:
+    def _logical_not_expr(self: "RDParser") -> ASTNode:
         """
         Parse logical NOT expressions.
 
@@ -97,7 +102,7 @@ class ExprRules:
         # go to production where theres no !
         return self._eq_expr() 
 
-    def _eq_expr(self) -> ASTNode:
+    def _eq_expr(self: "RDParser") -> ASTNode:
         """
         Parse equality expressions (==, !=).
 
@@ -114,7 +119,7 @@ class ExprRules:
         
         return left
     
-    def _comp_operand(self) -> ASTNode:
+    def _comp_operand(self: "RDParser") -> ASTNode:
         """
         Parse a comparison operand: literal, boolean, or relational expression.
 
@@ -138,7 +143,7 @@ class ExprRules:
         return self._rel_expr()
 
 
-    def _rel_expr(self) -> ASTNode:
+    def _rel_expr(self: "RDParser") -> ASTNode:
         """
         Parse relational expressions (>, >=, <, <=).
 
@@ -170,7 +175,7 @@ class ExprRules:
         
         return left
 
-    def _term(self) -> ASTNode:
+    def _term(self: "RDParser") -> ASTNode:
         """
         Parse multiplicative expressions (*, /, //, %).
 
@@ -186,7 +191,7 @@ class ExprRules:
         
         return left
     
-    def _factor(self) -> ASTNode:
+    def _factor(self: "RDParser") -> ASTNode:
         """
         Parse power expressions (**).
 
@@ -242,7 +247,7 @@ class ExprRules:
         self._error([INT_LIT_T, FLOAT_LIT_T, ID_T, '('], 'power')
 
 
-    def _postfix_tail(self, node: ASTNode) -> ASTNode:
+    def _postfix_tail(self: "RDParser", node: ASTNode) -> ASTNode:
         """
         Parse trailing postfix operations on an identifier: function call or indexing.
 
@@ -282,7 +287,7 @@ class ExprRules:
         # if it is function call
         return node
     
-    def _index(self):
+    def _index(self: "RDParser"):
         """ Returns id or int_literal """
         if self._match(INT_LIT_T):
             return ASTNode(INT_LIT_T, value=self._advance().lexeme)
@@ -292,4 +297,3 @@ class ExprRules:
 
         else:
             self._error([INT_LIT_T, ID_T], '_index')
-

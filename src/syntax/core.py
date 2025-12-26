@@ -9,9 +9,13 @@ This module exposes ParserCore, a tiny reusable base that provides:
 The mixins that implement grammar rules (e.g. ExprRules, BlockStmtRules)
 expect an object that implements these helpers (RDParser inherits ParserCore).
 """
-from typing import List, Optional
+from typing import List, TYPE_CHECKING
 from src.syntax.errors import ParseError, UnexpectedError
 from src.constants.token import Token, SKIP_TOKENS
+
+# helps editor understand "self" in mixin methods is an RDParser instance
+if TYPE_CHECKING: from src.syntax.rd_parser import RDParser
+
 
 class ParserCore:
     """
@@ -29,7 +33,7 @@ class ParserCore:
         errors: List[str] - optional error accumulator (parser may use)
     """
 
-    def _dbg(self, msg: str):
+    def _dbg(self: "RDParser", msg: str):
         """
         Emit a debug message when parser debug mode is enabled.
 
@@ -40,7 +44,7 @@ class ParserCore:
             print(msg)
 
 
-    def _skip_trivia(self):
+    def _skip_trivia(self: "RDParser"):
         """
         Advance past non-significant tokens such as whitespace and newlines.
 
@@ -52,7 +56,7 @@ class ParserCore:
             self._i += 1
 
 
-    def _curr(self) -> dict:
+    def _curr(self: "RDParser") -> dict:
         """
         Return the current token (skipping trivia); returns a synthetic EOF token at end.
 
@@ -85,7 +89,7 @@ class ParserCore:
         return self._curr().type in types
 
 
-    def _advance(self) -> dict:
+    def _advance(self: "RDParser") -> dict:
         """
         Consume and return the current token, advancing the internal pointer.
 
