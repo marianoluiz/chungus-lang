@@ -1,6 +1,6 @@
-fn func(a + a) 
- show 'id'
-ret 1+2 
+fn f( 1 + )
+    show 'hi' 
+    ret 1+2 
 close
 
-a = int(true lol )
+show 'hi'
