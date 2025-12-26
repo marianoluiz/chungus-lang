@@ -13,31 +13,6 @@ from src.lexer.dfa_lexer import Lexer
 from src.syntax.rd_parser import RDParser
 
 
-def ast_to_string(node, prefix: str = "", is_last: bool = True) -> str:
-    """Return the AST as a readable tree string instead of printing."""
-    lines = []
-
-    # Choose branch symbol
-    connector = "└─ " if is_last else "├─ "
-
-    # Display node
-    if node.value is not None:
-        lines.append(prefix + connector + f"{node.kind}: {node.value}")
-    else:
-        lines.append(prefix + connector + f"{node.kind}")
-
-    # Prepare prefix for children
-    new_prefix = prefix + ("   " if is_last else "│  ")
-
-    # Process children recursively
-    count = len(node.children)
-    for i, child in enumerate(node.children):
-        is_last_child = (i == count - 1)
-        lines.append(ast_to_string(child, new_prefix, is_last_child))
-
-    return "\n".join(lines)
-
-
 def _run_lexer(src: str) -> str:
     lx = Lexer(src, debug=False)
     lx.start()
