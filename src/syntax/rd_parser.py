@@ -281,13 +281,29 @@ class RDParser:
         """
         args: List[ASTNode] = []
 
+        # tokens that can legally follow a completed expression inside parentheses
+        FOLLOW_AFTER_ARG = {
+            '!=', '%', ')', '*', '**', '+', ',', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or'
+        }
+
         if not self._match(')'):
             args.append(self._expr())
+
+            # If after parsing an expression we don't see a comma, a closing paren,
+            # or any operator that can continue the expression, produce a clearer error.
+            if not self._match(*FOLLOW_AFTER_ARG):
+                self._error(sorted(list(FOLLOW_AFTER_ARG)), 'function_declaration')
 
             # additional comma-separated expressions
             while self._match(','):
                 self._advance()
                 args.append(self._expr())
+
+                # If we don't see a comma, a closing paren,
+                # or any operator that can continue the expression, produce a clearer error.
+                if not self._match(*FOLLOW_AFTER_ARG):
+                    self._error(sorted(list(FOLLOW_AFTER_ARG)), 'function_declaration')
+
 
         return args
     # --- Expr ---
@@ -501,7 +517,7 @@ class RDParser:
                 self._error([')'], 'expression')
                 return node
 
-        self._error([INT_LIT_T, FLOAT_LIT_T, STR_LIT_T, ID_T, '('], 'power')
+        self._error([INT_LIT_T, FLOAT_LIT_T, ID_T, '('], 'power')
 
 
     def _postfix_tail(self, node: ASTNode) -> ASTNode:
@@ -578,11 +594,19 @@ class RDParser:
         Returns:
             ASTNode | None: AST node for return statement if present.
         """
+
+        FOLLOW_AFTER_RET = {
+            '!=', '%', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'close', 'or'
+        }
+
         if self._match('ret'):
             self._advance()
 
-            return ASTNode('return_statement', children=[self._expr()])
-        
+            node =  ASTNode('return_statement', children=[self._expr()])
+
+            if not self._match(*FOLLOW_AFTER_RET):
+                self._error(sorted(list(FOLLOW_AFTER_RET)), 'return')
+
         return None
     
     def _general_statement(self) -> ASTNode:
