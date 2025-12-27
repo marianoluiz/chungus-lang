@@ -125,41 +125,36 @@ class SingleStmtRules:
                 '!=', '%', ')', '*', '**', '+', ',', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or'
             }
 
-            FOLLOW_ID_POSTFIX = {'(', '['}  # only valid after id in expressions
-            FOLLOW_NESTED_INDEX = {'['}     # only valid after index postfix in expressions
-            allowed = FOLLOW_AFTER_ARG
-
             postfix_target = self._postfixable_root(node)
             # handle fn id(id() and fn id(id[x] display proper error
             if postfix_target.kind == ID_T:
-                allowed = allowed | FOLLOW_ID_POSTFIX # adds all elements from POSTFIX_TOKS into allowed.
+                FOLLOW_AFTER_ARG |= {'(', '['} # adds elements since this are allowed follow of id
             elif postfix_target.kind == 'index':
-                allowed = allowed | FOLLOW_NESTED_INDEX # adds all elements from FOLLOW_NESTED_INDEX into allowed.
+                FOLLOW_AFTER_ARG |= {'['} # adds elements since this are allowed follow of id[x]
 
             # If after parsing an expression we don't see a comma, a closing paren,
             # or any operator that can continue the expression, produce a clearer error.
-            if not self._match(*allowed):
-                self._error(sorted(list(allowed)), 'arg_list_opt')
+            if not self._match(*FOLLOW_AFTER_ARG):
+                self._error(sorted(list(FOLLOW_AFTER_ARG)), 'arg_list_opt')
 
             # additional comma-separated expressions
             while self._match(','):
                 self._advance()
 
                 node = self._expr()
-
                 args.append(node)
 
-                # same check before expr
-                allowed = FOLLOW_AFTER_ARG
+                # handle id(id() and id(id[x] display proper error again
+                postfix_target = self._postfixable_root(node)
 
-                if node.kind in (ID_T):
-                    allowed = allowed | FOLLOW_ID_POSTFIX # adds all elements from POSTFIX_TOKS into allowed.
+                if postfix_target.kind == ID_T:
+                    FOLLOW_AFTER_ARG |=  {'(', '['}
 
-                if node.kind in ('index'):
-                    allowed = allowed | FOLLOW_NESTED_INDEX # adds all elements from POSTFIX_TOKS into allowed.
+                if postfix_target.kind == 'index':
+                    FOLLOW_AFTER_ARG |= {'['}
 
-                if not self._match(*allowed):
-                    self._error(sorted(list(allowed)), 'function_declaration')
+                if not self._match(*FOLLOW_AFTER_ARG):
+                    self._error(sorted(list(FOLLOW_AFTER_ARG)), 'arg_list_opt')
 
         return args
 
@@ -183,7 +178,7 @@ class SingleStmtRules:
             node =  ASTNode('return_statement', children=[self._expr()])
 
             if not self._match(*FOLLOW_AFTER_RET):
-                self._error(sorted(list(FOLLOW_AFTER_RET)), 'return')
+                self._error(sorted(list(FOLLOW_AFTER_RET)), 'return_opt')
 
             return node
         

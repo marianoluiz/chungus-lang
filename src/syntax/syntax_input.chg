@@ -1,1 +1,5 @@
-fn id(id + id 
+fn id(a(1), a[x] 
+   show 'hi'
+ret 1 + id
+tanmgina
+close
