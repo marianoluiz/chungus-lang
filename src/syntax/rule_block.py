@@ -15,7 +15,7 @@ Public symbols:
   loops and try/fail blocks.
 """
 from typing import List, Optional, TYPE_CHECKING
-from src.constants.token import ID_T
+from src.constants.token import Token, SKIP_TOKENS, ID_T, STR_LIT_T, BOOL_LIT_T, FLOAT_LIT_T, INT_LIT_T
 from src.syntax.ast import ASTNode
 
 # helps editor understand "self" in mixin methods is an RDParser instance
@@ -53,10 +53,6 @@ class BlockStmtRules():
             ASTNode: AST node representing the function with children nodes for parameters, locals, and return.
         """
 
-        FOLLOW_FUNC_GEN_STMT = {
-            'array_add', 'array_remove', 'close', 'for', 'id', 'if', 'ret', 'show', 'todo', 'try', 'while'
-        }
-
         self._advance()  # consume 'fn'
     
         # check if next is id or else error
@@ -70,6 +66,15 @@ class BlockStmtRules():
             self._error(['('], 'function_declaration')
 
         self._advance()
+
+        # this can be null so we track the follow set of id to show more complete error
+        FOLLOW_FUNC_ID = {
+            '!', '(', ')', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'
+        }
+
+        if not self._match(*FOLLOW_FUNC_ID):
+            self._error(sorted(list(FOLLOW_FUNC_ID)), 'function_declaration')
+
         params = self._arg_list_opt()
             
         # check if next is ) or else error
@@ -84,9 +89,15 @@ class BlockStmtRules():
         # require 1 local statement
         fn_nodes.append(self._general_statement())
         
+        # ret can be null so we need to check always to show correct error
+        FOLLOW_FUNC_GEN_STMT = {
+            'array_add', 'array_remove', 'close', 'for', 'id', 'if', 'ret', 'show', 'todo', 'try', 'while'
+        }
+
         # 0 or many local statement
         while not self._match('ret', 'close'):
-
+            
+            # ret can be null so we need to check always to show correct error
             if not self._match(*FOLLOW_FUNC_GEN_STMT):
                 self._error(sorted(list(FOLLOW_FUNC_GEN_STMT)), 'function_body')
 
@@ -94,10 +105,10 @@ class BlockStmtRules():
 
         ret_node = self._return_opt()
 
-        if self._match('close'):
-            self._advance()
-        else:
+        if not self._match('close'):
             self._error(['close'], 'function_declaration')
+
+        self._advance()
 
         # We will add 1. params, then 2. local_nodes, then 3. ret_nodes
         children = []

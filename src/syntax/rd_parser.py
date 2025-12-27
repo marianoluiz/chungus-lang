@@ -1,6 +1,6 @@
-from typing import List, Optional
+from typing import List
 from src.constants.token import Token, ID_T, INT_LIT_T, FLOAT_LIT_T, STR_LIT_T, BOOL_LIT_T, SKIP_TOKENS
-from src.syntax.ast import ASTNode, ParseResult
+from src.syntax.ast import ParseResult
 from src.syntax.errors import ParseError
 from src.syntax.core import ParserCore
 from src.syntax.rule_expr import ExprRules

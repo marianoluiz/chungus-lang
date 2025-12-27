@@ -65,8 +65,11 @@ class ExprRules:
             ASTNode: AST node representing logical AND operations.
         """
 
+        self._dbg('here once')
         # Advance handle errors
         expected = [ '!', '(', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true' ]
+
+        self._dbg(self._curr())
 
         if not self._match(*expected):
             self._error(expected, 'logical_or_expr')
@@ -254,17 +257,29 @@ class ExprRules:
         Returns:
             ASTNode: AST node after applying any postfix operations.
         """
+        # function arg branch
         if self._match('('):
             self._advance()
 
+            # the supposed next of unclosed 'ID (' must include ')' if errored
+            FOLLOW_ID = {
+                '!', '(', ')', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'
+            }
+            
+            if not self._match(*FOLLOW_ID):
+                self._error([*FOLLOW_ID], 'postfix_tail')
+
             args = self._arg_list_opt()
 
-            if self._match(')'):
-                self._advance()
-            else:
+            if not self._match(')'):
                 self._error([')'], 'function_call')
+
+            self._advance()
+
             return ASTNode('function_call', value=node.value, children=args)
-        
+
+
+        # index branch which can nest
         # flattened indexes
         indices = []
 
@@ -272,21 +287,22 @@ class ExprRules:
             # array indexing / loop
             self._advance()
 
+            # index number or id
             idx = self._index()
             indices.append(idx)
 
-            if self._match(']'):
-                self._advance()
-            else:
+            if not self._match(']'):
                 self._error([']'], 'index')
-        
+
+            self._advance()
+
         # if it is array reference
         if indices:
             return ASTNode('index', children=[node] + indices)
         
         # if it is function call
         return node
-    
+
     def _index(self: "RDParser"):
         """ Returns id or int_literal """
         if self._match(INT_LIT_T):

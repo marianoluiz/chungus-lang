@@ -1,7 +1,1 @@
-fn x()
- show 'hi'
- // 
-close
-
-show 'hi'
-
+fn id( id tite

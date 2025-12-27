@@ -1,5 +1,5 @@
 """
-Block-level single-statement parsing rules.
+Single-statements parsing rules.
 
 This module defines the `SingleStmt` mixin used by the recursive-descent
 parser (`RDParser`) to parse program, general statements, argument lists,
@@ -39,6 +39,13 @@ class SingleStmtRules:
         Returns:
             ASTNode: Root ASTNode representing the program.
         """
+        FIRST_PROGRAM = {
+            'array_add', 'array_remove', 'fn', 'for', 'id', 'if', 'show', 'todo', 'try', 'while'
+        }
+
+        if not self._match(*FIRST_PROGRAM):
+            self._error([*FIRST_PROGRAM], 'program')
+
         funcs = self._function_statements()
         general_stmts = [self._general_statement()]
 
@@ -108,40 +115,42 @@ class SingleStmtRules:
         """
         args: List[ASTNode] = []
 
-        # tokens that can legally follow a completed expression inside parentheses
-        FOLLOW_AFTER_ARG = {
-            '!=', '%', ')', '*', '**', '+', ',', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or'
-        }
-
-        FOLLOW_ID_POSTFIX = {'(', '['}  # only valid after id in expressions
-        FOLLOW_NESTED_INDEX = {'['}     # only valid after index postfix in expressions
-
         if not self._match(')'):
             # parse expression if not empty 
             node = self._expr()
             args.append(node)
 
-            # If after parsing an expression we don't see a comma, a closing paren,
-            # or any operator that can continue the expression, produce a clearer error.
+            # tokens that can legally follow a completed expression inside parentheses
+            FOLLOW_AFTER_ARG = {
+                '!=', '%', ')', '*', '**', '+', ',', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or'
+            }
+
+            FOLLOW_ID_POSTFIX = {'(', '['}  # only valid after id in expressions
+            FOLLOW_NESTED_INDEX = {'['}     # only valid after index postfix in expressions
+
             allowed = FOLLOW_AFTER_ARG
 
+            # handle fn id(id() and fn id(id[x] display proper error
             if node.kind in (ID_T):
                 allowed = allowed | FOLLOW_ID_POSTFIX # adds all elements from POSTFIX_TOKS into allowed.
 
             if node.kind in ('index'):
                 allowed = allowed | FOLLOW_NESTED_INDEX # adds all elements from FOLLOW_NESTED_INDEX into allowed.
 
+            # If after parsing an expression we don't see a comma, a closing paren,
+            # or any operator that can continue the expression, produce a clearer error.
             if not self._match(*allowed):
-                self._error(sorted(list(allowed)), 'function_declaration')
+                self._error(sorted(list(allowed)), 'arg_list_opt')
 
             # additional comma-separated expressions
             while self._match(','):
                 self._advance()
+
                 node = self._expr()
+
                 args.append(node)
 
-                # If we don't see a comma, a closing paren,
-                # or any operator that can continue the expression, produce a clearer error.
+                # same check before expr
                 allowed = FOLLOW_AFTER_ARG
 
                 if node.kind in (ID_T):
@@ -163,7 +172,8 @@ class SingleStmtRules:
         Returns:
             ASTNode | None: AST node for return statement if present.
         """
-
+        
+        # tokens that must always follow a ret stmt. which are all expr operators and a close token
         FOLLOW_AFTER_RET = {
             '!=', '%', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'close', 'or'
         }
@@ -204,15 +214,18 @@ class SingleStmtRules:
         elif self._match(ID_T):
             tok = self._advance()
             node = ASTNode(ID_T, value=tok.lexeme)
+
             # allow postfix (call/index) as an element
             if self._match('(', '['):
                 node = self._postfix_tail(node)
+
             return node
 
         elif self._match('['):
             # nested array literal
             self._advance()
             elems = self._element_list_opt()
+
             if self._match(']'):
                 self._advance()
                 return ASTNode('array_literal', children=elems)
@@ -231,17 +244,29 @@ class SingleStmtRules:
             List[ASTNode]: Parsed element nodes (may be empty).
         """
         elements: List[ASTNode] = []
+
         # empty element list allowed
         if self._match(']'):
             return elements
 
         # at least one element
         elements.append(self._array_element())
+
+        # next of elements can be null so we need to have a proper printing
+        FOLLOW_ARR_ELMNT = {
+            ',', ']'
+        }
+
+        if not self._match(*FOLLOW_ARR_ELMNT):
+            self._error([*FOLLOW_ARR_ELMNT], 'element_list_opt')
+
         while self._match(','):
             self._advance()
-            # allow trailing empty? (grammar says element_list -> lambda or element)
             # parse next element
             elements.append(self._array_element())
+
+            if not self._match(*FOLLOW_ARR_ELMNT):
+                self._error([*FOLLOW_ARR_ELMNT], 'element_list_opt')
 
         return elements
 
@@ -273,7 +298,7 @@ class SingleStmtRules:
         # Unary statement: ++ or --
         if self._match('++', '--'):
             return ASTNode('unary_statement', value=self._advance().lexeme, children=[ASTNode(ID_T, value=id_name)])
-        
+
         # Assignment statement: = <assignment_value>
         elif self._match('='):
             node = self._assignment_value()
@@ -282,12 +307,21 @@ class SingleStmtRules:
         # Function call: ( <arg_list_opt> )
         elif self._match('('):
             self._advance()
+
+            # arg_list_opt is nullable so we need to show complete error that includes ')'
+            FOLLOW_AFTER_OPEN_PAREN = {
+                '!', '(', ')', ')', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'
+            }
+
+            if not self._match(*FOLLOW_AFTER_OPEN_PAREN):
+                self._error(sorted(list(FOLLOW_AFTER_OPEN_PAREN)), 'function_call')
+
             args = self._arg_list_opt()
 
-            if self._match(')'):
-                self._advance()
-            else:
+            if not self._match(')'):
                 self._error([')'], 'function_call')
+
+            self._advance()
 
             # We will add 1. args
             children = []
@@ -339,6 +373,7 @@ class SingleStmtRules:
         elif self._match('int', 'float'):
             cast_method = self._advance().lexeme
             
+            # since expr is nullable, we need to show this in error display
             FOLLOW_AFTER_TYPECAST = {
                 '!=', '%', ')', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or'
             }
@@ -363,12 +398,23 @@ class SingleStmtRules:
         
         elif self._match('['):
             self._advance()
+
+            # since _element_list_opt is nullable, we need to show this in error display
+            FOLLOW_LSB = {
+                '[', ']', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'
+            }
+
+            if not self._match(*FOLLOW_LSB):
+                self._error([*FOLLOW_LSB], 'assignment_value')
+
             elements = self._element_list_opt()
-        
-            if self._match(']'):
-                self._advance()
-            else:
-                self._error([']'], 'array_literal')
+
+            # this is actually kinda useless cause we check alr in the loop in elemenet_list_op
+            # but just dont wanna remove it cause it looks weird. self._advance still being used
+            if not self._match(']'):
+                self._error([']'], 'assignment_value')
+
+            self._advance()
 
             return ASTNode('array_literal', children=elements)
 
@@ -380,34 +426,52 @@ class SingleStmtRules:
         """
         Parse array_add(id, expr) and array_remove(id, expr)
         """
-        if self._match('array_add', 'array_remove'):
-            op_tok = self._advance()
-            op = op_tok.type
+        op_tok = self._advance()
+        op = op_tok.type
 
-            if not self._match('('):
-                self._error(['('], 'array_manip_statement')
-            self._advance()
+        if not self._match('('):
+            self._error(['('], 'array_manip_statement')
+        
+        self._advance()
 
-            if not self._match(ID_T):
-                self._error([ID_T], 'array_manip_statement')
+        if not self._match(ID_T):
+            self._error([ID_T], 'array_manip_statement')
 
-            tok = self._advance()
-            id_node = ASTNode(ID_T, value=tok.lexeme)
+        tok = self._advance()
+        
+        # array to manipulate id
+        id_node = ASTNode(ID_T, value=tok.lexeme)
 
-            # allow index tail after the id (e.g., id[1][2])
-            if self._match('['):
-                id_node = self._postfix_tail(id_node)
+        # allow index tail after the id (e.g., id[1][2])
+        if self._match('['):
+            id_node = self._postfix_tail(id_node)
 
-            if not self._match(','):
-                self._error([','], 'array_manip_statement')
-            self._advance()
+        # nullable after array_add(id ) & array_add(id[x] ), so we need to show proper errors
+        FOLLOW_ID_AND_INDEX_RSB = {
+            ',', '['
+        }
 
-            expr_node = self._expr()
+        if not self._match(*FOLLOW_ID_AND_INDEX_RSB):
+            self._error([*FOLLOW_ID_AND_INDEX_RSB], 'array_manip_statement')
 
-            if not self._match(')'):
-                self._error([')'], 'array_manip_statement')
-            self._advance()
+        if not self._match(','):
+            self._error([','], 'array_manip_statement')
 
-            return ASTNode(op, children=[id_node, expr_node])
+        self._advance()
 
-        self._error(['array_add', 'array_remove'], 'array_manip_statement')
+        expr_node = self._expr()
+
+        # since expr can be null, we need to include the follow set in the error
+        FOLLOW_EXPR = {
+            '!=','%', '(', ')', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', '[', 'and', 'or'
+        }
+
+        if not self._match(*FOLLOW_EXPR):
+            self._error([*FOLLOW_EXPR], 'array_manip_statement')
+
+
+        if not self._match(')'):
+            self._error([')'], 'array_manip_statement')
+        self._advance()
+
+        return ASTNode(op, children=[id_node, expr_node])
