@@ -44,6 +44,26 @@ A clean, minimal, general programming language.
   python -m src.syntax
   ```
 
+Docker
+- Build image (uses [Dockerfile](Dockerfile))
+  ```sh
+  docker build -t chg-compiler .
+  ```
+
+- Run lexer CLI
+  ```sh
+  docker run --rm -it chg-compiler python -m src.lexer
+  ```
+
+- Run parser CLI
+  ```sh
+  docker run --rm -it chg-compiler python -m src.syntax
+  ```
+
+- GUI in Docker
+  ```sh
+  *Currently not supported
+  ```
 Testing
 - Run all tests:
   ```sh
@@ -63,5 +83,5 @@ Linting
 
 
 ## How to contribute in project?
-- Make sure to create git branch before any changes. Do `git branch` to check which branch you are in. `git checkout -b <name>`. You can now apply changes in the code.
-- Merge your changes with the main try `git fetch` then `git merge origin/main`, then push to a remote branch.
+- Create branch, run tests locally, open PR.
+- Follow flake8 style rules; run `flake8` before PR.
