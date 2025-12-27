@@ -65,11 +65,8 @@ class ExprRules:
             ASTNode: AST node representing logical AND operations.
         """
 
-        self._dbg('here once')
         # Advance handle errors
         expected = [ '!', '(', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true' ]
-
-        self._dbg(self._curr())
 
         if not self._match(*expected):
             self._error(expected, 'logical_or_expr')
@@ -262,12 +259,12 @@ class ExprRules:
             self._advance()
 
             # the supposed next of unclosed 'ID (' must include ')' if errored
-            FOLLOW_ID = {
+            FOLLOW_UNCOLSED_ARGLIST = {
                 '!', '(', ')', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'
             }
             
-            if not self._match(*FOLLOW_ID):
-                self._error([*FOLLOW_ID], 'postfix_tail')
+            if not self._match(*FOLLOW_UNCOLSED_ARGLIST):
+                self._error([*FOLLOW_UNCOLSED_ARGLIST], 'postfix_tail')
 
             args = self._arg_list_opt()
 

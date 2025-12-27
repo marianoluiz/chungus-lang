@@ -10,8 +10,9 @@ The mixins that implement grammar rules (e.g. ExprRules, BlockStmtRules)
 expect an object that implements these helpers (RDParser inherits ParserCore).
 """
 from typing import List, TYPE_CHECKING
+from src.syntax.ast import ASTNode
 from src.syntax.errors import ParseError, UnexpectedError
-from src.constants.token import Token, SKIP_TOKENS
+from src.constants.token import ID_T, Token, SKIP_TOKENS
 
 # helps editor understand "self" in mixin methods is an RDParser instance
 if TYPE_CHECKING: from src.syntax.rd_parser import RDParser
@@ -126,3 +127,19 @@ class ParserCore:
         
         # Stop parsing immediately
         raise ParseError(msg)
+    
+    def _postfixable_root(self: "RDParser", node: ASTNode) -> ASTNode:
+        """
+        Walks the rightmost chain of children until an identifier or index
+        or a leaf is reached.
+
+        Return the AST node that would receive postfix operations if any.
+        """
+        cur = node
+        # descend to the rightmost child while it's not directly postfixable
+        while True:
+            if cur.kind in (ID_T, 'index'):
+                return cur
+            if not getattr(cur, "children", []):
+                return cur
+            cur = cur.children[-1]

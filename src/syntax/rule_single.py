@@ -127,14 +127,13 @@ class SingleStmtRules:
 
             FOLLOW_ID_POSTFIX = {'(', '['}  # only valid after id in expressions
             FOLLOW_NESTED_INDEX = {'['}     # only valid after index postfix in expressions
-
             allowed = FOLLOW_AFTER_ARG
 
+            postfix_target = self._postfixable_root(node)
             # handle fn id(id() and fn id(id[x] display proper error
-            if node.kind in (ID_T):
+            if postfix_target.kind == ID_T:
                 allowed = allowed | FOLLOW_ID_POSTFIX # adds all elements from POSTFIX_TOKS into allowed.
-
-            if node.kind in ('index'):
+            elif postfix_target.kind == 'index':
                 allowed = allowed | FOLLOW_NESTED_INDEX # adds all elements from FOLLOW_NESTED_INDEX into allowed.
 
             # If after parsing an expression we don't see a comma, a closing paren,
@@ -278,7 +277,8 @@ class SingleStmtRules:
         Returns:
             ASTNode: AST node representing the output statement.
         """
-        self._advance()     # consume 'show'
+        self._advance()
+
         if self._match(ID_T):
             return ASTNode('output_statement', children=[ASTNode(ID_T, value=self._advance().lexeme)])
         elif self._match(STR_LIT_T):
@@ -330,7 +330,7 @@ class SingleStmtRules:
                 children.append(ASTNode('args', children=args))
 
             return ASTNode('function_call', value=id_name, children=children)
-        
+
         # Array indexing assignment: [<index>] <index_loop> = <assignment_value>
         elif self._match('['):
             indices = []
@@ -355,7 +355,7 @@ class SingleStmtRules:
             value = self._assignment_value()
 
             return ASTNode('array_idx_assignment', value=id_name, children=[value])
-            
+
 
         else:
             self._error(['++', '--', '=', '(', '['], 'id_statement_tail')
@@ -363,39 +363,54 @@ class SingleStmtRules:
 
     def _assignment_value(self: "RDParser"):
         self._advance()
-        
+
+        # since there are many variations, we display error full of context
+        FIRST_ASSIGN_VALUE = {
+            '!', '(', '[', 'false', 'float', FLOAT_LIT_T, ID_T, 'int', INT_LIT_T, 'read', STR_LIT_T, 'true'
+        }
+
+        if not self._match(*FIRST_ASSIGN_VALUE):
+            self._error([*FIRST_ASSIGN_VALUE], 'assignment_value')
+
         # input method
         if self._match('read'):
             self._advance()
             return ASTNode('read')
-        
+
         # typecast method
         elif self._match('int', 'float'):
             cast_method = self._advance().lexeme
-            
-            # since expr is nullable, we need to show this in error display
-            FOLLOW_AFTER_TYPECAST = {
-                '!=', '%', ')', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or'
-            }
 
-            if self._match('('):
-                self._advance()
+            if not self._match('('):
+                self._error(['('], 'assignment_value')
 
-                expr = self._expr()
+            self._advance()
 
-                # If after parsing an expression we don't see a comma, a closing paren,
-                # or any operator that can continue the expression, produce a clearer error.
-                if not self._match(*FOLLOW_AFTER_TYPECAST):
-                    self._error(sorted(list(FOLLOW_AFTER_TYPECAST)), 'typecasting')
+            expr = self._expr()
+
+            # we always need to show whole expected after expr if it errors since it is a unique
+            FOLLOW_TYPECAST = { '!=', '%', ')', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or' }
+            FOLLOW_TYPECAST_ID_POSTFIX = {'(', '['}
+            FOLLOW_TYPECAST_NESTED_INDEX = {'['} 
+            allowed = FOLLOW_TYPECAST
+
+            # get rightmost ID_T or index (ID_T[X])
+            postfix_target = self._postfixable_root(expr)
+
+            # handle id = int(id() and id = int(id[x] display proper error
+            if postfix_target.kind == ID_T:
+                allowed |= FOLLOW_TYPECAST_ID_POSTFIX
+            elif postfix_target.kind == 'index':
+                allowed |= FOLLOW_TYPECAST_NESTED_INDEX
+
+            if not self._match(')'):
+                self._error(sorted(list(allowed)), 'assignment_value')
+
+            self._advance()
+
+            return ASTNode('assignment_value', value=cast_method, children=[expr])
 
 
-                if self._match(')'):
-                    self._advance()
-                else:
-                    self._error([')'], 'type_casting')
-                
-                return ASTNode('type_casting', value=cast_method, children=[expr])
-        
         elif self._match('['):
             self._advance()
 
