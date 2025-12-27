@@ -48,6 +48,8 @@ fail
 always
     show x
 close",NO SYNTAX ERROR,all stmt
+ ,"line 1 col 1
+Expected any: array_add, array_remove, fn, for, id, if, show, todo, try, while","empty space, must have complete first set"
 "fn f() 
 show 'hi'
 ret 1+2 
@@ -62,7 +64,7 @@ close
 show 'hi'","line 1 col 11
 Expected any: (, float_literal, id, int_literal",param expr
 id++,NO SYNTAX ERROR,unary stmt
-id(),NO SYNTAX ERROR,
+id(),NO SYNTAX ERROR,func call
 id fun,"line 1 col 4
 Expected any: (, ++, --, =, [",id stmt
 "fn id()
@@ -100,20 +102,52 @@ close
 
 show 'hi'","line 1 col 11
 Expected any: (, float_literal, id, int_literal",expr param
+"fn x( 
+ show 'hi'
+ ret 1  
+
+
+show 'hi'
+","line 2 col 2
+Expected any: !, (, ), false, float_literal, id, int_literal, str_literal, true",need to show ) and arg list opt first set no close
+"fn id(a(1), a ","line 1 col 15
+Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",param test
+"fn id(a(1), a( ","line 1 col 16
+Expected any: !, (, ), false, float_literal, id, int_literal, str_literal, true",param func call inside error
+"fn id(a(1), a[x] ","line 1 col 18
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",param index array ref inside error
 "fn x()
  show 'hi'
  ret 
 close
 
 show 'hi'","line 4 col 1
-Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",ret
+Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",ret expr
 "fn x()
  show 'hi'
  // 
 close
 
 show 'hi'","line 3 col 2
-Expected any: array_add, array_remove, close, for, id, if, ret, show, todo, try, while",close must be included
+Expected any: array_add, array_remove, close, for, id, if, ret, show, todo, try, while",ret error
+"fn x()
+ show 'hi'
+ ret 1 
+ float  
+close
+
+show 'hi'","line 4 col 2
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, close, or","after ret stmt, must include all op and close"
+"fn x()
+ show 'hi'
+ ret 1  
+
+
+show 'hi'","line 6 col 1
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, close, or","unclosed function, must include close and all op"
+,,
+fncall( ,"line 1 col 9
+Expected any: !, (, ), false, float_literal, id, int_literal, str_literal, true",fncall nullable arg_list_opt
 "fn id(1)
    show 'hi'
 close
@@ -175,3 +209,18 @@ id = int(1 + ),"line 1 col 14
 Expected any: (, float_literal, id, int_literal",typecast expr
 id = int(1 an ),"line 1 col 12
 Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",typecast expr
+hello = [ ,"line 1 col 11
+Expected any: [, ], false, float_literal, id, int_literal, str_literal, true",array lit nullable elements
+hello = [ hello ,"line 1 col 17
+Expected any: ,, ]",array element error
+"hello = [ hello, hello ","line 1 col 24
+Expected any: ,, ]",array element error
+"ID = [1, 'str', true, false, [1, 'str', 1.0, 2]]",NO SYNTAX ERROR,
+array_add (ID ,"line 1 col 15
+Expected any: ,, [",
+array_add (ID [x] ,"line 1 col 19
+Expected any: ,, [",
+array_add (ID [x][1] ,"line 1 col 22
+Expected any: ,, [",
+"array_add(ID[x][x][x], x","line 1 col 25
+Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",

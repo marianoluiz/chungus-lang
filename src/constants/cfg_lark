@@ -228,8 +228,8 @@ todo_statement: TODO
 
 // ─────────── ARRAY MANIPULATION ───────────
 
-array_manip_statement: ARRAY_ADD "(" ID postfix_tail "," expr ")"
-                     | ARRAY_REMOVE "(" ID postfix_tail "," expr ")"
+array_manip_statement: ARRAY_ADD "(" ID index_loop "," expr ")"
+                     | ARRAY_REMOVE "(" ID index_loop "," expr ")"
 
 
 

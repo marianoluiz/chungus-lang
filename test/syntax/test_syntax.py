@@ -27,6 +27,10 @@ def _rows():
         for row in reader:
             # row:  ['abc123 = 10', 'NO SYNTAX ERROR'] ...
             src = row[0]                # The source code, col 1
+            
+            if not src.strip():         # skip empty src cells
+                continue
+
             expected_error = row[1].strip()   # Expected Error, col 2
 
             # Normalize CRLFs and CR to LF if any, since spreadsheets do use CRLFs
