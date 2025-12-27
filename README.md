@@ -30,18 +30,33 @@ A clean, minimal, general programming language.
 ## Running the project
 
 - GUI
+  - macOS / Linux: 
+  ```sh
+  python3 -m src.main
+  ```
+  - Windows
   ```sh
   python -m src.main
   ```
 
 - Lexer CLI
+  - macOS / Linux: 
+  ```sh
+  python3 -m src.lexer
+  ```
+  - Windows
   ```sh
   python -m src.lexer
   ```
 
 - Parser CLI
+  - macOS / Linux: 
   ```sh
-  python -m src.syntax
+  python3 -m src.syntax
+  ```
+  - Windows
+  ```sh
+  python -m src.lexer
   ```
 
 Docker
