@@ -224,3 +224,38 @@ array_add (ID [x][1] ,"line 1 col 22
 Expected any: ,, [",
 "array_add(ID[x][x][x], x","line 1 col 25
 Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",
+array_remove (ID ,"line 1 col 18
+Expected any: ,, [",
+"array_add(ID[x][x][x], x","line 1 col 25
+Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",
+id = ,"line 1 col 6
+Expected any: !, (, [, false, float, float_literal, id, int, int_literal, read, str_literal, true",
+,,
+id =  int ( id + 1 ,"line 1 col 20
+Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",
+id =  int ( id + 1 -  id[x][x] ,"line 1 col 32
+Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",
+id =  int ( id == id == id() ,"line 1 col 30
+Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",
+id ( ,"line 1 col 6
+Expected any: !, (, ), false, float_literal, id, int_literal, str_literal, true",
+id [ ,"line 1 col 6
+Expected any: id, int_literal",
+,,
+show 'hi' ,NO SYNTAX ERROR,
+id = int ,"line 1 col 10
+Expected any: (",
+id =  int ( id ,"line 1 col 16
+Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",
+id =  float ( id,"line 1 col 17
+Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",
+id = float ( id[x],"line 1 col 19
+Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",
+id = float ( id(1+1) ,"line 1 col 22
+Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",
+fn id(id + id ,"line 1 col 15
+Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
+fn id(id + id (2),"line 1 col 18
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
+fn id(id + id [20],"line 1 col 19
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
