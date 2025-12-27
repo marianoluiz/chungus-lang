@@ -259,3 +259,9 @@ fn id(id + id (2),"line 1 col 18
 Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
 fn id(id + id [20],"line 1 col 19
 Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
+"var = ['hello', id ","line 1 col 20
+Expected any: ,, ]","inside array, func call not allowed and array index element"
+"var = ['hello', id() ","line 1 col 19
+Expected any: ,, ]","inside array, func call not allowed and array index element"
+"var = ['hello', id[x] ","line 1 col 19
+Expected any: ,, ]","inside array, func call not allowed and array index element"

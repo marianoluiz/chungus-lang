@@ -209,10 +209,6 @@ class SingleStmtRules:
             tok = self._advance()
             node = ASTNode(ID_T, value=tok.lexeme)
 
-            # allow postfix (call/index) as an element
-            if self._match('(', '['):
-                node = self._postfix_tail(node)
-
             return node
 
         elif self._match('['):
@@ -385,21 +381,18 @@ class SingleStmtRules:
 
             # we always need to show whole expected after expr if it errors since it is a unique
             FOLLOW_TYPECAST = { '!=', '%', ')', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or' }
-            FOLLOW_TYPECAST_ID_POSTFIX = {'(', '['}
-            FOLLOW_TYPECAST_NESTED_INDEX = {'['} 
-            allowed = FOLLOW_TYPECAST
 
             # get rightmost ID_T or index (ID_T[X])
             postfix_target = self._postfixable_root(expr)
 
             # handle id = int(id() and id = int(id[x] display proper error
             if postfix_target.kind == ID_T:
-                allowed |= FOLLOW_TYPECAST_ID_POSTFIX
+                FOLLOW_TYPECAST |= {'(', '['}
             elif postfix_target.kind == 'index':
-                allowed |= FOLLOW_TYPECAST_NESTED_INDEX
+                FOLLOW_TYPECAST |= {'['}
 
             if not self._match(')'):
-                self._error(sorted(list(allowed)), 'assignment_value')
+                self._error(sorted(list(FOLLOW_TYPECAST)), 'assignment_value')
 
             self._advance()
 
