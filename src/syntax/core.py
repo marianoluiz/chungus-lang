@@ -149,3 +149,12 @@ class ParserCore:
 
             # get last child
             cur = cur.children[-1]
+
+    def _first_general_statement(self: "RDParser"):
+        """
+        First set of general statements, used for error printings
+        
+        Returns:
+            Set: First set tokens of general statements
+        """
+        return {'array_add','array_remove','for','id','if','show','todo','try','while'}

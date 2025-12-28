@@ -137,35 +137,72 @@ class BlockStmtRules():
                 - zero-or-more `elif` nodes (cond + body)
                 - optional `else` node (body)
         """
-        # Accept being called when current token is 'if' (or, to be tolerant, 'elif')
-        if self._match('if'):
-            self._advance()
-        else:
+        # If blocks
+        if not self._match('if'):
             self._error(['if'], 'conditional_statement')
+
+        self._advance()
 
         # condition expression
         cond = self._expr()
 
-        # parse local statements until we hit elif / else / close
-        if self._match('elif', 'else', 'close'):
-            self._error(['general_statement'], 'if_block')
+        # proper complete error after expr if it errored
+        FOLLOW_EXPR_IFCOND = self._first_general_statement() | {'!=', '%', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or'}
+
+        postfix_target = self._postfixable_root(cond)
+
+        if postfix_target.kind == ID_T:
+            FOLLOW_EXPR_IFCOND |= {'(', '['}
+        elif postfix_target.kind == 'index':
+            FOLLOW_EXPR_IFCOND |= {'['}
+
+        if not self._match(*FOLLOW_EXPR_IFCOND):
+            self._error(sorted(list(FOLLOW_EXPR_IFCOND)), 'conditional_statement')
 
         if_nodes: List[ASTNode] = []
 
         # require one general statement
         if_nodes.append(self._general_statement())
 
+        # complete next tokens for error priting
+        FOLLOW_IF_GEN_STMT =  {'close', 'elif', 'else'} | self._first_general_statement()
+
+        if not self._match(*FOLLOW_IF_GEN_STMT):
+            self._error(sorted(list(FOLLOW_IF_GEN_STMT)), 'conditional_statement')
+
         while not self._match('elif', 'else', 'close'):
             if_nodes.append(self._general_statement())
 
+            # complete next tokens for error priting
+            FOLLOW_IF_GEN_STMT = {'close', 'elif', 'else'} | self._first_general_statement()
+
+            if not self._match(*FOLLOW_IF_GEN_STMT):
+                self._error(sorted(list(FOLLOW_IF_GEN_STMT)), 'conditional_statement')
+
         if_node = ASTNode('if', children=[cond] + if_nodes)
 
-        # zero-or-more elif blocks
+
+        # elif blocks zero-or-more
         elif_nodes: List[ASTNode] = []
 
         while self._match('elif'):
             self._advance()
+
             cond_e = self._expr()
+
+            # proper complete error after expr if it errored
+            FOLLOW_EXPR_ELIFCOND = self._first_general_statement() | { '!=', '%', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and' }
+
+            postfix_target = self._postfixable_root(cond)
+
+            if postfix_target.kind == ID_T:
+                FOLLOW_EXPR_ELIFCOND |= {'(', '['}
+            elif postfix_target.kind == 'index':
+                FOLLOW_EXPR_ELIFCOND |= {'['}
+
+            if not self._match(*FOLLOW_EXPR_ELIFCOND):
+                self._error(sorted(list(FOLLOW_EXPR_ELIFCOND)), 'conditional_statement')
+
 
             if self._match('elif', 'else', 'close'):
                 self._error(['general_statement'], 'elif_block')
@@ -175,39 +212,61 @@ class BlockStmtRules():
             # require 1 general statement
             elif_body.append(self._general_statement())
 
+            # complete next tokens for error priting
+            FOLLOW_ELIF_GEN_STMT = {'close', 'elif', 'else'} | self._first_general_statement()
+
+            if not self._match(*FOLLOW_ELIF_GEN_STMT):
+                self._error(sorted(list(FOLLOW_ELIF_GEN_STMT)), 'conditional_statement')
+
             while not self._match('elif', 'else', 'close'):
                 elif_body.append(self._general_statement())
+
+                # complete next tokens for error priting
+                FOLLOW_ELIF_GEN_STMT = {'close', 'elif', 'else'} | self._first_general_statement()
+
+                if not self._match(*FOLLOW_ELIF_GEN_STMT):
+                    self._error(sorted(list(FOLLOW_ELIF_GEN_STMT)), 'conditional_statement')
 
             elif_nodes.append(ASTNode('elif', children=[cond_e] + elif_body))
 
         # optional else block
         else_node: Optional[ASTNode] = None
+
         if self._match('else'):
             self._advance()
-
-            if self._match('elif', 'else', 'close'):
-                self._error(['general_statement'], 'else_block')
 
             else_body: List[ASTNode] = []
 
             # require one general statement
             else_body.append(self._general_statement())
 
+            FOLLOW_ELSE_GEN_STMT = {'close', 'elif', 'else'} | self._first_general_statement()
+
+            if not self._match(*FOLLOW_ELIF_GEN_STMT):
+                self._error(sorted(list(FOLLOW_ELSE_GEN_STMT)), 'conditional_statement')
+
             while not self._match('close'):
                 else_body.append(self._general_statement())
+
+                FOLLOW_ELSE_GEN_STMT = {'close', 'elif', 'else'} | self._first_general_statement()
+
+                if not self._match(*FOLLOW_ELIF_GEN_STMT):
+                    self._error(sorted(list(FOLLOW_ELSE_GEN_STMT)), 'conditional_statement')
 
             else_node = ASTNode('else', children=else_body)
 
         # final close
-        if self._match('close'):
-            self._advance()
-        else:
+        if not self._match('close'):
             self._error(['close'], 'conditional_statement')
+        
+        self._advance()
 
         # if node is already a list and we add it
         children = [if_node] + elif_nodes
+
         if else_node:
             children.append(else_node)
+
         return ASTNode('conditional_statement', children=children)
 
 
@@ -270,6 +329,7 @@ class BlockStmtRules():
 
             # local loop statements until 'close'
             body: List[ASTNode] = []
+
             if self._match('close'):
                 self._error(['general_statement', 'skip', 'stop'], 'for_body')
 
@@ -280,10 +340,10 @@ class BlockStmtRules():
                 else:
                     body.append(self._general_statement())
 
-            if self._match('close'):
-                self._advance()
-            else:
+            if not self._match('close'):
                 self._error(['close'], 'for_statement')
+
+            self._advance()
 
             return ASTNode('for', value=loop_var, children=exprs + body)
 
@@ -325,12 +385,11 @@ class BlockStmtRules():
                 - `fail` (children = fail body)
                 - optional `always` (children = always body)
         """
-        # try block
-        if not self._match('try'):
-            self._error(['try'], 'error_handling_statement')
+
         self._advance()
 
         try_body: List[ASTNode] = []
+
         if self._match('fail', 'always', 'close'):
             self._error(['general_statement'], 'try_block')
         while not self._match('fail', 'always', 'close'):
@@ -338,6 +397,7 @@ class BlockStmtRules():
 
         if not self._match('fail'):
             self._error(['fail'], 'error_handling_statement')
+
         self._advance()
 
         # fail block

@@ -307,3 +307,15 @@ Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
 Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
 "x = fncall(x, x, fncall2(id[x])","line 1 col 32
 Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
+if x+x 'str',"line 1 col 8
+Expected any: !=, %, (, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
+if x+1 'str',"line 1 col 8
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
+if x+x() 'str',"line 1 col 10
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
+if x+x[y] 'str',"line 1 col 11
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
+if x+x[y] + x(id[y] 'str',"line 1 col 21
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
+if x+x[y] + x(id[y]) 'str',"line 1 col 22
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",

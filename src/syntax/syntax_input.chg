@@ -1,1 +1,13 @@
-x = fncall(x, x, fncall2(id[x]
+try
+
+fncall(1, 2)
+
+fail
+show 'hi'
+
+
+
+always
+
+show 'hi'
+close
