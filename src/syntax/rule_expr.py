@@ -262,7 +262,7 @@ class ExprRules:
             FOLLOW_UNCOLSED_ARGLIST = {
                 '!', '(', ')', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'
             }
-            
+
             if not self._match(*FOLLOW_UNCOLSED_ARGLIST):
                 self._error([*FOLLOW_UNCOLSED_ARGLIST], 'postfix_tail')
 

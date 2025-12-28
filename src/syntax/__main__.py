@@ -76,7 +76,7 @@ if __name__ == '__main__':
         print_ast(parse_result.tree)
     else:
         print("No AST generated.")
-        
+
     if errors:
         print("\nERRORS:")
         print("\n".join(errors))

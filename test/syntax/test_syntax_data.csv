@@ -273,3 +273,37 @@ var = id 'string' ,"line 1 col 10
 Expected any: !=, %, (, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
 var = id() 'string' ,"line 1 col 12
 Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
+"array_add( id[x], id() ","line 1 col 24
+Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",
+"array_add( id[x], id","line 1 col 21
+Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",
+"array_add( id[x], id[x]","line 1 col 24
+Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",
+id(id,"line 1 col 6
+Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
+id(id[x],"line 1 col 9
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
+id(id( ,"line 1 col 8
+Expected any: !, (, ), false, float_literal, id, int_literal, str_literal, true",
+id(id() ,"line 1 col 9
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
+id(id(id() ,"line 1 col 12
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
+id(id(id ,"line 1 col 10
+Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
+id ( id ( id[x]),"line 1 col 17
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
+"array_add(x, ID1(ID2[x])","line 1 col 25
+Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",
+"fn func(x, ID1(ID2[x])","line 1 col 23
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
+var = int(id(id[x]),"line 1 col 20
+Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",
+fncall( fncall2(fncall3(  idx[x]),"line 1 col 34
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
+"fncall(x, fncall2(id[x])","line 1 col 25
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
+"x = fncall(x, x, fncall2(id[x]","line 1 col 31
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
+"x = fncall(x, x, fncall2(id[x])","line 1 col 32
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",

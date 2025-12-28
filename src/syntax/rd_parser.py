@@ -45,4 +45,5 @@ class RDParser(ParserCore, ExprRules, SingleStmtRules, BlockStmtRules):
         except ParseError as e:
             # Store error in list as a string
             self.errors.append(str(e))
+
             return ParseResult(None, self.errors)

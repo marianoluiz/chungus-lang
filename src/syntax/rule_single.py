@@ -116,45 +116,32 @@ class SingleStmtRules:
         args: List[ASTNode] = []
 
         if not self._match(')'):
-            # parse expression if not empty 
-            node = self._expr()
-            args.append(node)
-
-            # tokens that can legally follow a completed expression inside parentheses
-            FOLLOW_AFTER_ARG = {
-                '!=', '%', ')', '*', '**', '+', ',', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or'
-            }
-
-            postfix_target = self._postfixable_root(node)
-            # handle fn id(id() and fn id(id[x] display proper error
-            if postfix_target.kind == ID_T:
-                FOLLOW_AFTER_ARG |= {'(', '['} # adds elements since this are allowed follow of id
-            elif postfix_target.kind == 'index':
-                FOLLOW_AFTER_ARG |= {'['} # adds elements since this are allowed follow of id[x]
-
-            # If after parsing an expression we don't see a comma, a closing paren,
-            # or any operator that can continue the expression, produce a clearer error.
-            if not self._match(*FOLLOW_AFTER_ARG):
-                self._error(sorted(list(FOLLOW_AFTER_ARG)), 'arg_list_opt')
-
-            # additional comma-separated expressions
-            while self._match(','):
-                self._advance()
-
+            while True:
+                # parse expression
                 node = self._expr()
                 args.append(node)
 
-                # handle id(id() and id(id[x] display proper error again
+                # recompute allowed follow tokens fresh for this argument. Or else you would have trouble not resetting
+                FOLLOW_AFTER_ARG = {
+                    '!=', '%', ')', '*', '**', '+', ',', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or'
+                }
+
                 postfix_target = self._postfixable_root(node)
+                self._dbg(f'DBG_postfix_target {postfix_target.kind}')
 
                 if postfix_target.kind == ID_T:
-                    FOLLOW_AFTER_ARG |=  {'(', '['}
-
-                if postfix_target.kind == 'index':
+                    FOLLOW_AFTER_ARG |= {'(', '['}
+                elif postfix_target.kind == 'index':
                     FOLLOW_AFTER_ARG |= {'['}
 
+                # check the next token
                 if not self._match(*FOLLOW_AFTER_ARG):
                     self._error(sorted(list(FOLLOW_AFTER_ARG)), 'arg_list_opt')
+
+                # break if no comma, otherwise consume and continue
+                if not self._match(','):
+                    break
+                self._advance()
 
         return args
 
@@ -294,7 +281,7 @@ class SingleStmtRules:
         elif self._match('='):
             node = self._assignment_value()
             return ASTNode('assignment_statement', value=id_name, children=[node])
-        
+
         # Function call: ( <arg_list_opt> )
         elif self._match('('):
             self._advance()
@@ -483,13 +470,19 @@ class SingleStmtRules:
         expr_node = self._expr()
 
         # since expr can be null, we need to include the follow set in the error
-        FOLLOW_EXPR = {
-            '!=','%', '(', ')', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', '[', 'and', 'or'
+        FOLLOW_MANIP_EXPR = {
+            '!=','%', ')', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or'
         }
 
-        if not self._match(*FOLLOW_EXPR):
-            self._error([*FOLLOW_EXPR], 'array_manip_statement')
+        postfix_target = self._postfixable_root(expr_node)
 
+        if postfix_target.kind == ID_T:
+            FOLLOW_MANIP_EXPR |= {'(', '['}
+        elif postfix_target.kind == 'index':
+            FOLLOW_MANIP_EXPR |= {'['}
+
+        if not self._match(*FOLLOW_MANIP_EXPR):
+            self._error([*FOLLOW_MANIP_EXPR], 'array_manip_statement')
 
         if not self._match(')'):
             self._error([')'], 'array_manip_statement')
