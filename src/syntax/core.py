@@ -131,9 +131,10 @@ class ParserCore:
     def _postfixable_root(self: "RDParser", node: ASTNode) -> ASTNode:
         """
         Walks the rightmost chain of children until an identifier or index or function call
-        or a leaf is reached.
+        or a leaf is reached. This is used for proper error printing for id vs fncall vs index.
 
-        Return the AST node that would receive postfix operations if any.
+        Returns:
+            ASTNode: node that would receive postfix operations if any.
         """
         cur = node
         # descend to the rightmost child while it's not directly postfixable
