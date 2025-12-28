@@ -1,4 +1,4 @@
-Source Code,Expected Errors,Notes
+Source Code,Expected Errors,Description
 "fn id(a(1), a[1][1])
    show 'hi'
 close
@@ -215,53 +215,61 @@ hello = [ hello ,"line 1 col 17
 Expected any: ,, ]",array element error
 "hello = [ hello, hello ","line 1 col 24
 Expected any: ,, ]",array element error
-"ID = [1, 'str', true, false, [1, 'str', 1.0, 2]]",NO SYNTAX ERROR,
+"ID = [1, 'str', true, false, [1, 'str', 1.0, 2]]",NO SYNTAX ERROR,"assignment stmt, arr literal"
 array_add (ID ,"line 1 col 15
-Expected any: ,, [",
+Expected any: ,, [",array manip
 array_add (ID [x] ,"line 1 col 19
-Expected any: ,, [",
+Expected any: ,, [",array manip
 array_add (ID [x][1] ,"line 1 col 22
-Expected any: ,, [",
+Expected any: ,, [",array manip
 "array_add(ID[x][x][x], x","line 1 col 25
-Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",
+Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",array manip
 array_remove (ID ,"line 1 col 18
-Expected any: ,, [",
+Expected any: ,, [",array manip
 "array_add(ID[x][x][x], x","line 1 col 25
-Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",
+Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",array manip
 id = ,"line 1 col 6
-Expected any: !, (, [, false, float, float_literal, id, int, int_literal, read, str_literal, true",
+Expected any: !, (, [, false, float, float_literal, id, int, int_literal, read, str_literal, true",assign stmt
 ,,
 id =  int ( id + 1 ,"line 1 col 20
-Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",
+Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or","assign stmt, typecast"
 id =  int ( id + 1 -  id[x][x] ,"line 1 col 32
-Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",
+Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or","assign stmt, typecast"
 id =  int ( id == id == id() ,"line 1 col 30
-Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",
+Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or","assign stmt, typecast"
 id ( ,"line 1 col 6
-Expected any: !, (, ), false, float_literal, id, int_literal, str_literal, true",
+Expected any: !, (, ), false, float_literal, id, int_literal, str_literal, true",id stmt
 id [ ,"line 1 col 6
-Expected any: id, int_literal",
+Expected any: id, int_literal",id stmt
 ,,
-show 'hi' ,NO SYNTAX ERROR,
+show 'hi' ,NO SYNTAX ERROR,output stmt
 id = int ,"line 1 col 10
 Expected any: (",
 id =  int ( id ,"line 1 col 16
-Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",
+Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or","assign stmt, typecast"
 id =  float ( id,"line 1 col 17
-Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",
+Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or","assign stmt, typecast"
 id = float ( id[x],"line 1 col 19
-Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",
+Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or","assign stmt, typecast"
 id = float ( id(1+1) ,"line 1 col 22
-Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",
+Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or","assign stmt, typecast"
 fn id(id + id ,"line 1 col 15
-Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
+Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",fn  dec
 fn id(id + id (2),"line 1 col 18
-Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",fn  dec
 fn id(id + id [20],"line 1 col 19
-Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",fn  dec
 "var = ['hello', id ","line 1 col 20
 Expected any: ,, ]","inside array, func call not allowed and array index element"
 "var = ['hello', id() ","line 1 col 19
 Expected any: ,, ]","inside array, func call not allowed and array index element"
 "var = ['hello', id[x] ","line 1 col 19
 Expected any: ,, ]","inside array, func call not allowed and array index element"
+"var = ['hello', fn ()  ","line 1 col 17
+Expected any: [, false, float_literal, id, int_literal, str_literal, true",
+var = 1 'string' ,"line 1 col 9
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
+var = id 'string' ,"line 1 col 10
+Expected any: !=, %, (, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
+var = id() 'string' ,"line 1 col 12
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",

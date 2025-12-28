@@ -99,7 +99,7 @@ class SingleStmtRules:
         elif self._match('array_add', 'array_remove'):
             node = self._array_manip_statement()
             return ASTNode('general_statement', children=[node])
-        
+
         else:
             self._error([
                 ID_T, 'show', 'if', 'while', 'for', 'try', 'todo', 'array_add', 'array_remove'
@@ -398,7 +398,7 @@ class SingleStmtRules:
 
             return ASTNode('assignment_value', value=cast_method, children=[expr])
 
-
+        # array literal dec
         elif self._match('['):
             self._advance()
 
@@ -422,8 +422,26 @@ class SingleStmtRules:
             return ASTNode('array_literal', children=elements)
 
         else:
-            return self._expr()
+            # other wise, its an expr
+            expr = self._expr()
 
+
+            # get rightmost ID_T or index (ID_T[X])
+            postfix_target = self._postfixable_root(expr)
+
+            # after an expr, proper error display would be first set of gen stmt + equation ops
+            FOLLOW_ASSIGN_EXPR = { '!=', '%', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'array_add', 'array_remove', 'for', ID_T, 'if', 'or', 'show', 'todo', 'try', 'while' }
+
+            # handle id = id() and id = id[x] display proper error
+            if postfix_target.kind == ID_T:
+                FOLLOW_ASSIGN_EXPR |= {'(', '['}
+            elif postfix_target.kind == 'index':
+                FOLLOW_ASSIGN_EXPR |= {'['}
+
+            if not self._match(*FOLLOW_ASSIGN_EXPR):
+                self._error(sorted(list(FOLLOW_ASSIGN_EXPR)), 'assignment_value')
+
+            return expr
 
     def _array_manip_statement(self: "RDParser") -> ASTNode:
         """
