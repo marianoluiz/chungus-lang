@@ -72,6 +72,8 @@ Expected any: (, ++, --, =, [",id stmt
 close
 
 show 'hi'",NO SYNTAX ERROR,fn 
+,,
+,,
 "fn id(1 an)
    show 'hi'
 close
@@ -102,6 +104,32 @@ close
 
 show 'hi'","line 1 col 11
 Expected any: (, float_literal, id, int_literal",expr param
+"fn id(1 
+   show 'hi'
+close
+
+show 'hi'
+","line 2 col 4
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",expr param postfix
+"fn id(true
+   show 'hi'
+close
+
+show 'hi'","line 2 col 4
+Expected any: !=, ), ,, ==, and, or",expr param postfix
+"fn id(1.1
+   show 'hi'
+close
+
+show 'hi'","line 2 col 4
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",expr param postfix
+"fn id('hello'
+   show 'hi'
+close
+
+show 'hi'","line 2 col 4
+Expected any: !=, ), ,, ==, and, or",
+,,expr param postfix
 "fn x( 
  show 'hi'
  ret 1  
@@ -245,8 +273,17 @@ Expected any: id, int_literal",id stmt
 show 'hi' ,NO SYNTAX ERROR,output stmt
 id = int ,"line 1 col 10
 Expected any: (",
+,,
+,,
+,,
+,,
 id =  int ( id ,"line 1 col 16
 Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or","assign stmt, typecast"
+id =  int ( 1 ,"line 1 col 14
+Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",postfix
+,,
+,,
+,,
 id =  float ( id,"line 1 col 17
 Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or","assign stmt, typecast"
 id = float ( id[x],"line 1 col 19
@@ -319,3 +356,32 @@ if x+x[y] + x(id[y] 'str',"line 1 col 21
 Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
 if x+x[y] + x(id[y]) 'str',"line 1 col 22
 Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
+"if x
+show 'hi'
+'STRING'","line 3 col 1
+Expected any: array_add, array_remove, close, elif, else, for, id, if, show, todo, try, while",
+"if x
+show 'hi'
+'STRING'
+show 'hi'
+'STRING'",,
+"if x
+x = 1
+'STRING'
+show 'hi'
+'STRING'",,assign stmt
+"if x and true
+
+'string'",,
+"if x and 1
+
+'string'",,
+"fn id( 1 and true
+
+'string'","line 3 col 1
+Expected any: !=, ), ,, ==, and, or",
+"for x in range(25+id() 'string' )
+
+show 'hi'
+
+close",,

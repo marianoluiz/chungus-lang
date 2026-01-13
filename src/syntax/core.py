@@ -12,7 +12,7 @@ expect an object that implements these helpers (RDParser inherits ParserCore).
 from typing import List, TYPE_CHECKING
 from src.syntax.ast import ASTNode
 from src.syntax.errors import ParseError, UnexpectedError
-from src.constants.token import ID_T, Token, SKIP_TOKENS
+from src.constants.token import ID_T, BOOL_LIT_T, STR_LIT_T, FLOAT_LIT_T, INT_LIT_T, Token, SKIP_TOKENS
 
 # helps editor understand "self" in mixin methods is an RDParser instance
 if TYPE_CHECKING: from src.syntax.rd_parser import RDParser
@@ -127,7 +127,50 @@ class ParserCore:
         
         # Stop parsing immediately
         raise ParseError(msg)
-    
+
+
+    def _add_postfix_tokens(self: "RDParser", follow_set: set, expr_node: ASTNode) -> set:
+        """
+        Add postfix operator tokens to follow set based on expression type.
+
+        Args:
+            follow_set: Set of valid following tokens
+            expr_node: Expression node to check for postfix eligibility
+
+        Returns:
+            Updated follow set with postfix tokens added if applicable
+        """
+        postfix_target = self._postfixable_root(expr_node)
+        updated_set = follow_set.copy()
+        
+        REL_EQ_OP = {'!=', '=='}
+        LOGICAL_OP = {'and', 'or'}
+        REL_OP = {'<', '<=', '>', '>='}
+        ARITH_OP = {'%', '*', '**', '+', '-', '/', '//'}
+        ALL_OP = REL_EQ_OP | LOGICAL_OP | REL_OP | ARITH_OP
+
+        if postfix_target.kind == ID_T:
+            # function call or indexing and all op
+            updated_set |= {'(', '['} | ALL_OP
+        elif postfix_target.kind == 'index':
+            # further indexing and all op
+            updated_set |= {'['} | ALL_OP    
+        elif postfix_target.kind == 'function_call':
+            # further indexing and all op
+            updated_set |= ALL_OP        
+        elif postfix_target.kind in (INT_LIT_T, FLOAT_LIT_T):
+            # numeric literals can use arithmetic, relational, logical operators
+            updated_set |= ALL_OP
+        elif postfix_target.kind == STR_LIT_T:
+            # string can use relational eq and logical operators
+            updated_set |= REL_EQ_OP | LOGICAL_OP
+        elif postfix_target.kind == BOOL_LIT_T:
+            # string can use relational eq and logical operators
+            updated_set |= REL_EQ_OP | LOGICAL_OP
+
+        return updated_set
+
+
     def _postfixable_root(self: "RDParser", node: ASTNode) -> ASTNode:
         """
         Walks the rightmost chain of children until an identifier or index or function call
@@ -143,12 +186,13 @@ class ParserCore:
             if cur.kind in (ID_T, 'index', 'function_call'):
                 return cur
 
-            # if no children get it
+            # if no children get it most likely a bool / str / int or float
             if not getattr(cur, "children", []):
                 return cur
 
             # get last child
             cur = cur.children[-1]
+
 
     def _first_general_statement(self: "RDParser"):
         """

@@ -123,16 +123,10 @@ class SingleStmtRules:
 
                 # recompute allowed follow tokens fresh for this argument. Or else you would have trouble not resetting
                 FOLLOW_AFTER_ARG = {
-                    '!=', '%', ')', '*', '**', '+', ',', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or'
+                    ')', ','
                 }
 
-                postfix_target = self._postfixable_root(node)
-                self._dbg(f'DBG_postfix_target {postfix_target.kind}')
-
-                if postfix_target.kind == ID_T:
-                    FOLLOW_AFTER_ARG |= {'(', '['}
-                elif postfix_target.kind == 'index':
-                    FOLLOW_AFTER_ARG |= {'['}
+                FOLLOW_AFTER_ARG = self._add_postfix_tokens(FOLLOW_AFTER_ARG, node)
 
                 # check the next token
                 if not self._match(*FOLLOW_AFTER_ARG):
@@ -370,13 +364,7 @@ class SingleStmtRules:
             FOLLOW_TYPECAST = { '!=', '%', ')', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or' }
 
             # get rightmost ID_T or index (ID_T[X])
-            postfix_target = self._postfixable_root(expr)
-
-            # handle id = int(id() and id = int(id[x] display proper error
-            if postfix_target.kind == ID_T:
-                FOLLOW_TYPECAST |= {'(', '['}
-            elif postfix_target.kind == 'index':
-                FOLLOW_TYPECAST |= {'['}
+            FOLLOW_TYPECAST = self._add_postfix_tokens(FOLLOW_TYPECAST, expr)
 
             if not self._match(')'):
                 self._error(sorted(list(FOLLOW_TYPECAST)), 'assignment_value')
@@ -414,16 +402,11 @@ class SingleStmtRules:
 
 
             # get rightmost ID_T or index (ID_T[X])
-            postfix_target = self._postfixable_root(expr)
-
             # after an expr, proper error display would be first set of gen stmt + equation ops
             FOLLOW_ASSIGN_EXPR = { '!=', '%', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'array_add', 'array_remove', 'for', ID_T, 'if', 'or', 'show', 'todo', 'try', 'while' }
 
             # handle id = id() and id = id[x] display proper error
-            if postfix_target.kind == ID_T:
-                FOLLOW_ASSIGN_EXPR |= {'(', '['}
-            elif postfix_target.kind == 'index':
-                FOLLOW_ASSIGN_EXPR |= {'['}
+            FOLLOW_ASSIGN_EXPR = self._add_postfix_tokens(FOLLOW_ASSIGN_EXPR, expr)
 
             if not self._match(*FOLLOW_ASSIGN_EXPR):
                 self._error(sorted(list(FOLLOW_ASSIGN_EXPR)), 'assignment_value')
@@ -474,12 +457,7 @@ class SingleStmtRules:
             '!=','%', ')', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or'
         }
 
-        postfix_target = self._postfixable_root(expr_node)
-
-        if postfix_target.kind == ID_T:
-            FOLLOW_MANIP_EXPR |= {'(', '['}
-        elif postfix_target.kind == 'index':
-            FOLLOW_MANIP_EXPR |= {'['}
+        FOLLOW_MANIP_EXPR = self._add_postfix_tokens(FOLLOW_MANIP_EXPR, expr_node)
 
         if not self._match(*FOLLOW_MANIP_EXPR):
             self._error([*FOLLOW_MANIP_EXPR], 'array_manip_statement')

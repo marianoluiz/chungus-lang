@@ -147,14 +147,8 @@ class BlockStmtRules():
         cond = self._expr()
 
         # proper complete error after expr if it errored
-        FOLLOW_EXPR_IFCOND = self._first_general_statement() | {'!=', '%', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or'}
-
-        postfix_target = self._postfixable_root(cond)
-
-        if postfix_target.kind == ID_T:
-            FOLLOW_EXPR_IFCOND |= {'(', '['}
-        elif postfix_target.kind == 'index':
-            FOLLOW_EXPR_IFCOND |= {'['}
+        FOLLOW_EXPR_IFCOND = self._first_general_statement()
+        FOLLOW_EXPR_IFCOND = self._add_postfix_tokens(FOLLOW_EXPR_IFCOND, cond)
 
         if not self._match(*FOLLOW_EXPR_IFCOND):
             self._error(sorted(list(FOLLOW_EXPR_IFCOND)), 'conditional_statement')
@@ -192,13 +186,7 @@ class BlockStmtRules():
 
             # proper complete error after expr if it errored
             FOLLOW_EXPR_ELIFCOND = self._first_general_statement() | { '!=', '%', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and' }
-
-            postfix_target = self._postfixable_root(cond)
-
-            if postfix_target.kind == ID_T:
-                FOLLOW_EXPR_ELIFCOND |= {'(', '['}
-            elif postfix_target.kind == 'index':
-                FOLLOW_EXPR_ELIFCOND |= {'['}
+            FOLLOW_EXPR_ELIFCOND = self._add_postfix_tokens(FOLLOW_EXPR_ELIFCOND, cond_e)
 
             if not self._match(*FOLLOW_EXPR_ELIFCOND):
                 self._error(sorted(list(FOLLOW_EXPR_ELIFCOND)), 'conditional_statement')
