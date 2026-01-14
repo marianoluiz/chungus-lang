@@ -56,18 +56,23 @@ class SingleStmtRules:
         return ASTNode('program', children=children)
 
 
-    def _general_statement(self: "RDParser") -> ASTNode:
+    def _general_statement(self: "RDParser", block_keywords: set = None) -> ASTNode:
         """
         Parse a general statement (e.g., output, control statements).
+
+        Args:
+            block_keywords: Set of keywords that are valid in the current block context (e.g., 'close', 'skip', 'stop')
 
         Returns:
             ASTNode: AST node representing the statement.
         """
+        if block_keywords is None:
+            block_keywords = set()
 
         # identifier-starting statement (assignment, call, unary, indexed assignment)
         if self._match(ID_T):
             id_name = self._advance().lexeme
-            node = self._id_statement_tail(id_name)
+            node = self._id_statement_tail(id_name, block_keywords)
             return ASTNode('general_statement', children=[node])
 
         # output
@@ -97,22 +102,27 @@ class SingleStmtRules:
 
         # array manipulation helpers
         elif self._match('array_add', 'array_remove'):
-            node = self._array_manip_statement()
+            node = self._array_manip_statement(block_keywords)
             return ASTNode('general_statement', children=[node])
 
         else:
-            self._error([
-                ID_T, 'show', 'if', 'while', 'for', 'try', 'todo', 'array_add', 'array_remove'
-            ], "general_statement")
+            expected = {ID_T, 'show', 'if', 'while', 'for', 'try', 'todo', 'array_add', 'array_remove'} | block_keywords
+            self._error(sorted(list(expected)), "general_statement")
 
 
-    def _arg_list_opt(self: "RDParser") -> List[ASTNode]:
+    def _arg_list_opt(self: "RDParser", block_keywords: set = None) -> List[ASTNode]:
         """
         Parse an optional comma-separated argument list.
+
+        Args:
+            block_keywords: Set of keywords valid in current block context
 
         Returns:
             List[ASTNode]: List of expression AST nodes representing arguments.
         """
+        if block_keywords is None:
+            block_keywords = set()
+        
         args: List[ASTNode] = []
 
         if not self._match(')'):
@@ -124,7 +134,7 @@ class SingleStmtRules:
                 # recompute allowed follow tokens fresh for this argument. Or else you would have trouble not resetting
                 FOLLOW_AFTER_ARG = {
                     ')', ','
-                }
+                } | block_keywords
 
                 FOLLOW_AFTER_ARG = self._add_postfix_tokens(FOLLOW_AFTER_ARG, node)
 
@@ -147,7 +157,6 @@ class SingleStmtRules:
         Returns:
             ASTNode | None: AST node for return statement if present.
         """
-        
         # tokens that must always follow a ret stmt. which are all expr operators and a close token
         FOLLOW_AFTER_RET = {
             '!=', '%', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'close', 'or'
@@ -166,13 +175,18 @@ class SingleStmtRules:
         return None
 
 
-    def _array_element(self: "RDParser") -> ASTNode:
+    def _array_element(self: "RDParser", block_keywords: set = None) -> ASTNode:
         """
         Parse a single array element (literal, id, or nested array).
+
+        Args:
+            block_keywords: Set of keywords valid in current block context
 
         Returns:
             ASTNode: AST node for the array element.
         """
+        if block_keywords is None:
+            block_keywords = set()
         if self._match(INT_LIT_T, FLOAT_LIT_T):
             tok = self._advance()
             kind = INT_LIT_T if tok.type == INT_LIT_T else FLOAT_LIT_T
@@ -195,7 +209,7 @@ class SingleStmtRules:
         elif self._match('['):
             # nested array literal
             self._advance()
-            elems = self._element_list_opt()
+            elems = self._element_list_opt(block_keywords)
 
             if self._match(']'):
                 self._advance()
@@ -207,13 +221,19 @@ class SingleStmtRules:
             self._error([INT_LIT_T, FLOAT_LIT_T, STR_LIT_T, 'true', 'false', ID_T, '['], 'array_element')
 
 
-    def _element_list_opt(self: "RDParser") -> List[ASTNode]:
+    def _element_list_opt(self: "RDParser", block_keywords: set = None) -> List[ASTNode]:
         """
         Parse an optional, possibly-empty list of array literal elements.
+
+        Args:
+            block_keywords: Set of keywords valid in current block context
 
         Returns:
             List[ASTNode]: Parsed element nodes (may be empty).
         """
+        if block_keywords is None:
+            block_keywords = set()
+        
         elements: List[ASTNode] = []
 
         # empty element list allowed
@@ -221,7 +241,7 @@ class SingleStmtRules:
             return elements
 
         # at least one element
-        elements.append(self._array_element())
+        elements.append(self._array_element(block_keywords))
 
         # next of elements can be null so we need to have a proper printing
         FOLLOW_ARR_ELMNT = {
@@ -234,7 +254,7 @@ class SingleStmtRules:
         while self._match(','):
             self._advance()
             # parse next element
-            elements.append(self._array_element())
+            elements.append(self._array_element(block_keywords))
 
             if not self._match(*FOLLOW_ARR_ELMNT):
                 self._error([*FOLLOW_ARR_ELMNT], 'element_list_opt')
@@ -259,13 +279,19 @@ class SingleStmtRules:
             self._error([ID_T, STR_LIT_T], 'output_value')
 
 
-    def _id_statement_tail(self, id_name: str) -> ASTNode:
+    def _id_statement_tail(self, id_name: str, block_keywords: set = None) -> ASTNode:
         """ 
         Parses next of id.
+
+        Args:
+            id_name: The identifier name
+            block_keywords: Set of keywords valid in current block context
 
         Returns:
             ASTNode: AST node representing the id_statement_tail.
         """
+        if block_keywords is None:
+            block_keywords = set()
 
         # Unary statement: ++ or --
         if self._match('++', '--'):
@@ -273,7 +299,7 @@ class SingleStmtRules:
 
         # Assignment statement: = <assignment_value>
         elif self._match('='):
-            node = self._assignment_value()
+            node = self._assignment_value(block_keywords)
             return ASTNode('assignment_statement', value=id_name, children=[node])
 
         # Function call: ( <arg_list_opt> )
@@ -288,7 +314,7 @@ class SingleStmtRules:
             if not self._match(*FOLLOW_AFTER_OPEN_PAREN):
                 self._error(sorted(list(FOLLOW_AFTER_OPEN_PAREN)), 'function_call')
 
-            args = self._arg_list_opt()
+            args = self._arg_list_opt(block_keywords)
 
             if not self._match(')'):
                 self._error([')'], 'function_call')
@@ -324,7 +350,7 @@ class SingleStmtRules:
             if not self._match('='):
                 self._error(['='], 'id_statement_tail')
 
-            value = self._assignment_value()
+            value = self._assignment_value(block_keywords)
 
             return ASTNode('array_idx_assignment', value=id_name, children=[value])
 
@@ -333,7 +359,10 @@ class SingleStmtRules:
             self._error(['++', '--', '=', '(', '['], 'id_statement_tail')
 
 
-    def _assignment_value(self: "RDParser"):
+    def _assignment_value(self: "RDParser", block_keywords: set = None):
+        if block_keywords is None:
+            block_keywords = set()
+        
         self._advance()
 
         # since there are many variations, we display error full of context
@@ -385,7 +414,7 @@ class SingleStmtRules:
             if not self._match(*FOLLOW_LSB):
                 self._error([*FOLLOW_LSB], 'assignment_value')
 
-            elements = self._element_list_opt()
+            elements = self._element_list_opt(block_keywords)
 
             # this is actually kinda useless cause we check alr in the loop in elemenet_list_op
             # but just dont wanna remove it cause it looks weird. self._advance still being used
@@ -400,8 +429,8 @@ class SingleStmtRules:
             # other wise, its an expr
             expr = self._expr()
 
-            # after an expr, proper error display would be first set of gen stmt + equation ops
-            FOLLOW_ASSIGN_EXPR = self._first_general_statement()
+            # after an expr, proper error display would be first set of gen stmt + equation ops + block keywords
+            FOLLOW_ASSIGN_EXPR = self._first_general_statement() | block_keywords
 
             # handle id = id() and id = id[x] display proper error
             FOLLOW_ASSIGN_EXPR = self._add_postfix_tokens(FOLLOW_ASSIGN_EXPR, expr)
@@ -411,10 +440,16 @@ class SingleStmtRules:
 
             return expr
 
-    def _array_manip_statement(self: "RDParser") -> ASTNode:
+    def _array_manip_statement(self: "RDParser", block_keywords: set = None) -> ASTNode:
         """
         Parse array_add(id, expr) and array_remove(id, expr)
+        
+        Args:
+            block_keywords: Set of keywords valid in current block context
         """
+        if block_keywords is None:
+            block_keywords = set()
+        
         op_tok = self._advance()
         op = op_tok.type
 
@@ -453,7 +488,7 @@ class SingleStmtRules:
         # since expr can be null, we need to include the follow set in the error
         FOLLOW_MANIP_EXPR = {
             ')'
-        }
+        } | block_keywords
 
         FOLLOW_MANIP_EXPR = self._add_postfix_tokens(FOLLOW_MANIP_EXPR, expr_node)
 
