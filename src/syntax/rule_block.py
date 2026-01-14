@@ -295,17 +295,56 @@ class BlockStmtRules():
 
             # up to 3 range expression
             # first expression (required)
-            exprs.append(self._expr())
+            expr = self._expr()
+            exprs.append(expr)
+
+            # follow tokens for this argument.
+            FOLLOW_AFTER_ARG = {
+                ')', ','
+            }
+
+            FOLLOW_AFTER_ARG = self._add_postfix_tokens(FOLLOW_AFTER_ARG, expr)
+
+            # check the next token
+            if not self._match(*FOLLOW_AFTER_ARG):
+                self._error(sorted(list(FOLLOW_AFTER_ARG)), 'range_expression')
+
 
             # optional second expression
             if self._match(','):
                 self._advance()
-                exprs.append(self._expr())
+                expr = self._expr()
+                exprs.append(expr)
+
+                # follow tokens for this argument.
+                FOLLOW_AFTER_ARG = {
+                    ')', ','
+                }
+
+                FOLLOW_AFTER_ARG = self._add_postfix_tokens(FOLLOW_AFTER_ARG, expr)
+
+                # check the next token
+                if not self._match(*FOLLOW_AFTER_ARG):
+                    self._error(sorted(list(FOLLOW_AFTER_ARG)), 'range_expression')
+
 
                 # optional third expression
                 if self._match(','):
                     self._advance()
-                    exprs.append(self._expr())
+                    expr = self._expr()
+                    exprs.append(expr)
+
+                    # follow tokens for this argument.
+                    FOLLOW_AFTER_ARG = {
+                        ')'
+                    }
+
+                    FOLLOW_AFTER_ARG = self._add_postfix_tokens(FOLLOW_AFTER_ARG, expr)
+
+                    # check the next token
+                    if not self._match(*FOLLOW_AFTER_ARG):
+                        self._error(sorted(list(FOLLOW_AFTER_ARG)), 'range_expression')
+
 
                     # no more than 3 expressions allowed
                     if self._match(','):

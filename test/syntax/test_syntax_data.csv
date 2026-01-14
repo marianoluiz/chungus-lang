@@ -173,7 +173,21 @@ Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, close, or","afte
 
 show 'hi'","line 6 col 1
 Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, close, or","unclosed function, must include close and all op"
-,,
+fn x(1,"line 1 col 7
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or
+",
+fn x('str',"line 1 col 11
+Expected any: !=, ), ,, ==, and, or
+",
+fn x(x,"line 1 col 7
+Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or
+",
+fn x(x[1],"line 1 col 10
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or
+",
+fn x(x(),"line 1 col 9
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or
+",
 fncall( ,"line 1 col 9
 Expected any: !, (, ), false, float_literal, id, int_literal, str_literal, true",fncall nullable arg_list_opt
 "fn id(1)
@@ -256,6 +270,11 @@ array_remove (ID ,"line 1 col 18
 Expected any: ,, [",array manip
 "array_add(ID[x][x][x], x","line 1 col 25
 Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",array manip
+"array_add(ID[x][x][x], 1","line 1 col 25
+Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",
+"array_add(ID[x][x][x], true","line 1 col 28
+Expected any: !=, ), ==, and, or",
+,,
 id = ,"line 1 col 6
 Expected any: !, (, [, false, float, float_literal, id, int, int_literal, read, str_literal, true",assign stmt
 ,,
@@ -279,7 +298,7 @@ Expected any: (",
 ,,
 id =  int ( id ,"line 1 col 16
 Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or","assign stmt, typecast"
-id =  int ( 1 ,"line 1 col 14
+id =  int ( 1 ,"line 1 col 15
 Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",postfix
 ,,
 ,,
@@ -328,6 +347,14 @@ id(id(id() ,"line 1 col 12
 Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
 id(id(id ,"line 1 col 10
 Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
+fncall( id 'string',"line 1 col 12
+Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
+fncall( 1 'string',"line 1 col 11
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
+fncall( true 'string' ,"line 1 col 14
+Expected any: !=, ), ,, ==, and, or",
+fncall( 'string' 1,"line 1 col 18
+Expected any: !=, ), ,, ==, and, or",
 id ( id ( id[x]),"line 1 col 17
 Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
 "array_add(x, ID1(ID2[x])","line 1 col 25
@@ -360,22 +387,16 @@ Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array
 show 'hi'
 'STRING'","line 3 col 1
 Expected any: array_add, array_remove, close, elif, else, for, id, if, show, todo, try, while",
-"if x
-show 'hi'
-'STRING'
-show 'hi'
-'STRING'",,
-"if x
-x = 1
-'STRING'
-show 'hi'
-'STRING'",,assign stmt
+,,
+,,
 "if x and true
 
-'string'",,
+'string'","line 3 col 1
+Expected any: !=, ==, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
 "if x and 1
 
-'string'",,
+'string'","line 3 col 1
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
 "fn id( 1 and true
 
 'string'","line 3 col 1
@@ -384,4 +405,5 @@ Expected any: !=, ), ,, ==, and, or",
 
 show 'hi'
 
-close",,
+close","line 1 col 24
+Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",

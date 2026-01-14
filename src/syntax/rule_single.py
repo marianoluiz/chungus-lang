@@ -361,7 +361,7 @@ class SingleStmtRules:
             expr = self._expr()
 
             # we always need to show whole expected after expr if it errors since it is a unique
-            FOLLOW_TYPECAST = { '!=', '%', ')', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or' }
+            FOLLOW_TYPECAST = { ')' }
 
             # get rightmost ID_T or index (ID_T[X])
             FOLLOW_TYPECAST = self._add_postfix_tokens(FOLLOW_TYPECAST, expr)
@@ -454,7 +454,7 @@ class SingleStmtRules:
 
         # since expr can be null, we need to include the follow set in the error
         FOLLOW_MANIP_EXPR = {
-            '!=','%', ')', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'or'
+            ')'
         }
 
         FOLLOW_MANIP_EXPR = self._add_postfix_tokens(FOLLOW_MANIP_EXPR, expr_node)
