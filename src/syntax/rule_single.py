@@ -400,10 +400,8 @@ class SingleStmtRules:
             # other wise, its an expr
             expr = self._expr()
 
-
-            # get rightmost ID_T or index (ID_T[X])
             # after an expr, proper error display would be first set of gen stmt + equation ops
-            FOLLOW_ASSIGN_EXPR = { '!=', '%', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'array_add', 'array_remove', 'for', ID_T, 'if', 'or', 'show', 'todo', 'try', 'while' }
+            FOLLOW_ASSIGN_EXPR = self._first_general_statement()
 
             # handle id = id() and id = id[x] display proper error
             FOLLOW_ASSIGN_EXPR = self._add_postfix_tokens(FOLLOW_ASSIGN_EXPR, expr)

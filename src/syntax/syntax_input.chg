@@ -1,1 +1,11 @@
-if true
+for x in range(25)
+skip
+show 'hi'
+    for x in range(25)
+        show 'hi'
+        for x in range(25)
+            x = id 'string'
+        close
+    close
+close
+
