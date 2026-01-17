@@ -407,3 +407,38 @@ show 'hi'
 
 close","line 1 col 24
 Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
+x = 1 'string',"line 1 col 7
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while
+",
+x = true 'string',"line 1 col 10
+Expected any: !=, ==, and, array_add, array_remove, for, id, if, or, show, todo, try, while
+",
+x = id 'string',"line 1 col 8
+Expected any: !=, %, (, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while
+",
+x = id[1] 'string',"line 1 col 11
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while
+",
+x = id() 'string',"line 1 col 10
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while
+",
+"for x in range(25)
+skip
+show 'hi'
+    for x in range(25)
+        show 'hi'
+        for x in range(25)
+            show 'hi'
+        close
+    close
+close
+
+x = true 'string'","line 12 col 10Expected any: !=, ==, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
+"
+fn name()
+    show 'hello world'
+    array_add(x, 25)
+close
+
+x = 1 'paldo'","line 7 col 7
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
