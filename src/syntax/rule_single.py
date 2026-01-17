@@ -435,7 +435,9 @@ class SingleStmtRules:
             # handle id = id() and id = id[x] display proper error
             FOLLOW_ASSIGN_EXPR = self._add_postfix_tokens(FOLLOW_ASSIGN_EXPR, expr)
 
-            if not self._match(*FOLLOW_ASSIGN_EXPR):
+            # After an assignment value, we can have: EOF, block keywords, or postfix operators
+            # EOF is valid when the assignment is the last statement
+            if not self._match(*FOLLOW_ASSIGN_EXPR) and not self._match('EOF'):
                 self._error(sorted(list(FOLLOW_ASSIGN_EXPR)), 'assignment_value')
 
             return expr
