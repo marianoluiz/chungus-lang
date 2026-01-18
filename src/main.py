@@ -1,8 +1,8 @@
 import tkinter as tk
 from src.gui import ChungusLexerGUI
 from src.lexer.dfa_lexer import Lexer
-from src.syntax.syntax_test import Parser
-# from src.syntax.rd_parser import RDParser
+from src.syntax.rd_parser import RDParser
+# from src.syntax.syntax_test import Parser
 
 
 def lexer_only_adapter(source: str):
@@ -42,20 +42,23 @@ def syntax_adapter(source: str):
         # End if have lexical error
         return tokens, errors
 
-    parser = Parser()
-    parse_result = parser.parse(source)
-
-    if parse_result.errors:
-        # parser.parse returns SyntaxResult; append parser.log (human readable)
-        errors.append("Syntax Error/s:")
-        errors.append(parse_result.log or "\n".join(parse_result.errors))
-
-    # parser = RDParser(tokens, source, debug=True)
-    # parse_result = parser.parse()
+    # Syntax Parser Test:
+    # parser = Parser()
+    # parse_result = parser.parse(source)
 
     # if parse_result.errors:
+    #     # parser.parse returns SyntaxResult; append parser.log (human readable)
     #     errors.append("Syntax Error/s:")
-    #     errors.extend(parse_result.errors.splitlines())
+    #     errors.append(parse_result.log or "\n".join(parse_result.errors))
+
+
+    # Recursive Descent Parser:
+    parser = RDParser(tokens, source, debug=True)
+    parse_result = parser.parse()
+
+    if parse_result.errors:
+        errors.append("Syntax Error:")
+        errors.extend(parse_result.errors)
 
     return tokens, errors
 
