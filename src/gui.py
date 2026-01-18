@@ -145,18 +145,28 @@ class ChungusLexerGUI:
         self.code_label.pack(anchor="w", pady=(0, 8))
         self.code_input_frame = tk.Frame(self.left_frame, borderwidth=1, relief="solid")
         self.code_input_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Line number widget
+        self.line_numbers = tk.Text(self.code_input_frame, width=4, height=20, font=self.code_font,
+                                    wrap=tk.NONE, borderwidth=0, relief="flat", highlightthickness=0,
+                                    padx=8, pady=12, state=tk.DISABLED, takefocus=0)
+        self.line_numbers.pack(side=tk.LEFT, fill=tk.Y)
+
         self.code_input = tk.Text(self.code_input_frame, height=20, font=self.code_font,
                                   wrap=tk.WORD, borderwidth=0, relief="flat", highlightthickness=0, padx=12, pady=12)
         self.code_scrollbar = ttk.Scrollbar(self.code_input_frame, orient=tk.VERTICAL,
-                                            command=self.code_input.yview, style="Vertical.TScrollbar")
-        self.code_input.configure(yscrollcommand=self.code_scrollbar.set)
+                                            command=self.on_scrollbar, style="Vertical.TScrollbar")
+        self.code_input.configure(yscrollcommand=self.on_textscroll)
         self.code_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.code_input.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.code_input.insert(tk.END, self.get_sample_code())
         self.code_input.bind("<FocusIn>", self.on_focus_in)
         self.code_input.bind("<FocusOut>", self.on_focus_out)
-        self.code_input.bind("<KeyRelease>", self.update_status_bar)
+        self.code_input.bind("<KeyRelease>", self.on_code_change)
         self.code_input.bind("<ButtonRelease>", self.update_status_bar)
+
+        # Initialize line numbers
+        self.update_line_numbers()
 
         self.button_frame = tk.Frame(self.left_frame)
         self.button_frame.pack(fill=tk.X, pady=18)
@@ -283,6 +293,12 @@ class ChungusLexerGUI:
             except:
                 pass
 
+        # Line numbers widget styling
+        try:
+            self.line_numbers.configure(bg=c["TREE_HEADING_BG"], fg=c["SECONDARY_TEXT"])
+        except:
+            pass
+
         # Button - Use ACCENT_BLUE from the theme's palette
         try:
             button_bg = c.get("ACCENT_BLUE", "#007aff")  # Default to blue if not defined in theme
@@ -384,6 +400,35 @@ class ChungusLexerGUI:
         except Exception:
             self.status_label.config(text="")
 
+    def on_code_change(self, event=None):
+        """Called when code is modified to update line numbers and status bar."""
+        self.update_line_numbers()
+        self.update_status_bar(event)
+
+    def update_line_numbers(self, event=None):
+        """Update the line numbers widget to match the code input."""
+        # Get the number of lines in the code input
+        line_count = int(self.code_input.index('end-1c').split('.')[0])
+
+        # Generate line numbers
+        line_numbers_text = "\n".join(str(i) for i in range(1, line_count + 1))
+
+        # Update the line numbers widget
+        self.line_numbers.config(state=tk.NORMAL)
+        self.line_numbers.delete('1.0', tk.END)
+        self.line_numbers.insert('1.0', line_numbers_text)
+        self.line_numbers.config(state=tk.DISABLED)
+
+    def on_scrollbar(self, *args):
+        """Handle scrollbar movement to sync both text widgets."""
+        self.code_input.yview(*args)
+        self.line_numbers.yview(*args)
+
+    def on_textscroll(self, *args):
+        """Handle text scroll to sync scrollbar and line numbers."""
+        self.code_scrollbar.set(*args)
+        self.line_numbers.yview_moveto(args[0])
+
     def show_about(self):
         messagebox.showinfo(
             "About Chungus Compiler",
@@ -406,6 +451,7 @@ class ChungusLexerGUI:
                 content = f.read()
             self.code_input.delete("1.0", tk.END)
             self.code_input.insert("1.0", content)
+            self.update_line_numbers()
             self.run_lexer()
         except Exception as e:
             messagebox.showerror("Error Opening File", f"Could not read file:\n{e}")
