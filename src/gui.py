@@ -14,7 +14,7 @@ class ChungusLexerGUI:
         self.lexer_callback = lexer_callback
         self.syntax_callback = syntax_callback
 
-        self.current_theme = tk.StringVar(value="Light (macOS)")  # Variable for theme selection
+        self.current_theme = tk.StringVar(value="Oceanic Blue")  # Variable for theme selection
 
         # --- Define Color Palettes ---
         self.themes = {
