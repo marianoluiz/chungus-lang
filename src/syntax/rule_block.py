@@ -69,7 +69,7 @@ class BlockStmtRules():
 
         # this can be null so we track the follow set of id to show more complete error
         FOLLOW_FUNC_ID = {
-            '!', '(', ')', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'
+            '!', ')', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'
         }
 
         if not self._match(*FOLLOW_FUNC_ID):
@@ -184,11 +184,11 @@ class BlockStmtRules():
         while self._match('elif'):
             self._advance()
 
-            cond_e = self._expr()
+            cond = self._expr()
 
             # proper complete error after expr if it errored
-            FOLLOW_EXPR_ELIFCOND = self._first_general_statement() | { '!=', '%', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and' }
-            FOLLOW_EXPR_ELIFCOND = self._add_postfix_tokens(FOLLOW_EXPR_ELIFCOND, cond_e)
+            FOLLOW_EXPR_ELIFCOND = self._first_general_statement()
+            FOLLOW_EXPR_ELIFCOND = self._add_postfix_tokens(FOLLOW_EXPR_ELIFCOND, cond)
 
             if not self._match(*FOLLOW_EXPR_ELIFCOND):
                 self._error(sorted(list(FOLLOW_EXPR_ELIFCOND)), 'conditional_statement')
@@ -217,7 +217,7 @@ class BlockStmtRules():
                 if not self._match(*FOLLOW_ELIF_GEN_STMT):
                     self._error(sorted(list(FOLLOW_ELIF_GEN_STMT)), 'conditional_statement')
 
-            elif_nodes.append(ASTNode('elif', children=[cond_e] + elif_body))
+            elif_nodes.append(ASTNode('elif', children=[cond] + elif_body))
 
         # optional else block
         else_node: Optional[ASTNode] = None
@@ -230,17 +230,17 @@ class BlockStmtRules():
             # require one general statement
             else_body.append(self._general_statement(block_keywords))
 
-            FOLLOW_ELSE_GEN_STMT = {'close', 'elif', 'else'} | self._first_general_statement()
+            FOLLOW_ELSE_GEN_STMT = {'close'} | self._first_general_statement()
 
-            if not self._match(*FOLLOW_ELIF_GEN_STMT):
+            if not self._match(*FOLLOW_ELSE_GEN_STMT):
                 self._error(sorted(list(FOLLOW_ELSE_GEN_STMT)), 'conditional_statement')
 
             while not self._match('close'):
                 else_body.append(self._general_statement(block_keywords))
 
-                FOLLOW_ELSE_GEN_STMT = {'close', 'elif', 'else'} | self._first_general_statement()
+                FOLLOW_ELSE_GEN_STMT = {'close'} | self._first_general_statement()
 
-                if not self._match(*FOLLOW_ELIF_GEN_STMT):
+                if not self._match(*FOLLOW_ELSE_GEN_STMT):
                     self._error(sorted(list(FOLLOW_ELSE_GEN_STMT)), 'conditional_statement')
 
             else_node = ASTNode('else', children=else_body)

@@ -308,7 +308,7 @@ class SingleStmtRules:
 
             # arg_list_opt is nullable so we need to show complete error that includes ')'
             FOLLOW_AFTER_OPEN_PAREN = {
-                '!', '(', ')', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'
+                '!', ')', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'
             }
 
             if not self._match(*FOLLOW_AFTER_OPEN_PAREN):

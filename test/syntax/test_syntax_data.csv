@@ -85,25 +85,25 @@ Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",expr p
 close
 
 show 'hi'","line 1 col 13
-Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",expr param
+Expected any: !, false, float_literal, id, int_literal, str_literal, true",expr param
 "fn id(1 or )
    show 'hi'
 close
 
 show 'hi'","line 1 col 12
-Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",expr param
+Expected any: !, false, float_literal, id, int_literal, str_literal, true",expr param
 "fn id(1 == )
    show 'hi'
 close
 
 show 'hi'","line 1 col 12
-Expected any: (, false, float_literal, id, int_literal, str_literal, true",expr param
+Expected any: false, float_literal, id, int_literal, str_literal, true",expr param
 "fn id(1 + )
    show 'hi'
 close
 
 show 'hi'","line 1 col 11
-Expected any: (, float_literal, id, int_literal",expr param
+Expected any: float_literal, id, int_literal",expr param
 "fn id(1 
    show 'hi'
 close
@@ -137,11 +137,11 @@ Expected any: !=, ), ,, ==, and, or",
 
 show 'hi'
 ","line 2 col 2
-Expected any: !, (, ), false, float_literal, id, int_literal, str_literal, true",need to show ) and arg list opt first set no close
+Expected any: !, ), false, float_literal, id, int_literal, str_literal, true",need to show ) and arg list opt first set no close
 "fn id(a(1), a ","line 1 col 15
 Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",param test
 "fn id(a(1), a( ","line 1 col 16
-Expected any: !, (, ), false, float_literal, id, int_literal, str_literal, true",param func call inside error
+Expected any: !, ), false, float_literal, id, int_literal, str_literal, true",param func call inside error
 "fn id(a(1), a[x] ","line 1 col 18
 Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",param index array ref inside error
 "fn x()
@@ -150,7 +150,7 @@ Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",par
 close
 
 show 'hi'","line 4 col 1
-Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",ret expr
+Expected any: !, false, float_literal, id, int_literal, str_literal, true",ret expr
 "fn x()
  show 'hi'
  // 
@@ -189,7 +189,7 @@ fn x(x(),"line 1 col 9
 Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or
 ",
 fncall( ,"line 1 col 9
-Expected any: !, (, ), false, float_literal, id, int_literal, str_literal, true",fncall nullable arg_list_opt
+Expected any: !, ), false, float_literal, id, int_literal, str_literal, true","fncall nullable arg_list_opt, might be ambiguous"
 "fn id(1)
    show 'hi'
 close
@@ -235,20 +235,20 @@ Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",arg
 close
 
 id(idx + )","line 5 col 10
-Expected any: (, float_literal, id, int_literal",arg 
+Expected any: float_literal, id, int_literal",arg 
 "fn id(1)
    show 'hi'
 close
 
 id(idx and )","line 5 col 12
-Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",arg 
+Expected any: !,false, float_literal, id, int_literal, str_literal, true",arg 
 id = read,NO SYNTAX ERROR,read
 id = int(),"line 1 col 10
-Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",typecast req 1
+Expected any: !, false, float_literal, id, int_literal, str_literal, true",typecast req 1
 id = int(1 and ),"line 1 col 16
-Expected any: !, (, false, float_literal, id, int_literal, str_literal, true",typecast expr
+Expected any: !, false, float_literal, id, int_literal, str_literal, true",typecast expr
 id = int(1 + ),"line 1 col 14
-Expected any: (, float_literal, id, int_literal",typecast expr
+Expected any: float_literal, id, int_literal",typecast expr
 id = int(1 an ),"line 1 col 12
 Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",typecast expr
 hello = [ ,"line 1 col 11
@@ -276,7 +276,7 @@ Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",
 Expected any: !=, ), ==, and, or",
 ,,
 id = ,"line 1 col 6
-Expected any: !, (, [, false, float, float_literal, id, int, int_literal, read, str_literal, true",assign stmt
+Expected any: !, [, false, float, float_literal, id, int, int_literal, read, str_literal, true",assign stmt
 ,,
 id =  int ( id + 1 ,"line 1 col 20
 Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or","assign stmt, typecast"
@@ -285,7 +285,7 @@ Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or","assig
 id =  int ( id == id == id() ,"line 1 col 30
 Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or","assign stmt, typecast"
 id ( ,"line 1 col 6
-Expected any: !, (, ), false, float_literal, id, int_literal, str_literal, true",id stmt
+Expected any: !, ), false, float_literal, id, int_literal, str_literal, true",id stmt
 id [ ,"line 1 col 6
 Expected any: id, int_literal",id stmt
 ,,
@@ -340,7 +340,7 @@ Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
 id(id[x],"line 1 col 9
 Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",
 id(id( ,"line 1 col 8
-Expected any: !, (, ), false, float_literal, id, int_literal, str_literal, true",
+Expected any: !, ), false, float_literal, id, int_literal, str_literal, true",
 id(id() ,"line 1 col 9
 Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
 id(id(id() ,"line 1 col 12
@@ -451,3 +451,30 @@ x = 1 == (1 == ,"line 1 col 10
 Expected any: false, float_literal, id, int_literal, str_literal, true",
 x = 1 == 1 == ,"line 1 col 15
 Expected any: false, float_literal, id, int_literal, str_literal, true",
+"if x 
+    show 'hi'
+else
+    show 'hi'","line 4 col 14
+Expected any: array_add, array_remove, close, for, id, if, show, todo, try, while",
+"if x 
+    show 'hi'
+elif x
+    'ching'
+else
+    show 'hi'","line 4 col 5
+Expected any: !=, %, (, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while
+",
+"if x 
+    show 'hi'
+elif x
+    show 'ching'
+
+else
+    show 'hi'
+    array_add(x, 25) 'ching'","line 8 col 22
+Expected any: array_add, array_remove, close, for, id, if, show, todo, try, while",
+"if x 
+    show 'ching' 'ching'
+elif x","line 2 col 18
+Expected any: array_add, array_remove, close, elif, else, for, id, if, show, todo, try, while
+",

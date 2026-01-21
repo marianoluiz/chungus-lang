@@ -249,7 +249,7 @@ class ExprRules:
 
             # the supposed next of unclosed 'ID (' must include ')' if errored
             FOLLOW_UNCLOSED_ARGLIST = {
-                '!', '(', ')', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'
+                '!', ')', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'
             }
 
             if not self._match(*FOLLOW_UNCLOSED_ARGLIST):
