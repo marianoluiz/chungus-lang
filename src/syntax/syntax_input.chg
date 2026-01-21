@@ -1,7 +1,2 @@
+x = 1 == 1 == 
 
-fn name()
-    show 'hello world'
-    array_add(x, 25)
-close
-
-x = 1 'paldo'

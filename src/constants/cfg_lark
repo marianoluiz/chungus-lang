@@ -105,9 +105,6 @@ logical_and_expr_tail: AND logical_not_expr logical_and_expr_tail
 logical_not_expr: NOT eq_expr
                 | eq_expr
 
-bool_primary: "(" expr ")"
-            | eq_expr
-
 eq_expr: comp_operand eq_expr_tail
 
 eq_expr_tail: EQ_EQ comp_operand eq_expr_tail
@@ -146,7 +143,6 @@ factor_tail: POW factor
            | 
 
 power: int_float_lit
-     | "(" expr ")"
      | ID postfix_tail
 
 postfix_tail: "(" arg_list_opt ")"

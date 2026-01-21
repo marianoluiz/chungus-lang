@@ -66,7 +66,7 @@ class ExprRules:
         """
 
         # Advance handle errors
-        expected = [ '!', '(', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true' ]
+        expected = [ '!', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true' ]
 
         if not self._match(*expected):
             self._error(expected, 'logical_or_expr')
@@ -88,7 +88,7 @@ class ExprRules:
         """
 
         # Advance handle errors
-        expected = [ '!', '(', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true' ]
+        expected = [ '!', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true' ]
 
         if not self._match(*expected):
             self._error(expected, 'logical_and_expr')
@@ -128,7 +128,7 @@ class ExprRules:
         """
 
         # Advance handle errors
-        expected = [ '(', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true' ]
+        expected = [ 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true' ]
 
         if not self._match(*expected):
             self._error(expected, 'comp_operand')
@@ -233,18 +233,7 @@ class ExprRules:
 
             return node
 
-        if self._match('('):
-            self._advance()
-            node = self._expr()
-
-            if self._match(')'):
-                self._advance()
-                return node
-            else:
-                self._error([')'], 'expression')
-                return node
-
-        self._error([INT_LIT_T, FLOAT_LIT_T, ID_T, '('], 'power')
+        self._error([INT_LIT_T, FLOAT_LIT_T, ID_T], 'power')
 
 
     def _postfix_tail(self: "RDParser", node: ASTNode) -> ASTNode:
@@ -259,12 +248,12 @@ class ExprRules:
             self._advance()
 
             # the supposed next of unclosed 'ID (' must include ')' if errored
-            FOLLOW_UNCOLSED_ARGLIST = {
+            FOLLOW_UNCLOSED_ARGLIST = {
                 '!', '(', ')', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'
             }
 
-            if not self._match(*FOLLOW_UNCOLSED_ARGLIST):
-                self._error([*FOLLOW_UNCOLSED_ARGLIST], 'postfix_tail')
+            if not self._match(*FOLLOW_UNCLOSED_ARGLIST):
+                self._error([*FOLLOW_UNCLOSED_ARGLIST], 'postfix_tail')
 
             args = self._arg_list_opt()
 

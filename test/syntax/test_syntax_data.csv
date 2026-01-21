@@ -62,7 +62,7 @@ show 'hi'",NO SYNTAX ERROR,Return expression
 close
 
 show 'hi'","line 1 col 11
-Expected any: (, float_literal, id, int_literal",param expr
+Expected any: float_literal, id, int_literal",param expr
 id++,NO SYNTAX ERROR,unary stmt
 id(),NO SYNTAX ERROR,func call
 id fun,"line 1 col 4
@@ -433,12 +433,21 @@ show 'hi'
     close
 close
 
-x = true 'string'","line 12 col 10Expected any: !=, ==, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
+x = true 'string'","line 12 col 10
+Expected any: !=, ==, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
 "
 fn name()
     show 'hello world'
     array_add(x, 25)
 close
 
-x = 1 'paldo'","line 7 col 7
-Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
+x = 1 'string'
+","line 7 col 7
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while
+",
+x = (1) ,"line 1 col 5
+Expected any: !, [, false, float, float_literal, id, int, int_literal, read, str_literal, true",
+x = 1 == (1 == ,"line 1 col 10
+Expected any: false, float_literal, id, int_literal, str_literal, true",
+x = 1 == 1 == ,"line 1 col 15
+Expected any: false, float_literal, id, int_literal, str_literal, true",
