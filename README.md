@@ -24,7 +24,7 @@ A clean, minimal, general programming language.
      ```
    - Dev:
      ```sh
-     pip install -r requirements.txt
+     pip install -r requirements-dev.txt
      ```
 
 ## Running the project
@@ -56,7 +56,7 @@ A clean, minimal, general programming language.
   ```
   - Windows
   ```sh
-  python -m src.lexer
+  python -m src.syntax
   ```
 
 Docker
