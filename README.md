@@ -18,13 +18,15 @@ A clean, minimal, general programming language.
      .venv\Scripts\Activate.ps1
      ```
 2. Install dependencies
-   - Base:
+   - Windows (PowerShell):
      ```sh
-     pip install -r requirements.txt
+      python -m pip install pip-tools
+      python -m piptools sync requirements-dev.txt
      ```
-   - Dev:
+   - macOS / Linux:
      ```sh
-     pip install -r requirements-dev.txt
+      python3 -m pip install pip-tools
+      python3 -m piptools sync requirements-dev.txt
      ```
 
 ## Running the project
