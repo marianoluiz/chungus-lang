@@ -30,7 +30,12 @@ class ASTNode:
     value: Optional[str] = None     # optional payload (identifier name, literal value, etc.)
     children: List["ASTNode"] = field(default_factory=list) # sub-nodes in the syntax tree
                                                             # default_factory=list: ensures each ASTNode gets its own empty list by default.
-                                                            # List["ASTNode"]: make sure a.children and b.children, ... are independent and not the same.
+                                                            # In python, default argument values are evaluated only once. Well known Mutable default argument
+                                                            # or Shared mutable default argument / state across instances
+                                                            # So this default_factor list now Call list() every time __init__ runs. this makes sure a.children and b.children, ... are independent and not the same. 
+    line: Optional[int] = None
+    col: Optional[int] = None
+
 
 @dataclass
 class ParseResult:

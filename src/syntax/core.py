@@ -47,7 +47,7 @@ class ParserCore:
 
     def _skip_trivia(self: "RDParser"):
         """
-        Advance past non-significant tokens such as whitespace and newlines.
+        Advance past non-significant tokens such as space and newlines.
 
         Returns:
             None
@@ -70,7 +70,7 @@ class ParserCore:
             # Place EOF at the end of the last source line so the caret prints after the line text.
             if self._lines:
                 line_no = len(self._lines)              # Length of whole program from the lines list
-                col_no = len(self._lines[-1]) + 1       # In the last line, the length of it
+                col_no = len(self._lines[-1]) + 1       # number of characters in the last line
             else:
                 line_no = 1
                 col_no = 1
@@ -118,6 +118,7 @@ class ParserCore:
         
         err_block = str(UnexpectedError(line_text, (tok.line, tok.col)))
         expected_list = ", ".join(sorted(expected))
+
         msg = (
             f"{err_block}"
             f"Unexpected token in {context} at line {tok.line} col {tok.col}: "
@@ -202,3 +203,31 @@ class ParserCore:
             Set: First set tokens of general statements
         """
         return {'array_add','array_remove','for','id','if','show','todo','try','while'}
+
+
+    def _ast_node(self: "RDParser", kind:str, tok=None, *, value=None, children=None) -> ASTNode:
+        """
+        Create an ASTNode and optionally attach token position.
+
+        Args:
+            kind: Node kind (e.g. 'id', 'int_literal').
+            tok: Optional Token; if given, sets `node.line` and `node.col`.
+            *: means parameters after * must be passed as keyword arguments.
+            value: Optional payload for leaf nodes.
+            children: Optional list of child ASTNodes.
+
+        Returns:
+            The constructed `ASTNode` (with `line`/`col` when `tok` provided).
+        """
+
+        if children is None:
+            children = []
+        
+        # positional args first, defined args after those.
+        n = ASTNode(kind, value=value, children=children)
+
+        if tok is not None:
+            n.line = tok.line
+            n.col = tok.col
+
+        return n

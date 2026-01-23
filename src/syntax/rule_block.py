@@ -53,7 +53,7 @@ class BlockStmtRules():
             ASTNode: AST node representing the function with children nodes for parameters, locals, and return.
         """
 
-        self._advance()  # consume 'fn'
+        fn_tok = self._advance()  # consume 'fn' and capture token
     
         # check if next is id or else error
         if not self._match(ID_T):
@@ -67,7 +67,7 @@ class BlockStmtRules():
 
         self._advance()
 
-        # this can be null so we track the follow set of id to show more complete error
+        # this can be null so we track the follow set of ( to show more complete error
         FOLLOW_FUNC_ID = {
             '!', ')', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'
         }
@@ -115,14 +115,14 @@ class BlockStmtRules():
         children = []
 
         if params:
-            children.append(ASTNode('params', children=params))
+            children.append(self._ast_node('params', fn_tok, children=params))
 
         children.extend(fn_nodes)
 
         if ret_node:
             children.append(ret_node)
 
-        return ASTNode('function', value=fn_name, children=children)
+        return self._ast_node('function', fn_tok, value=fn_name, children=children)
 
 
     def _conditional_statement(self: "RDParser") -> ASTNode:
@@ -142,7 +142,8 @@ class BlockStmtRules():
         if not self._match('if'):
             self._error(['if'], 'conditional_statement')
 
-        self._advance()
+        # consume if
+        if_tok = self._advance() 
 
         # condition expression
         cond = self._expr()
@@ -167,6 +168,7 @@ class BlockStmtRules():
             self._error(sorted(list(FOLLOW_IF_GEN_STMT)), 'conditional_statement')
 
         while not self._match('elif', 'else', 'close'):
+
             if_nodes.append(self._general_statement(block_keywords))
 
             # complete next tokens for error priting
@@ -175,14 +177,14 @@ class BlockStmtRules():
             if not self._match(*FOLLOW_IF_GEN_STMT):
                 self._error(sorted(list(FOLLOW_IF_GEN_STMT)), 'conditional_statement')
 
-        if_node = ASTNode('if', children=[cond] + if_nodes)
+        if_node = self._ast_node('if', if_tok, children=[cond] + if_nodes)
 
 
         # elif blocks zero-or-more
         elif_nodes: List[ASTNode] = []
 
         while self._match('elif'):
-            self._advance()
+            elif_tok = self._advance()
 
             cond = self._expr()
 
@@ -208,6 +210,7 @@ class BlockStmtRules():
             if not self._match(*FOLLOW_ELIF_GEN_STMT):
                 self._error(sorted(list(FOLLOW_ELIF_GEN_STMT)), 'conditional_statement')
 
+
             while not self._match('elif', 'else', 'close'):
                 elif_body.append(self._general_statement(block_keywords))
 
@@ -217,13 +220,13 @@ class BlockStmtRules():
                 if not self._match(*FOLLOW_ELIF_GEN_STMT):
                     self._error(sorted(list(FOLLOW_ELIF_GEN_STMT)), 'conditional_statement')
 
-            elif_nodes.append(ASTNode('elif', children=[cond] + elif_body))
+            elif_nodes.append(self._ast_node('elif', elif_tok, children=[cond] + elif_body))
 
         # optional else block
         else_node: Optional[ASTNode] = None
 
         if self._match('else'):
-            self._advance()
+            else_tok = self._advance()
 
             else_body: List[ASTNode] = []
 
@@ -243,7 +246,7 @@ class BlockStmtRules():
                 if not self._match(*FOLLOW_ELSE_GEN_STMT):
                     self._error(sorted(list(FOLLOW_ELSE_GEN_STMT)), 'conditional_statement')
 
-            else_node = ASTNode('else', children=else_body)
+            else_node = self._ast_node('else', else_tok, children=else_body)
 
         # final close
         if not self._match('close'):
@@ -257,7 +260,7 @@ class BlockStmtRules():
         if else_node:
             children.append(else_node)
 
-        return ASTNode('conditional_statement', children=children)
+        return self._ast_node('conditional_statement', if_tok, children=children)
 
 
     def _looping_statement(self: "RDParser") -> ASTNode:
@@ -366,19 +369,19 @@ class BlockStmtRules():
             while not self._match('close'):
                 if self._match('skip', 'stop'):
                     tok = self._advance()
-                    body.append(ASTNode('loop_control', value=tok.lexeme))
+                    body.append(self._ast_node('loop_control', tok, value=tok.lexeme))
                 else:
                     body.append(self._general_statement(loop_block_keywords))
 
             if not self._match('close'):
                 self._error(['close'], 'for_statement')
 
-            self._advance()
+            for_tok = self._advance()
 
-            return ASTNode('for', value=loop_var, children=exprs + body)
+            return self._ast_node('for', for_tok, value=loop_var, children=exprs + body)
 
         elif self._match('while'):
-            self._advance()
+            while_tok = self._advance()
             cond = self._expr()
 
             body: List[ASTNode] = []
@@ -390,7 +393,7 @@ class BlockStmtRules():
             while not self._match('close'):
                 if self._match('skip', 'stop'):
                     tok = self._advance()
-                    body.append(ASTNode('loop_control', value=tok.lexeme))
+                    body.append(self._ast_node('loop_control', tok, value=tok.lexeme))
                 else:
                     body.append(self._general_statement(loop_block_keywords))
 
@@ -399,7 +402,7 @@ class BlockStmtRules():
             else:
                 self._error(['close'], 'while_statement')
 
-            return ASTNode('while', children=[cond] + body)
+            return self._ast_node('while', while_tok, children=[cond] + body)
 
         else:
             self._error(['for', 'while'], 'looping_statement')
@@ -419,7 +422,7 @@ class BlockStmtRules():
                 - optional `always` (children = always body)
         """
 
-        self._advance()
+        try_tok = self._advance()
 
         try_body: List[ASTNode] = []
         try_block_keywords = {'fail', 'always', 'close'}
@@ -432,19 +435,20 @@ class BlockStmtRules():
         if not self._match('fail'):
             self._error(['fail'], 'error_handling_statement')
 
-        self._advance()
+        fail_tok = self._advance()
 
         # fail block
         fail_body: List[ASTNode] = []
         if self._match('always', 'close'):
             self._error(['general_statement'], 'fail_block')
+
         while not self._match('always', 'close'):
             fail_body.append(self._general_statement(try_block_keywords))
 
         # optional always block
         always_node: Optional[ASTNode] = None
         if self._match('always'):
-            self._advance()
+            always_tok = self._advance()
 
             if self._match('close'):
                 self._error(['general_statement'], 'always_block')
@@ -454,7 +458,7 @@ class BlockStmtRules():
             while not self._match('close'):
                 always_body.append(self._general_statement(try_block_keywords))
 
-            always_node = ASTNode('always', children=always_body)
+            always_node = self._ast_node('always', always_tok, children=always_body)
 
         # final close
         if self._match('close'):
@@ -462,8 +466,9 @@ class BlockStmtRules():
         else:
             self._error(['close'], 'error_handling_statement')
 
-        children = [ASTNode('try', children=try_body), ASTNode('fail', children=fail_body)]
+        children = [self._ast_node('try', try_tok, children=try_body), self._ast_node('fail', fail_tok, children=fail_body)]
 
         if always_node:
             children.append(always_node)
-        return ASTNode('error_handling', children=children)
+
+        return self._ast_node('error_handling', try_tok, children=children)

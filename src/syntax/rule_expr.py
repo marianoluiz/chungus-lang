@@ -19,7 +19,7 @@ Public symbols:
 See also: [`ASTNode`](src/syntax/ast.py), token constants like [`ID_T`](src/constants/token.py).
 """
 from typing import TYPE_CHECKING
-from src.constants.token import ID_T, INT_LIT_T, FLOAT_LIT_T, STR_LIT_T, BOOL_LIT_T, SKIP_TOKENS
+from src.constants.token import ID_T, INT_LIT_T, FLOAT_LIT_T, STR_LIT_T, BOOL_LIT_T, SKIP_TOKENS, Token
 from src.syntax.ast import ASTNode
 
 # helps editor understand "self" in mixin methods is an RDParser instance
@@ -52,9 +52,9 @@ class ExprRules:
         left  = self._logical_and_expr()
 
         while self._match('or'):
-            op = self._advance().lexeme
+            tok = self._advance()
             right = self._logical_and_expr()
-            left = ASTNode(op, children=[left, right])
+            left = self._ast_node(tok.lexeme, tok, children=[left, right])
         return left
     
     def _logical_and_expr(self: "RDParser") -> ASTNode:
@@ -74,9 +74,9 @@ class ExprRules:
         left = self._logical_not_expr()
 
         while self._match('and'):
-            op = self._advance().lexeme
+            tok = self._advance()
             right = self._logical_not_expr()
-            left = ASTNode(op, children=[left, right])
+            left = self._ast_node(tok.lexeme, tok, children=[left, right])
         return left
 
     def _logical_not_expr(self: "RDParser") -> ASTNode:
@@ -94,10 +94,9 @@ class ExprRules:
             self._error(expected, 'logical_and_expr')
 
         if self._match('!'):
-            self._advance()
-
+            tok = self._advance()
             right = self._eq_expr()
-            return ASTNode('!', children=[right])
+            return self._ast_node('!', tok, children=[right])
         
         # go to production where theres no !
         return self._eq_expr() 
@@ -113,9 +112,9 @@ class ExprRules:
         left = self._comp_operand()
 
         while self._match('==', '!='):
-            op = self._advance().lexeme
+            tok = self._advance()
             right = self._comp_operand()
-            left = ASTNode(op, children=[left, right])
+            left = self._ast_node(tok.lexeme, tok, children=[left, right])
         
         return left
     
@@ -135,10 +134,12 @@ class ExprRules:
 
         # can be rel_expr, str_literal, true, false
         if self._match(STR_LIT_T):
-            return ASTNode(STR_LIT_T, value=self._advance().lexeme)
+            tok = self._advance()
+            return self._ast_node(STR_LIT_T, tok, value=tok.lexeme)
         
         if self._match('true', 'false'):
-            return ASTNode(BOOL_LIT_T, value=self._advance().lexeme)
+            tok = self._advance()
+            return self._ast_node(BOOL_LIT_T, tok, value=tok.lexeme)
         
         return self._rel_expr()
 
@@ -153,13 +154,13 @@ class ExprRules:
         left = self._arith_expr()
 
         while self._match('>', '>=', '<', '<='):
-            op = self._advance().lexeme
+            tok = self._advance()
             right = self._arith_expr()
-            left = ASTNode(op, children=[left, right])
+            left = self._ast_node(tok.lexeme, tok, children=[left, right])
         
         return left
 
-    def _arith_expr(self) -> ASTNode:
+    def _arith_expr(self: "RDParser") -> ASTNode:
         """
         Parse arithmetic expressions (+, -).
 
@@ -169,9 +170,9 @@ class ExprRules:
         left = self._term()
 
         while self._match('+', '-'):
-            op = self._advance().lexeme
+            tok = self._advance()
             right = self._term()
-            left = ASTNode(op, children=[left, right])
+            left = self._ast_node(tok.lexeme, tok, children=[left, right])
         
         return left
 
@@ -185,9 +186,9 @@ class ExprRules:
         left = self._factor()
 
         while self._match('*', '/', '//', '%'):
-            op = self._advance().lexeme
+            tok = self._advance()
             right = self._factor()
-            left = ASTNode(op, children=[left, right])
+            left = self._ast_node(tok.lexeme, tok, children=[left, right])
         
         return left
     
@@ -201,13 +202,13 @@ class ExprRules:
         left = self._power()
 
         while self._match('**'):
-            op = self._advance().lexeme
+            tok = self._advance()
             right = self._power()
-            left = ASTNode(op, children=[left, right])
+            left = self._ast_node(tok.lexeme, tok, children=[left, right])
         
         return left
     
-    def _power(self) -> ASTNode:
+    def _power(self: "RDParser") -> ASTNode:
         """
         Parse primary expressions: literals, identifiers, function calls, grouping.
 
@@ -217,26 +218,26 @@ class ExprRules:
         if self._match(INT_LIT_T, FLOAT_LIT_T):
             tok = self._advance()
             kind = INT_LIT_T if tok.type == INT_LIT_T else FLOAT_LIT_T
-            return ASTNode(kind, value=tok.lexeme)
+            return self._ast_node(kind, tok, value=tok.lexeme)
         
         if self._match(STR_LIT_T):
             tok = self._advance()
-            return ASTNode(STR_LIT_T, value=tok.lexeme)
+            return self._ast_node(STR_LIT_T, tok, value=tok.lexeme)
         
         if self._match(ID_T):
             tok = self._advance()
-            node = ASTNode(ID_T, value=tok.lexeme)
+            node = self._ast_node(ID_T, tok, value=tok.lexeme)
 
             # handle function call or indexing
             if self._match('(', '['):
-                node = self._postfix_tail(node)
+                node = self._postfix_tail(node, id_tok=tok)
 
             return node
 
         self._error([INT_LIT_T, FLOAT_LIT_T, ID_T], 'power')
 
 
-    def _postfix_tail(self: "RDParser", node: ASTNode) -> ASTNode:
+    def _postfix_tail(self: "RDParser", node: ASTNode, id_tok: Token) -> ASTNode:
         """
         Parse trailing postfix operations on an identifier: function call or indexing.
 
@@ -262,16 +263,21 @@ class ExprRules:
 
             self._advance()
 
-            return ASTNode('function_call', value=node.value, children=args)
+            return self._ast_node('function_call', id_tok, value=node.value, children=args)
 
 
         # index branch which can nest
         # flattened indexes
         indices = []
+        first_bracket = None
 
         while self._match('['):
             # array indexing / loop
-            self._advance()
+
+            # only set first_bracket once for location in ast:
+            tok = self._advance()
+            if first_bracket is None:
+                first_bracket = tok
 
             # index number or id
             idx = self._index()
@@ -284,18 +290,26 @@ class ExprRules:
 
         # if it is array reference
         if indices:
-            return ASTNode('index', children=[node] + indices)
-        
+            return self._ast_node(
+                'index',
+                first_bracket,
+                children=[
+                    ASTNode('base', children=[node]),
+                    ASTNode('indices', children=indices),
+                ]
+            )
         # if it is function call
         return node
 
     def _index(self: "RDParser"):
         """ Returns id or int_literal """
         if self._match(INT_LIT_T):
-            return ASTNode(INT_LIT_T, value=self._advance().lexeme)
+            tok = self._advance()
+            return self._ast_node(INT_LIT_T, tok, value=tok.lexeme)
 
         elif self._match(ID_T):
-            return ASTNode(ID_T, value=self._advance().lexeme)
+            tok = self._advance()
+            return self._ast_node(ID_T, tok, value=tok.lexeme)
 
         else:
             self._error([INT_LIT_T, ID_T], '_index')

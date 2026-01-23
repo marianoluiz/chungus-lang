@@ -1,3 +1,54 @@
-if x 
-    show 'chingching'
-close
+# --- literals ---
+a = 1
+b = 1.5
+c = 's'
+d = true
+e = false
+
+# --- arithmetic precedence ---
+p1 = 1 + 2 * 3
+p2 = 10 / 2 + 3
+p3 = 10 // 3 + 1
+p4 = 10 % 3 + 1
+p5 = 2 ** 3 ** 2
+p6 = 2 ** 3 * 4 + 5
+
+# --- relational + equality ---
+r1 = 1 < 2
+r2 = 2 <= 2
+r3 = 3 > 2
+r4 = 3 >= 3
+r5 = 1 + 2 == 3
+r6 = 1 + 2 != 4
+
+# --- booleans + not/and/or ---
+l1 = !true
+l2 = !false == true
+l3 = true and false
+l4 = true or false
+l5 = !true or true and false
+
+# --- ids in expressions ---
+x = 1
+y = 2
+z = x + y * 3
+
+# --- function call as primary ---
+fc0 = fncall()
+fc1 = fncall(x, 2, 's')
+
+# --- indexing as primary ---
+arr = [1, 2, 3]
+i1 = arr[0]
+i2 = arr[x]
+i3 = arr[1][2]
+
+# --- combining index in larger expressions ---
+mix1 = arr[0] + 5
+mix2 = arr[1][2] * 3
+mix3 = arr[x] == 2
+mix4 = arr[1][2] != arr[0]
+
+# --- forbidden forms (should ERROR) ---
+# bad1 = fncall()[1]
+# bad2 = arr[fncall()]

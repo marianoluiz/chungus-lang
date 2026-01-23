@@ -25,8 +25,8 @@ class RDParser(ParserCore, ExprRules, SingleStmtRules, BlockStmtRules):
     """
     def __init__(self: "RDParser", tokens: List[dict], source: str, debug: bool = False):
         self.tokens: List[Token] = tokens   #  [ Token(lexeme, type, line, col), ... ]
-        self._source = source
-        self._lines = source.splitlines(keepends=False)
+        self._source = source               # source code for printing code lines
+        self._lines = source.splitlines(keepends=False)  # source code splitted per newline
         self._i = 0                # current token index
         self.errors: List[str] = []
         self._debug = debug        # Debug switch
@@ -43,7 +43,7 @@ class RDParser(ParserCore, ExprRules, SingleStmtRules, BlockStmtRules):
             tree = self._program()
             return ParseResult(tree, self.errors)
         except ParseError as e:
-            # Store error in list as a string
+            # If any ParseError object is raised anywhere inside the try block, catch it here and bind it to e
             self.errors.append(str(e))
 
             return ParseResult(None, self.errors)

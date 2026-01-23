@@ -5,20 +5,15 @@ from src.constants.token import Token
 import os
 
 # ------------------- Pretty Print -------------------
-def print_ast(node, prefix: str = "", is_last: bool = True, show_pos=False):
+def print_ast(node, prefix: str = "", is_last: bool = True):
     # choose branch symbol
     connector = "└─ " if is_last else "├─ "
 
-    # build label
-    label = node.kind
-
+    # display node
     if node.value is not None:
-        label += f": {node.value}"
-    
-    if show_pos and node.line is not None and node.col is not None:
-        label += f"  @({node.line},{node.col})"
-
-    print(prefix + connector + label)
+        print(prefix + connector + f"{node.kind}: {node.value}")
+    else:
+        print(prefix + connector + f"{node.kind}")
 
     # prepare prefix for children
     # If this node is the last child → future siblings above are done → just spaces:
@@ -29,11 +24,11 @@ def print_ast(node, prefix: str = "", is_last: bool = True, show_pos=False):
     count = len(node.children)
     for i, child in enumerate(node.children):
         is_last_child = (i == count - 1)
-        print_ast(child, new_prefix, is_last_child, show_pos=show_pos)
+        print_ast(child, new_prefix, is_last_child)
 
 def main():
     # This takes the input folder path
-    test_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'syntax_input.chg'))
+    test_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'semantic_input.chg'))
     
     try:
         with open(test_path, 'r', encoding='utf-8') as f:
@@ -78,7 +73,7 @@ if __name__ == '__main__':
     #     )
     
     if parse_result.tree is not None:
-        print_ast(parse_result.tree, show_pos=True)
+        print_ast(parse_result.tree)
     else:
         print("No AST generated.")
 

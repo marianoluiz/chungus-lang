@@ -1,5 +1,5 @@
 class ParseError(Exception):
-    """Exception raised for parse errors."""
+    """Exception raised for parse errors. It inherits from Exception."""
     def __init__(self, message):
         super().__init__(message)
 

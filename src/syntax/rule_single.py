@@ -17,7 +17,7 @@ Public symbols:
 - SingleStmt: mixin with statement-level parsing routines.
 """
 from typing import List, Optional, TYPE_CHECKING
-from src.constants.token import ID_T, INT_LIT_T, STR_LIT_T, BOOL_LIT_T, FLOAT_LIT_T, SKIP_TOKENS
+from src.constants.token import ID_T, INT_LIT_T, STR_LIT_T, BOOL_LIT_T, FLOAT_LIT_T, SKIP_TOKENS, Token
 from src.syntax.ast import ASTNode
 
 # helps editor understand "self" in mixin methods is an RDParser instance
@@ -71,8 +71,8 @@ class SingleStmtRules:
 
         # identifier-starting statement (assignment, call, unary, indexed assignment)
         if self._match(ID_T):
-            id_name = self._advance().lexeme
-            node = self._id_statement_tail(id_name, block_keywords)
+            id_tok = self._advance()
+            node = self._id_statement_tail(id_tok, block_keywords)
             return ASTNode('general_statement', children=[node])
 
         # output
@@ -97,8 +97,8 @@ class SingleStmtRules:
 
         # todo
         elif self._match('todo'):
-            self._advance()
-            return ASTNode('general_statement', children=[ASTNode('todo')])
+            tok = self._advance()
+            return ASTNode('general_statement', children=[self._ast_node('todo', tok)])
 
         # array manipulation helpers
         elif self._match('array_add', 'array_remove'):
@@ -190,21 +190,19 @@ class SingleStmtRules:
         if self._match(INT_LIT_T, FLOAT_LIT_T):
             tok = self._advance()
             kind = INT_LIT_T if tok.type == INT_LIT_T else FLOAT_LIT_T
-            return ASTNode(kind, value=tok.lexeme)
+            return self._ast_node(kind, tok, value=tok.lexeme)
 
         elif self._match(STR_LIT_T):
             tok = self._advance()
-            return ASTNode(STR_LIT_T, value=tok.lexeme)
+            return self._ast_node(STR_LIT_T, tok, value=tok.lexeme)
 
         elif self._match('true', 'false'):
             tok = self._advance()
-            return ASTNode(BOOL_LIT_T, value=tok.lexeme)
+            return self._ast_node(BOOL_LIT_T, tok, value=tok.lexeme)
 
         elif self._match(ID_T):
             tok = self._advance()
-            node = ASTNode(ID_T, value=tok.lexeme)
-
-            return node
+            return self._ast_node(ID_T, tok, value=tok.lexeme)
 
         elif self._match('['):
             # nested array literal
@@ -269,22 +267,24 @@ class SingleStmtRules:
         Returns:
             ASTNode: AST node representing the output statement.
         """
-        self._advance()
+        show_tok = self._advance()
 
         if self._match(ID_T):
-            return ASTNode('output_statement', children=[ASTNode(ID_T, value=self._advance().lexeme)])
+            tok = self._advance()
+            return self._ast_node('output_statement', show_tok, children=[self._ast_node(ID_T, tok, value=tok.lexeme)])
         elif self._match(STR_LIT_T):
-            return ASTNode('output_statement', children=[ASTNode(STR_LIT_T, value=self._advance().lexeme)])
+            tok = self._advance()
+            return self._ast_node('output_statement', show_tok, children=[self._ast_node(STR_LIT_T, tok, value=tok.lexeme)])
         else:
             self._error([ID_T, STR_LIT_T], 'output_value')
 
 
-    def _id_statement_tail(self, id_name: str, block_keywords: set = None) -> ASTNode:
+    def _id_statement_tail(self: "RDParser", id_tok: Token, block_keywords: set = None) -> ASTNode:
         """ 
         Parses next of id.
 
         Args:
-            id_name: The identifier name
+            id_tok: The identifier token
             block_keywords: Set of keywords valid in current block context
 
         Returns:
@@ -295,12 +295,14 @@ class SingleStmtRules:
 
         # Unary statement: ++ or --
         if self._match('++', '--'):
-            return ASTNode('unary_statement', value=self._advance().lexeme, children=[ASTNode(ID_T, value=id_name)])
+            op_tok = self._advance()
+            return self._ast_node('unary_statement', op_tok, value=op_tok.lexeme, children=[self._ast_node(ID_T, id_tok, value=id_tok.lexeme)])
 
         # Assignment statement: = <assignment_value>
         elif self._match('='):
-            node = self._assignment_value(block_keywords)
-            return ASTNode('assignment_statement', value=id_name, children=[node])
+            eq_tok = self._advance()        # consume '='
+            node = self._assignment_value(block_keywords)   # parse RHS (no '=' consumption inside)
+            return self._ast_node('assignment_statement', id_tok, value=id_tok.lexeme, children=[node])
 
         # Function call: ( <arg_list_opt> )
         elif self._match('('):
@@ -327,7 +329,7 @@ class SingleStmtRules:
             if args:
                 children.append(ASTNode('args', children=args))
 
-            return ASTNode('function_call', value=id_name, children=children)
+            return self._ast_node('function_call', id_tok, value=id_tok.lexeme, children=children)
 
         # Array indexing assignment: [<index>] <index_loop> = <assignment_value>
         elif self._match('['):
@@ -350,9 +352,13 @@ class SingleStmtRules:
             if not self._match('='):
                 self._error(['='], 'id_statement_tail')
 
+            self._advance()
+
             value = self._assignment_value(block_keywords)
 
-            return ASTNode('array_idx_assignment', value=id_name, children=[value])
+            indices_node = ASTNode('indices', children=indices)
+
+            return self._ast_node('array_idx_assignment', id_tok, value=id_tok.lexeme, children=[indices_node, value])
 
 
         else:
@@ -362,8 +368,6 @@ class SingleStmtRules:
     def _assignment_value(self: "RDParser", block_keywords: set = None):
         if block_keywords is None:
             block_keywords = set()
-        
-        self._advance()
 
         # since there are many variations, we display error full of context
         FIRST_ASSIGN_VALUE = {
@@ -375,12 +379,13 @@ class SingleStmtRules:
 
         # input method
         if self._match('read'):
-            self._advance()
-            return ASTNode('read')
+            tok = self._advance()
+            return self._ast_node('read', tok)
 
         # typecast method
         elif self._match('int', 'float'):
-            cast_method = self._advance().lexeme
+            cast_tok = self._advance()
+            cast_method = cast_tok.lexeme
 
             if not self._match('('):
                 self._error(['('], 'assignment_value')
@@ -400,11 +405,11 @@ class SingleStmtRules:
 
             self._advance()
 
-            return ASTNode('assignment_value', value=cast_method, children=[expr])
+            return self._ast_node('assignment_value', cast_tok, value=cast_method, children=[expr])
 
         # array literal dec
         elif self._match('['):
-            self._advance()
+            bracket_tok = self._advance()
 
             # since _element_list_opt is nullable, we need to show this in error display
             FOLLOW_LSB = {
@@ -423,7 +428,7 @@ class SingleStmtRules:
 
             self._advance()
 
-            return ASTNode('array_literal', children=elements)
+            return self._ast_node('array_literal', bracket_tok, children=elements)
 
         else:
             # other wise, its an expr
@@ -466,11 +471,11 @@ class SingleStmtRules:
         tok = self._advance()
         
         # array to manipulate id
-        id_node = ASTNode(ID_T, value=tok.lexeme)
+        id_node = self._ast_node(ID_T, tok, value=tok.lexeme)
 
         # allow index tail after the id (e.g., id[1][2])
         if self._match('['):
-            id_node = self._postfix_tail(id_node)
+            id_node = self._postfix_tail(id_node, id_tok=tok)
 
         # nullable after array_add(id ) & array_add(id[x] ), so we need to show proper errors
         FOLLOW_ID_AND_INDEX_RSB = {
@@ -501,4 +506,4 @@ class SingleStmtRules:
             self._error([')'], 'array_manip_statement')
         self._advance()
 
-        return ASTNode(op, children=[id_node, expr_node])
+        return self._ast_node(op, op_tok, children=[id_node, expr_node])
