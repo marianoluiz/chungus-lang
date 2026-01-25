@@ -231,32 +231,40 @@ array_manip_statement: ARRAY_ADD "(" ID index_loop "," expr ")"
 
 // ─────────── TERMINALS ───────────
 
-AND: "and"
-OR: "or"
-TRUE: "true"
-FALSE: "false"
-READ: "read"
-SHOW: "show"
-IF: "if"
-ELIF: "elif"
-ELSE: "else"
-WHILE: "while"
-FOR: "for"
-IN: "in"
-RANGE: "range"
-FN: "fn"
-RET: "ret"
-TRY: "try"
-FAIL: "fail"
-ALWAYS: "always"
-TODO: "todo"
-ARRAY_ADD: "array_add"
-ARRAY_REMOVE: "array_remove"
-INT: "int"
-FLOAT: "float"
-CLOSE: "close"
-SKIP: "skip"
-STOP: "stop"
+AND: /and(?![a-zA-Z0-9_])/
+OR: /or(?![a-zA-Z0-9_])/
+TRUE: /true(?![a-zA-Z0-9_])/
+FALSE: /false(?![a-zA-Z0-9_])/
+READ: /read(?![a-zA-Z0-9_])/
+SHOW: /show(?![a-zA-Z0-9_])/
+
+IF: /if(?![a-zA-Z0-9_])/
+ELIF: /elif(?![a-zA-Z0-9_])/
+ELSE: /else(?![a-zA-Z0-9_])/
+WHILE: /while(?![a-zA-Z0-9_])/
+FOR: /for(?![a-zA-Z0-9_])/
+IN: /in(?![a-zA-Z0-9_])/
+RANGE: /range(?![a-zA-Z0-9_])/
+
+FN: /fn(?![a-zA-Z0-9_])/
+RET: /ret(?![a-zA-Z0-9_])/
+
+TRY: /try(?![a-zA-Z0-9_])/
+FAIL: /fail(?![a-zA-Z0-9_])/
+ALWAYS: /always(?![a-zA-Z0-9_])/
+
+TODO: /todo(?![a-zA-Z0-9_])/
+
+ARRAY_ADD: /array_add(?![a-zA-Z0-9_])/
+ARRAY_REMOVE: /array_remove(?![a-zA-Z0-9_])/
+
+INT: /int(?![a-zA-Z0-9_])/
+FLOAT: /float(?![a-zA-Z0-9_])/
+
+CLOSE: /close(?![a-zA-Z0-9_])/
+SKIP: /skip(?![a-zA-Z0-9_])/
+STOP: /stop(?![a-zA-Z0-9_])/
+
 
 NOT: "!"
 
@@ -275,7 +283,7 @@ LE: "<="
 
 ID: /(?!(and|or|true|false|read|show|if|elif|else|while|for|in|range|fn|ret|try|fail|always|todo|array_add|array_remove|int|float|close|skip|stop)\b)[a-zA-Z_][a-zA-Z0-9_]*/
 INT_LITERAL: /~?[0-9]+/
-FLOAT_LITERAL: /[0-9]+\.[0-9]+/
+FLOAT_LITERAL: /~?[0-9]+\.[0-9]+/
 STR_LITERAL: /'([^'\\]|\\.)*'/
 
 M_COMMENT: /(?s)###.*?###/
