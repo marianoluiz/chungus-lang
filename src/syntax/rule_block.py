@@ -82,10 +82,15 @@ class BlockStmtRules():
             self._error([')'], 'function_declaration')
 
         self._advance()
+        
 
         # check inside the function block
         fn_nodes = []
         block_keywords = {'close', 'ret'}
+
+        # require 1 local statement
+        if self._match('close', 'ret'):
+            self._error(sorted(list(self._first_general_statement())), 'function_body')
 
         # require 1 local statement
         fn_nodes.append(self._general_statement(block_keywords))
@@ -167,8 +172,8 @@ class BlockStmtRules():
         if not self._match(*FOLLOW_IF_GEN_STMT):
             self._error(sorted(list(FOLLOW_IF_GEN_STMT)), 'conditional_statement')
 
-        while not self._match('elif', 'else', 'close'):
 
+        while not self._match('elif', 'else', 'close'):
             if_nodes.append(self._general_statement(block_keywords))
 
             # complete next tokens for error priting
@@ -361,24 +366,36 @@ class BlockStmtRules():
 
             # local loop statements until 'close'
             body: List[ASTNode] = []
+            # loop_block_keywords
             loop_block_keywords = {'close', 'skip', 'stop'}
 
-            if self._match('close'):
-                self._error(['general_statement', 'skip', 'stop'], 'for_body')
+            FIRST_LOOP_ITEM = self._first_general_statement() | {'skip', 'stop'}
+            FOLLOW_LOOP_ITEM = {'close'} | FIRST_LOOP_ITEM
+
+            # error to have skip and stop
+            if not self._match(*FIRST_LOOP_ITEM):
+                self._error(sorted(list(FIRST_LOOP_ITEM)), 'for_body')
 
             while not self._match('close'):
+                # error printing
                 if self._match('skip', 'stop'):
                     tok = self._advance()
                     body.append(self._ast_node('loop_control', tok, value=tok.lexeme))
                 else:
                     body.append(self._general_statement(loop_block_keywords))
 
-            if not self._match('close'):
-                self._error(['close'], 'for_statement')
+                # error to have skip and stop
+                if not self._match(*FOLLOW_LOOP_ITEM):
+                    self._error(sorted(list(FOLLOW_LOOP_ITEM)), 'for_body')
 
+
+            # close consumed
             for_tok = self._advance()
 
             return self._ast_node('for', for_tok, value=loop_var, children=exprs + body)
+
+
+        # while loop
 
         elif self._match('while'):
             while_tok = self._advance()
@@ -386,16 +403,26 @@ class BlockStmtRules():
 
             body: List[ASTNode] = []
             loop_block_keywords = {'close', 'skip', 'stop'}
-            
-            if self._match('close'):
-                self._error(['general_statement', 'skip', 'stop'], 'while_body')
-            
+            FIRST_LOOP_ITEM = self._first_general_statement() | {'skip', 'stop'}
+            FOLLOW_LOOP_ITEM = {'close'} | FIRST_LOOP_ITEM
+
+            # after parsing expr, we need to show full error context
+            FIRST_LOOP_ITEM = self._add_postfix_tokens(FIRST_LOOP_ITEM, cond)
+
+            # error to have skip and stop
+            if not self._match(*FIRST_LOOP_ITEM):
+                self._error(sorted(list(FIRST_LOOP_ITEM)), 'while_body')
+
             while not self._match('close'):
                 if self._match('skip', 'stop'):
                     tok = self._advance()
                     body.append(self._ast_node('loop_control', tok, value=tok.lexeme))
                 else:
                     body.append(self._general_statement(loop_block_keywords))
+
+                # error to have skip and stop and close
+                if not self._match(*FOLLOW_LOOP_ITEM):
+                    self._error(sorted(list(FOLLOW_LOOP_ITEM)), 'while_body')
 
             if self._match('close'):
                 self._advance()
@@ -424,47 +451,71 @@ class BlockStmtRules():
 
         try_tok = self._advance()
 
-        try_body: List[ASTNode] = []
-        try_block_keywords = {'fail', 'always', 'close'}
 
-        if self._match('fail', 'always', 'close'):
-            self._error(['general_statement'], 'try_block')
-        while not self._match('fail', 'always', 'close'):
+        try_body: List[ASTNode] = []
+        try_block_keywords = {'fail'}
+
+        # require one general statement
+        try_body.append(self._general_statement(try_block_keywords))
+
+        # check proper follow set after general statement
+        FOLLOW_TRY_GEN_STMT = try_block_keywords | self._first_general_statement()
+
+        while not self._match('fail'):
+            if not self._match(*FOLLOW_TRY_GEN_STMT):
+                self._error(sorted(list(FOLLOW_TRY_GEN_STMT)), 'try_block')
+
             try_body.append(self._general_statement(try_block_keywords))
 
-        if not self._match('fail'):
-            self._error(['fail'], 'error_handling_statement')
-
+        # fail block
         fail_tok = self._advance()
 
-        # fail block
         fail_body: List[ASTNode] = []
-        if self._match('always', 'close'):
-            self._error(['general_statement'], 'fail_block')
+        
+        fail_block_keywords = {'always', 'close'}
+
+
+        # check proper follow set after general statement
+        FOLLOW_FAIL_GEN_STMT = fail_block_keywords | self._first_general_statement()
+
+
+        # require one general statement, pass the keywrods for expr
+        fail_body.append(self._general_statement(fail_block_keywords))
 
         while not self._match('always', 'close'):
-            fail_body.append(self._general_statement(try_block_keywords))
+            if not self._match(*FOLLOW_FAIL_GEN_STMT):
+                self._error(sorted(list(FOLLOW_FAIL_GEN_STMT)), 'fail_block')
+
+            fail_body.append(self._general_statement(fail_block_keywords))
 
         # optional always block
         always_node: Optional[ASTNode] = None
+
         if self._match('always'):
             always_tok = self._advance()
 
-            if self._match('close'):
-                self._error(['general_statement'], 'always_block')
-
             always_body: List[ASTNode] = []
 
+            # check proper follow set after general statement
+            FOLLOW_ALWYS_GEN_STMT = {'close'} | self._first_general_statement()
+
+            always_body.append(self._general_statement({'close'}))
+
             while not self._match('close'):
-                always_body.append(self._general_statement(try_block_keywords))
+                # check follow set 
+                if not self._match(*FOLLOW_ALWYS_GEN_STMT):
+                    self._error(sorted(list(FOLLOW_ALWYS_GEN_STMT)), 'always_block')
+
+                always_body.append(self._general_statement({'close'}))
+
 
             always_node = self._ast_node('always', always_tok, children=always_body)
 
         # final close
-        if self._match('close'):
-            self._advance()
-        else:
+        if not self._match('close'):
             self._error(['close'], 'error_handling_statement')
+
+        self._advance()
 
         children = [self._ast_node('try', try_tok, children=try_body), self._ast_node('fail', fail_tok, children=fail_body)]
 

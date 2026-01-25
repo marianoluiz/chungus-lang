@@ -24,26 +24,29 @@ def _rows():
         reader = csv.reader(f)
         next(reader)  # skip header
 
-        for row in reader:
+        for rownum, row in enumerate(reader, start=2):  # header is line 1
             # row:  ['abc123 = 10', 'NO SYNTAX ERROR'] ...
             src = row[0]                # The source code, col 1
-            
+
+            # Normalize CRLFs and CR to LF if any, since spreadsheets do use CRLFs
+            src = src.replace("\r\n", "\n").replace("\r", "\n")
+            # Convert tabs to space
+            src = src.replace("\t", "    ")
+
             if not src.strip():         # skip empty src cells
                 continue
 
             expected_error = row[1].strip()   # Expected Error, col 2
+            
+            yield pytest.param(rownum, src, expected_error, id=f"row{rownum}") # return one at a time
 
-            # Normalize CRLFs and CR to LF if any, since spreadsheets do use CRLFs
-            expected_error = expected_error.replace("\r\n", "\n").replace("\r", "\n")
-
-            yield src, expected_error         # return one at a time
-
-@pytest.mark.parametrize("src,expected_error", _rows())
-def test_syntax(src, expected_error):
+@pytest.mark.parametrize("rownum,src,expected_error", _rows())
+def test_syntax(rownum, src, expected_error):
     """ the src, expected will be extracted from the _rows() at this parametrizing test """
     # pytest.mark.parametrize is LIKE a loop that runs testcase per testcase
     # _rows() returns a generator, which pytest automatically does the next()
     
+
     lx = _run_lexer(src)
     
     assert lx.log.strip() == "", f"Lexer produced errors:\n{lx.log}"
@@ -60,6 +63,12 @@ def test_syntax(src, expected_error):
     if expected_error == "NO SYNTAX ERROR":
         assert not actual_error, f"Expected no syntax errors, got: {actual_error}"
     else:
+
+        # CSV expects an error, but parser returned none -> CSV is wrong OR parser is wrong
+        if not actual_error:
+            raise AssertionError(
+                f"CSV expects a syntax error but parser produced none.\n"
+            )
 
         # looks for the pattern "line <number> col <number>" anywhere in the string.
         line_col_match = re.search(r"line (\d+) col (\d+)", expected_error)
@@ -82,6 +91,7 @@ def test_syntax(src, expected_error):
         actual_tokens = [tok.strip() for tok in actual_error.split("Expected any:")[-1].split(",")]
 
         # Debug prints
+        print(f"=== CSV row: {rownum} ===")
         print("=== Source Code ===")
         print(src)
         print("=== Expected Syntax Error ===")

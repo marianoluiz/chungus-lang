@@ -47,6 +47,11 @@ class SingleStmtRules:
             self._error([*FIRST_PROGRAM], 'program')
 
         funcs = self._function_statements()
+
+        # after function, make sure to check again for whole error context cause we 'fn' token is not included inside general statement error prints
+        if not self._match(*FIRST_PROGRAM):
+            self._error([*FIRST_PROGRAM], 'program')
+
         general_stmts = [self._general_statement()]
 
         while not self._match('EOF'):
@@ -106,7 +111,7 @@ class SingleStmtRules:
             return ASTNode('general_statement', children=[node])
 
         else:
-            expected = {ID_T, 'show', 'if', 'while', 'for', 'try', 'todo', 'array_add', 'array_remove'} | block_keywords
+            expected = {ID_T, 'show', 'if', 'while', 'for', 'try', 'todo', 'array_add', 'array_remove'}
             self._error(sorted(list(expected)), "general_statement")
 
 
@@ -131,6 +136,7 @@ class SingleStmtRules:
                 node = self._expr()
                 args.append(node)
 
+                # after parsing expr, we need to show full error context
                 # recompute allowed follow tokens fresh for this argument. Or else you would have trouble not resetting
                 FOLLOW_AFTER_ARG = {
                     ')', ','
@@ -348,9 +354,9 @@ class SingleStmtRules:
 
                 self._advance()
 
-            # = after indexed variable array
-            if not self._match('='):
-                self._error(['='], 'id_statement_tail')
+            # = after indexed variable array, we need to print whole context
+            if not self._match('=', '['):
+                self._error(sorted(['=', '[']), 'id_statement_tail')
 
             self._advance()
 
@@ -441,10 +447,16 @@ class SingleStmtRules:
             FOLLOW_ASSIGN_EXPR = self._add_postfix_tokens(FOLLOW_ASSIGN_EXPR, expr)
 
             # After an assignment value, we can have: EOF, block keywords, or postfix operators
-            # EOF is valid when the assignment is the last statement
-            if not self._match(*FOLLOW_ASSIGN_EXPR) and not self._match('EOF'):
-                self._error(sorted(list(FOLLOW_ASSIGN_EXPR)), 'assignment_value')
+            # EOF is valid when the assignment is the last statement on top level statement,  not allowed inside block statement since we need close
 
+            # if block_keywords empty, then we're at top level
+            allow_eof = (len(block_keywords) == 0)
+
+            # if its not right follow set, and we dont allow eof... (its not top level stmt)
+            if not self._match(*FOLLOW_ASSIGN_EXPR) and not (allow_eof and self._match('EOF')):
+                expected = set(FOLLOW_ASSIGN_EXPR)
+
+                self._error(sorted(list(expected)), 'assignment_value')
             return expr
 
     def _array_manip_statement(self: "RDParser", block_keywords: set = None) -> ASTNode:

@@ -219,11 +219,7 @@ class ExprRules:
             tok = self._advance()
             kind = INT_LIT_T if tok.type == INT_LIT_T else FLOAT_LIT_T
             return self._ast_node(kind, tok, value=tok.lexeme)
-        
-        if self._match(STR_LIT_T):
-            tok = self._advance()
-            return self._ast_node(STR_LIT_T, tok, value=tok.lexeme)
-        
+
         if self._match(ID_T):
             tok = self._advance()
             node = self._ast_node(ID_T, tok, value=tok.lexeme)
