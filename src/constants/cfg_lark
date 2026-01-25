@@ -274,7 +274,7 @@ GE: ">="
 LE: "<="
 
 ID: /(?!(and|or|true|false|read|show|if|elif|else|while|for|in|range|fn|ret|try|fail|always|todo|array_add|array_remove|int|float|close|skip|stop)\b)[a-zA-Z_][a-zA-Z0-9_]*/
-INT_LITERAL: /[0-9]+/
+INT_LITERAL: /~?[0-9]+/
 FLOAT_LITERAL: /[0-9]+\.[0-9]+/
 STR_LITERAL: /'([^'\\]|\\.)*'/
 
