@@ -6,9 +6,6 @@ program: (function_statement)* general_statement general_statement_tail
 
 // ─────────── FUNCTIONS ───────────
 
-function_statements: function_statement function_statements
-                   | 
-
 function_statement: FN ID "(" arg_list_opt ")" local_statement return_opt CLOSE
 
 arg_list_opt: arg_list
@@ -182,28 +179,19 @@ condition: expr
 looping_statement: for_statement
                  | while_statement
 
-for_statement: FOR ID IN range_expression local_loop_statement CLOSE
+for_statement: FOR ID IN range_expression local_statement CLOSE
 
-range_expression: RANGE "(" expression_list ")"
+range_expression: RANGE "(" range_list ")"
 
-expression_list: expr range_tail_1
+range_list: index range_tail_1
 
-range_tail_1: "," expr range_tail_2
+range_tail_1: "," index range_tail_2
             | 
 
-range_tail_2: "," expr
+range_tail_2: "," index
             | 
 
-local_loop_statement: general_statement local_loop_tail
-                    | loop_control local_loop_tail
-
-local_loop_tail: local_loop_statement local_loop_tail
-               | 
-
-loop_control: SKIP
-            | STOP
-
-while_statement: WHILE condition local_loop_statement CLOSE
+while_statement: WHILE condition local_statement CLOSE
 
 
 // ─────────── ERROR HANDLING ───────────

@@ -44,19 +44,19 @@ v = read
 show 'You typed: $(v)'","[""show"",""str_literal"",""id"",""="",""read"",""show"",""str_literal""]",input.chg
 "for i in range(0, 10)
     if i == 5
-        skip
+       show 'i is 5'
     close
     if i == 8
-        stop
+         show 'i is 8'
     close
     show '$(i)'
-close","[""for"",""id"",""in"",""range"",""("",""int_literal"","","",""int_literal"","")"",""if"",""id"",""=="",""int_literal"",""skip"",""close"",""if"",""id"",""=="",""int_literal"",""stop"",""close"",""show"",""str_literal"",""close""]",loop_control.chg
+close","[""for"",""id"",""in"",""range"",""("",""int_literal"","","",""int_literal"","")"",""if"",""id"",""=="",""int_literal"",""show"", ""str_literal"", ""close"",""if"",""id"",""=="",""int_literal"",""show"", ""str_literal"",""close"",""show"",""str_literal"",""close""]",loop_control.chg
 "msg = 'Hello'
 show 'Message shown'","[""id"",""="",""str_literal"",""show"",""str_literal""]",output.chg
 "show 'Start'
 clr
 show 'Done'
-exit","[""show"",""str_literal"",""id"",""show"",""str_literal"",""id""]",system.chg
+exit","[""show"",""str_literal"",""id"",""show"",""str_literal"",""id""]",system.chg ( we removed system command stmts)
 "fn future()
     todo
 close","[""fn"",""id"",""("","")"",""todo"",""close""]",todo.chg
