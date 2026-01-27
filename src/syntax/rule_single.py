@@ -32,6 +32,21 @@ class SingleStmtRules:
     raise parse errors via `self._error(...)` when input violates grammar.
     """
     
+    PRED_GENERAL_STMT = {'array_add','array_remove','for', ID_T,'if','show','todo','try','while'}
+    PRED_PROGRAM = PRED_GENERAL_STMT | {'fn'}
+
+    PRED_ID_STMT_TAIL = {'++', '--', '=', '(', '['}
+    PRED_ASSIGN_VALUE = {'!', '[', 'false', 'float', FLOAT_LIT_T, ID_T, 'int', INT_LIT_T, 'read', STR_LIT_T, 'true'}
+    PRED_ELEMENT_LIST = {'[', ']', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'}
+    PRED_ARRAY_ELEMENT = {'[', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'}
+    PRED_ARRAY_TAIL = {',', ']'}
+    PRED_ARG_LIST_OPT = {'!', ')', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'}
+    PRED_ARG_ELEMENT_TAIL = {')', ','}
+    PRED_INDEX = {INT_LIT_T, ID_T}
+    PRED_INDEX_LOOP_ARR_INDEX_ASSIGN = {'=', '['}
+    PRED_INDEX_LOOP_ARR_MANIP = {',', '['} 
+
+
     def _program(self: "RDParser") -> ASTNode:
         """
         Parse the top-level program structure.
@@ -39,21 +54,15 @@ class SingleStmtRules:
         Returns:
             ASTNode: Root ASTNode representing the program.
         """
-        FIRST_PROGRAM = {
-            'array_add', 'array_remove', 'fn', 'for', 'id', 'if', 'show', 'todo', 'try', 'while'
-        }
 
-        if not self._match(*FIRST_PROGRAM):
-            self._error([*FIRST_PROGRAM], 'program')
+        self._expect(self.PRED_PROGRAM, 'program')
 
         funcs = self._function_statements()
 
-        # after function, make sure to check again for whole error context cause we 'fn' token is not included inside general statement error prints
-        if not self._match(*FIRST_PROGRAM):
-            self._error([*FIRST_PROGRAM], 'program')
-
+        # one general statement
         general_stmts = [self._general_statement()]
 
+        # many optional general statement
         while not self._match('EOF'):
             general_stmts.append(self._general_statement())
 
@@ -61,7 +70,7 @@ class SingleStmtRules:
         return ASTNode('program', children=children)
 
 
-    def _general_statement(self: "RDParser", block_keywords: set = None) -> ASTNode:
+    def _general_statement(self: "RDParser", block_keywords: set = None, allow_eof=False) -> ASTNode:
         """
         Parse a general statement (e.g., output, control statements).
 
@@ -73,6 +82,8 @@ class SingleStmtRules:
         """
         if block_keywords is None:
             block_keywords = set()
+
+        self._expect(self.PRED_GENERAL_STMT, 'general_statement')
 
         # identifier-starting statement (assignment, call, unary, indexed assignment)
         if self._match(ID_T):
@@ -90,7 +101,7 @@ class SingleStmtRules:
             node = self._conditional_statement()
             return ASTNode('general_statement', children=[node])
 
-        # looping (for / while)
+        # looping (for / while ... close)
         elif self._match('for', 'while'):
             node = self._looping_statement()
             return ASTNode('general_statement', children=[node])
@@ -105,17 +116,18 @@ class SingleStmtRules:
             tok = self._advance()
             return ASTNode('general_statement', children=[self._ast_node('todo', tok)])
 
-        # array manipulation helpers
-        elif self._match('array_add', 'array_remove'):
-            node = self._array_manip_statement(block_keywords)
+        # array_add ( id <index_loop> , <expr> )
+        elif self._match('array_add'):
+            node = self._array_add_statement()
             return ASTNode('general_statement', children=[node])
 
-        else:
-            expected = {ID_T, 'show', 'if', 'while', 'for', 'try', 'todo', 'array_add', 'array_remove'}
-            self._error(sorted(list(expected)), "general_statement")
+        # array_remove ( id <index_loop>, <index> )
+        elif self._match('array_remove'):
+            node = self._array_remove_statement()
+            return ASTNode('general_statement', children=[node])
 
 
-    def _arg_list_opt(self: "RDParser", block_keywords: set = None) -> List[ASTNode]:
+    def _arg_list_opt(self: "RDParser") -> List[ASTNode]:
         """
         Parse an optional comma-separated argument list.
 
@@ -125,32 +137,25 @@ class SingleStmtRules:
         Returns:
             List[ASTNode]: List of expression AST nodes representing arguments.
         """
-        if block_keywords is None:
-            block_keywords = set()
-        
+
+        self._expect(self.PRED_ARG_LIST_OPT, '_arg_list_opt')
+
         args: List[ASTNode] = []
 
         if not self._match(')'):
             while True:
                 # parse expression
-                node = self._expr()
-                args.append(node)
+                expr = self._expr()
+                args.append(expr)
 
                 # after parsing expr, we need to show full error context
                 # recompute allowed follow tokens fresh for this argument. Or else you would have trouble not resetting
-                FOLLOW_AFTER_ARG = {
-                    ')', ','
-                } | block_keywords
-
-                FOLLOW_AFTER_ARG = self._add_postfix_tokens(FOLLOW_AFTER_ARG, node)
-
-                # check the next token
-                if not self._match(*FOLLOW_AFTER_ARG):
-                    self._error(sorted(list(FOLLOW_AFTER_ARG)), 'arg_list_opt')
+                self._expect_after_expr(self.PRED_ARG_ELEMENT_TAIL, expr, 'arg_list_opt')
 
                 # break if no comma, otherwise consume and continue
                 if not self._match(','):
                     break
+
                 self._advance()
 
         return args
@@ -181,7 +186,7 @@ class SingleStmtRules:
         return None
 
 
-    def _array_element(self: "RDParser", block_keywords: set = None) -> ASTNode:
+    def _array_element(self: "RDParser") -> ASTNode:
         """
         Parse a single array element (literal, id, or nested array).
 
@@ -191,8 +196,7 @@ class SingleStmtRules:
         Returns:
             ASTNode: AST node for the array element.
         """
-        if block_keywords is None:
-            block_keywords = set()
+
         if self._match(INT_LIT_T, FLOAT_LIT_T):
             tok = self._advance()
             kind = INT_LIT_T if tok.type == INT_LIT_T else FLOAT_LIT_T
@@ -213,19 +217,20 @@ class SingleStmtRules:
         elif self._match('['):
             # nested array literal
             self._advance()
-            elems = self._element_list_opt(block_keywords)
+            elems = self._element_list_opt()
+            
+            # backup expect to be ]
+            self._expect_type(']', 'array_literal')
+            self._advance()
 
-            if self._match(']'):
-                self._advance()
-                return ASTNode('array_literal', children=elems)
-            else:
-                self._error([']'], 'array_literal')
+            return ASTNode('array_literal', children=elems)
+
 
         else:
-            self._error([INT_LIT_T, FLOAT_LIT_T, STR_LIT_T, 'true', 'false', ID_T, '['], 'array_element')
+            self._error(self.PRED_ARRAY_ELEMENT, 'array_element')
 
 
-    def _element_list_opt(self: "RDParser", block_keywords: set = None) -> List[ASTNode]:
+    def _element_list_opt(self: "RDParser") -> List[ASTNode]:
         """
         Parse an optional, possibly-empty list of array literal elements.
 
@@ -235,9 +240,9 @@ class SingleStmtRules:
         Returns:
             List[ASTNode]: Parsed element nodes (may be empty).
         """
-        if block_keywords is None:
-            block_keywords = set()
-        
+
+        self._expect(self.PRED_ELEMENT_LIST, 'element_list_opt')
+
         elements: List[ASTNode] = []
 
         # empty element list allowed
@@ -245,23 +250,15 @@ class SingleStmtRules:
             return elements
 
         # at least one element
-        elements.append(self._array_element(block_keywords))
-
-        # next of elements can be null so we need to have a proper printing
-        FOLLOW_ARR_ELMNT = {
-            ',', ']'
-        }
-
-        if not self._match(*FOLLOW_ARR_ELMNT):
-            self._error([*FOLLOW_ARR_ELMNT], 'element_list_opt')
+        elements.append(self._array_element())
+        self._expect(self.PRED_ARRAY_TAIL, 'element_list_opt')
 
         while self._match(','):
             self._advance()
             # parse next element
-            elements.append(self._array_element(block_keywords))
+            elements.append(self._array_element())
 
-            if not self._match(*FOLLOW_ARR_ELMNT):
-                self._error([*FOLLOW_ARR_ELMNT], 'element_list_opt')
+            self._expect(self.PRED_ARRAY_TAIL, 'element_list_opt')
 
         return elements
 
@@ -285,7 +282,7 @@ class SingleStmtRules:
             self._error([ID_T, STR_LIT_T], 'output_value')
 
 
-    def _id_statement_tail(self: "RDParser", id_tok: Token, block_keywords: set = None) -> ASTNode:
+    def _id_statement_tail(self: "RDParser", id_tok: Token, block_keywords: set = None, allow_eof = False) -> ASTNode:
         """ 
         Parses next of id.
 
@@ -299,6 +296,8 @@ class SingleStmtRules:
         if block_keywords is None:
             block_keywords = set()
 
+        self._expect(self.PRED_ID_STMT_TAIL, 'id_statement_tail')
+
         # Unary statement: ++ or --
         if self._match('++', '--'):
             op_tok = self._advance()
@@ -306,7 +305,7 @@ class SingleStmtRules:
 
         # Assignment statement: = <assignment_value>
         elif self._match('='):
-            eq_tok = self._advance()        # consume '='
+            self._advance()
             node = self._assignment_value(block_keywords)   # parse RHS (no '=' consumption inside)
             return self._ast_node('assignment_statement', id_tok, value=id_tok.lexeme, children=[node])
 
@@ -314,15 +313,7 @@ class SingleStmtRules:
         elif self._match('('):
             self._advance()
 
-            # arg_list_opt is nullable so we need to show complete error that includes ')'
-            FOLLOW_AFTER_OPEN_PAREN = {
-                '!', ')', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'
-            }
-
-            if not self._match(*FOLLOW_AFTER_OPEN_PAREN):
-                self._error(sorted(list(FOLLOW_AFTER_OPEN_PAREN)), 'function_call')
-
-            args = self._arg_list_opt(block_keywords)
+            args = self._arg_list_opt()
 
             if not self._match(')'):
                 self._error([')'], 'function_call')
@@ -346,42 +337,30 @@ class SingleStmtRules:
                 self._advance()
 
                 idx = self._index()
-
                 indices.append(idx)
 
-                if not self._match(']'):
-                    self._error([']'], 'index_loop')
-
+                self._expect_type(']', 'index_loop')
                 self._advance()
 
             # = after indexed variable array, we need to print whole context
-            if not self._match('=', '['):
-                self._error(sorted(['=', '[']), 'id_statement_tail')
+            self._expect(self.PRED_INDEX_LOOP_ARR_INDEX_ASSIGN, 'index_loop')
 
+            # consume equal
             self._advance()
 
-            value = self._assignment_value(block_keywords)
+            value = self._assignment_value(block_keywords, allow_eof)
 
+            # create node of indices for ast
             indices_node = ASTNode('indices', children=indices)
 
             return self._ast_node('array_idx_assignment', id_tok, value=id_tok.lexeme, children=[indices_node, value])
 
 
-        else:
-            self._error(['++', '--', '=', '(', '['], 'id_statement_tail')
-
-
-    def _assignment_value(self: "RDParser", block_keywords: set = None):
+    def _assignment_value(self: "RDParser", block_keywords: set = None, allow_eof = False):
         if block_keywords is None:
             block_keywords = set()
 
-        # since there are many variations, we display error full of context
-        FIRST_ASSIGN_VALUE = {
-            '!', '[', 'false', 'float', FLOAT_LIT_T, ID_T, 'int', INT_LIT_T, 'read', STR_LIT_T, 'true'
-        }
-
-        if not self._match(*FIRST_ASSIGN_VALUE):
-            self._error([*FIRST_ASSIGN_VALUE], 'assignment_value')
+        self._expect(self.PRED_ASSIGN_VALUE, 'assignment_value')
 
         # input method
         if self._match('read'):
@@ -394,21 +373,15 @@ class SingleStmtRules:
             cast_method = cast_tok.lexeme
 
             if not self._match('('):
-                self._error(['('], 'assignment_value')
+                self._expect_type('(', 'assignment_value')
 
             self._advance()
 
             expr = self._expr()
 
             # we always need to show whole expected after expr if it errors since it is a unique
-            FOLLOW_TYPECAST = { ')' }
-
-            # get rightmost ID_T or index (ID_T[X])
-            FOLLOW_TYPECAST = self._add_postfix_tokens(FOLLOW_TYPECAST, expr)
-
-            if not self._match(')'):
-                self._error(sorted(list(FOLLOW_TYPECAST)), 'assignment_value')
-
+            # this mainly checks ')' after expr but we include the whole context
+            self._expect_after_expr({ ')' }, expr, 'assignment_value', block_keywords=block_keywords, allow_eof=False)
             self._advance()
 
             return self._ast_node('assignment_value', cast_tok, value=cast_method, children=[expr])
@@ -417,21 +390,12 @@ class SingleStmtRules:
         elif self._match('['):
             bracket_tok = self._advance()
 
-            # since _element_list_opt is nullable, we need to show this in error display
-            FOLLOW_LSB = {
-                '[', ']', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'
-            }
+            self._expect(self.PRED_ELEMENT_LIST, 'assignment_value')
 
-            if not self._match(*FOLLOW_LSB):
-                self._error([*FOLLOW_LSB], 'assignment_value')
+            elements = self._element_list_opt()
 
-            elements = self._element_list_opt(block_keywords)
-
-            # this is actually kinda useless cause we check alr in the loop in elemenet_list_op
-            # but just dont wanna remove it cause it looks weird. self._advance still being used
-            if not self._match(']'):
-                self._error([']'], 'assignment_value')
-
+            # this is actually kinda useless cause we check alr predict set in the loop in elemenet_list_op
+            self._expect_type(']', 'assignment_value')
             self._advance()
 
             return self._ast_node('array_literal', bracket_tok, children=elements)
@@ -440,82 +404,84 @@ class SingleStmtRules:
             # other wise, its an expr
             expr = self._expr()
 
-            # after an expr, proper error display would be first set of gen stmt + equation ops + block keywords
-            FOLLOW_ASSIGN_EXPR = self._first_general_statement() | block_keywords
-
-            # handle id = id() and id = id[x] display proper error
-            FOLLOW_ASSIGN_EXPR = self._add_postfix_tokens(FOLLOW_ASSIGN_EXPR, expr)
-
-            # After an assignment value, we can have: EOF, block keywords, or postfix operators
-            # EOF is valid when the assignment is the last statement on top level statement,  not allowed inside block statement since we need close
-
-            # if block_keywords empty, then we're at top level
+            # if block_keywords empty, then we're at top level, so that means EOF is a valid next token
             allow_eof = (len(block_keywords) == 0)
 
-            # if its not right follow set, and we dont allow eof... (its not top level stmt)
-            if not self._match(*FOLLOW_ASSIGN_EXPR) and not (allow_eof and self._match('EOF')):
-                expected = set(FOLLOW_ASSIGN_EXPR)
+            # after an expr, proper error display would be first set of gen stmt + equation ops + block keywords
+            self._expect_after_expr(self.PRED_GENERAL_STMT | block_keywords, expr, 'assignment_value', allow_eof=allow_eof)
 
-                self._error(sorted(list(expected)), 'assignment_value')
             return expr
 
-    def _array_manip_statement(self: "RDParser", block_keywords: set = None) -> ASTNode:
+
+    def _array_add_statement(self: "RDParser") -> ASTNode:
         """
         Parse array_add(id, expr) and array_remove(id, expr)
         
         Args:
             block_keywords: Set of keywords valid in current block context
         """
-        if block_keywords is None:
-            block_keywords = set()
-        
+
         op_tok = self._advance()
         op = op_tok.type
 
-        if not self._match('('):
-            self._error(['('], 'array_manip_statement')
-        
+        self._expect_type('(', 'array_add_statement')        
         self._advance()
 
-        if not self._match(ID_T):
-            self._error([ID_T], 'array_manip_statement')
-
+        self._expect_type(ID_T, 'array_add_statement')        
         tok = self._advance()
         
-        # array to manipulate id
+        # create ast node with id name
         id_node = self._ast_node(ID_T, tok, value=tok.lexeme)
 
         # allow index tail after the id (e.g., id[1][2])
         if self._match('['):
             id_node = self._postfix_tail(id_node, id_tok=tok)
 
-        # nullable after array_add(id ) & array_add(id[x] ), so we need to show proper errors
-        FOLLOW_ID_AND_INDEX_RSB = {
-            ',', '['
-        }
-
-        if not self._match(*FOLLOW_ID_AND_INDEX_RSB):
-            self._error([*FOLLOW_ID_AND_INDEX_RSB], 'array_manip_statement')
-
-        if not self._match(','):
-            self._error([','], 'array_manip_statement')
-
+        # Expect ,
+        self._expect(self.PRED_INDEX_LOOP_ARR_MANIP, 'array_add_statement')
         self._advance()
 
         expr_node = self._expr()
 
-        # since expr can be null, we need to include the follow set in the error
-        FOLLOW_MANIP_EXPR = {
-            ')'
-        } | block_keywords
-
-        FOLLOW_MANIP_EXPR = self._add_postfix_tokens(FOLLOW_MANIP_EXPR, expr_node)
-
-        if not self._match(*FOLLOW_MANIP_EXPR):
-            self._error([*FOLLOW_MANIP_EXPR], 'array_manip_statement')
-
-        if not self._match(')'):
-            self._error([')'], 'array_manip_statement')
+        # expect ) otherwise print whole error context
+        self._expect_after_expr({')'}, expr_node, 'array_add_statement')
         self._advance()
 
         return self._ast_node(op, op_tok, children=[id_node, expr_node])
+
+
+    def _array_remove_statement(self: "RDParser"):
+        """
+        Parse array_remove(id, expr) and array_remove(id, expr)
+        
+        Args:
+            block_keywords: Set of keywords valid in current block context
+        """
+
+        op_tok = self._advance()
+        op = op_tok.type
+
+        self._expect_type('(', 'array_add_statement')        
+        self._advance()
+
+        self._expect_type(ID_T, 'array_add_statement')        
+        tok = self._advance()
+        
+        # create ast node with id name
+        id_node = self._ast_node(ID_T, tok, value=tok.lexeme)
+
+        # allow index tail after the id (e.g., id[1][2])
+        if self._match('['):
+            id_node = self._postfix_tail(id_node, id_tok=tok)
+
+        # Expect ,
+        self._expect(self.PRED_INDEX_LOOP_ARR_MANIP, 'array_add_statement')
+        self._advance()
+
+        index_node = self._index()
+
+        # expect ) otherwise print whole error context
+        self._expect({')'}, 'array_remove_statement')
+        self._advance()
+
+        return self._ast_node(op, op_tok, children=[id_node, index_node])

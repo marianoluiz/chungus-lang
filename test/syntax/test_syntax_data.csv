@@ -1850,7 +1850,7 @@ x =[show )),"line 1 col 5
 Expected any: [, ], false, float_literal, id, int_literal, str_literal, true",
 "array_add(x, nil)",NO SYNTAX ERROR,
 "array_remove(x, -1)","line 1 col 17
-Expected any: !, false, float_literal, id, int_literal, str_literal, true",
+Expected any: id, int_literal",
 show type(x),"line 1 col 10
 Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
 show 'str' + 'str',"line 1 col 12
@@ -2436,11 +2436,13 @@ Expected any: id",
 "array_add(a,while )","line 1 col 13
 Expected any: !, false, float_literal, id, int_literal, str_literal, true",
 "array_remove(a,while )","line 1 col 16
-Expected any: !, false, float_literal, id, int_literal, str_literal, true",
+Expected any: id, int_literal",
 "array_remove(a,1)",NO SYNTAX ERROR,
-"array_remove(a,a+1)",NO SYNTAX ERROR,
+"array_remove(a,a+1)","line 1 col 17
+Expected any: )",
 "array_remove(a,1111)",NO SYNTAX ERROR,
-"array_remove(a,1111.1)",NO SYNTAX ERROR,
+"array_remove(a,1111.1)","line 1 col 16
+Expected any: id, int_literal",
 true and false ,"line 1 col 1
 Expected any: array_add, array_remove, fn, for, id, if, show, todo, try, while",
 a = true and false ,NO SYNTAX ERROR,

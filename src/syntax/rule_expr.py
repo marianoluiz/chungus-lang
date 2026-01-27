@@ -69,7 +69,7 @@ class ExprRules:
         expected = [ '!', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true' ]
 
         if not self._match(*expected):
-            self._error(expected, 'logical_or_expr')
+            self._error(expected, 'logical_and_expr')
 
         left = self._logical_not_expr()
 
@@ -91,7 +91,7 @@ class ExprRules:
         expected = [ '!', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true' ]
 
         if not self._match(*expected):
-            self._error(expected, 'logical_and_expr')
+            self._error(expected, 'logical_not_expr')
 
         if self._match('!'):
             tok = self._advance()
@@ -235,70 +235,69 @@ class ExprRules:
 
     def _postfix_tail(self: "RDParser", node: ASTNode, id_tok: Token) -> ASTNode:
         """
-        Parse trailing postfix operations on an identifier: function call or indexing.
-
-        Returns:
-            ASTNode: AST node after applying any postfix operations.
+        Parse a single postfix form after an identifier:
+        - function call: ( arg_list_opt )
+        - indexing:      [index]+
         """
-        # function arg branch
         if self._match('('):
-            self._advance()
+            return self._postfix_call(node, id_tok)
 
-            # the supposed next of unclosed 'ID (' must include ')' if errored
-            FOLLOW_UNCLOSED_ARGLIST = {
-                '!', ')', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'
-            }
+        if self._match('['):
+            return self._postfix_index(node)
 
-            if not self._match(*FOLLOW_UNCLOSED_ARGLIST):
-                self._error([*FOLLOW_UNCLOSED_ARGLIST], 'postfix_tail')
-
-            args = self._arg_list_opt()
-
-            if not self._match(')'):
-                self._error([')'], 'function_call')
-
-            self._advance()
-
-            return self._ast_node('function_call', id_tok, value=node.value, children=args)
+        return node
 
 
-        # index branch which can nest
-        # flattened indexes
-        indices = []
-        first_bracket = None
+    def _postfix_call(self: "RDParser", node: ASTNode, id_tok: Token) -> ASTNode:
+        """
+        Parse function-call postfix: ( arg_list_opt ).
+        """
+
+        self._advance()
+
+        args = self._arg_list_opt()
+
+        self._expect_type(')', 'postfix_call')
+        self._advance()
+
+        # keep your AST shape; if args is already a list, pass it directly
+        return self._ast_node('function_call', id_tok, value=node.value, children=args)
+
+
+    def _postfix_index(self: "RDParser", node: ASTNode) -> ASTNode:
+        """
+        Parse indexing postfix: [index]+ (flattened).
+        """
+
+        indices: list[ASTNode] = []
+        first_bracket: Token | None = None
 
         while self._match('['):
-            # array indexing / loop
-
-            # only set first_bracket once for location in ast:
-            tok = self._advance()
+            tok = self._advance()  # consume '['
             if first_bracket is None:
                 first_bracket = tok
 
-            # index number or id
-            idx = self._index()
-            indices.append(idx)
+            indices.append(self._index())
 
-            if not self._match(']'):
-                self._error([']'], 'index')
-
+            self._expect_type(']', 'postfix_index')
             self._advance()
 
-        # if it is array reference
-        if indices:
-            return self._ast_node(
-                'index',
-                first_bracket,
-                children=[
-                    ASTNode('base', children=[node]),
-                    ASTNode('indices', children=indices),
-                ]
-            )
-        # if it is function call
-        return node
+        # first_bracket must exist if we got here
+        return self._ast_node(
+            'index',
+            first_bracket,
+            children=[
+                ASTNode('base', children=[node]),
+                ASTNode('indices', children=indices),
+            ],
+        )
+    
 
     def _index(self: "RDParser"):
         """ Returns id or int_literal """
+        
+        self._expect(self.PRED_INDEX, 'index')
+
         if self._match(INT_LIT_T):
             tok = self._advance()
             return self._ast_node(INT_LIT_T, tok, value=tok.lexeme)
@@ -306,6 +305,3 @@ class ExprRules:
         elif self._match(ID_T):
             tok = self._advance()
             return self._ast_node(ID_T, tok, value=tok.lexeme)
-
-        else:
-            self._error([INT_LIT_T, ID_T], '_index')

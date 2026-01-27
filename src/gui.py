@@ -1,7 +1,17 @@
 import tkinter as tk
-from tkinter import ttk, scrolledtext, font, messagebox, filedialog
+from tkinter import ttk, font, messagebox, filedialog
 import platform
-from enum import Enum
+
+KEYWORDS = {
+    'and','or','true','false','read','show','if','elif','else','while','for','in','range',
+    'fn','ret','try','fail','always','todo','array_add','array_remove','int','float','close'
+}
+
+LITERALS = {'int_literal','float_literal','str_literal'}
+
+OPERATORS = {'++','--','//','**','==','!=','>','<','>=','<=','+','-','*','/','%','=','!'}
+
+DELIMS = {'(',')','[',']',','}
 
 
 class ChungusLexerGUI:
@@ -331,7 +341,7 @@ class ChungusLexerGUI:
         self.token_tree.tag_configure('literal', foreground=c["ACCENT_GREEN"])
         self.token_tree.tag_configure('identifier', foreground=c["FG_COLOR"])
         self.token_tree.tag_configure('operator', foreground=c["ACCENT_ORANGE"])
-        self.token_tree.tag_configure('delimiter', foreground=c["SECONDARY_TEXT"])
+        self.token_tree.tag_configure('delimiter', foreground=c["SECONDARY_TEXT"],)
         self.token_tree.tag_configure('comment', foreground=c["SECONDARY_TEXT"], font=(
             self.token_font.actual()['family'], self.token_font.actual()['size'], 'italic'))
         self.token_tree.tag_configure('error', foreground=c["ACCENT_RED"])
@@ -537,20 +547,28 @@ class ChungusLexerGUI:
             # Convert any real tab characters to spaces for display (use same width as expandtabs)
             lexeme = lexeme.replace('\t', '    ')
 
-            # Determine semantic tag
+            # Determine Semantic Tag
+            
+            # Normalize both type + lexeme
+            t = str(token_type_name).lower()
+            lx = str(raw_lexeme).lower()
+
             tag = 'identifier'
-            if token_type_name in ('int_literal', 'float_literal', 'str_literal'):
+
+            # literals by type
+            if t in LITERALS:
                 tag = 'literal'
-            elif token_type_name == 'comment':
+            elif t == 'comment':
                 tag = 'comment'
-            elif token_type_name.startswith(('OP_', 'ARITH_', 'REL_', 'LOG_')):
+
+            # operators / delims: check BOTH type and lexeme (some lexers store them as lexeme)
+            elif lx in OPERATORS:
                 tag = 'operator'
-            elif token_type_name.startswith('DELIM_'):
+            elif lx in DELIMS:
                 tag = 'delimiter'
-            elif token_type_name.startswith('KEYWORD') or token_type_name in {
-                'always', 'and', 'array_add', 'array_remove', 'clear', 'elif', 'exit', 'false', 'float', 'for', 'in', 'int', 'nil',
-                'or', 'range', 'read', 'to', 'todo', 'true', 'try', 'while', 'show', 'skip', 'top'
-            }:
+
+            # keywords: check BOTH type and lexeme
+            elif t in KEYWORDS:
                 tag = 'keyword'
 
             row_tag = 'evenrow' if i % 2 == 0 else 'oddrow'
@@ -633,20 +651,29 @@ class ChungusLexerGUI:
             lexeme = lexeme.replace('\t', '    ')
 
             # Determine semantic tag
+
+            # Normalize both type + lexeme
+            t = str(token_type_name).lower()
+            lx = str(raw_lexeme).lower()
+
             tag = 'identifier'
-            if token_type_name in ('int_literal', 'float_literal', 'str_literal'):
+
+            # literals by type
+            if t in LITERALS:
                 tag = 'literal'
-            elif token_type_name == 'comment':
+            elif t == 'comment':
                 tag = 'comment'
-            elif token_type_name.startswith(('OP_', 'ARITH_', 'REL_', 'LOG_')):
+
+            # operators / delims: check BOTH type and lexeme (some lexers store them as lexeme)
+            elif lx in OPERATORS:
                 tag = 'operator'
-            elif token_type_name.startswith('DELIM_'):
+            elif lx in DELIMS:
                 tag = 'delimiter'
-            elif token_type_name.startswith('KEYWORD') or token_type_name in {
-                'always', 'and', 'array_add', 'array_remove', 'clear', 'elif', 'exit', 'false', 'float', 'for', 'in', 'int', 'nil',
-                'or', 'range', 'read', 'to', 'todo', 'true', 'try', 'while', 'show', 'skip', 'top'
-            }:
+
+            # keywords: check BOTH type and lexeme
+            elif t in KEYWORDS:
                 tag = 'keyword'
+
 
             row_tag = 'evenrow' if i % 2 == 0 else 'oddrow'
             self.token_tree.insert("", tk.END, values=(line, col, lexeme, token_type_name), tags=(tag, row_tag))

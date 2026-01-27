@@ -42,6 +42,8 @@ class BlockStmtRules():
         nodes = []
         while self._match('fn'):
             nodes.append(self._function_statement())
+
+            self._expect(self.PRED_PROGRAM, 'program')
         return nodes
 
 

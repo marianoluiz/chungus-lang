@@ -132,7 +132,8 @@ class ParserCore:
 
     def _add_postfix_tokens(self: "RDParser", follow_set: set, expr_node: ASTNode) -> set:
         """
-        Add postfix operator tokens to follow set based on expression type.
+        Add postfix operator tokens to show follow set context based on expression type.
+        I use this on error context printing.
 
         Args:
             follow_set: Set of valid following tokens
@@ -195,16 +196,6 @@ class ParserCore:
             cur = cur.children[-1]
 
 
-    def _first_general_statement(self: "RDParser"):
-        """
-        First set of general statements, used for error printings
-        
-        Returns:
-            Set: First set tokens of general statements
-        """
-        return {'array_add','array_remove','for','id','if','show','todo','try','while'}
-
-
     def _ast_node(self: "RDParser", kind:str, tok=None, *, value=None, children=None) -> ASTNode:
         """
         Create an ASTNode and optionally attach token position.
@@ -231,3 +222,80 @@ class ParserCore:
             n.col = tok.col
 
         return n
+    
+
+    def _expect(self, expected: set, ctx: str):
+        """
+        Expect current token to be in a set of valid token types.
+
+        Args:
+            expected: Valid token types (FIRST / FOLLOW set).
+            ctx: Grammar context for error reporting.
+
+        Raises:
+            ParseError if current token is not in `expected`.
+        """
+        if isinstance(expected, set):
+            ok = self._match(*expected)
+
+        if not ok:
+            self._error(sorted(expected), ctx)
+
+
+    def _expect_type(self, typ: str, ctx: str):
+        """
+        Expect a single exact token type.
+
+        Args:
+            typ: Required token type.
+            ctx: Grammar context for error reporting.
+
+        Raises:
+            ParseError if token does not match `typ`.
+        """
+        if not self._match(typ):
+            self._error([typ], ctx)
+
+
+    def _expect_after_expr(self, base_follow: set, expr_node, ctx: str, *, block_keywords: set | None = None, allow_eof: bool = False):
+        """
+        Validate token following an expression.
+
+        Builds a full FOLLOW set using:
+        - base grammar follow
+        - optional block keywords
+        - postfix tokens derived from the expression
+
+        Args:
+            base_follow: Base FOLLOW set.
+            expr_node: Parsed expression node (for postfix rules).
+            ctx: Grammar context for errors.
+            block_keywords: Extra valid block-ending tokens.
+            allow_eof: Whether EOF is allowed here.
+
+        Raises:
+            ParseError if the next token is invalid.
+        """
+        follow = set(base_follow)
+
+        # check if from block statement and add the full follow set
+        if block_keywords:
+            follow |= block_keywords
+
+        # check datatype to show full proper context of error
+        follow = self._add_postfix_tokens(follow, expr_node)  # you already have this
+
+        # we don't error if token is EOF and we allow EOF (in assignment stmt)
+        if not self._match(*follow) and not (allow_eof and self._match("EOF")):
+            # returns a list
+            self._error(sorted(follow), ctx)
+
+
+    def _first_general_statement(self: "RDParser"):
+        """
+        First set of general statements, used for error printings
+        
+        Returns:
+            Set: First set tokens of general statements
+        """
+        return {'array_add','array_remove','for','id','if','show','todo','try','while'}

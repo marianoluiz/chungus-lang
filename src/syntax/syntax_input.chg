@@ -1,12 +1,1 @@
-for x in range(25)
-skip
-show 'hi'
-    for x in range(25)
-        show 'hi'
-        for x in range(25)
-            show 'hi'
-        close
-    close
-close
-
-x = true 'string'
+array_remove(a,1111.1)
