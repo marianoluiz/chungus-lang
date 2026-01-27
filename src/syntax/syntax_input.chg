@@ -1,1 +1,12 @@
-fncall(x, fncall2(id[x])
+for x in range(25)
+skip
+show 'hi'
+    for x in range(25)
+        show 'hi'
+        for x in range(25)
+            show 'hi'
+        close
+    close
+close
+
+x = true 'string'

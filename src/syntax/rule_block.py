@@ -301,19 +301,17 @@ class BlockStmtRules():
             self._advance()
 
             # expression_list -> maybe empty per grammar; handle empty or expressions separated by commas
-            exprs: List[ASTNode] = []
+            indices: List[ASTNode] = []
 
             # up to 3 range expression
-            # first expression (required)
-            expr = self._expr()
-            exprs.append(expr)
+            # first index (required)
+            index = self._index()
+            indices.append(index)
 
             # follow tokens for this argument.
             FOLLOW_AFTER_ARG = {
                 ')', ','
             }
-
-            FOLLOW_AFTER_ARG = self._add_postfix_tokens(FOLLOW_AFTER_ARG, expr)
 
             # check the next token
             if not self._match(*FOLLOW_AFTER_ARG):
@@ -323,33 +321,28 @@ class BlockStmtRules():
             # optional second expression
             if self._match(','):
                 self._advance()
-                expr = self._expr()
-                exprs.append(expr)
+                index = self._index()
+                indices.append(index)
 
                 # follow tokens for this argument.
                 FOLLOW_AFTER_ARG = {
                     ')', ','
                 }
 
-                FOLLOW_AFTER_ARG = self._add_postfix_tokens(FOLLOW_AFTER_ARG, expr)
-
                 # check the next token
                 if not self._match(*FOLLOW_AFTER_ARG):
                     self._error(sorted(list(FOLLOW_AFTER_ARG)), 'range_expression')
 
-
                 # optional third expression
                 if self._match(','):
                     self._advance()
-                    expr = self._expr()
-                    exprs.append(expr)
+                    index = self._index()
+                    indices.append(index)
 
                     # follow tokens for this argument.
                     FOLLOW_AFTER_ARG = {
                         ')'
                     }
-
-                    FOLLOW_AFTER_ARG = self._add_postfix_tokens(FOLLOW_AFTER_ARG, expr)
 
                     # check the next token
                     if not self._match(*FOLLOW_AFTER_ARG):
@@ -362,29 +355,26 @@ class BlockStmtRules():
             
             if not self._match(')'):
                 self._error([')'], 'range_expression')
+
             self._advance()
 
             # local loop statements until 'close'
             body: List[ASTNode] = []
             # loop_block_keywords
-            loop_block_keywords = {'close', 'skip', 'stop'}
+            loop_block_keywords = {'close'}
 
-            FIRST_LOOP_ITEM = self._first_general_statement() | {'skip', 'stop'}
+            FIRST_LOOP_ITEM = self._first_general_statement()
             FOLLOW_LOOP_ITEM = {'close'} | FIRST_LOOP_ITEM
 
-            # error to have skip and stop
+            # error to not have at least 1 gen stmt
             if not self._match(*FIRST_LOOP_ITEM):
                 self._error(sorted(list(FIRST_LOOP_ITEM)), 'for_body')
 
             while not self._match('close'):
                 # error printing
-                if self._match('skip', 'stop'):
-                    tok = self._advance()
-                    body.append(self._ast_node('loop_control', tok, value=tok.lexeme))
-                else:
-                    body.append(self._general_statement(loop_block_keywords))
+                body.append(self._general_statement(loop_block_keywords))
 
-                # error to have skip and stop
+                # error to have close
                 if not self._match(*FOLLOW_LOOP_ITEM):
                     self._error(sorted(list(FOLLOW_LOOP_ITEM)), 'for_body')
 
@@ -392,7 +382,7 @@ class BlockStmtRules():
             # close consumed
             for_tok = self._advance()
 
-            return self._ast_node('for', for_tok, value=loop_var, children=exprs + body)
+            return self._ast_node('for', for_tok, value=loop_var, children=indices + body)
 
 
         # while loop
@@ -402,8 +392,8 @@ class BlockStmtRules():
             cond = self._expr()
 
             body: List[ASTNode] = []
-            loop_block_keywords = {'close', 'skip', 'stop'}
-            FIRST_LOOP_ITEM = self._first_general_statement() | {'skip', 'stop'}
+            loop_block_keywords = {'close'}
+            FIRST_LOOP_ITEM = self._first_general_statement()
             FOLLOW_LOOP_ITEM = {'close'} | FIRST_LOOP_ITEM
 
             # after parsing expr, we need to show full error context
@@ -414,11 +404,7 @@ class BlockStmtRules():
                 self._error(sorted(list(FIRST_LOOP_ITEM)), 'while_body')
 
             while not self._match('close'):
-                if self._match('skip', 'stop'):
-                    tok = self._advance()
-                    body.append(self._ast_node('loop_control', tok, value=tok.lexeme))
-                else:
-                    body.append(self._general_statement(loop_block_keywords))
+                body.append(self._general_statement(loop_block_keywords))
 
                 # error to have skip and stop and close
                 if not self._match(*FOLLOW_LOOP_ITEM):

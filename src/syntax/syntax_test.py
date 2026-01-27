@@ -24,8 +24,6 @@ TOKEN_NAME_MAP = {
     'RET': 'ret',
     'TRY': 'try',
     'FAIL': 'fail',
-    'SKIP': 'skip',
-    'STOP': 'stop',
     'ALWAYS': 'always',
     'TODO': 'todo',
     'ARRAY_ADD': 'array_add',

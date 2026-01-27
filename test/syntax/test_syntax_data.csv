@@ -12,8 +12,7 @@ fn id(1)
 close
 
 for x in range (1, 2) 
-    skip
-    stop
+   show 'no skip stop'
 close
 
 array_add(x, 1)
@@ -37,8 +36,6 @@ close
 
 while x
     show 'while blk'
-    skip
-    stop
 close
 
 try 
@@ -386,8 +383,8 @@ Expected any: !=, ), ,, ==, and, or",
 
 show 'hi'
 
-close","line 1 col 24
-Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",
+close","line 1 col 18
+Expected any: ), ,",
 x = 1 'string',"line 1 col 7
 Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
 x = true 'string',"line 1 col 10
@@ -409,8 +406,8 @@ show 'hi'
     close
 close
 
-x = true 'string'","line 12 col 10
-Expected any: !=, ==, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
+x = true 'string'","line 3 col 1
+Expected any: (, ++, --, =, [",
 "
 fn name()
     show 'hello world'
@@ -486,7 +483,7 @@ Expected any: !, false, float_literal, id, int_literal, str_literal, true",
 "
 while x < 5  
  show x ","line 3 col 9
-Expected any: array_add, array_remove, close, for, id, if, show, skip, stop, todo, try, while",
+Expected any: array_add, array_remove, close, for, id, if, show, todo, try, while",
 "
 while x < 5  
  show x 
@@ -626,7 +623,7 @@ while x < 5
 if score >= 5 
  show x 
 close ","line 5 col 7
-Expected any: array_add, array_remove, close, for, id, if, show, skip, stop, todo, try, while",
+Expected any: array_add, array_remove, close, for, id, if, show, todo, try, while",
 "if score != 34
         show 'hello'  
 elif score == 2
@@ -714,7 +711,7 @@ Expected any: (, ++, --, =, [",
 if score >= 5 
  show x 
 close ","line 4 col 7
-Expected any: array_add, array_remove, close, for, id, if, show, skip, stop, todo, try, while",
+Expected any: array_add, array_remove, close, for, id, if, show, todo, try, while",
 "if score >= ! 
  show x 
 close ","line 1 col 13
@@ -754,27 +751,27 @@ Expected any: array_add, array_remove, close, elif, else, for, id, if, show, tod
 close
         show x 
 close  ","line 3 col 1
-Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, skip, stop, todo, try, while",
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
 "if score >= s
          while 15 > 12
 close
         show x ","line 3 col 1
-Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, skip, stop, todo, try, while",
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
 "
 if score >= s
          while 15 > 12","line 3 col 23
-Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, skip, stop, todo, try, while
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while
 ",
 "if score >= s
          while 15 > 12
         show x ","line 3 col 16
-Expected any: array_add, array_remove, close, for, id, if, show, skip, stop, todo, try, while
+Expected any: array_add, array_remove, close, for, id, if, show, todo, try, while
 ",
 "if score >= s
          while 15 > 12
         show x 
 elif score == s ","line 4 col 1
-Expected any: array_add, array_remove, close, for, id, if, show, skip, stop, todo, try, while",
+Expected any: array_add, array_remove, close, for, id, if, show, todo, try, while",
 " 
 if score >= s
          while 15 > 12
@@ -782,7 +779,7 @@ if score >= s
 elif score == s 
         show y 
 close ","line 5 col 1
-Expected any: array_add, array_remove, close, for, id, if, show, skip, stop, todo, try, while",
+Expected any: array_add, array_remove, close, for, id, if, show, todo, try, while",
 "if score >= s
          while 15 > 12
         
@@ -790,7 +787,7 @@ elif score == s
         show y 
 close 
 ","line 4 col 1
-Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, skip, stop, todo, try, while",
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
 " 
 if score >= s
          show x 
@@ -855,25 +852,25 @@ Expected any: range",
 ","line 1 col 16
 Expected any: (",
 for i in range (),"line 1 col 17
-Expected any: !, false, float_literal, id, int_literal, str_literal, true",
+Expected any: id, int_literal",
 (for i in range (),"line 1 col 1
 Expected any: array_add, array_remove, fn, for, id, if, show, todo, try, while",
 (for i in range ()),"line 1 col 1
 Expected any: array_add, array_remove, fn, for, id, if, show, todo, try, while",
 for i in range ()),"line 1 col 17
-Expected any: !, false, float_literal, id, int_literal, str_literal, true
+Expected any: id, int_literal
 ",
 for i in range (i),"line 1 col 19
-Expected any: array_add, array_remove, for, id, if, show, skip, stop, todo, try, while",
-for i in range (3.3) ,"line 1 col 22
-Expected any: array_add, array_remove, for, id, if, show, skip, stop, todo, try, while",
+Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
+for i in range (3.3) ,"line 1 col 17
+Expected any: id, int_literal",
 for i in range (3) ,"line 1 col 20
-Expected any: array_add, array_remove, for, id, if, show, skip, stop, todo, try, while",
+Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
 "for i in range (3) 
         if x > d 
         show y 
 close ","line 4 col 7
-Expected any: array_add, array_remove, close, for, id, if, show, skip, stop, todo, try, while",
+Expected any: array_add, array_remove, close, for, id, if, show, todo, try, while",
 "for i in range (3) 
 	show y 
 close 
@@ -906,35 +903,36 @@ close
 close ",NO SYNTAX ERROR,
 "if x > y 
 for i in range (3,1,1+1) 
-	show y
+        show y
 close  
-close ",NO SYNTAX ERROR,
+close ","line 2 col 22
+Expected any: )",
 "if x > y 
 for i in range (3,1,1+1,1.2) 
-	show y
+        show y
 close  
-close ","line 2 col 24
-Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",
+close ","line 2 col 22
+Expected any: )",
 "if x > y 
 for i in range (3,1,1+1,1>1) 
-	show y
+        show y
 close  
-close ","line 2 col 24
-Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",
+close ","line 2 col 22
+Expected any: )",
 "if x > y 
 for i in range (3)  
         show y
         1+1 
 close  
 close","line 4 col 9
-Expected any: array_add, array_remove, close, for, id, if, show, skip, stop, todo, try, while",
+Expected any: array_add, array_remove, close, for, id, if, show, todo, try, while",
 "if x > y 
 for i in range (3)  
         show y
         1+1 = sum 
 close  
 close ","line 4 col 9
-Expected any: array_add, array_remove, close, for, id, if, show, skip, stop, todo, try, while",
+Expected any: array_add, array_remove, close, for, id, if, show, todo, try, while",
 "if x > y 
 for i in range (3)  
 	show y
@@ -964,28 +962,30 @@ for i in range (3)
         a = 'sjio' + 12 
 close  
 close ","line 5 col 20
-Expected any: !=, ==, and, array_add, array_remove, close, for, id, if, or, show, skip, stop, todo, try, while",
+Expected any: !=, ==, and, array_add, array_remove, close, for, id, if, or, show, todo, try, while",
 "if x > y 
-for i in range (3,1/2)  
+for i in range (3)  
         show y
         sum = 1+ 1 
         a = 'sjio' + 12 
 close  
 close ","line 5 col 20
-Expected any: !=, ==, and, array_add, array_remove, close, for, id, if, or, show, skip, stop, todo, try, while",
+Expected any: !=, ==, and, array_add, array_remove, close, for, id, if, or, show, todo, try, while",
 "if x > y 
 for i in range (3,1/2)  
-	show y
-	sum = 1+ 1 
+        show y
+        sum = 1+ 1 
 close  
-close ",NO SYNTAX ERROR,
+close ","line 2 col 20
+Expected any: ), ,",
 "if x > y 
 for i in range (3,1+2)  
-	show y
-	sum = 1+ 1 
+        show y
+        sum = 1+ 1 
 close  
 close 
-",NO SYNTAX ERROR,
+","line 2 col 20
+Expected any: ), ,",
 "if x > y 
 for i in range (3,a)  
 	show y
@@ -1017,53 +1017,55 @@ close
 Expected any: (",
 "if x > y 
 for i in range (true)  
-	show y
-	sum = 1+ 1 
-close  
-close 
-",NO SYNTAX ERROR,
-"if x > y 
-for i in range (true or false)  
-	show y
-	sum = 1+ 1 
-close  
-close 
-",NO SYNTAX ERROR,
-"if x > y 
-for i in range (and )  
-	show y
-	sum = 1+ 1 
-close  
-close ","line 2 col 17
-Expected any: !, false, float_literal, id, int_literal, str_literal, true",
-"if x > y 
-for i in range (and 1  )  
-	show y
-	sum = 1+ 1 
+        show y
+        sum = 1+ 1 
 close  
 close 
 ","line 2 col 17
-Expected any: !, false, float_literal, id, int_literal, str_literal, true",
+Expected any: id, int_literal",
+"if x > y 
+for i in range (true or false)  
+        show y
+        sum = 1+ 1 
+close  
+close 
+","line 2 col 17
+Expected any: id, int_literal",
+"if x > y 
+for i in range (and )  
+        show y
+        sum = 1+ 1 
+close  
+close ","line 2 col 17
+Expected any: id, int_literal",
+"if x > y 
+for i in range (and 1  )  
+        show y
+        sum = 1+ 1 
+close  
+close 
+","line 2 col 17
+Expected any: id, int_literal",
 "if x > y 
 for i in range (1 and )  
         show y
         sum = 1+ 1 
 close  
-close ","line 2 col 23
-Expected any: !, false, float_literal, id, int_literal, str_literal, true",
+close ","line 2 col 19
+Expected any: ), ,",
 "if x > y 
-for i in range (1 and a)   
+for i in range (1)   
         show y
         sum = 1+ 1 
 close  
 close ",NO SYNTAX ERROR,
-"for i in range (1 and a)
+"for i in range (1)
 if x > y    
         show y
         sum = 1+ 1 
 close  
 close ",NO SYNTAX ERROR,
-"for i in range (1 and a)
+"for i in range (1)
 if x > y    
         show y
         sum = 1+ 1 
@@ -1072,7 +1074,7 @@ close
 close ","line 6 col 1
 Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
 "
-for i in range (1 and a)
+for i in range (1)
 if x > y    
         show y
         sum = 1+ 1 
@@ -1082,7 +1084,7 @@ close
 close ","line 8 col 1
 Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, fail, for, id, if, or, show, todo, try, while",
 "
-for i in range (1 and a)
+for i in range (1 )
 if x > y    
         show y
         sum = 1+ 1 
@@ -1093,7 +1095,7 @@ close
 close 
 ","line 9 col 1
 Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
-"for i in range (1 and a)
+"for i in range (1)
 if x > y    
         show y
         sum = 1+ 1 
@@ -1105,20 +1107,7 @@ close
  ","line 10 col 2
 Expected any: array_add, array_remove, close, elif, else, for, id, if, show, todo, try, while",
 "
-for i in range (1 and a)
-if x > y    
-        show y
-        sum = 1+ 1 
-try 
-x = 1 + 10 
-fail 
-show 'error' 
-close  
-close  
-","line 11 col 8
-Expected any: array_add, array_remove, close, for, id, if, show, skip, stop, todo, try, while",
-"
-for i in range (1 and a)
+for i in range (1)
 if x > y    
         show y
         sum = 1+ 1 
@@ -1131,7 +1120,7 @@ close
 close
 ",NO SYNTAX ERROR,
 "
-for i in range (1 and a)
+for i in range (1)
 if x > y    
         show y
         sum = 1+ 1 
@@ -1144,7 +1133,7 @@ close
 close
 ",NO SYNTAX ERROR,
 "
-for i in range (1 and a)
+for i in range (1)
 if x > y    
         show y
         sum = 1+ 1 
@@ -1157,7 +1146,7 @@ close
 close","line 9 col 6
 Expected any: id, str_literal",
 "
-for i in range (1 and a)
+for i in range (1 )
 if x > y    
         show y
         sum = 1+ 1 
@@ -1170,7 +1159,7 @@ close
 close","line 9 col 6
 Expected any: id, str_literal",
 "
-for i in range (1 and a)
+for i in range (1)
 if x > y    
         show y
         sum = 1+ 1 
@@ -1184,7 +1173,7 @@ close
 ","line 9 col 6
 Expected any: id, str_literal",
 "
-for i in range (1 and a)
+for i in range (1)
 if x > y    
         show y
         sum = 1+ 1 
@@ -1198,7 +1187,7 @@ close
 ","line 9 col 8
 Expected any: always, array_add, array_remove, close, for, id, if, show, todo, try, while",
 "
-for i in range (1 and a)
+for i in range (1)
 if x > y    
         show y
         sum = 1+ 1 
@@ -1211,7 +1200,7 @@ close
 close","line 9 col 8
 Expected any: always, array_add, array_remove, close, for, id, if, show, todo, try, while",
 "
-for i in range (1 and a)
+for i in range (1)
 if x > y    
         show y
         sum = 1+ 1 
@@ -1226,7 +1215,7 @@ close
 ","line 9 col 8
 Expected any: always, array_add, array_remove, close, for, id, if, show, todo, try, while",
 "
-for i in range (1 and a)
+for i in range (2)
 if x > y    
         show y
         sum = 1+ 1 
@@ -1239,22 +1228,7 @@ close
 close  
 close
 ","line 11 col 1
-Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, skip, stop, todo, try, while",
-"
-for i in range (1 and a)
-if x > y    
-        show y
-        sum = 1+ 1 
-try 
-x = 1 + 10 
-fail 
-show a 
-while x<5 
-show a
-close  
-close  
-close","line 14 col 6
-Expected any: array_add, array_remove, close, for, id, if, show, skip, stop, todo, try, while",
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
 "
 for i in range (1 and a)
 if x > y    
@@ -1270,491 +1244,76 @@ close
 close  
 close
 close 
+","line 2 col 19
+Expected any: ), ,",
+"
+for i in range (1 , )
+show 'x'
+
+close","line 2 col 21
+Expected any: id, int_literal",
+"
+for i in range (1,true)
+show 'x'
+
+close","line 2 col 19
+Expected any: id, int_literal
+",
+"
+for i in range (1,2)
+show 'x'
+
+close",NO SYNTAX ERROR,
+"
+for i in range (1,2,0)
+show 'x'
+
+close",NO SYNTAX ERROR,
+"
+for i in range (1,2, )
+show 'x'
+
+close
+","line 2 col 22
+Expected any: id, int_literal",
+"
+for i in range (1,2, true)
+show 'x'
+
+close
+","line 2 col 22
+Expected any: id, int_literal",
+"
+for i in range (1,2, 3)
+show 'x'
+
+close
 ",NO SYNTAX ERROR,
+"
+for i in range (1,2, 3 'str')
+show 'x'
+
+close
+","line 2 col 24
+Expected any: )",
 "
 for i in range (1 and a)
 if x > y    
         show y
         sum = 1+ 1 
 try 
-x = 1 + 10 
+        x = 1 + 10 
 fail 
-show a 
-while x<5 
-show a
+        show a 
 always 
         show 'this'
-close  
-close  
-close
-close","line 12 col 1
-Expected any: array_add, array_remove, close, for, id, if, show, skip, stop, todo, try, while",
-"
-for i in range (1 and a)
-if x > y    
-        show y
-        sum = 1+ 1 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
 while x<5 
 show a
 close  
 close  
 close
-close ",NO SYNTAX ERROR,
-"
-for i in range (1 and a)
-if x > y    
-        show y
-        sum = 1+ 1 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-skip 
-close  
-close  
-close
-close ",NO SYNTAX ERROR,
-"
-for i in range (1 and a)
-if x > y    
-        show y
-        sum = 1+ 1 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-skip 
-skip 
-close  
-close  
-close
-close ",NO SYNTAX ERROR,
-"
-for i in range (1 and a)
-if x > y    
-        show y
-        sum = 1+ 1 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-skip 
-stop 
-skip 
-close  
-close  
-close
-close 
-",NO SYNTAX ERROR,
-"skip 
-for i in range (1 and a)
-if x > y    
-        show y
-        sum = 1+ 1 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-skip 
-stop 
-skip 
-close  
-close  
-close
-close ","line 1 col 1
-Expected any: array_add, array_remove, fn, for, id, if, show, todo, try, while",
-"for i in range (1 and a)
-if x > y  skip   
-        show y
-        sum = 1+ 1 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-close  
-close  
-close
-close ","line 2 col 11
-Expected any: !=, %, (, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
-"for i in range (1 and a)
-if x > y  stop
-	show y
-        sum = 1+ 1 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-close  
-close  
-close
-close ","line 2 col 11
-Expected any: !=, %, (, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
-"for i in range (1 and a)
-if x > y  
-	stop show y
-        sum = 1+ 1 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-close  
-close  
-close
-close ","line 3 col 5
-Expected any: !=, %, (, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
-"for i in range (1 and a)
-if x > y  
-	skip show y
-        sum = 1+ 1 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-close  
-close  
-close
-close ","line 3 col 5
-Expected any: !=, %, (, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
-"for i in range (1 and a)
-if x > y  
-	show y skip 
-        sum = 1+ 1 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-close  
-close  
-close
-close 
-","line 3 col 12
-Expected any: array_add, array_remove, close, elif, else, for, id, if, show, todo, try, while",
-"for i in range (1 and a)
-if x > y  
-	show y stop 
-        sum = 1+ 1 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-close  
-close  
-close
-close 
-","line 3 col 12
-Expected any: array_add, array_remove, close, elif, else, for, id, if, show, todo, try, while",
-"for i in range (1 and a)
-if x > y  
-	show y 
-	stop 
-        sum = 1+ 1 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-close  
-close  
-close
-close ","line 4 col 5
-Expected any: array_add, array_remove, close, elif, else, for, id, if, show, todo, try, while",
-"for i in range (1 and a)
-if x > y  
-	show y 
-	skip  
-        sum = 1+ 1 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-close  
-close  
-close
-close ","line 4 col 5
-Expected any: array_add, array_remove, close, elif, else, for, id, if, show, todo, try, while",
-"for i in range (1 and a)
-if x > y  
-	skip 
-	show y   
-        sum = 1+ 1 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-close  
-close  
-close
-close ","line 3 col 5
-Expected any: !=, %, (, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
-"for i in range (1 and a)
-if x > y  
-	stop 
-	show y   
-        sum = 1+ 1 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-close  
-close  
-close
-close ","line 3 col 5
-Expected any: !=, %, (, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
-"for i in range (1 and a)
-if x > y  
-	show y   
-        sum = 1+ 1 
-	skip 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-close  
-close  
-close
-close ","line 5 col 5
-Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, close, elif, else, for, id, if, or, show, todo, try, while",
-"for i in range (1 and a)
-if x > y  
-	show y   
-        sum = 1+ 1 skip 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-close  
-close  
-close
-close ","line 4 col 20
-Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, close, elif, else, for, id, if, or, show, todo, try, while",
-"for i in range (1 and a)
-if x > y  
-	show y   
-        skip sum = 1+ 1 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-close  
-close  
-close
-close 
-","line 4 col 9
-Expected any: array_add, array_remove, close, elif, else, for, id, if, show, todo, try, while",
-"for i in range (1 and a)
-if x > y  
-	show y   
-        stop sum = 1+ 1 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-close  
-close  
-close
-close ","line 4 col 9
-Expected any: array_add, array_remove, close, elif, else, for, id, if, show, todo, try, while",
-"for i in range (1 and a)
-if x > y  
-	skip 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-close  
-close  
-close
-close 
-","line 3 col 5
-Expected any: !=, %, (, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
-"for i in range (1 and a)
-if x > y  
-	stop 
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-close  
-close  
-close
-close 
-","line 3 col 5
-Expected any: !=, %, (, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
-"for i in range (1 and a)
-if x > y  
-	stop 
-if i == 3  
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-close  
-close  
-close
-close  ","line 3 col 5
-Expected any: !=, %, (, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
-"for i in range (1 and a)
-if x > y  
-	stop 
-if i == 3 
-	show i  
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-close  
-close  
-close
-close 
-
-","line 3 col 5
-Expected any: !=, %, (, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
-"for i in range (1 and a)
-if x > y  
-	skip  
-if i == 3 
-	show i  
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-close  
-close  
-close
-close ","line 3 col 5
-Expected any: !=, %, (, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
-"for i in range (1 and a)
-if x == y  
-	skip  
-if i == 3 
-	show i  
-try 
-	x = 1 + 10 
-fail 
-	show a 
-always 
-	show 'this'
-while x<5 
-show a
-close  
-close  
-close
-close ","line 3 col 5
-Expected any: !=, %, (, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
-"for i in range(0, 10)
-if i == 5
-skip
-if i == 7
-stop
-show i
-close","line 3 col 1
-Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
-"for i in range(0, 10)
-if i == 5
-        show a 
-elif i == 7 
-        show i
-close
- 
-","line 7 col 2
-Expected any: array_add, array_remove, close, for, id, if, show, skip, stop, todo, try, while",
+close ","line 2 col 19
+Expected any: ), ,",
 "for i in range(0, 10)
 if i == 5
 	show a 
@@ -1762,16 +1321,6 @@ elif i == 7
 	show i
 close
 close",NO SYNTAX ERROR,
-"for i in range(0, 10)
-if i == 5
-	show a 
-elif i == 7 
-	show i
-else 
-	stop 
-close
-close ","line 7 col 5
-Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
 "for i in range(0, 10)
 if i == 5
 	show a 
@@ -1967,238 +1516,6 @@ fail
 always
   show 'this runs'
 close",NO SYNTAX ERROR,
-"try
-  a = 1 + 1 
-  b = 1 + 2 
-  skip     
-fail
-  show 'error'
-always
-  show 'this runs'
-close
-","line 4 col 3
-Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, fail, for, id, if, or, show, todo, try, while",
-"try
-  a = 1 + 1 
-  b = 1 + 2     
-fail
-  skip 
-  show 'error'
-always
-  show 'this runs'
-close
-","line 5 col 3
-Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
-"try
-  a = 1 + 1 
-  b = 1 + 2     
-fail
-  stop 
-  show 'error'
-always
-  show 'this runs'
-close
-","line 5 col 3
-Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
-"try
-  a = 1 + 1 
-  b = 1 + 2     
-fail 
-  show 'error'
-	stop 	
-always
-  show 'this runs'
-close
-","line 6 col 5
-Expected any: always, array_add, array_remove, close, for, id, if, show, todo, try, while",
-"try
-  a = 1 + 1 
-  b = 1 + 2     
-fail 
-  show 'error'
-	skip  	
-always
-  show 'this runs'
-close","line 6 col 5
-Expected any: always, array_add, array_remove, close, for, id, if, show, todo, try, while",
-"try
-  a = 1 + 1 
-  b = 1 + 2     
-fail 
-  show 'error' 	
-always
-skip 
-  show 'this runs'
-close","line 7 col 1
-Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
-"try
-  a = 1 + 1 
-  b = 1 + 2     
-fail 
-  show 'error' 	
-always
-stop  
-  show 'this runs'
-close","line 7 col 1
-Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
-"try
-  a = 1 + 1 
-  b = 1 + 2     
-fail 
-  show 'error' 	
-always  
-  show 'this runs'
-skip 
-close","line 8 col 1
-Expected any: array_add, array_remove, close, for, id, if, show, todo, try, while",
-"try
-  a = 1 + 1 
-  b = 1 + 2     
-fail 
-  show 'error' 	
-always  
-  show 'this runs'
-stop 
-close
-","line 8 col 1
-Expected any: array_add, array_remove, close, for, id, if, show, todo, try, while",
-"try
-  a = 1 + 1 
-  b = 1 + 2     
-fail 
-  show 'error' 	
-always  
-  show 'this runs' skip 
-close
-","line 7 col 20
-Expected any: array_add, array_remove, close, for, id, if, show, todo, try, while",
-"try
-  a = 1 + 1 
-  b = 1 + 2     
-fail 
-  show 'error' 	
-always  
-  show 'this runs' stop 
-close
-","line 7 col 20
-Expected any: array_add, array_remove, close, for, id, if, show, todo, try, while",
-"try
-  a = 1 + 1 
-  b = 1 + 2     
-fail 
-  show 'error' skip  	
-always  
-  show 'this runs' 
-close
-","line 5 col 16
-Expected any: always, array_add, array_remove, close, for, id, if, show, todo, try, while",
-"try
-  a = 1 + 1 
-  b = 1 + 2     
-fail 
-  show 'error' stop   	
-always  
-  show 'this runs' 
-close
-","line 5 col 16
-Expected any: always, array_add, array_remove, close, for, id, if, show, todo, try, while",
-"try
-  a = 1 + 1 
-  b = 1 + 2 stop     
-fail 
-  show 'error'    	
-always  
-  show 'this runs' 
-close","line 3 col 13
-Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, fail, for, id, if, or, show, todo, try, while",
-"try skip 
-  a = 1 + 1 
-  b = 1 + 2      
-fail 
-  show 'error'    	
-always  
-  show 'this runs' 
-close
-","line 1 col 5
-Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
-"try stop  
-  a = 1 + 1 
-  b = 1 + 2      
-fail 
-  show 'error'    	
-always  
-  show 'this runs' 
-close
-","line 1 col 5
-Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
-"try   
-  a = 1 + 1 
-  b = 1 + 2      
-fail skip 
-  show 'error'    	
-always  
-  show 'this runs' 
-close
-","line 4 col 6
-Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
-"try   
-  a = 1 + 1 
-  b = 1 + 2      
-fail stop 
-  show 'error'    	
-always  
-  show 'this runs' 
-close
-","line 4 col 6
-Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
-"try   
-  a = 1 + 1 
-  b = 1 + 2      
-fail 
-  show 'error'    	
-always  skip 
-  show 'this runs' 
-close
-","line 6 col 9
-Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
-"try   
-  a = 1 + 1 
-  b = 1 + 2      
-fail 
-  show 'error'    	
-always  stop 
-  show 'this runs' 
-close","line 6 col 9
-Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
-"try   
-  a = 1 + 1 
-  b = 1 + 2      
-fail 
-  show 'error'    	
-always  
-  show 'this runs' 
-close skip ","line 8 col 7
-Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
-"try   
-  a = 1 + 1 
-  b = 1 + 2      
-fail 
-  show 'error'    	
-always  
-  show 'this runs' 
-close stop 
-","line 8 col 7
-Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
-"try   
-  a = 1 + 1 
-  b = 1 + 2      
-fail 
-  show 'error'
-close     	
-always  
-  show 'this runs' 
-close","line 7 col 1
-Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
 "try   
   a = 1 + 1 
   b = 1 + 2      
@@ -2399,10 +1716,6 @@ close","line 1 col 9
 Expected any: in",
 for i in 5 show i close,"line 1 col 10
 Expected any: range",
-"while x < 5 
-skip 
-close",NO SYNTAX ERROR,
-while x < 5 stop close,NO SYNTAX ERROR,
 WHILE x < 5 show x close,"line 1 col 7
 Expected any: (, ++, --, =, [",
 "fn add(a, b) ret a + b close","line 1 col 14
@@ -2502,13 +1815,6 @@ fn a() fn b() close close,"line 1 col 8
 Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
 if true show 1 elif true show 2 else show 3 close,"line 1 col 14
 Expected any: id, str_literal",
-"for i in range(1, 5) 
-    stop 
-close",NO SYNTAX ERROR,
-skip,"line 1 col 1
-Expected any: array_add, array_remove, fn, for, id, if, show, todo, try, while",
-stop,"line 1 col 1
-Expected any: array_add, array_remove, fn, for, id, if, show, todo, try, while",
 "array_add arr, 1","line 1 col 11
 Expected any: (",
 "array_remove arr, 0","line 1 col 14
@@ -2616,10 +1922,6 @@ x = 5 + ( ),"line 1 col 9
 Expected any: float_literal, id, int_literal",
 if true and (false or true) show 1 close,"line 1 col 13
 Expected any: !, false, float_literal, id, int_literal, str_literal, true",
-while x < 5 if x == 2 skip close x++ close,"line 1 col 23
-Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
-for i in range(5) if i == 3 stop close show i close,"line 1 col 29
-Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
 try x = read fail show 1 close,"line 1 col 24
 Expected any: id, str_literal",
 x = int('5'),NO SYNTAX ERROR,
@@ -2761,16 +2063,8 @@ if x > 0 show x elif x == 0 close,"line 1 col 29
 Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
 if x > 0 close,"line 1 col 10
 Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
-while true stop close,NO SYNTAX ERROR,
-while true skip close,NO SYNTAX ERROR,
 while true todo close,NO SYNTAX ERROR,
 while true x = 1 close,NO SYNTAX ERROR,
-"for i in range(5) 
-stop 
-close",NO SYNTAX ERROR,
-"for i in range(5) 
-skip 
-close",NO SYNTAX ERROR,
 "for i in range(5) 
 todo close",NO SYNTAX ERROR,
 for i in range(5) x = i close,NO SYNTAX ERROR,
@@ -2824,9 +2118,6 @@ Expected any: ]",
 if true if true if true show 'hi' close close close,NO SYNTAX ERROR,
 if true if true if true show 'hi' close closeif true if true if true show 'hi' close close,"line 1 col 49
 Expected any: (, ++, --, =, [",
-while true while true while true stop close close close,NO SYNTAX ERROR,
-while true while true while true stop close close,"line 1 col 50
-Expected any: array_add, array_remove, close, for, id, if, show, skip, stop, todo, try, while",
 try try x = 1 fail show 'e' close fail show 'E' close,NO SYNTAX ERROR,
 try try x = 1 fail show 'e' close fail show 'E',"line 1 col 48
 Expected any: always, array_add, array_remove, close, for, id, if, show, todo, try, while",
@@ -2899,14 +2190,10 @@ Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array
 for i in range(5) show i close,NO SYNTAX ERROR,
 while x > 0 x-- close,NO SYNTAX ERROR,
 for i in range() close,"line 1 col 16
-Expected any: !, false, float_literal, id, int_literal, str_literal, true",
+Expected any: id, int_literal",
 "fn add(a, b) ret a + b close","line 1 col 14
 Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
 "x = add(1, 2)",NO SYNTAX ERROR,
-stop,"line 1 col 1
-Expected any: array_add, array_remove, fn, for, id, if, show, todo, try, while",
-skip,"line 1 col 1
-Expected any: array_add, array_remove, fn, for, id, if, show, todo, try, while",
 fn f() show 1 close x = 5 fn g() close,"line 1 col 13
 Expected any: id, str_literal",
 "array_add(arr, 1)",NO SYNTAX ERROR,
@@ -2961,17 +2248,19 @@ Expected any: =, [",
 if x show x close,NO SYNTAX ERROR,
 if x show x,"line 1 col 12
 Expected any: array_add, array_remove, close, elif, else, for, id, if, show, todo, try, while",
-while true stop close,NO SYNTAX ERROR,
+while true x = close,"line 1 col 16
+Expected any: !, [, false, float, float_literal, id, int, int_literal, read, str_literal, true
+",
 for i in range(5) i++ close,NO SYNTAX ERROR,
 "for i in range(1, 10, 2) close","line 1 col 26
-Expected any: array_add, array_remove, for, id, if, show, skip, stop, todo, try, while",
+Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
 if true a = 1 close show a,NO SYNTAX ERROR,
 x = 5 if true x = 10 close,NO SYNTAX ERROR,
 if x elif y else close,"line 1 col 6
 Expected any: !=, %, (, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
 try x = 1/0 fail show 'err' close,NO SYNTAX ERROR,
 for i in range(x),"line 1 col 18
-Expected any: array_add, array_remove, for, id, if, show, skip, stop, todo, try, while",
+Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
 if x elif y elif z close,"line 1 col 6
 Expected any: !=, %, (, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
 fn start() todo close x = 5,NO SYNTAX ERROR,
