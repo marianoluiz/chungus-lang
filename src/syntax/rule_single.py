@@ -34,7 +34,6 @@ class SingleStmtRules:
     
     PRED_GENERAL_STMT = {'array_add','array_remove','for', ID_T,'if','show','todo','try','while'}
     PRED_PROGRAM = PRED_GENERAL_STMT | {'fn'}
-
     PRED_ID_STMT_TAIL = {'++', '--', '=', '(', '['}
     PRED_ASSIGN_VALUE = {'!', '[', 'false', 'float', FLOAT_LIT_T, ID_T, 'int', INT_LIT_T, 'read', STR_LIT_T, 'true'}
     PRED_ELEMENT_LIST = {'[', ']', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'}
@@ -43,8 +42,8 @@ class SingleStmtRules:
     PRED_ARG_LIST_OPT = {'!', ')', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'}
     PRED_ARG_ELEMENT_TAIL = {')', ','}
     PRED_INDEX = {INT_LIT_T, ID_T}
-    PRED_INDEX_LOOP_ARR_INDEX_ASSIGN = {'=', '['}
-    PRED_INDEX_LOOP_ARR_MANIP = {',', '['} 
+    PRED_ARR_INDEX_ASSIGN_INDEX_LOOP = {'=', '['}
+    PRED_ARR_MANIP_INDEX_LOOP = {',', '['} 
 
 
     def _program(self: "RDParser") -> ASTNode:
@@ -168,19 +167,14 @@ class SingleStmtRules:
         Returns:
             ASTNode | None: AST node for return statement if present.
         """
-        # tokens that must always follow a ret stmt. which are all expr operators and a close token
-        FOLLOW_AFTER_RET = {
-            '!=', '%', '*', '**', '+', '-', '/', '//', '<', '<=', '==', '>', '>=', 'and', 'close', 'or'
-        }
 
         if self._match('ret'):
             self._advance()
+            expr = self._expr()
 
-            node =  ASTNode('return_statement', children=[self._expr()])
+            self._expect_after_expr({'close'}, expr, 'return_opt')
 
-            if not self._match(*FOLLOW_AFTER_RET):
-                self._error(sorted(list(FOLLOW_AFTER_RET)), 'return_opt')
-
+            node =  ASTNode('return_statement', children=[expr])
             return node
         
         return None
@@ -343,7 +337,7 @@ class SingleStmtRules:
                 self._advance()
 
             # = after indexed variable array, we need to print whole context
-            self._expect(self.PRED_INDEX_LOOP_ARR_INDEX_ASSIGN, 'index_loop')
+            self._expect(self.PRED_ARR_INDEX_ASSIGN_INDEX_LOOP, 'index_loop')
 
             # consume equal
             self._advance()
@@ -438,7 +432,7 @@ class SingleStmtRules:
             id_node = self._postfix_tail(id_node, id_tok=tok)
 
         # Expect ,
-        self._expect(self.PRED_INDEX_LOOP_ARR_MANIP, 'array_add_statement')
+        self._expect(self.PRED_ARR_MANIP_INDEX_LOOP, 'array_add_statement')
         self._advance()
 
         expr_node = self._expr()
@@ -475,7 +469,7 @@ class SingleStmtRules:
             id_node = self._postfix_tail(id_node, id_tok=tok)
 
         # Expect ,
-        self._expect(self.PRED_INDEX_LOOP_ARR_MANIP, 'array_add_statement')
+        self._expect(self.PRED_ARR_MANIP_INDEX_LOOP, 'array_add_statement')
         self._advance()
 
         index_node = self._index()

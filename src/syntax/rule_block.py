@@ -32,6 +32,8 @@ class BlockStmtRules():
     The methods raise parse errors via self._error(...) when encountering invalid input.
     """
 
+    PRED_FN_GEN_STMT = {'array_add', 'array_remove', 'close', 'for', 'id', 'if', 'ret', 'show', 'todo', 'try', 'while'}
+
     def _function_statements(self: "RDParser") -> List[ASTNode]:
         """
         Parse a sequence of function declarations.
@@ -56,66 +58,42 @@ class BlockStmtRules():
         """
 
         fn_tok = self._advance()  # consume 'fn' and capture token
-    
+        
         # check if next is id or else error
-        if not self._match(ID_T):
-            self._error([ID_T], 'function_name')
+        self._expect_type(ID_T, 'function_statement')
 
         fn_name = self._advance().lexeme
 
         # check if next is ( or else error
-        if not self._match('('):
-            self._error(['('], 'function_declaration')
-
+        self._expect_type('(', 'function_statement')
         self._advance()
 
-        # this can be null so we track the follow set of ( to show more complete error
-        FOLLOW_FUNC_ID = {
-            '!', ')', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'
-        }
-
-        if not self._match(*FOLLOW_FUNC_ID):
-            self._error(sorted(list(FOLLOW_FUNC_ID)), 'function_declaration')
+        self._expect(self.PRED_ARG_LIST_OPT, 'function_statement')
 
         params = self._arg_list_opt()
             
         # check if next is ) or else error
-        if not self._match(')'):
-            self._error([')'], 'function_declaration')
-
+        self._expect_type(')', 'function_statement')
         self._advance()
         
-
         # check inside the function block
         fn_nodes = []
         block_keywords = {'close', 'ret'}
 
         # require 1 local statement
-        if self._match('close', 'ret'):
-            self._error(sorted(list(self._first_general_statement())), 'function_body')
-
-        # require 1 local statement
+        # block_keywords args is just for assignment stmt error context printing, so we stil need manual checking of predict set
         fn_nodes.append(self._general_statement(block_keywords))
-        
-        # ret can be null so we need to check always to show correct error
-        FOLLOW_FUNC_GEN_STMT = {
-            'array_add', 'array_remove', 'close', 'for', 'id', 'if', 'ret', 'show', 'todo', 'try', 'while'
-        }
+        self._expect(self.PRED_FN_GEN_STMT, 'function_statement')
 
         # 0 or many local statement
         while not self._match('ret', 'close'):
-            
             # ret can be null so we need to check always to show correct error
-            if not self._match(*FOLLOW_FUNC_GEN_STMT):
-                self._error(sorted(list(FOLLOW_FUNC_GEN_STMT)), 'function_body')
-
+            self._expect(self.PRED_FN_GEN_STMT, 'function_statement')
             fn_nodes.append(self._general_statement(block_keywords))
 
         ret_node = self._return_opt()
-
-        if not self._match('close'):
-            self._error(['close'], 'function_declaration')
-
+        
+        self._expect_type('close', 'function_statement')
         self._advance()
 
         # We will add 1. params, then 2. local_nodes, then 3. ret_nodes
@@ -146,10 +124,7 @@ class BlockStmtRules():
                 - optional `else` node (body)
         """
         # If blocks
-        if not self._match('if'):
-            self._error(['if'], 'conditional_statement')
-
-        # consume if
+        self._expect_type('if', 'conditional_statement')
         if_tok = self._advance() 
 
         # condition expression

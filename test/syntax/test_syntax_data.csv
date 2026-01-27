@@ -2452,3 +2452,34 @@ fn square (12),"line 1 col 15
 Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
 try,"line 1 col 4
 Expected any: array_add, array_remove, for, id, if, show, todo, try, while",
+"
+
+fn x()
+
+x = 1 
+
+ret 
+
+close","line 9 col 1
+Expected any: !, false, float_literal, id, int_literal, str_literal, true",
+"
+
+fn x()
+x = 1 
+ret x 'chng'
+close","line 5 col 7
+Expected any: !=, %, (, *, **, +, -, /, //, <, <=, ==, >, >=, [, and, close, or",
+"
+
+fn x()
+x = 1 
+ret 1 'ch'
+close","line 5 col 7
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, close, or",
+"
+
+fn x()
+x = 1 
+ret true 'ch'
+close","line 5 col 10
+Expected any: !=, ==, and, close, or",
