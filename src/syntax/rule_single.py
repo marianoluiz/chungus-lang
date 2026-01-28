@@ -69,7 +69,7 @@ class SingleStmtRules:
         return ASTNode('program', children=children)
 
 
-    def _general_statement(self: "RDParser", block_keywords: set = None, allow_eof=False) -> ASTNode:
+    def _general_statement(self: "RDParser", block_keywords: set = None) -> ASTNode:
         """
         Parse a general statement (e.g., output, control statements).
 
@@ -276,7 +276,7 @@ class SingleStmtRules:
             self._error([ID_T, STR_LIT_T], 'output_value')
 
 
-    def _id_statement_tail(self: "RDParser", id_tok: Token, block_keywords: set = None, allow_eof = False) -> ASTNode:
+    def _id_statement_tail(self: "RDParser", id_tok: Token, block_keywords: set = None) -> ASTNode:
         """ 
         Parses next of id.
 
@@ -342,7 +342,7 @@ class SingleStmtRules:
             # consume equal
             self._advance()
 
-            value = self._assignment_value(block_keywords, allow_eof)
+            value = self._assignment_value(block_keywords)
 
             # create node of indices for ast
             indices_node = ASTNode('indices', children=indices)
@@ -350,7 +350,7 @@ class SingleStmtRules:
             return self._ast_node('array_idx_assignment', id_tok, value=id_tok.lexeme, children=[indices_node, value])
 
 
-    def _assignment_value(self: "RDParser", block_keywords: set = None, allow_eof = False):
+    def _assignment_value(self: "RDParser", block_keywords: set = None):
         if block_keywords is None:
             block_keywords = set()
 

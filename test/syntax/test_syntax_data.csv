@@ -2483,3 +2483,16 @@ x = 1
 ret true 'ch'
 close","line 5 col 10
 Expected any: !=, ==, and, close, or",
+if x and true 'x',"line 1 col 15
+Expected any: !=, ==, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
+if x and 1 'x',"line 1 col 12
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, for, id, if, or, show, todo, try, while",
+"if x and true
+x = 1 'ch'","line 2 col 7
+Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, and, array_add, array_remove, close, elif, else, for, id, if, or, show, todo, try, while",
+"if true
+
+x = 1
+
+elif ","line 5 col 6
+Expected any: !, false, float_literal, id, int_literal, str_literal, true",

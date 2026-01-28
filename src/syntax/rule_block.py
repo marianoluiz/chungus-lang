@@ -32,8 +32,6 @@ class BlockStmtRules():
     The methods raise parse errors via self._error(...) when encountering invalid input.
     """
 
-    PRED_FN_GEN_STMT = {'array_add', 'array_remove', 'close', 'for', 'id', 'if', 'ret', 'show', 'todo', 'try', 'while'}
-
     def _function_statements(self: "RDParser") -> List[ASTNode]:
         """
         Parse a sequence of function declarations.
@@ -78,18 +76,18 @@ class BlockStmtRules():
         
         # check inside the function block
         fn_nodes = []
-        block_keywords = {'close', 'ret'}
+        predict_keywords = {'close', 'ret'}
 
         # require 1 local statement
         # block_keywords args is just for assignment stmt error context printing, so we stil need manual checking of predict set
-        fn_nodes.append(self._general_statement(block_keywords))
-        self._expect(self.PRED_FN_GEN_STMT, 'function_statement')
-
+        fn_nodes.append(self._general_statement(predict_keywords))
+        self._expect(self.PRED_GENERAL_STMT | predict_keywords, 'function_statement')
+        
         # 0 or many local statement
         while not self._match('ret', 'close'):
             # ret can be null so we need to check always to show correct error
-            self._expect(self.PRED_FN_GEN_STMT, 'function_statement')
-            fn_nodes.append(self._general_statement(block_keywords))
+            fn_nodes.append(self._general_statement(predict_keywords))
+            self._expect(self.PRED_GENERAL_STMT | {'close', 'ret'}, 'function_statement')
 
         ret_node = self._return_opt()
         
@@ -129,114 +127,69 @@ class BlockStmtRules():
 
         # condition expression
         cond = self._expr()
-
-        # proper complete error after expr if it errored
-        FOLLOW_EXPR_IFCOND = self._first_general_statement()
-        FOLLOW_EXPR_IFCOND = self._add_postfix_tokens(FOLLOW_EXPR_IFCOND, cond)
-
-        if not self._match(*FOLLOW_EXPR_IFCOND):
-            self._error(sorted(list(FOLLOW_EXPR_IFCOND)), 'conditional_statement')
+        self._expect_after_expr(self.PRED_GENERAL_STMT, cond, 'if_block')
 
         if_nodes: List[ASTNode] = []
-        block_keywords = {'close', 'elif', 'else'}
+        predict_keywords = {'close', 'elif', 'else'}
 
-        # require one general statement
-        if_nodes.append(self._general_statement(block_keywords))
-
-        # complete next tokens for error priting
-        FOLLOW_IF_GEN_STMT =  {'close', 'elif', 'else'} | self._first_general_statement()
-
-        if not self._match(*FOLLOW_IF_GEN_STMT):
-            self._error(sorted(list(FOLLOW_IF_GEN_STMT)), 'conditional_statement')
-
+        # require one general statement, predict keywords in assignment expr error if expr had error
+        if_nodes.append(self._general_statement(predict_keywords))
+        self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'if_block')
 
         while not self._match('elif', 'else', 'close'):
-            if_nodes.append(self._general_statement(block_keywords))
-
-            # complete next tokens for error priting
-            FOLLOW_IF_GEN_STMT = {'close', 'elif', 'else'} | self._first_general_statement()
-
-            if not self._match(*FOLLOW_IF_GEN_STMT):
-                self._error(sorted(list(FOLLOW_IF_GEN_STMT)), 'conditional_statement')
+            if_nodes.append(self._general_statement(predict_keywords))
+            self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'if_block')
 
         if_node = self._ast_node('if', if_tok, children=[cond] + if_nodes)
 
 
         # elif blocks zero-or-more
         elif_nodes: List[ASTNode] = []
+        predict_keywords = {'close', 'elif', 'else'}
 
         while self._match('elif'):
             elif_tok = self._advance()
-
             cond = self._expr()
 
-            # proper complete error after expr if it errored
-            FOLLOW_EXPR_ELIFCOND = self._first_general_statement()
-            FOLLOW_EXPR_ELIFCOND = self._add_postfix_tokens(FOLLOW_EXPR_ELIFCOND, cond)
-
-            if not self._match(*FOLLOW_EXPR_ELIFCOND):
-                self._error(sorted(list(FOLLOW_EXPR_ELIFCOND)), 'conditional_statement')
-
-
-            if self._match('elif', 'else', 'close'):
-                self._error(['general_statement'], 'elif_block')
+            self._expect_after_expr(self.PRED_GENERAL_STMT, cond, 'elif_block')
 
             elif_body: List[ASTNode] = []
 
             # require 1 general statement
-            elif_body.append(self._general_statement(block_keywords))
-
-            # complete next tokens for error priting
-            FOLLOW_ELIF_GEN_STMT = {'close', 'elif', 'else'} | self._first_general_statement()
-
-            if not self._match(*FOLLOW_ELIF_GEN_STMT):
-                self._error(sorted(list(FOLLOW_ELIF_GEN_STMT)), 'conditional_statement')
-
+            elif_body.append(self._general_statement(predict_keywords))
+            self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'elif_block')
 
             while not self._match('elif', 'else', 'close'):
-                elif_body.append(self._general_statement(block_keywords))
-
-                # complete next tokens for error priting
-                FOLLOW_ELIF_GEN_STMT = {'close', 'elif', 'else'} | self._first_general_statement()
-
-                if not self._match(*FOLLOW_ELIF_GEN_STMT):
-                    self._error(sorted(list(FOLLOW_ELIF_GEN_STMT)), 'conditional_statement')
+                elif_body.append(self._general_statement(predict_keywords))
+                self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'elif_block')
 
             elif_nodes.append(self._ast_node('elif', elif_tok, children=[cond] + elif_body))
 
-        # optional else block
+
+        # optional else ast node
         else_node: Optional[ASTNode] = None
+        predict_keywords = {'close'}
 
         if self._match('else'):
             else_tok = self._advance()
-
-            else_body: List[ASTNode] = []
+            else_body: List[ASTNode] = []   # list of general statements
 
             # require one general statement
-            else_body.append(self._general_statement(block_keywords))
-
-            FOLLOW_ELSE_GEN_STMT = {'close'} | self._first_general_statement()
-
-            if not self._match(*FOLLOW_ELSE_GEN_STMT):
-                self._error(sorted(list(FOLLOW_ELSE_GEN_STMT)), 'conditional_statement')
+            else_body.append(self._general_statement(predict_keywords))
+            self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'else_block')
 
             while not self._match('close'):
-                else_body.append(self._general_statement(block_keywords))
+                else_body.append(self._general_statement(predict_keywords))
+                self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'else_block')
 
-                FOLLOW_ELSE_GEN_STMT = {'close'} | self._first_general_statement()
-
-                if not self._match(*FOLLOW_ELSE_GEN_STMT):
-                    self._error(sorted(list(FOLLOW_ELSE_GEN_STMT)), 'conditional_statement')
-
+            # AST else node
             else_node = self._ast_node('else', else_tok, children=else_body)
 
-        # final close
-        if not self._match('close'):
-            self._error(['close'], 'conditional_statement')
-        
+        # final close, probably handled by previous expect already we add just incase.
+        self._expect_type('close', 'conditional_statement')
         self._advance()
 
-        # if node is already a list and we add it
+        # combine if, elif, else nodes
         children = [if_node] + elif_nodes
 
         if else_node:
@@ -256,25 +209,17 @@ class BlockStmtRules():
         if self._match('for'):
             self._advance()
 
-            if not self._match(ID_T):
-                self._error([ID_T], 'for_statement')
+            self._expect_type(ID_T, 'for_statement')
+            loop_var = self._advance().lexeme   # advance and get variable name
 
-            loop_var = self._advance().lexeme
-
-            if not self._match('in'):
-                self._error(['in'], 'for_statement')
-
+            self._expect_type('in', 'for_statement')
             self._advance()
 
             # range ( <expression_list> )
-            if not self._match('range'):
-                self._error(['range'], 'for_statement')
-
+            self._expect_type('range', 'for_statement')
             self._advance()
 
-            if not self._match('('):
-                self._error(['('], 'range_expression')
-
+            self._expect_type('(', 'range_expression')
             self._advance()
 
             # expression_list -> maybe empty per grammar; handle empty or expressions separated by commas
@@ -286,13 +231,8 @@ class BlockStmtRules():
             indices.append(index)
 
             # follow tokens for this argument.
-            FOLLOW_AFTER_ARG = {
-                ')', ','
-            }
-
-            # check the next token
-            if not self._match(*FOLLOW_AFTER_ARG):
-                self._error(sorted(list(FOLLOW_AFTER_ARG)), 'range_expression')
+            predict_keywords = { ')', ',' }
+            self._expect(predict_keywords, 'range_expression')
 
 
             # optional second expression
@@ -302,13 +242,8 @@ class BlockStmtRules():
                 indices.append(index)
 
                 # follow tokens for this argument.
-                FOLLOW_AFTER_ARG = {
-                    ')', ','
-                }
-
-                # check the next token
-                if not self._match(*FOLLOW_AFTER_ARG):
-                    self._error(sorted(list(FOLLOW_AFTER_ARG)), 'range_expression')
+                predict_keywords = { ')', ',' }
+                self._expect(predict_keywords, 'range_expression')
 
                 # optional third expression
                 if self._match(','):
@@ -317,44 +252,23 @@ class BlockStmtRules():
                     indices.append(index)
 
                     # follow tokens for this argument.
-                    FOLLOW_AFTER_ARG = {
-                        ')'
-                    }
+                    predict_keywords = {')'}
+                    self._expect(predict_keywords, 'range_expression')
 
-                    # check the next token
-                    if not self._match(*FOLLOW_AFTER_ARG):
-                        self._error(sorted(list(FOLLOW_AFTER_ARG)), 'range_expression')
-
-
-                    # no more than 3 expressions allowed
-                    if self._match(','):
-                        self._error([')'], 'range_expression')
-            
-            if not self._match(')'):
-                self._error([')'], 'range_expression')
-
+            self._expect_type(')', 'range_expression')
             self._advance()
 
             # local loop statements until 'close'
             body: List[ASTNode] = []
-            # loop_block_keywords
-            loop_block_keywords = {'close'}
+            predict_keywords = {'close'}
 
-            FIRST_LOOP_ITEM = self._first_general_statement()
-            FOLLOW_LOOP_ITEM = {'close'} | FIRST_LOOP_ITEM
-
-            # error to not have at least 1 gen stmt
-            if not self._match(*FIRST_LOOP_ITEM):
-                self._error(sorted(list(FIRST_LOOP_ITEM)), 'for_body')
+            # expect first set of general statement
+            body.append(self._general_statement(predict_keywords))
+            self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'for_body')
 
             while not self._match('close'):
-                # error printing
-                body.append(self._general_statement(loop_block_keywords))
-
-                # error to have close
-                if not self._match(*FOLLOW_LOOP_ITEM):
-                    self._error(sorted(list(FOLLOW_LOOP_ITEM)), 'for_body')
-
+                body.append(self._general_statement(predict_keywords))
+                self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'for_body')
 
             # close consumed
             for_tok = self._advance()
@@ -363,39 +277,29 @@ class BlockStmtRules():
 
 
         # while loop
-
         elif self._match('while'):
             while_tok = self._advance()
-            cond = self._expr()
 
             body: List[ASTNode] = []
-            loop_block_keywords = {'close'}
-            FIRST_LOOP_ITEM = self._first_general_statement()
-            FOLLOW_LOOP_ITEM = {'close'} | FIRST_LOOP_ITEM
+            cond = self._expr()
+            predict_keywords = {'close'}
 
             # after parsing expr, we need to show full error context
-            FIRST_LOOP_ITEM = self._add_postfix_tokens(FIRST_LOOP_ITEM, cond)
+            self._expect_after_expr(self.PRED_GENERAL_STMT, cond, 'while_statement')
 
-            # error to have skip and stop
-            if not self._match(*FIRST_LOOP_ITEM):
-                self._error(sorted(list(FIRST_LOOP_ITEM)), 'while_body')
+            body.append(self._general_statement(predict_keywords))
+            self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'while_body')
 
             while not self._match('close'):
-                body.append(self._general_statement(loop_block_keywords))
+                body.append(self._general_statement(predict_keywords))
+                self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'while_body')
 
-                # error to have skip and stop and close
-                if not self._match(*FOLLOW_LOOP_ITEM):
-                    self._error(sorted(list(FOLLOW_LOOP_ITEM)), 'while_body')
-
-            if self._match('close'):
-                self._advance()
-            else:
-                self._error(['close'], 'while_statement')
+            # expect close, might be handled already by previous expect
+            self._expect_type('close', 'while_statement')
+            self._advance()
 
             return self._ast_node('while', while_tok, children=[cond] + body)
 
-        else:
-            self._error(['for', 'while'], 'looping_statement')
 
 
     def _error_handling_statement(self: "RDParser") -> ASTNode:
@@ -413,73 +317,53 @@ class BlockStmtRules():
         """
 
         try_tok = self._advance()
-
-
         try_body: List[ASTNode] = []
-        try_block_keywords = {'fail'}
+        predict_keywords = {'fail'}
 
         # require one general statement
-        try_body.append(self._general_statement(try_block_keywords))
-
-        # check proper follow set after general statement
-        FOLLOW_TRY_GEN_STMT = try_block_keywords | self._first_general_statement()
+        try_body.append(self._general_statement(predict_keywords))
+        self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'try_block')
 
         while not self._match('fail'):
-            if not self._match(*FOLLOW_TRY_GEN_STMT):
-                self._error(sorted(list(FOLLOW_TRY_GEN_STMT)), 'try_block')
-
-            try_body.append(self._general_statement(try_block_keywords))
+            try_body.append(self._general_statement(predict_keywords))
+            self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'try_block')
 
         # fail block
         fail_tok = self._advance()
-
         fail_body: List[ASTNode] = []
-        
-        fail_block_keywords = {'always', 'close'}
+        predict_keywords = {'always', 'close'}
 
-
-        # check proper follow set after general statement
-        FOLLOW_FAIL_GEN_STMT = fail_block_keywords | self._first_general_statement()
-
-
-        # require one general statement, pass the keywrods for expr
-        fail_body.append(self._general_statement(fail_block_keywords))
+        # require one general statement, pass the keywods for expr
+        fail_body.append(self._general_statement(predict_keywords))
+        self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'fail_block')
 
         while not self._match('always', 'close'):
-            if not self._match(*FOLLOW_FAIL_GEN_STMT):
-                self._error(sorted(list(FOLLOW_FAIL_GEN_STMT)), 'fail_block')
+            fail_body.append(self._general_statement(predict_keywords))
+            self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'fail_block')
 
-            fail_body.append(self._general_statement(fail_block_keywords))
-
-        # optional always block
+        # always block optional
         always_node: Optional[ASTNode] = None
 
         if self._match('always'):
             always_tok = self._advance()
-
             always_body: List[ASTNode] = []
+            predict_keywords = {'close'}
 
-            # check proper follow set after general statement
-            FOLLOW_ALWYS_GEN_STMT = {'close'} | self._first_general_statement()
-
-            always_body.append(self._general_statement({'close'}))
+            always_body.append(self._general_statement(predict_keywords))
+            self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'always_block')
 
             while not self._match('close'):
-                # check follow set 
-                if not self._match(*FOLLOW_ALWYS_GEN_STMT):
-                    self._error(sorted(list(FOLLOW_ALWYS_GEN_STMT)), 'always_block')
-
                 always_body.append(self._general_statement({'close'}))
-
+                self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'always_block')
 
             always_node = self._ast_node('always', always_tok, children=always_body)
 
-        # final close
-        if not self._match('close'):
-            self._error(['close'], 'error_handling_statement')
 
+        # expect close incase. we handle expecting close in previous expects
+        self._expect_type('close', 'error_handling_statement')
         self._advance()
 
+        # combine the nodes
         children = [self._ast_node('try', try_tok, children=try_body), self._ast_node('fail', fail_tok, children=fail_body)]
 
         if always_node:

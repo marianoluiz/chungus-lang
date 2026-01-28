@@ -1,8 +1,6 @@
-
-
-fn x()
-x = 1 
-ret true 
-
-cls
+if x > y 
+for i in range (3) 
+        show y
+close  
+close 
 
