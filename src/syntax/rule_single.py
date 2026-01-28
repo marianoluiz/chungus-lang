@@ -1,21 +1,3 @@
-"""
-Single-statements parsing rules.
-
-This module defines the `SingleStmt` mixin used by the recursive-descent
-parser (`RDParser`) to parse program, general statements, argument lists,
-array literals/manipulation, id-tail forms (assignment/call/index), and
-return/element helpers.
-
-Expectations:
-- Mixed into a class that implements ParserCore helpers:
-  - self._match(*types) -> bool
-  - self._advance() -> Token
-  - self._error(expected: List[str], context: str) -> raises ParseError
-  - self._expr(), self._postfix_tail(), etc. provided by other mixins.
-
-Public symbols:
-- SingleStmt: mixin with statement-level parsing routines.
-"""
 from typing import List, Optional, TYPE_CHECKING
 from src.constants.token import ID_T, INT_LIT_T, STR_LIT_T, BOOL_LIT_T, FLOAT_LIT_T, SKIP_TOKENS, Token
 from src.syntax.ast import ASTNode
@@ -26,12 +8,14 @@ if TYPE_CHECKING: from src.syntax.rd_parser import RDParser
 
 class SingleStmtRules:
     """
-    Mixin providing parsing rules for single/general statements and program root.
+    Single-statements parsing rules.
 
-    Methods return `ASTNode` objects (see [`ASTNode`](src/syntax/ast.py)) and
-    raise parse errors via `self._error(...)` when input violates grammar.
+    Used by (`RDParser`) to parse program, general statements, argument lists,
+    array literals/manipulation, id-tail forms (assignment/call/index), and
+    return/element helpers.
     """
     
+    # Reusable predict sets used in functions
     PRED_GENERAL_STMT = {'array_add','array_remove','for', ID_T,'if','show','todo','try','while'}
     PRED_PROGRAM      = PRED_GENERAL_STMT | {'fn'}
     PRED_ID_STMT_TAIL = {'++', '--', '=', '(', '['}

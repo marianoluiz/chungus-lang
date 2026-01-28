@@ -1,19 +1,3 @@
-"""
-Block statement parsing rules.
-
-This module provides BlockStmtRules, a mixin containing the top-level block and
-statement parsing routines used by the recursive-descent parser `RDParser`.
-
-The mixin expects to be mixed into a class that implements the ParserCore API:
-- self._match(*types) -> bool
-- self._advance() -> Token
-- self._error(expected: List[str], context: str) -> raises ParseError
-- self._expr(), self._general_statement(), etc. provided by other rule mixins.
-
-Public symbols:
-- BlockStmtRules: mixin with functions to parse function declarations, conditionals,
-  loops and try/fail blocks.
-"""
 from typing import List, Optional, TYPE_CHECKING
 from src.constants.token import Token, SKIP_TOKENS, ID_T, STR_LIT_T, BOOL_LIT_T, FLOAT_LIT_T, INT_LIT_T
 from src.syntax.ast import ASTNode
@@ -24,12 +8,10 @@ if TYPE_CHECKING: from src.syntax.rd_parser import RDParser
 
 class BlockStmtRules():    
     """
-    Statement parsing mixin that implements function/conditional/loop/error-block rules.
+    Block-level statements parsing rules.
 
-    Usage:
-        class RDParser(ParserCore, ExprRules, BlockStmtRules):
-            ...
-    The methods raise parse errors via self._error(...) when encountering invalid input.
+    Used by (`RDParser`) to parse block-introducing constructs like `fn`, `if/elif/else`, `for`, `while`,
+    `try/fail/always` and enforces explicit `close` termination.
     """
 
     def _function_statements(self: "RDParser") -> List[ASTNode]:
