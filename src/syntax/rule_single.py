@@ -49,9 +49,11 @@ class SingleStmtRules:
     def _program(self: "RDParser") -> ASTNode:
         """
         Parse the top-level program structure.
-
-        `<program>`: 
-            -> `<function_statements> <general_statement> <general_statement_tail>`
+        
+        ```
+        <program>: 
+            -> <function_statements> <general_statement> <general_statement_tail>
+        ```
 
         Returns: ASTNode: Root ASTNode
         """
@@ -75,12 +77,14 @@ class SingleStmtRules:
         """
         Parse a general statement.
 
-        `<general_statement>`: 
-            -> `id <id_statement_tail>`
-            -> `show <output_value>`
-            -> `<control_structure_statement>`
-            -> `<error_handling_statement>`
-            -> `todo`
+        ```
+        <general_statement>: 
+            -> id <id_statement_tail>
+            -> show <output_value>
+            -> <control_structure_statement>
+            -> <error_handling_statement>
+            -> todo
+        ```
 
         Returns: 
             ASTNode
