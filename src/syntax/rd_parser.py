@@ -1,5 +1,5 @@
 from typing import List
-from src.constants.token import Token
+from src.constants.token import FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, Token
 from src.syntax.ast import ParseResult
 from src.syntax.errors import ParseError
 from src.syntax.core import ParserCore
@@ -30,6 +30,19 @@ class RDParser(ParserCore, ExprRules, SingleStmtRules, BlockStmtRules):
         self.errors: List[str] = []
         self._debug = debug        # Debug switch
 
+    # Reusable predict sets used in functions
+    PRED_GENERAL_STMT = {'array_add','array_remove','for', ID_T,'if','show','todo','try','while'}
+    PRED_PROGRAM      = PRED_GENERAL_STMT | {'fn'}
+    PRED_ID_STMT_TAIL = {'++', '--', '=', '(', '['}
+    PRED_ASSIGN_VALUE = {'!', '[', 'false', 'float', FLOAT_LIT_T, ID_T, 'int', INT_LIT_T, 'read', STR_LIT_T, 'true'}
+    PRED_ELEMENT_LIST = {'[', ']', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'}
+    PRED_ARRAY_ELEMENT      = {'[', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'}
+    PRED_ARRAY_TAIL         = {',', ']'}
+    PRED_ARG_LIST_OPT       = {'!', ')', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'}
+    PRED_ARG_ELEMENT_TAIL   = {')', ','}
+    PRED_INDEX              = {INT_LIT_T, ID_T}
+    PRED_ARR_INDEX_ASSIGN_INDEX_LOOP = {'=', '['}
+    PRED_ARR_MANIP_INDEX_LOOP        = {',', '['} 
 
     def parse(self: "RDParser") -> ParseResult:
         """
@@ -46,3 +59,4 @@ class RDParser(ParserCore, ExprRules, SingleStmtRules, BlockStmtRules):
             self.errors.append(str(e))
 
             return ParseResult(None, self.errors)
+    
