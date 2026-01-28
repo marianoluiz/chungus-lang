@@ -81,7 +81,8 @@ class SingleStmtRules:
         <general_statement>: 
             -> id <id_statement_tail>
             -> show <output_value>
-            -> <control_structure_statement>
+            -> <conditional_statement>
+            -> <looping_statement>
             -> <error_handling_statement>
             -> todo
         ```
