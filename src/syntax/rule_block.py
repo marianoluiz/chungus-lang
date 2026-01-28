@@ -36,9 +36,16 @@ class BlockStmtRules():
         """
         Parse a sequence of function declarations.
 
+        ```
+        <function_statements>
+            -> <function_statement> <function_statements>
+            -> λ
+        ```
+
         Returns:
-            List[ASTNode]: List of function AST nodes.
+            List[ASTNode]
         """
+
         nodes = []
         while self._match('fn'):
             nodes.append(self._function_statement())
@@ -51,8 +58,13 @@ class BlockStmtRules():
         """
         Parse a single function declaration.
 
+        ```
+        <function_statement>
+            -> fn id ( <arg_list_opt> ) <local_statement> <return_opt> close
+        ```
+
         Returns:
-            ASTNode: AST node representing the function with children nodes for parameters, locals, and return.
+            ASTNode
         """
 
         fn_tok = self._advance()  # consume 'fn' and capture token
@@ -112,14 +124,24 @@ class BlockStmtRules():
         """
         Parse an if/elif/else conditional block.
 
-        Grammar (informal):
-            if <expr> <general_statement>+ (elif <expr> <general_statement>+)* (else <general_statement>+)? close
+        ```
+        <conditional_statement>
+            -> <if_block> <elif_block> <else_block> close
+
+            <if_block>
+                -> if <expr> <general_statement> <general_statement_tail>
+
+            <elif_block>
+                -> elif <expr> <general_statement> <general_statement_tail> <elif_block>
+                -> λ
+
+            <else_block>
+                -> else <general_statement> <general_statement_tail>
+                -> λ
+        ```
 
         Returns:
-            ASTNode: `conditional_statement` node containing:
-                - one `if` node (cond + body)
-                - zero-or-more `elif` nodes (cond + body)
-                - optional `else` node (body)
+            ASTNode
         """
         # If blocks
         self._expect_type('if', 'conditional_statement')
@@ -200,12 +222,26 @@ class BlockStmtRules():
 
     def _looping_statement(self: "RDParser") -> ASTNode:
         """
-        Parse `for` and `while` loop statements.
+        Parse a for/while loop statement.
+
+        ```
+        <looping_statement>
+            -> <for_statement>
+            -> <while_statement>
+
+            <for_statement>
+                -> for id in <range_expression> <general_statement> <general_statement_tail> close
+
+            <while_statement>
+                -> while <expr> <general_statement> <general_statement_tail> close
+            
+            <range_expression> -> range ( <range_list> )
+        ```
 
         Returns:
-            ASTNode: `for` node (value = loop var, children = range exprs + body)
-                     or `while` node (children = cond + body).
+            ASTNode
         """
+
         if self._match('for'):
             self._advance()
 
@@ -226,6 +262,8 @@ class BlockStmtRules():
             indices: List[ASTNode] = []
 
             # up to 3 range expression
+
+            # <range_list> -> <index> <range_tail_1>
             # first index (required)
             index = self._index()
             indices.append(index)
@@ -234,8 +272,10 @@ class BlockStmtRules():
             predict_keywords = { ')', ',' }
             self._expect(predict_keywords, 'range_expression')
 
-
             # optional second expression
+            # <range_tail_1>
+            #     -> , <index> <range_tail_2>
+            #     -> λ
             if self._match(','):
                 self._advance()
                 index = self._index()
@@ -246,6 +286,9 @@ class BlockStmtRules():
                 self._expect(predict_keywords, 'range_expression')
 
                 # optional third expression
+                #  <range_tail_2>
+                #       -> , <index>
+                #       -> λ
                 if self._match(','):
                     self._advance()
                     index = self._index()
@@ -304,17 +347,30 @@ class BlockStmtRules():
 
     def _error_handling_statement(self: "RDParser") -> ASTNode:
         """
-        Parse try/fail/(optional)always blocks.
+        Parse a try/fail/(optional)always error-handling block.
 
-        Grammar (informal):
-            try <general_statement>+ fail <general_statement>+ (always <general_statement>+)? close
+        ```
+        <error_handling_statement>
+            -> <try_block> <fail_block> <error_handling_tail> close
+
+            <try_block>
+                -> try <local_statement>
+
+            <fail_block>
+                -> fail <local_statement>
+
+            <error_handling_tail>
+                -> <always_block>
+                -> λ
+
+            <always_block>
+                -> always <local_statement>
+        ```
 
         Returns:
-            ASTNode: `error_handling` node with children:
-                - `try` (children = try body)
-                - `fail` (children = fail body)
-                - optional `always` (children = always body)
+            ASTNode
         """
+
 
         try_tok = self._advance()
         try_body: List[ASTNode] = []

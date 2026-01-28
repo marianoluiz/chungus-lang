@@ -33,12 +33,18 @@ class ExprRules:
     Each method parses a specific production and returns an `ASTNode`
     representing the parsed subtree.
     """
+
     def _expr(self: "RDParser") -> ASTNode:
         """
         Parse an expression (logical OR).
 
+        ```
+        <expr>
+            -> <logical_or_expr>
+        ```
+
         Returns:
-            ASTNode: Expression AST node.
+            ASTNode
         """
         return self._logical_or_expr()
     
@@ -46,8 +52,17 @@ class ExprRules:
         """
         Parse logical OR expressions.
 
+        ```
+        <logical_or_expr>
+            -> <logical_and_expr> <logical_or_expr_tail>
+
+            <logical_or_expr_tail>
+                -> or <logical_and_expr> <logical_or_expr_tail>
+                -> λ
+        ```
+
         Returns:
-            ASTNode: AST node representing logical OR operations.
+            ASTNode
         """
         left  = self._logical_and_expr()
 
@@ -61,8 +76,17 @@ class ExprRules:
         """
         Parse logical AND expressions.
 
+        ```
+        <logical_and_expr>
+            -> <logical_not_expr> <logical_and_expr_tail>
+
+            <logical_and_expr_tail>
+                -> and <logical_not_expr> <logical_and_expr_tail>
+                -> λ
+        ```
+
         Returns:
-            ASTNode: AST node representing logical AND operations.
+            ASTNode
         """
 
         # Advance handle errors
@@ -83,8 +107,14 @@ class ExprRules:
         """
         Parse logical NOT expressions.
 
+        ```
+        <logical_not_expr>
+            -> ! <eq_expr>
+            -> <eq_expr>
+        ```
+
         Returns:
-            ASTNode: AST node representing logical NOT operation or the next expression.
+            ASTNode
         """
 
         # Advance handle errors
@@ -103,10 +133,20 @@ class ExprRules:
 
     def _eq_expr(self: "RDParser") -> ASTNode:
         """
-        Parse equality expressions (==, !=).
+        Parse equality expressions.
+
+        ```
+        <eq_expr>
+            -> <comp_operand> <eq_expr_tail>
+
+            <eq_expr_tail>
+                -> == <comp_operand> <eq_expr_tail>
+                -> != <comp_operand> <eq_expr_tail>
+                -> λ
+        ```
 
         Returns:
-            ASTNode: AST node representing equality operations.
+            ASTNode
         """
 
         left = self._comp_operand()
@@ -120,10 +160,18 @@ class ExprRules:
     
     def _comp_operand(self: "RDParser") -> ASTNode:
         """
-        Parse a comparison operand: literal, boolean, or relational expression.
+        Parse a comparison operand.
+
+        ```
+        <comp_operand>
+            -> <rel_expr>
+            -> str_literal
+            -> true
+            -> false
+        ```
 
         Returns:
-            ASTNode: AST node representing the operand.
+            ASTNode
         """
 
         # Advance handle errors
@@ -146,10 +194,25 @@ class ExprRules:
 
     def _rel_expr(self: "RDParser") -> ASTNode:
         """
-        Parse relational expressions (>, >=, <, <=).
+        Parse relational expressions.
+
+        ```
+        <rel_expr>
+            -> <arith_expr> <rel_expr_tail>
+
+            <rel_expr_tail>
+                -> <rel_op> <arith_expr> <rel_expr_tail>
+                -> λ
+
+            <rel_op>
+                -> >
+                -> <
+                -> >=
+                -> <=
+            ```
 
         Returns:
-            ASTNode: AST node representing relational operations.
+            ASTNode
         """
         left = self._arith_expr()
 
@@ -162,11 +225,22 @@ class ExprRules:
 
     def _arith_expr(self: "RDParser") -> ASTNode:
         """
-        Parse arithmetic expressions (+, -).
+        Parse arithmetic expressions.
+
+        ```
+        <arith_expr>
+            -> <term> <arith_expr_tail>
+
+            <arith_expr_tail>
+                -> + <term> <arith_expr_tail>
+                -> - <term> <arith_expr_tail>
+                -> λ
+        ```
 
         Returns:
-            ASTNode: AST node representing addition/subtraction operations.
+            ASTNode
         """
+
         left = self._term()
 
         while self._match('+', '-'):
@@ -178,11 +252,24 @@ class ExprRules:
 
     def _term(self: "RDParser") -> ASTNode:
         """
-        Parse multiplicative expressions (*, /, //, %).
+        Parse multiplicative expressions.
+
+        ```
+        <term>
+            -> <factor> <term_tail>
+
+        <term_tail>
+            -> * <factor> <term_tail>
+            -> / <factor> <term_tail>
+            -> // <factor> <term_tail>
+            -> % <factor> <term_tail>
+            -> λ
+        ```
 
         Returns:
-            ASTNode: AST node representing multiplication/division/modulo operations.
+            ASTNode
         """
+
         left = self._factor()
 
         while self._match('*', '/', '//', '%'):
@@ -194,11 +281,21 @@ class ExprRules:
     
     def _factor(self: "RDParser") -> ASTNode:
         """
-        Parse power expressions (**).
+        Parse power expressions.
+
+        ```
+        <factor>
+            -> <power> <factor_tail>
+
+            <factor_tail>
+                -> ** <factor>
+                -> λ
+        ```
 
         Returns:
-            ASTNode: AST node representing power operations.
+            ASTNode
         """
+
         left = self._power()
 
         while self._match('**'):
@@ -207,14 +304,22 @@ class ExprRules:
             left = self._ast_node(tok.lexeme, tok, children=[left, right])
         
         return left
-    
+
+
     def _power(self: "RDParser") -> ASTNode:
         """
-        Parse primary expressions: literals, identifiers, function calls, grouping.
+        Parse a power operand.
+
+        ```
+        <power>
+            -> <int_float_lit>
+            -> id <postfix_tail>
+        ```
 
         Returns:
-            ASTNode: AST node representing the primary expression.
+            ASTNode
         """
+
         if self._match(INT_LIT_T, FLOAT_LIT_T):
             tok = self._advance()
             kind = INT_LIT_T if tok.type == INT_LIT_T else FLOAT_LIT_T
@@ -235,9 +340,17 @@ class ExprRules:
 
     def _postfix_tail(self: "RDParser", node: ASTNode, id_tok: Token) -> ASTNode:
         """
-        Parse a single postfix form after an identifier:
-        - function call: ( arg_list_opt )
-        - indexing:      [index]+
+        Parse an optional postfix tail after an identifier.
+
+        ```
+        <postfix_tail>
+            -> ( <arg_list_opt> )
+            -> [ <index> ] <index_loop>
+            -> λ
+        ```
+
+        Returns:
+            ASTNode
         """
         if self._match('('):
             return self._postfix_call(node, id_tok)
@@ -250,7 +363,15 @@ class ExprRules:
 
     def _postfix_call(self: "RDParser", node: ASTNode, id_tok: Token) -> ASTNode:
         """
-        Parse function-call postfix: ( arg_list_opt ).
+        Parse a function-call postfix.
+
+        ```
+        <postfix_tail>
+            -> ( <arg_list_opt> )
+        ```
+
+        Returns:
+            ASTNode
         """
 
         self._advance()
@@ -266,7 +387,19 @@ class ExprRules:
 
     def _postfix_index(self: "RDParser", node: ASTNode) -> ASTNode:
         """
-        Parse indexing postfix: [index]+ (flattened).
+        Parse an indexing postfix.
+
+        ```
+        <postfix_tail>
+            -> [ <index> ] <index_loop>
+
+        <index_loop>
+            -> [ <index> ] <index_loop>
+            -> λ
+        ```
+
+        Returns:
+            ASTNode
         """
 
         indices: list[ASTNode] = []
@@ -294,7 +427,18 @@ class ExprRules:
     
 
     def _index(self: "RDParser"):
-        """ Returns id or int_literal """
+        """
+        Parse an index.
+
+        ```
+        <index>
+            -> int_literal
+            -> id
+        ```
+
+        Returns:
+            ASTNode
+        """
         
         self._expect(self.PRED_INDEX, 'index')
 

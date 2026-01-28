@@ -50,8 +50,10 @@ class SingleStmtRules:
         """
         Parse the top-level program structure.
 
-        Returns:
-            ASTNode: Root ASTNode representing the program.
+        `<program>`: 
+            -> `<function_statements> <general_statement> <general_statement_tail>`
+
+        Returns: ASTNode: Root ASTNode
         """
 
         self._expect(self.PRED_PROGRAM, 'program')
@@ -71,13 +73,17 @@ class SingleStmtRules:
 
     def _general_statement(self: "RDParser", block_keywords: set = None) -> ASTNode:
         """
-        Parse a general statement (e.g., output, control statements).
+        Parse a general statement.
 
-        Args:
-            block_keywords: Set of keywords that are valid in the current block context (e.g., 'close', 'skip', 'stop')
+        `<general_statement>`: 
+            -> `id <id_statement_tail>`
+            -> `show <output_value>`
+            -> `<control_structure_statement>`
+            -> `<error_handling_statement>`
+            -> `todo`
 
-        Returns:
-            ASTNode: AST node representing the statement.
+        Returns: 
+            ASTNode
         """
         if block_keywords is None:
             block_keywords = set()
@@ -130,8 +136,11 @@ class SingleStmtRules:
         """
         Parse an optional comma-separated argument list.
 
-        Args:
-            block_keywords: Set of keywords valid in current block context
+        ```
+        <arg_list_opt> 
+            -> <arg_element> <arg_element_tail>
+            -> λ
+        ```
 
         Returns:
             List[ASTNode]: List of expression AST nodes representing arguments.
@@ -163,8 +172,14 @@ class SingleStmtRules:
     def _return_opt(self: "RDParser") -> Optional[ASTNode]:
         """
         Parse an optional return statement.
+        
+        ```
+        <return_opt>
+            -> ret <expr>
+            -> λ
+        ```
 
-        Returns:
+        Returns: 
             ASTNode | None: AST node for return statement if present.
         """
 
@@ -180,12 +195,51 @@ class SingleStmtRules:
         return None
 
 
+    def _element_list_opt(self: "RDParser") -> List[ASTNode]:
+        """
+        Parse an optional, possibly-empty list of array literal elements.
+
+        ```
+        <element_list>
+            -> <array_element> <array_tail>
+            -> λ
+        ```
+        Returns:
+            List[ASTNode]: Parsed element nodes (may be empty).
+        """
+
+        self._expect(self.PRED_ELEMENT_LIST, 'element_list_opt')
+
+        elements: List[ASTNode] = []
+
+        # empty element list allowed
+        if self._match(']'):
+            return elements
+
+        # at least one element
+        elements.append(self._array_element())
+        self._expect(self.PRED_ARRAY_TAIL, 'element_list_opt')
+
+        while self._match(','):
+            self._advance()
+            # parse next element
+            elements.append(self._array_element())
+
+            self._expect(self.PRED_ARRAY_TAIL, 'element_list')
+
+        return elements
+
+
     def _array_element(self: "RDParser") -> ASTNode:
         """
         Parse a single array element (literal, id, or nested array).
 
-        Args:
-            block_keywords: Set of keywords valid in current block context
+        ```
+        <array_element>:
+            -> <int_float_str_bool_lit>
+            -> id
+            -> [ <element_list> ]
+        ```
 
         Returns:
             ASTNode: AST node for the array element.
@@ -219,51 +273,23 @@ class SingleStmtRules:
 
             return ASTNode('array_literal', children=elems)
 
-
         else:
             self._error(self.PRED_ARRAY_ELEMENT, 'array_element')
-
-
-    def _element_list_opt(self: "RDParser") -> List[ASTNode]:
-        """
-        Parse an optional, possibly-empty list of array literal elements.
-
-        Args:
-            block_keywords: Set of keywords valid in current block context
-
-        Returns:
-            List[ASTNode]: Parsed element nodes (may be empty).
-        """
-
-        self._expect(self.PRED_ELEMENT_LIST, 'element_list_opt')
-
-        elements: List[ASTNode] = []
-
-        # empty element list allowed
-        if self._match(']'):
-            return elements
-
-        # at least one element
-        elements.append(self._array_element())
-        self._expect(self.PRED_ARRAY_TAIL, 'element_list_opt')
-
-        while self._match(','):
-            self._advance()
-            # parse next element
-            elements.append(self._array_element())
-
-            self._expect(self.PRED_ARRAY_TAIL, 'element_list_opt')
-
-        return elements
 
 
     def _output_statement(self: "RDParser") -> ASTNode:
         """
         Parse a 'show' statement.
 
+        ```
+        <output_value>
+            -> id
+            -> str_literal
+        ```
         Returns:
             ASTNode: AST node representing the output statement.
         """
+
         show_tok = self._advance()
 
         if self._match(ID_T):
@@ -273,20 +299,26 @@ class SingleStmtRules:
             tok = self._advance()
             return self._ast_node('output_statement', show_tok, children=[self._ast_node(STR_LIT_T, tok, value=tok.lexeme)])
         else:
-            self._error([ID_T, STR_LIT_T], 'output_value')
+            self._expect({ID_T, STR_LIT_T}, 'output_value')
 
 
     def _id_statement_tail(self: "RDParser", id_tok: Token, block_keywords: set = None) -> ASTNode:
         """ 
         Parses next of id.
 
-        Args:
-            id_tok: The identifier token
-            block_keywords: Set of keywords valid in current block context
+        ```
+        <id_statement_tail>
+            -> ++
+            -> --
+            -> = <assignment_value>
+            -> ( <arg_list_opt> )
+            -> [ <index> ] <index_loop> = <assignment_value>
+        ```
 
         Returns:
             ASTNode: AST node representing the id_statement_tail.
         """
+
         if block_keywords is None:
             block_keywords = set()
 
@@ -351,6 +383,25 @@ class SingleStmtRules:
 
 
     def _assignment_value(self: "RDParser", block_keywords: set = None):
+        """
+        Parse the right-hand side of an assignment.
+
+        ```
+        <assignment_value>
+            -> read
+            -> int ( <expr> )
+            -> float ( <expr> )
+            -> [ <element_list> ]
+            -> <expr>
+        ```
+
+        Returns:
+            ASTNode
+
+        Note:
+            `block_keywords` param extends FOLLOW(<assignment_value>) for error reporting after <expr>.
+        """
+
         if block_keywords is None:
             block_keywords = set()
 
@@ -409,10 +460,15 @@ class SingleStmtRules:
 
     def _array_add_statement(self: "RDParser") -> ASTNode:
         """
-        Parse array_add(id, expr) and array_remove(id, expr)
-        
-        Args:
-            block_keywords: Set of keywords valid in current block context
+        Parse an array_add statement.
+
+        ```
+        <array_manip_statement>
+            -> array_add ( id <index_loop> , <expr> )
+        ```
+
+        Returns:
+            ASTNode
         """
 
         op_tok = self._advance()
@@ -446,19 +502,23 @@ class SingleStmtRules:
 
     def _array_remove_statement(self: "RDParser"):
         """
-        Parse array_remove(id, expr) and array_remove(id, expr)
+        Parse an array_remove statement.
         
-        Args:
-            block_keywords: Set of keywords valid in current block context
+        ```
+        <array_manip_statement>
+            -> array_remove ( id <index_loop> , <index> )
+        ```
+
+        Returns: ASTNode
         """
 
         op_tok = self._advance()
         op = op_tok.type
 
-        self._expect_type('(', 'array_add_statement')        
+        self._expect_type('(', 'array_remove_statement')        
         self._advance()
 
-        self._expect_type(ID_T, 'array_add_statement')        
+        self._expect_type(ID_T, 'array_remove_statement')        
         tok = self._advance()
         
         # create ast node with id name
@@ -469,7 +529,7 @@ class SingleStmtRules:
             id_node = self._postfix_tail(id_node, id_tok=tok)
 
         # Expect ,
-        self._expect(self.PRED_ARR_MANIP_INDEX_LOOP, 'array_add_statement')
+        self._expect(self.PRED_ARR_MANIP_INDEX_LOOP, 'array_remove_statement')
         self._advance()
 
         index_node = self._index()

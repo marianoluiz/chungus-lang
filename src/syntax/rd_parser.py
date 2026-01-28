@@ -20,9 +20,8 @@ class RDParser(ParserCore, ExprRules, SingleStmtRules, BlockStmtRules):
         _i (int): Current token index.
         errors (List[str]): List of parse error messages encountered.
         _debug (bool): Debug mode flag. Prints debug messages if True.
-
-    See `docs/ast_structure.md` for full AST node hierarchy.
     """
+
     def __init__(self: "RDParser", tokens: List[dict], source: str, debug: bool = False):
         self.tokens: List[Token] = tokens   #  [ Token(lexeme, type, line, col), ... ]
         self._source = source               # source code for printing code lines
