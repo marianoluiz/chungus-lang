@@ -326,7 +326,6 @@ class BlockStmtRules():
             return self._ast_node('while', while_tok, children=[cond] + body)
 
 
-
     def _error_handling_statement(self: "RDParser") -> ASTNode:
         """
         Parse a try/fail/(optional)always error-handling block.
