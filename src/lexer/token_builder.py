@@ -57,7 +57,7 @@ def build_token_stream(raw_lexeme: list[str], metadata: list[tuple[int, int]]):
         if lexeme_str.replace('~','', 1).replace('.', '', 1).isdigit():
             token_list.append((lexeme_str, 'float_literal' if '.' in lexeme_str else 'int_literal'))
             continue
-        
+
         # String literal (DFA guarantees first char is a quote when complete)
         if lexeme_str[0] == "'":
             token_list.append((lexeme_str, "str_literal"))
@@ -67,7 +67,7 @@ def build_token_stream(raw_lexeme: list[str], metadata: list[tuple[int, int]]):
         if lexeme_str[0] == '#':
             token_list.append((lexeme_str, "comment"))
             continue
-        
+
         # Fallback classification: identifier (id)
         token_list.append((lexeme_str, 'id'))
 

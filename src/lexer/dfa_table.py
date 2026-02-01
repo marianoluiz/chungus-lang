@@ -67,9 +67,9 @@ TRANSITION_TABLE = {
         # identifiers
         158,
         # numerics
-        161, 162,
+        206, 207,
         # strings
-        213,
+        258,
     ]),
 
     # --- Keywords: always, and, array_remove ---
@@ -297,97 +297,164 @@ TRANSITION_TABLE = {
     157: TransitionState(DELIMS['stmt_delim'], is_terminal=True),
 
     # --- Identifiers ---
-    158: TransitionState({*ATOMS['all_alphabet'], '_'}, [159, 160]),
-    159: TransitionState(ATOMS['under_alpha_num'], [159, 160]),
-    160: TransitionState(DELIMS['id_delim'], is_terminal=True),
+    158: TransitionState({*ATOMS['all_alphabet'], '_'}, [160, 159]),
+    159: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    160: TransitionState(ATOMS['under_alpha_num'], [162, 161]),
+    161: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    162: TransitionState(ATOMS['under_alpha_num'], [164, 163]),
+    163: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    164: TransitionState(ATOMS['under_alpha_num'], [166, 165]),
+    165: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    166: TransitionState(ATOMS['under_alpha_num'], [168, 167]),
+    167: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    168: TransitionState(ATOMS['under_alpha_num'], [170, 169]),
+    169: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    170: TransitionState(ATOMS['under_alpha_num'], [172, 171]),
+    171: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    172: TransitionState(ATOMS['under_alpha_num'], [174, 173]),
+    173: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    174: TransitionState(ATOMS['under_alpha_num'], [176, 175]),
+    175: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    176: TransitionState(ATOMS['under_alpha_num'], [178, 177]),
+    177: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    178: TransitionState(ATOMS['under_alpha_num'], [180, 179]),
+    179: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    180: TransitionState(ATOMS['under_alpha_num'], [182, 181]),
+    181: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    182: TransitionState(ATOMS['under_alpha_num'], [184, 183]),
+    183: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    184: TransitionState(ATOMS['under_alpha_num'], [186, 185]),
+    185: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    186: TransitionState(ATOMS['under_alpha_num'], [188, 187]),
+    187: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    188: TransitionState(ATOMS['under_alpha_num'], [190, 189]),
+    189: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    190: TransitionState(ATOMS['under_alpha_num'], [192, 191]),
+    191: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    192: TransitionState(ATOMS['under_alpha_num'], [194, 193]),
+    193: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    194: TransitionState(ATOMS['under_alpha_num'], [196, 195]),
+    195: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    196: TransitionState(ATOMS['under_alpha_num'], [198, 197]),
+    197: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    198: TransitionState(ATOMS['under_alpha_num'], [200, 199]),
+    199: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    200: TransitionState(ATOMS['under_alpha_num'], [202, 201]),
+    201: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    202: TransitionState(ATOMS['under_alpha_num'], [204, 203]),
+    203: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
+    204: TransitionState(ATOMS['under_alpha_num'], [205]),
+    205: TransitionState(DELIMS['id_delim'], is_terminal=True),
+
 
     # --- Numeric Literals ---
-    161: TransitionState('~', [162]),
+    206: TransitionState('~', [207]),
 
-    # Integers (up to 19 digits), branching to '.' at 200
-    162: TransitionState(ATOMS['all_num'], [164, 200, 163]),
-    163: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    164: TransitionState(ATOMS['all_num'], [166, 200, 165]),
-    165: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    166: TransitionState(ATOMS['all_num'], [168, 200, 167]),
-    167: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    168: TransitionState(ATOMS['all_num'], [170, 200, 169]),
-    169: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    170: TransitionState(ATOMS['all_num'], [172, 200, 171]),
-    171: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    172: TransitionState(ATOMS['all_num'], [174, 200, 173]),
-    173: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    174: TransitionState(ATOMS['all_num'], [176, 200, 175]),
-    175: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    176: TransitionState(ATOMS['all_num'], [178, 200, 177]),
-    177: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    178: TransitionState(ATOMS['all_num'], [180, 200, 179]),
-    179: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    180: TransitionState(ATOMS['all_num'], [182, 200, 181]),
-    181: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    182: TransitionState(ATOMS['all_num'], [184, 200, 183]),
-    183: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    184: TransitionState(ATOMS['all_num'], [186, 200, 185]),
-    185: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    186: TransitionState(ATOMS['all_num'], [188, 200, 187]),
-    187: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    188: TransitionState(ATOMS['all_num'], [190, 200, 189]),
-    189: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    190: TransitionState(ATOMS['all_num'], [192, 200, 191]),
-    191: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    192: TransitionState(ATOMS['all_num'], [194, 200, 193]),
-    193: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    194: TransitionState(ATOMS['all_num'], [196, 200, 195]),
-    195: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    196: TransitionState(ATOMS['all_num'], [198, 200, 197]),
-    197: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    198: TransitionState(ATOMS['all_num'], [200, 199]),
-    199: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    # '.' to float path
-    200: TransitionState('.', [201]),
-
-    # Float decimals (1..6)
-    201: TransitionState(ATOMS['all_num'], [203, 202]),
-    202: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    203: TransitionState(ATOMS['all_num'], [205, 204]),
-    204: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    205: TransitionState(ATOMS['all_num'], [207, 206]),
-    206: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
-
-    207: TransitionState(ATOMS['all_num'], [209, 208]),
+    207: TransitionState(ATOMS['all_num'], [209, 245, 208]),
     208: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    209: TransitionState(ATOMS['all_num'], [211, 210]),
+    209: TransitionState(ATOMS['all_num'], [211, 245, 210]),
     210: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 
-    211: TransitionState(ATOMS['all_num'], [212]),
+    211: TransitionState(ATOMS['all_num'], [213, 245, 212]),
     212: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    213: TransitionState(ATOMS['all_num'], [215, 245, 214]),
+    214: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    215: TransitionState(ATOMS['all_num'], [217, 245, 216]),
+    216: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    217: TransitionState(ATOMS['all_num'], [219, 245, 218]),
+    218: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    219: TransitionState(ATOMS['all_num'], [221, 245, 220]),
+    220: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    221: TransitionState(ATOMS['all_num'], [223, 245, 222]),
+    222: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    223: TransitionState(ATOMS['all_num'], [225, 245, 224]),
+    224: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    225: TransitionState(ATOMS['all_num'], [227, 245, 226]),
+    226: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    227: TransitionState(ATOMS['all_num'], [229, 245, 228]),
+    228: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    229: TransitionState(ATOMS['all_num'], [231, 245, 230]),
+    230: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    231: TransitionState(ATOMS['all_num'], [233, 245, 232]),
+    232: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    233: TransitionState(ATOMS['all_num'], [235, 245, 234]),
+    234: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    235: TransitionState(ATOMS['all_num'], [237, 245, 236]),
+    236: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    237: TransitionState(ATOMS['all_num'], [239, 245, 238]),
+    238: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    239: TransitionState(ATOMS['all_num'], [241, 245, 240]),
+    240: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    241: TransitionState(ATOMS['all_num'], [243, 245, 242]),
+    242: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    243: TransitionState(ATOMS['all_num'], [245, 245, 244]),
+    244: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    245: TransitionState('.', [246]),
+
+    246: TransitionState(ATOMS['all_num'], [248, 247]),
+    247: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    248: TransitionState(ATOMS['all_num'], [250, 249]),
+    249: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    250: TransitionState(ATOMS['all_num'], [252 ,251]),
+    251: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    252: TransitionState(ATOMS['all_num'], [254, 253]),
+    253: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    254: TransitionState(ATOMS['all_num'], [256, 255]),
+    255: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
+    256: TransitionState(ATOMS['all_num'], [257]),
+    257: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+
 
     # --- String Literals ---
     # Single-quoted strings, no escape sequences.
-    213: TransitionState("'", [215, 214]),
-    214: TransitionState(ATOMS['string_ascii'], [215, 214]),
-    215: TransitionState("'", [216]),
-    216: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
+    258: TransitionState("'", [260, 259]),
+    259: TransitionState(ATOMS['string_ascii'], [260, 259]),
+    260: TransitionState("'", [261]),
+    261: TransitionState(DELIMS['dtype_lit_delim'], is_terminal=True),
 }

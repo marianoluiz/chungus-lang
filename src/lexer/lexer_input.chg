@@ -1,6 +1,0 @@
-if x > y 
-for i in range (3) 
-        show y
-close  
-close 
-
