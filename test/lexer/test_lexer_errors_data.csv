@@ -1,39 +1,39 @@
 Test Case,Expected Output
-abc123 = 10,NO LEXICAL ERROR/S
-_temp = 5,NO LEXICAL ERROR/S
-A_B_C_D = 99,NO LEXICAL ERROR/S
-x1y2z3 = 'test',NO LEXICAL ERROR/S
-______ = 0,NO LEXICAL ERROR/S
-helloWorld = true,NO LEXICAL ERROR/S
-temp_var_27 = 93,NO LEXICAL ERROR/S
-bigBIGsmallSmall = 22,NO LEXICAL ERROR/S
-variable123name = nil,NO LEXICAL ERROR/S
-1abc = 10,Invalid Delimiter
-TRUE,NO LEXICAL ERROR/S
-FALSE,NO LEXICAL ERROR/S
-nil,NO LEXICAL ERROR/S
-read,NO LEXICAL ERROR/S
-show,Invalid Delimiter
-clr,NO LEXICAL ERROR/S
-exit,NO LEXICAL ERROR/S
-for,Invalid Delimiter
-range,Invalid Delimiter
-TRUE,NO LEXICAL ERROR/S
+abc123 = 10;,NO LEXICAL ERROR/S
+_temp = 5;,NO LEXICAL ERROR/S
+A_B_C_D = 99;,NO LEXICAL ERROR/S
+x1y2z3 = 'test';,NO LEXICAL ERROR/S
+______ = 0;,NO LEXICAL ERROR/S
+helloWorld = true;,NO LEXICAL ERROR/S
+temp_var_27 = 93;,NO LEXICAL ERROR/S
+bigBIGsmallSmall = 22;,NO LEXICAL ERROR/S
+variable123name = 1;,NO LEXICAL ERROR/S
+1abc = 10;,Invalid Delimiter
+TRUE;,NO LEXICAL ERROR/S
+FALSE;,NO LEXICAL ERROR/S
+read;,NO LEXICAL ERROR/S
+show,NO LEXICAL ERROR/S
+show;,Invalid Delimiter
+for,NO LEXICAL ERROR/S
+for;,Invalid Delimiter
+range,NO LEXICAL ERROR/S
+range;,Invalid Delimiter
+TRUE;,NO LEXICAL ERROR/S
 x = 0,NO LEXICAL ERROR/S
 x = ~0,NO LEXICAL ERROR/S
 x = 9999999999999999999,NO LEXICAL ERROR/S
 x = 1234567890,NO LEXICAL ERROR/S
 x = ~99999,NO LEXICAL ERROR/S
-x = 000123,NO LEXICAL ERROR/S
+x = 000123;,NO LEXICAL ERROR/S
 x = ~0007,NO LEXICAL ERROR/S
-x = 12 34,NO LEXICAL ERROR/S
+x = 12 34;,NO LEXICAL ERROR/S
 x = 1.0,NO LEXICAL ERROR/S
 "x = 1,000",NO LEXICAL ERROR/S
 f = 1.23,NO LEXICAL ERROR/S
-f = -0.000001,NO LEXICAL ERROR/S
+f = -0.000001;,NO LEXICAL ERROR/S
 f = 00012.3400,NO LEXICAL ERROR/S
 f = 0.0,NO LEXICAL ERROR/S
-f = ~0.000000,NO LEXICAL ERROR/S
+f = ~0.000000;,NO LEXICAL ERROR/S
 f = .123,Invalid Character
 f = 123.,"Invalid Delimiter
 Invalid Character"
@@ -83,10 +83,14 @@ Invalid Delimiter
 Invalid Delimiter
 Invalid Delimiter"
 a = b + c * d - e,NO LEXICAL ERROR/S
-a = 1**2**3,NO LEXICAL ERROR/S
-x = -5,NO LEXICAL ERROR/S
-count++,NO LEXICAL ERROR/S
-value--,NO LEXICAL ERROR/S
+a = 1**2**3;,NO LEXICAL ERROR/S
+x = -5;,NO LEXICAL ERROR/S
+count++;,"Invalid Delimiter
+Invalid Delimiter"
+count++,Invalid Delimiter
+value--;,"Invalid Delimiter
+Invalid Delimiter"
+value--,Invalid Delimiter
 x = !true,NO LEXICAL ERROR/S
 x = a//b,NO LEXICAL ERROR/S
 x = a % b,NO LEXICAL ERROR/S
@@ -98,20 +102,20 @@ arr = [],NO LEXICAL ERROR/S
 "arr = ['a','b','c']",NO LEXICAL ERROR/S
 "arr = [true,false,nil]",NO LEXICAL ERROR/S
 "arr = [1, 2 ,3 , 4]",NO LEXICAL ERROR/S
-arr = [1 2 3],NO LEXICAL ERROR/S
-"arr = [1, 'a', 3.14, true, nil]",NO LEXICAL ERROR/S
-"nested = [[1,2],[3,4]]",NO LEXICAL ERROR/S
-arr = [,Invalid Delimiter
-"arr = [x, y, z]",NO LEXICAL ERROR/S
-x=1 y=2,NO LEXICAL ERROR/S
-x =     5,NO LEXICAL ERROR/S
-y=10,NO LEXICAL ERROR/S
-z=3,NO LEXICAL ERROR/S
+arr = [1 2 3];,NO LEXICAL ERROR/S
+"arr = [1, 'a', 3.14, true, x];",NO LEXICAL ERROR/S
+"nested = [[1,2],[3,4]];",NO LEXICAL ERROR/S
+arr = [,NO LEXICAL ERROR/S
+"arr = [x, y, z];",NO LEXICAL ERROR/S
+x=1; y=2;,NO LEXICAL ERROR/S
+x =     5;,NO LEXICAL ERROR/S
+y=10;,NO LEXICAL ERROR/S
+z=3;,NO LEXICAL ERROR/S
 x=1   #comment,NO LEXICAL ERROR/S
 "fn compute(x,y)",NO LEXICAL ERROR/S
 ret x,NO LEXICAL ERROR/S
 close,NO LEXICAL ERROR/S
-fn fnVar(),NO LEXICAL ERROR/S
+fn fnVar();,NO LEXICAL ERROR/S
 fn 123bad(),Invalid Delimiter
 "value = [1,2,3][0]",NO LEXICAL ERROR/S
 show 'Result: $(value)',NO LEXICAL ERROR/S
@@ -169,7 +173,7 @@ x = 1 ###c###,NO LEXICAL ERROR/S
 x = 000000000001,NO LEXICAL ERROR/S
 x = -0000000000007,NO LEXICAL ERROR/S
 x = 0000000,NO LEXICAL ERROR/S
-x = 000.123,NO LEXICAL ERROR/S
+x = 000.123;,NO LEXICAL ERROR/S
 x = ~.123,"Invalid Character
 Invalid Character"
 x = +123,NO LEXICAL ERROR/S
@@ -300,8 +304,10 @@ Invalid Delimiter"
 x###comment###,Invalid Delimiter
 x###c###y,"Invalid Delimiter
 Invalid Delimiter"
-x=1+++2,Invalid Delimiter
-x=1---2,Invalid Delimiter
+x=1+++2,"Invalid Delimiter
+Invalid Delimiter"
+x=1---2,"Invalid Delimiter
+Invalid Delimiter"
 x=!--x,"Invalid Delimiter
 Invalid Delimiter"
 x=!!true,Invalid Delimiter
@@ -311,17 +317,45 @@ x = 1//2,NO LEXICAL ERROR/S
 x = 1////2,Invalid Delimiter
 x = **2,NO LEXICAL ERROR/S
 x **= 2,Invalid Delimiter
-x = ===,"Invalid Delimiter
-Invalid Delimiter"
-x = !==,"Invalid Delimiter
-Invalid Delimiter"
-x = >>,"Invalid Delimiter
-Invalid Delimiter"
-x = <<,"Invalid Delimiter
-Invalid Delimiter"
+x = ===,Invalid Delimiter
+x = !==,Invalid Delimiter
+x = >>,Invalid Delimiter
+x = <<,Invalid Delimiter
 x = <==>,"Invalid Delimiter
-Invalid Delimiter
 Invalid Delimiter"
 x = ~~1.,"Invalid Character
 Invalid Delimiter
 Invalid Character"
+"array_add(x, 1);",NO LEXICAL ERROR/S
+"array_add(x, 1):",NO LEXICAL ERROR/S
+"array_remove(x, 1);",NO LEXICAL ERROR/S
+"array_remove(x, 1):",NO LEXICAL ERROR/S
+try:,NO LEXICAL ERROR/S
+fail:,NO LEXICAL ERROR/S
+always:,NO LEXICAL ERROR/S
+else:,NO LEXICAL ERROR/S
+try;,Invalid Delimiter
+fail;,Invalid Delimiter
+always;,Invalid Delimiter
+else;,Invalid Delimiter
+1+id()-,NO LEXICAL ERROR/S
+1+fn()-,Invalid Delimiter
+x = fncall()and 1,Invalid Delimiter
+x =  1 and fncall(),NO LEXICAL ERROR/S
+x =  1 andfncall(),NO LEXICAL ERROR/S
+x = true+true,NO LEXICAL ERROR/S
+x=[],NO LEXICAL ERROR/S
+x = ind[],NO LEXICAL ERROR/S
+x = ind[1]+1,NO LEXICAL ERROR/S
+x = ind[1]and 1,Invalid Delimiter
+x = fncall()+1,NO LEXICAL ERROR/S
+x = 'c'+'c',NO LEXICAL ERROR/S
+x = 'c'and'c',"Invalid Delimiter
+Invalid Delimiter"
+x = 'x'<'x',NO LEXICAL ERROR/S
+!'hi',NO LEXICAL ERROR/S
+ 'hello'=='hi',NO LEXICAL ERROR/S
+ 'hello'!='hi',NO LEXICAL ERROR/S
+ 'hello'>='hi',NO LEXICAL ERROR/S
+ 'hello'or'hi',"Invalid Delimiter
+Invalid Delimiter"

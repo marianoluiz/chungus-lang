@@ -25,7 +25,7 @@ DELIMS = {
         '(', '[', ')', ']', ','
     },
 
-
+    
     'dtype_lit_delim': {
         *STMT_DELIM, 
         *ATOMS['arithmetic_op'], 
@@ -44,7 +44,8 @@ DELIMS = {
     'arith_rel_not_op_delim': {
         *TOKEN_DELIM, 
         *ATOMS['under_alpha_num'], 
-        *ATOMS['unary_negative_op']
+        *ATOMS['unary_negative_op'],
+        "'"
     },
 
 
@@ -86,7 +87,9 @@ DELIMS = {
     'bracket_close_delim': {
         *STMT_DELIM, 
         '[', ']', ')', ',', '=',
-        *ATOMS['header_terminator']
+        *ATOMS['header_terminator'],
+        *ATOMS['arithmetic_op'],
+        *ATOMS['relational_op']
     },
 
 
