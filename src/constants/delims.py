@@ -10,52 +10,103 @@ Categories:
 
 from .atoms import ATOMS
 
-INLINE_DELIM = {' ', }
-STMT_DELIM = {' ', '\n'}
+TOKEN_DELIM = {' ', '\n'}
+STMT_DELIM = {' ', '\n', ';'}
 
 DELIMS = {
-    'inline_delim': {' '},
-    'stmt_delim': {' ', '\n'},
+    'token_delim': TOKEN_DELIM,
+    'stmt_delim': STMT_DELIM,
+
     'id_delim': {
-        *STMT_DELIM, *ATOMS['assignment_op'], *ATOMS['arithmetic_op'],
-        *ATOMS['relational_op'], *ATOMS['unary_incdec_op'],
+        *STMT_DELIM, 
+        *ATOMS['assignment_op'], 
+        *ATOMS['arithmetic_op'],
+        *ATOMS['relational_op'], 
         '(', '[', ')', ']', ','
     },
+
+
     'dtype_lit_delim': {
-        *STMT_DELIM, *ATOMS['arithmetic_op'], *ATOMS['relational_op'],
-        ')', ']', ','
+        *STMT_DELIM, 
+        *ATOMS['arithmetic_op'], 
+        *ATOMS['relational_op'],
+        ')', ']', ',', 
+        *ATOMS['header_terminator']
     },
+
+
     'method_delim': {
-        *INLINE_DELIM, '('
+        *TOKEN_DELIM, 
+        '('
     },
+
+
     'arith_rel_not_op_delim': {
-        *INLINE_DELIM, *ATOMS['under_alpha_num'], 
-        '(', *ATOMS['unary_negative_op']
+        *TOKEN_DELIM, 
+        *ATOMS['under_alpha_num'], 
+        *ATOMS['unary_negative_op']
     },
+
+
     'assign_op_delim': {
-        *INLINE_DELIM, *ATOMS['under_alpha_num'], 
-        *ATOMS['unary_negative_op'], *ATOMS['logical_not_op'],
-        '(', '[', "'"
+        *TOKEN_DELIM, 
+        *ATOMS['under_alpha_num'], 
+        *ATOMS['unary_negative_op'], 
+        *ATOMS['logical_not_op'],
+        '[', "'"
     },
+
+
     'paren_open_delim': {
-        *INLINE_DELIM, *ATOMS['under_alpha_num'],
-        *ATOMS['unary_negative_op'], *ATOMS['logical_not_op'],
-        '(', '[', ')', "'", 
+        *TOKEN_DELIM, 
+        *ATOMS['under_alpha_num'],
+        *ATOMS['unary_negative_op'], 
+        *ATOMS['logical_not_op'],
+        ')', "'", 
     },
+
+
     'paren_close_delim': {
-        *STMT_DELIM, *ATOMS['relational_op'],
-        *ATOMS['arithmetic_op'], *ATOMS['logical_and_or_op'],
-        ')', ','
+        *STMT_DELIM, 
+        *ATOMS['arithmetic_op'],
+        *ATOMS['relational_op'],
+        ')', ',',
+        *ATOMS['header_terminator']
     },
+
+
     'bracket_open_delim': {
-        *INLINE_DELIM, *ATOMS['under_alpha_num'],
-        *ATOMS['unary_negative_op'], *ATOMS['logical_not_op'],
-        '(', '[', ']',"'"
+        *TOKEN_DELIM, 
+        *ATOMS['under_alpha_num'],
+        *ATOMS['unary_negative_op'], 
+        '[', ']',"'"
     },
+
+
     'bracket_close_delim': {
-        *STMT_DELIM, '[', ')', ']', ',', '='
+        *STMT_DELIM, 
+        '[', ']', ')', ',', '=',
+        *ATOMS['header_terminator']
     },
+
+
     'comma_delim': {
-        *INLINE_DELIM, *ATOMS['under_alpha_num'], "'", '[', *ATOMS['unary_negative_op']
+        *TOKEN_DELIM, 
+        *ATOMS['under_alpha_num'], 
+        "'", '[', 
+        *ATOMS['unary_negative_op'],
+        *ATOMS['logical_not_op'],
     },
+
+    'blk_header_delim': {
+        *ATOMS['header_terminator'],
+        *TOKEN_DELIM,
+    },
+
+    'terminator_delim': {
+        *TOKEN_DELIM,
+        *ATOMS['all_alphabet'],
+        '_',
+    },
+
 }

@@ -27,6 +27,8 @@ def _rows():
 
             # Normalize CRLFs and CR to LF if any, since spreadsheets do use CRLFs
             expected = expected.replace("\r\n", "\n").replace("\r", "\n")
+            # optional: normalize fullwidth semicolon to ASCII
+            src = src.replace("；", ";")
 
             yield src, expected         # return one at a time
 
@@ -41,7 +43,7 @@ def test_lexer_logs(src, expected):
     print(src)
     print("EXPECTED:")
     print(expected)
-    
+
     log = _run_lexer(src)
     
     if expected == "NO LEXICAL ERROR/S":

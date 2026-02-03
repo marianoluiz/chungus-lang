@@ -30,6 +30,9 @@ def _rows():
 
             # Normalize CRLFs and CR to LF if any, since spreadsheets do use CRLFs
             expected = expected.replace("\r\n", "\n").replace("\r", "\n")
+            # optional: normalize fullwidth semicolon to ASCII
+            src = src.replace("；", ";")
+
             yield src, expected, test_details   # return one at a time
 
 
@@ -45,6 +48,11 @@ def _get_types_in_order(lex_token_stream):
 def test_lexer_tokens(src, expected, test_details):
     # pytest.mark.parametrize is LIKE a loop that runs testcase per testcase
     # _rows() returns a generator, which pytest automatically does the next()
+
+    print("SRC INPUT:")
+    print(src)
+    print("EXPECTED:")
+    print(expected)
 
     lex_token_stream = _run_lexer(src)
     seq_ttypes = _get_types_in_order(lex_token_stream)

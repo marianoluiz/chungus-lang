@@ -16,13 +16,11 @@ from .token_builder import build_token_stream
 from src.constants.token import Token
 
 # State ranges used for semantic backtracking and classification.
-# These must match the DFA transition diagram.
 KEYWORD_LAST_STATE = 103
 SYMBOL_STATE_START = 104
 SYMBOL_STATE_END = 147
 MULTI_COMMENT_STATE_START = 148
 MULTI_COMMENT_STATE_END = 157
-FLOAT_DOT_STATE = 200
 FLOAT_START_STATE = 206
 FLOAT_END_STATE = 257
 STRING_STATE_START = 258
