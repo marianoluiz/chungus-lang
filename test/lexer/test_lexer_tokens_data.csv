@@ -5,9 +5,9 @@ c = a + b;
 show 'Sum is ';
 show c;","[""id"",""="",""int_literal"", "";"", ""id"",""="",""int_literal"", "";"", ""id"",""="",""id"",""+"",""id"", "";"",""show"",""str_literal"", "";"", ""show"", ""id"", "";""]",assignment.chg
 "numbers = [10, 20, 30];
-array_add(numbers, 40);","[""id"",""="",""["",""int_literal"","","",""int_literal"","","",""int_literal"",""]"", "";"", ""array_add"",""("",""id"","","",""int_literal"","")"", "";""]",array_add.chg
+array_add(numbers, 40);","[""id"",""="",""["",""int_literal"","","",""int_literal"","","",""int_literal"",""]"", "";"", ""id"",""("",""id"","","",""int_literal"","")"", "";""]",array_add.chg (removed)
 "items = ['a', 'b', 'c', 'd'];
-array_remove(items, 1);","[""id"",""="",""["",""str_literal"","","",""str_literal"","","",""str_literal"","","",""str_literal"",""]"", "";"",""array_remove"",""("",""id"","","",""int_literal"","")"", "";""]",array_remove.chg
+array_remove(items, 1);","[""id"",""="",""["",""str_literal"","","",""str_literal"","","",""str_literal"","","",""str_literal"",""]"", "";"",""id"",""("",""id"","","",""int_literal"","")"", "";""]",array_remove.chg (removed)
 "if true:
     show 'Inside block';
 close","[""if"",""true"", "":"", ""show"",""str_literal"", "";"", ""close""]",close_statement.chg
