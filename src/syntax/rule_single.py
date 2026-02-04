@@ -22,7 +22,7 @@ class SingleStmtRules:
         
         ```
         <program>: 
-            -> <function_statements> <general_statement> <general_statement_tail>
+            -> <function_blocks> <general_statement> <general_statement_tail>
         ```
 
         Returns: ASTNode: Root ASTNode
@@ -30,7 +30,7 @@ class SingleStmtRules:
 
         self._expect(self.PRED_PROGRAM, 'program')
 
-        funcs = self._function_statements()
+        funcs = self._function_blocks()
 
         # one general statement
         general_stmts = [self._general_statement()]
@@ -43,7 +43,7 @@ class SingleStmtRules:
         return ASTNode('program', children=children)
 
 
-    def _general_statement(self: "RDParser", block_keywords: set = None) -> ASTNode:
+    def _general_statement(self: "RDParser") -> ASTNode:
         """
         Parse a general statement.
 
@@ -60,20 +60,26 @@ class SingleStmtRules:
         Returns: 
             ASTNode
         """
-        if block_keywords is None:
-            block_keywords = set()
 
         self._expect(self.PRED_GENERAL_STMT, 'general_statement')
 
-        # identifier-starting statement (assignment, call, unary, indexed assignment)
+        # identifier-starting statement (assignment, call, indexed assignment)
         if self._match(ID_T):
             id_tok = self._advance()
-            node = self._id_statement_tail(id_tok, block_keywords)
+            node = self._id_statement_tail(id_tok)
+
+            self._expect_type(';', 'general_statement')
+            self._advance()
+
             return ASTNode('general_statement', children=[node])
 
         # output
         elif self._match('show'):
             node = self._output_statement()
+
+            self._expect_type(';', 'general_statement')
+            self._advance()
+
             return ASTNode('general_statement', children=[node])
 
         # conditional (if / elif / else ... close)
@@ -94,17 +100,9 @@ class SingleStmtRules:
         # todo
         elif self._match('todo'):
             tok = self._advance()
+            self._expect_type(';', 'general_statement')
+            self._advance()
             return ASTNode('general_statement', children=[self._ast_node('todo', tok)])
-
-        # array_add ( id <index_loop> , <expr> )
-        elif self._match('array_add'):
-            node = self._array_add_statement()
-            return ASTNode('general_statement', children=[node])
-
-        # array_remove ( id <index_loop>, <index> )
-        elif self._match('array_remove'):
-            node = self._array_remove_statement()
-            return ASTNode('general_statement', children=[node])
 
 
     def _arg_list_opt(self: "RDParser") -> List[ASTNode]:
@@ -121,7 +119,7 @@ class SingleStmtRules:
             List[ASTNode]: List of expression AST nodes representing arguments.
         """
 
-        self._expect(self.PRED_ARG_LIST_OPT, '_arg_list_opt')
+        self._expect({')'} | self.PRED_EXPR, '_arg_list_opt')
 
         args: List[ASTNode] = []
 
@@ -162,7 +160,9 @@ class SingleStmtRules:
             self._advance()
             expr = self._expr()
 
-            self._expect_after_expr({'close'}, expr, 'return_opt')
+            self._expect_after_expr({';'}, expr, 'return_opt')
+            self._expect_type(';', 'return_statement')
+            self._advance()
 
             node =  ASTNode('return_statement', children=[expr])
             return node
@@ -277,14 +277,12 @@ class SingleStmtRules:
             self._expect({ID_T, STR_LIT_T}, 'output_value')
 
 
-    def _id_statement_tail(self: "RDParser", id_tok: Token, block_keywords: set = None) -> ASTNode:
+    def _id_statement_tail(self: "RDParser", id_tok: Token) -> ASTNode:
         """ 
         Parses next of id.
 
         ```
         <id_statement_tail>
-            -> ++
-            -> --
             -> = <assignment_value>
             -> ( <arg_list_opt> )
             -> [ <index> ] <index_loop> = <assignment_value>
@@ -294,20 +292,12 @@ class SingleStmtRules:
             ASTNode: AST node representing the id_statement_tail.
         """
 
-        if block_keywords is None:
-            block_keywords = set()
-
         self._expect(self.PRED_ID_STMT_TAIL, 'id_statement_tail')
 
-        # Unary statement: ++ or --
-        if self._match('++', '--'):
-            op_tok = self._advance()
-            return self._ast_node('unary_statement', op_tok, value=op_tok.lexeme, children=[self._ast_node(ID_T, id_tok, value=id_tok.lexeme)])
-
         # Assignment statement: = <assignment_value>
-        elif self._match('='):
+        if self._match('='):
             self._advance()
-            node = self._assignment_value(block_keywords)   # parse RHS (no '=' consumption inside)
+            node = self._assignment_value()   # parse RHS (no '=' consumption inside)
             return self._ast_node('assignment_statement', id_tok, value=id_tok.lexeme, children=[node])
 
         # Function call: ( <arg_list_opt> )
@@ -349,7 +339,7 @@ class SingleStmtRules:
             # consume equal
             self._advance()
 
-            value = self._assignment_value(block_keywords)
+            value = self._assignment_value()
 
             # create node of indices for ast
             indices_node = ASTNode('indices', children=indices)
@@ -357,7 +347,7 @@ class SingleStmtRules:
             return self._ast_node('array_idx_assignment', id_tok, value=id_tok.lexeme, children=[indices_node, value])
 
 
-    def _assignment_value(self: "RDParser", block_keywords: set = None):
+    def _assignment_value(self: "RDParser"):
         """
         Parse the right-hand side of an assignment.
 
@@ -377,8 +367,6 @@ class SingleStmtRules:
             `block_keywords` param extends FOLLOW(<assignment_value>) for error reporting after <expr>.
         """
 
-        if block_keywords is None:
-            block_keywords = set()
 
         self._expect(self.PRED_ASSIGN_VALUE, 'assignment_value')
 
@@ -401,7 +389,7 @@ class SingleStmtRules:
 
             # we always need to show whole expected after expr if it errors since it is a unique
             # this mainly checks ')' after expr but we include the whole context
-            self._expect_after_expr({ ')' }, expr, 'assignment_value', block_keywords=block_keywords, allow_eof=False)
+            self._expect_after_expr({ ')' }, expr, 'assignment_value')
             self._advance()
 
             return self._ast_node('assignment_value', cast_tok, value=cast_method, children=[expr])
@@ -424,93 +412,7 @@ class SingleStmtRules:
             # other wise, its an expr
             expr = self._expr()
 
-            # if block_keywords empty, then we're at top level, so that means EOF is a valid next token
-            allow_eof = (len(block_keywords) == 0)
-
-            # after an expr, proper error display would be first set of gen stmt + equation ops + block keywords
-            self._expect_after_expr(self.PRED_GENERAL_STMT | block_keywords, expr, 'assignment_value', allow_eof=allow_eof)
+            # after an expr, proper error display would be first set of equation ops + semi-colon
+            self._expect_after_expr({';'}, expr, 'assignment_value')
 
             return expr
-
-
-    def _array_add_statement(self: "RDParser") -> ASTNode:
-        """
-        Parse an array_add statement.
-
-        ```
-        <array_manip_statement>
-            -> array_add ( id <index_loop> , <expr> )
-        ```
-
-        Returns:
-            ASTNode
-        """
-
-        op_tok = self._advance()
-        op = op_tok.type
-
-        self._expect_type('(', 'array_add_statement')        
-        self._advance()
-
-        self._expect_type(ID_T, 'array_add_statement')        
-        tok = self._advance()
-        
-        # create ast node with id name
-        id_node = self._ast_node(ID_T, tok, value=tok.lexeme)
-
-        # allow index tail after the id (e.g., id[1][2])
-        if self._match('['):
-            id_node = self._postfix_tail(id_node, id_tok=tok)
-
-        # Expect ,
-        self._expect(self.PRED_ARR_MANIP_INDEX_LOOP, 'array_add_statement')
-        self._advance()
-
-        expr_node = self._expr()
-
-        # expect ) otherwise print whole error context
-        self._expect_after_expr({')'}, expr_node, 'array_add_statement')
-        self._advance()
-
-        return self._ast_node(op, op_tok, children=[id_node, expr_node])
-
-
-    def _array_remove_statement(self: "RDParser"):
-        """
-        Parse an array_remove statement.
-        
-        ```
-        <array_manip_statement>
-            -> array_remove ( id <index_loop> , <index> )
-        ```
-
-        Returns: ASTNode
-        """
-
-        op_tok = self._advance()
-        op = op_tok.type
-
-        self._expect_type('(', 'array_remove_statement')        
-        self._advance()
-
-        self._expect_type(ID_T, 'array_remove_statement')        
-        tok = self._advance()
-        
-        # create ast node with id name
-        id_node = self._ast_node(ID_T, tok, value=tok.lexeme)
-
-        # allow index tail after the id (e.g., id[1][2])
-        if self._match('['):
-            id_node = self._postfix_tail(id_node, id_tok=tok)
-
-        # Expect ,
-        self._expect(self.PRED_ARR_MANIP_INDEX_LOOP, 'array_remove_statement')
-        self._advance()
-
-        index_node = self._index()
-
-        # expect ) otherwise print whole error context
-        self._expect({')'}, 'array_remove_statement')
-        self._advance()
-
-        return self._ast_node(op, op_tok, children=[id_node, index_node])
