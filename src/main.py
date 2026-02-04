@@ -43,23 +43,24 @@ def syntax_adapter(source: str):
         return tokens, errors
 
     # Syntax Parser Test:
-    # parser = Parser()
-    # parse_result = parser.parse(source)
+    parser = Parser()
+    parse_result = parser.parse(source)
 
-    # if parse_result.errors:
-    #     # parser.parse returns SyntaxResult; append parser.log (human readable)
-    #     errors.append("Syntax Error/s:")
-    #     errors.append(parse_result.log or "\n".join(parse_result.errors))
+    if parse_result.errors:
+        # parser.parse returns SyntaxResult; append parser.log (human readable)
+        errors.append("Syntax Error/s:")
+        errors.append(parse_result.log or "\n".join(parse_result.errors))
 
 
     # Recursive Descent Parser:
-    parser = RDParser(tokens, source, debug=True)
-    parse_result = parser.parse()
+    # parser = RDParser(tokens, source, debug=True)
+    # parse_result = parser.parse()
 
-    if parse_result.errors:
-        errors.append("Syntax Error:")
-        errors.extend(parse_result.errors)
+    # if parse_result.errors:
+    #     errors.append("Syntax Error:")
+    #     errors.extend(parse_result.errors)
 
+    # DO NOT UNCOMMENT THIS:    
     return tokens, errors
 
 

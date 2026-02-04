@@ -6,7 +6,7 @@ program: (function_statement)* general_statement general_statement_tail
 
 // ─────────── FUNCTIONS ───────────
 
-function_statement: FN ID "(" arg_list_opt ")" local_statement return_opt CLOSE
+function_statement: FN ID "(" arg_list_opt ")"  ":" local_statement return_opt CLOSE
 
 arg_list_opt: arg_list
             | 
@@ -21,7 +21,7 @@ arg_element: expr
 return_opt: return_statement
           | 
 
-return_statement: RET expr
+return_statement: RET expr ";"
 
 // ─────────── STATEMENTS ───────────
 
@@ -30,35 +30,51 @@ local_statement: general_statement local_statement_tail
 local_statement_tail: general_statement local_statement_tail
                     | 
 
+general_statement: ID id_statement_tail ";"
+                 | output_statement ";"
+                 | control_structure_statement
+                 | error_handling_statement
+                 | todo_statement ";"
+
 general_statement_tail: general_statement general_statement_tail
                       | 
 
-general_statement: ID id_statement_tail
-                 | output_statement
-                 | control_structure_statement
-                 | error_handling_statement
-                 | todo_statement
-                 | array_manip_statement
-
 // ─────────── ID STATEMENTS ───────────
 
-id_statement_tail: unary_statement
-                 | assignment_statement
+id_statement_tail: "=" assignment_value
                  | function_call_statement
-                 | "[" index "]" index_loop "=" assignment_value
-
-
-unary_statement: UN_PLUS
-               | UN_MINUS
-
-assignment_statement: "=" assignment_value
+                 | "[" index "]" index_loop "=" assignment_value_no_arrayinit
 
 assignment_value: READ
                 | type_casting
-                | "[" element_list "]"
+                | "[" index "]" arrays
                 | expr
 
+assignment_value_no_arrayinit: READ
+                             | type_casting
+                             | expr
+
 function_call_statement: "(" arg_list_opt ")"
+
+// ─────────── ARRAYS DECLARATION ───────────
+
+arrays: one_d_array_init
+      | "[" index "]" two_d_array_init
+
+one_d_array_init: "=" "[" one_d_element_list "]"
+
+two_d_array_init: "=" "[" two_d_element_list "]"
+
+one_d_element_list: array_element one_d_array_tail
+               | 
+
+two_d_element_list: two_d_array_element two_d_array_tail
+               | 
+
+two_d_array_element: "[" array_element two_d_inner_tail "]"
+
+two_d_inner_tail: "," array_element two_d_inner_tail
+          | 
 
 // ─────────── TYPE CASTING ───────────
 
@@ -67,15 +83,14 @@ type_casting: INT "(" expr ")"
 
 // ─────────── ARRAY ELEMENTS ───────────
 
-element_list: array_element array_tail
-            | 
-
-array_tail: "," array_element array_tail
+one_d_array_tail: "," array_element one_d_array_tail
           | 
+
+two_d_array_tail: "," two_d_array_element two_d_array_tail
+             | 
 
 array_element: int_float_str_bool_lit
              | ID
-             | "[" element_list "]"
 
 int_float_str_bool_lit: int_float_str_lit
                       | TRUE
@@ -149,7 +164,7 @@ postfix_tail: "(" arg_list_opt ")"
 index: INT_LITERAL
      | ID
 
-index_loop: "[" index "]" index_loop
+index_loop: "[" index "]"
           | 
 
 // ─────────── OUTPUT ───────────
@@ -166,12 +181,12 @@ control_structure_statement: conditional_statement
 
 conditional_statement: if_block elif_block else_block CLOSE
 
-if_block: IF condition local_statement
+if_block: IF condition ":" local_statement
 
-elif_block: ELIF condition local_statement elif_block
+elif_block: ELIF condition ":" local_statement elif_block
           | 
 
-else_block: ELSE local_statement
+else_block: ELSE ":" local_statement
           | 
 
 condition: expr
@@ -179,7 +194,7 @@ condition: expr
 looping_statement: for_statement
                  | while_statement
 
-for_statement: FOR ID IN range_expression local_statement CLOSE
+for_statement: FOR ID IN range_expression ":" local_statement CLOSE
 
 range_expression: RANGE "(" range_list ")"
 
@@ -191,30 +206,24 @@ range_tail_1: "," index range_tail_2
 range_tail_2: "," index
             | 
 
-while_statement: WHILE condition local_statement CLOSE
+while_statement: WHILE condition ":" local_statement CLOSE
 
 
 // ─────────── ERROR HANDLING ───────────
 
 error_handling_statement: try_block fail_block error_handling_tail CLOSE
 
-try_block: TRY local_statement
-fail_block: FAIL local_statement
+try_block: TRY ":" local_statement
+fail_block: FAIL ":" local_statement
 
 error_handling_tail: always_block
                    | 
 
-always_block: ALWAYS local_statement
+always_block: ALWAYS ":" local_statement
 
 // ─────────── TODO ───────────
 
 todo_statement: TODO
-
-// ─────────── ARRAY MANIPULATION ───────────
-
-array_manip_statement: ARRAY_ADD "(" ID index_loop "," expr ")"
-                     | ARRAY_REMOVE "(" ID index_loop "," index ")"
-
 
 
 // ─────────── TERMINALS ───────────
@@ -243,18 +252,12 @@ ALWAYS: /always(?![a-zA-Z0-9_])/
 
 TODO: /todo(?![a-zA-Z0-9_])/
 
-ARRAY_ADD: /array_add(?![a-zA-Z0-9_])/
-ARRAY_REMOVE: /array_remove(?![a-zA-Z0-9_])/
-
 INT: /int(?![a-zA-Z0-9_])/
 FLOAT: /float(?![a-zA-Z0-9_])/
 
 CLOSE: /close(?![a-zA-Z0-9_])/
 
 NOT: "!"
-
-UN_PLUS: "++"
-UN_MINUS: "--"
 
 FLOORDIV: "//"
 POW: "**"
@@ -266,7 +269,7 @@ LT: "<"
 GE: ">="
 LE: "<="
 
-ID: /(?!(and|or|true|false|read|show|if|elif|else|while|for|in|range|fn|ret|try|fail|always|todo|array_add|array_remove|int|float|close)\b)[a-zA-Z_][a-zA-Z0-9_]*/
+ID: /(?!(and|or|true|false|read|show|if|elif|else|while|for|in|range|fn|ret|try|fail|always|todo|int|float|close)\b)[a-zA-Z_][a-zA-Z0-9_]*/
 INT_LITERAL: /~?[0-9]+/
 FLOAT_LITERAL: /~?[0-9]+\.[0-9]+/
 STR_LITERAL: /'([^'\\]|\\.)*'/

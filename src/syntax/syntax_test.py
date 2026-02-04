@@ -57,6 +57,8 @@ TOKEN_NAME_MAP = {
     'RPAR': ')',  
     'LSQB': '[',
     'RSQB': ']',
+    'SEMI': ';',
+    'COLON': ':',
 }
 
 # --- load grammar once ---
