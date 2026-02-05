@@ -21,7 +21,7 @@ class SingleStmtRules:
         Parse the top-level program structure.
         
         ```
-        <program>: 
+        <program>
             -> <function_blocks> <general_statement> <general_statement_tail>
         ```
 
@@ -48,13 +48,12 @@ class SingleStmtRules:
         Parse a general statement.
 
         ```
-        <general_statement>: 
-            -> id <id_statement_tail>
-            -> show <output_value>
-            -> <conditional_statement>
-            -> <looping_statement>
-            -> <error_handling_statement>
-            -> todo
+        <general_statement>
+            -> id <id_statement_tail> ;
+            -> <output_statement> ;
+            -> <control_structure_block>
+            -> <error_handling_block>
+            -> <todo_statement> ;
         ```
 
         Returns: 
@@ -84,7 +83,7 @@ class SingleStmtRules:
 
         # conditional (if / elif / else ... close)
         elif self._match('if'):
-            node = self._conditional_statement()
+            node = self._conditional_block()
             return ASTNode('general_statement', children=[node])
 
         # looping (for / while ... close)
@@ -110,9 +109,19 @@ class SingleStmtRules:
         Parse an optional comma-separated argument list.
 
         ```
-        <arg_list_opt> 
-            -> <arg_element> <arg_element_tail>
+        <arg_list_opt>
+            -> <arg_list>
             -> λ
+        
+        <arg_list>
+            -> <arg_element> <arg_element_tail>
+        
+        <arg_element_tail>
+            -> , <arg_element> <arg_element_tail>
+            -> λ
+        
+        <arg_element>
+            -> <expr>
         ```
 
         Returns:
@@ -131,7 +140,7 @@ class SingleStmtRules:
 
                 # after parsing expr, we need to show full error context
                 # recompute allowed follow tokens fresh for this argument. Or else you would have trouble not resetting
-                self._expect_after_expr(self.PRED_ARG_ELEMENT_TAIL, expr, 'arg_list_opt')
+                self._expect_after_expr({')', ','}, expr, 'arg_list_opt')
 
                 # break if no comma, otherwise consume and continue
                 if not self._match(','):
@@ -148,8 +157,11 @@ class SingleStmtRules:
         
         ```
         <return_opt>
-            -> ret <expr>
+            -> <return_statement>
             -> λ
+        
+        <return_statement>
+            -> ret <expr> ;
         ```
 
         Returns: 
@@ -173,10 +185,15 @@ class SingleStmtRules:
     def _element_list_opt(self: "RDParser") -> List[ASTNode]:
         """
         Parse an optional, possibly-empty list of array literal elements.
+        Used for inline array literals without size declaration.
 
         ```
         <element_list>
             -> <array_element> <array_tail>
+            -> λ
+        
+        <array_tail>
+            -> , <array_element> <array_tail>
             -> λ
         ```
         Returns:
@@ -193,27 +210,39 @@ class SingleStmtRules:
 
         # at least one element
         elements.append(self._array_element())
-        self._expect(self.PRED_ARRAY_TAIL, 'element_list_opt')
+        self._expect({',', ']'}, 'element_list_opt')
 
         while self._match(','):
             self._advance()
             # parse next element
             elements.append(self._array_element())
 
-            self._expect(self.PRED_ARRAY_TAIL, 'element_list')
+            self._expect({',', ']'}, 'element_list')
 
         return elements
 
 
     def _array_element(self: "RDParser") -> ASTNode:
         """
-        Parse a single array element (literal, id, or nested array).
+        Parse a single array element (literal or id).
 
         ```
-        <array_element>:
+        <array_element>
             -> <int_float_str_bool_lit>
             -> id
-            -> [ <element_list> ]
+        
+        <int_float_str_bool_lit>
+            -> <int_float_str_lit>
+            -> true
+            -> false
+        
+        <int_float_str_lit>
+            -> <int_float_lit>
+            -> str_literal
+        
+        <int_float_lit>
+            -> int_literal
+            -> float_literal
         ```
 
         Returns:
@@ -252,11 +281,185 @@ class SingleStmtRules:
             self._error(self.PRED_ARRAY_ELEMENT, 'array_element')
 
 
+    def _one_d_array_init(self: "RDParser", bracket_tok: Token, size_idx: ASTNode) -> ASTNode:
+        """
+        Parse 1D array initialization.
+
+        ```
+        <1d_array_init>
+            -> = [ <1d_element_list> ]
+        
+        <1d_element_list>
+            -> <array_element> <1d_array_tail>
+            -> λ
+        
+        <1d_array_tail>
+            -> , <array_element> <1d_array_tail>
+            -> λ
+        ```
+
+        Args:
+            bracket_tok: Token for the opening bracket
+            size_idx: Size index node
+
+        Returns:
+            ASTNode: AST node for 1D array initialization
+        """
+        # expect = after [size]
+        self._expect_type('=', 'one_d_array_init')
+        self._advance()
+
+        # expect [ for array literal
+        self._expect_type('[', 'one_d_array_init')
+        self._advance()
+
+        # parse 1D element list (no nested arrays allowed)
+        elements: List[ASTNode] = []
+
+        # empty list allowed
+        if not self._match(']'):
+            # parse first element
+            elements.append(self._array_element())
+            self._expect({',', ']'}, 'one_d_element_list')
+
+            # parse remaining elements
+            while self._match(','):
+                self._advance()
+                elements.append(self._array_element())
+                self._expect({',', ']'}, 'one_d_element_list')
+
+        # expect closing ]
+        self._expect_type(']', 'one_d_array_init')
+        self._advance()
+
+        # create size node
+        size_node = ASTNode('size', children=[size_idx])
+
+        return self._ast_node('array_1d_init', bracket_tok, children=[size_node] + elements)
+
+
+    def _two_d_array_init(self: "RDParser", bracket_tok: Token, row_idx: ASTNode) -> ASTNode:
+        """
+        Parse 2D array initialization.
+
+        ```
+        <2d_array_init>
+            -> = [ <2d_element_list> ]
+        
+        <2d_element_list>
+            -> <2d_array_element> <2d_array_tail>
+            -> λ
+        
+        <2d_array_element>
+            -> [ <array_element> <two_d_inner_tail> ]
+        
+        <two_d_inner_tail>
+            -> , <array_element> <two_d_inner_tail>
+            -> λ
+        
+        <2d_array_tail>
+            -> , <2d_array_element> <2d_array_tail>
+            -> λ
+        ```
+
+        Args:
+            bracket_tok: Token for the opening bracket
+            row_idx: First dimension (row) index node
+
+        Returns:
+            ASTNode: AST node for 2D array initialization
+        """
+        # expect [col_size] after [row_size]
+        self._expect_type('[', 'two_d_array_init')
+        self._advance()
+
+        col_idx = self._index()
+
+        self._expect_type(']', 'two_d_array_init')
+        self._advance()
+
+        # expect = after [row][col]
+        self._expect_type('=', 'two_d_array_init')
+        self._advance()
+
+        # expect [ for array literal
+        self._expect_type('[', 'two_d_array_init')
+        self._advance()
+
+        # parse 2D element list (nested arrays required)
+        rows: List[ASTNode] = []
+
+        # empty list allowed
+        if not self._match(']'):
+            # parse first row
+            rows.append(self._two_d_array_element())
+            self._expect({',', ']'}, 'two_d_element_list')
+
+            # parse remaining rows
+            while self._match(','):
+                self._advance()
+                rows.append(self._two_d_array_element())
+                self._expect({',', ']'}, 'two_d_element_list')
+
+        # expect closing ]
+        self._expect_type(']', 'two_d_array_init')
+        self._advance()
+
+        # create size node with both dimensions
+        size_node = ASTNode('size', children=[row_idx, col_idx])
+
+        return self._ast_node('array_2d_init', bracket_tok, children=[size_node] + rows)
+
+
+    def _two_d_array_element(self: "RDParser") -> ASTNode:
+        """
+        Parse a 2D array row element.
+
+        ```
+        <2d_array_element>
+            -> [ <array_element> <two_d_inner_tail> ]
+        
+        <two_d_inner_tail>
+            -> , <array_element> <two_d_inner_tail>
+            -> λ
+        ```
+
+        Returns:
+            ASTNode: AST node for a row in 2D array
+        """
+        # expect [ for row
+        self._expect_type('[', 'two_d_array_element')
+        row_tok = self._advance()
+
+        # parse row elements
+        row_elements: List[ASTNode] = []
+
+        # at least one element required (no empty rows)
+        if not self._match(']'):
+            row_elements.append(self._array_element())
+            self._expect({',', ']'}, 'two_d_inner_tail')
+
+            # parse remaining elements in row
+            while self._match(','):
+                self._advance()
+                row_elements.append(self._array_element())
+                self._expect({',', ']'}, 'two_d_inner_tail')
+
+        # expect closing ]
+        self._expect_type(']', 'two_d_array_element')
+        self._advance()
+
+        return self._ast_node('array_row', row_tok, children=row_elements)
+
+
     def _output_statement(self: "RDParser") -> ASTNode:
         """
         Parse a 'show' statement.
 
         ```
+        <output_statement>
+            -> show <output_value>
+        
         <output_value>
             -> id
             -> str_literal
@@ -284,8 +487,19 @@ class SingleStmtRules:
         ```
         <id_statement_tail>
             -> = <assignment_value>
+            -> <function_call_statement>
+            -> [ <index> ] <index_loop> = <assignment_value_no_arrayinit>
+        
+        <function_call_statement>
             -> ( <arg_list_opt> )
-            -> [ <index> ] <index_loop> = <assignment_value>
+        
+        <index>
+            -> int_literal
+            -> id
+        
+        <index_loop>
+            -> [ <index> ]
+            -> λ
         ```
 
         Returns:
@@ -322,24 +536,31 @@ class SingleStmtRules:
         # Array indexing assignment: [<index>] <index_loop> = <assignment_value>
         elif self._match('['):
             indices = []
+            self._advance()
+            indices.append(self._index())
 
-            # indexed variable array
-            while self._match('['):
+            self._expect_type(']', 'array_idx_assignment')
+            self._advance()
+
+            # expect = or [ after first index
+            self._expect({'=', '['}, 'array_idx_assignment')
+
+            # 2nd index col
+            if self._match('['):
                 self._advance()
 
-                idx = self._index()
-                indices.append(idx)
+                indices.append(self._index())
 
                 self._expect_type(']', 'index_loop')
                 self._advance()
 
-            # = after indexed variable array, we need to print whole context
-            self._expect(self.PRED_ARR_INDEX_ASSIGN_INDEX_LOOP, 'index_loop')
+            # = after indexed variable array
+            self._expect({'='}, 'array_idx_assignment')
 
             # consume equal
             self._advance()
 
-            value = self._assignment_value()
+            value = self._assignment_value_no_arrayinit()
 
             # create node of indices for ast
             indices_node = ASTNode('indices', children=indices)
@@ -354,17 +575,21 @@ class SingleStmtRules:
         ```
         <assignment_value>
             -> read
+            -> <type_casting>
+            -> [ <index> ] <arrays>
+            -> <expr>
+        
+        <type_casting>
             -> int ( <expr> )
             -> float ( <expr> )
-            -> [ <element_list> ]
-            -> <expr>
+        
+        <arrays>
+            -> <1d_array_init>
+            -> [ <index> ] <2d_array_init>
         ```
 
         Returns:
             ASTNode
-
-        Note:
-            `block_keywords` param extends FOLLOW(<assignment_value>) for error reporting after <expr>.
         """
 
 
@@ -394,19 +619,23 @@ class SingleStmtRules:
 
             return self._ast_node('assignment_value', cast_tok, value=cast_method, children=[expr])
 
-        # array literal dec
+        # array declaration: [index] arrays
         elif self._match('['):
             bracket_tok = self._advance()
 
-            self._expect(self.PRED_ELEMENT_LIST, 'assignment_value')
+            # parse first dimension index
+            first_idx = self._index()
 
-            elements = self._element_list_opt()
-
-            # this is actually kinda useless cause we check alr predict set in the loop in elemenet_list_op
-            self._expect_type(']', 'assignment_value')
+            self._expect_type(']', 'arrays')
             self._advance()
 
-            return self._ast_node('array_literal', bracket_tok, children=elements)
+            # check if 1D or 2D array
+            if self._match('['):
+                # 2D array: [index][index] = [[...], [...]]
+                return self._two_d_array_init(bracket_tok, first_idx)
+            else:
+                # 1D array: [index] = [...]
+                return self._one_d_array_init(bracket_tok, first_idx)
 
         else:
             # other wise, its an expr
@@ -414,5 +643,60 @@ class SingleStmtRules:
 
             # after an expr, proper error display would be first set of equation ops + semi-colon
             self._expect_after_expr({';'}, expr, 'assignment_value')
+
+            return expr
+
+
+    def _assignment_value_no_arrayinit(self: "RDParser"):
+        """
+        Parse the right-hand side of an assignment (without array initialization).
+        Used for indexed assignments where array initialization is not allowed.
+
+        ```
+        <assignment_value_no_arrayinit>
+            -> read
+            -> <type_casting>
+            -> <expr>
+        
+        <type_casting>
+            -> int ( <expr> )
+            -> float ( <expr> )
+        ```
+
+        Returns:
+            ASTNode
+        """
+        
+        self._expect({'!', 'false', 'float', FLOAT_LIT_T, ID_T, 'int', INT_LIT_T, 'read', STR_LIT_T, 'true'}, 'assignment_value_no_arrayinit')
+
+        # input method
+        if self._match('read'):
+            tok = self._advance()
+            return self._ast_node('read', tok)
+
+        # typecast method
+        elif self._match('int', 'float'):
+            cast_tok = self._advance()
+            cast_method = cast_tok.lexeme
+
+            if not self._match('('):
+                self._expect_type('(', 'assignment_value_no_arrayinit')
+
+            self._advance()
+
+            expr = self._expr()
+
+            # check for closing parenthesis
+            self._expect_after_expr({ ')' }, expr, 'assignment_value_no_arrayinit')
+            self._advance()
+
+            return self._ast_node('assignment_value', cast_tok, value=cast_method, children=[expr])
+
+        else:
+            # otherwise, it's an expr (including array literals but not array initialization)
+            expr = self._expr()
+
+            # after an expr, proper error display would be first set of equation ops + semi-colon
+            self._expect_after_expr({';'}, expr, 'assignment_value_no_arrayinit')
 
             return expr

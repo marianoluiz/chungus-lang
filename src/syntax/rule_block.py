@@ -41,8 +41,15 @@ class BlockStmtRules():
         Parse a single function declaration.
 
         ```
-        <function_statement>
-            -> fn id ( <arg_list_opt> ) <local_statement> <return_opt> close
+        <function_block>
+            -> fn id ( <arg_list_opt> ) : <local_statement> <return_opt> close
+        
+        <local_statement>
+            -> <general_statement> <local_statement_tail>
+        
+        <local_statement_tail>
+            -> <general_statement> <local_statement_tail>
+            -> λ
         ```
 
         Returns:
@@ -106,24 +113,27 @@ class BlockStmtRules():
         return self._ast_node('function', fn_tok, value=fn_name, children=children)
 
 
-    def _conditional_statement(self: "RDParser") -> ASTNode:
+    def _conditional_block(self: "RDParser") -> ASTNode:
         """
         Parse an if/elif/else conditional block.
 
         ```
-        <conditional_statement>
+        <conditional_block>
             -> <if_block> <elif_block> <else_block> close
 
-            <if_block>
-                -> if <expr> <general_statement> <general_statement_tail>
+        <if_block>
+            -> if <condition> : <local_statement>
 
-            <elif_block>
-                -> elif <expr> <general_statement> <general_statement_tail> <elif_block>
-                -> λ
+        <elif_block>
+            -> elif <condition> : <local_statement> <elif_block>
+            -> λ
 
-            <else_block>
-                -> else <general_statement> <general_statement_tail>
-                -> λ
+        <else_block>
+            -> else : <local_statement>
+            -> λ
+        
+        <condition>
+            -> <expr>
         ```
 
         Returns:
@@ -217,17 +227,29 @@ class BlockStmtRules():
         Parse a for/while loop statement.
 
         ```
-        <looping_statement>
-            -> <for_statement>
-            -> <while_statement>
+        <looping_block>
+            -> <for_block>
+            -> <while_block>
 
-            <for_statement>
-                -> for id in <range_expression> <general_statement> <general_statement_tail> close
+        <for_block>
+            -> for id in <range_expression> : <local_statement> close
 
-            <while_statement>
-                -> while <expr> <general_statement> <general_statement_tail> close
+        <while_block>
+            -> while <condition> : <local_statement> close
             
-            <range_expression> -> range ( <range_list> )
+        <range_expression>
+            -> range ( <range_list> )
+        
+        <range_list>
+            -> <index> <range_tail_1>
+        
+        <range_tail_1>
+            -> , <index> <range_tail_2>
+            -> λ
+        
+        <range_tail_2>
+            -> , <index>
+            -> λ
         ```
 
         Returns:
@@ -347,21 +369,21 @@ class BlockStmtRules():
         Parse a try/fail/(optional)always error-handling block.
 
         ```
-        <error_handling_statement>
+        <error_handling_block>
             -> <try_block> <fail_block> <error_handling_tail> close
 
-            <try_block>
-                -> try <local_statement>
+        <try_block>
+            -> try : <local_statement>
 
-            <fail_block>
-                -> fail <local_statement>
+        <fail_block>
+            -> fail : <local_statement>
 
-            <error_handling_tail>
-                -> <always_block>
-                -> λ
+        <error_handling_tail>
+            -> <always_block>
+            -> λ
 
-            <always_block>
-                -> always <local_statement>
+        <always_block>
+            -> always : <local_statement>
         ```
 
         Returns:

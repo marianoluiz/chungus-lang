@@ -433,7 +433,7 @@ class ExprRules:
             ASTNode
         """
         
-        self._expect(self.PRED_INDEX, 'index')
+        self._expect({INT_LIT_T, ID_T}, 'index')
 
         if self._match(INT_LIT_T):
             tok = self._advance()
