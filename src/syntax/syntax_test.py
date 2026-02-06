@@ -102,31 +102,6 @@ class UnexpectedError:
         return f"{self.line_no:<5}|{display_line}\n     |{caret}\n"
 
 
-def _human_readable_expected(expected_set: Iterable[str], token_map: dict = TOKEN_NAME_MAP) -> str:
-    """
-    Convert Lark's expected/allowed items into readable tokens.
-    Lark often returns token names or literal strings like '"("'.
-    """
-    human = []
-    for item in sorted(expected_set):
-        if item is None:
-            continue
-        # strip literal quotes like '"("' -> (
-        if len(item) >= 2 and item[0] == '"' and item[-1] == '"':
-            lit = item[1:-1]
-            human.append(f"'{lit}'")
-        else:
-            human.append(token_map.get(item, item))
-    # remove duplicates while preserving order
-    seen: set[str] = set()
-    deduped = []
-    for h in human:
-        if h not in seen:
-            deduped.append(h)
-            seen.add(h)
-    return ", ".join(deduped) if deduped else "<unknown>"
-
-
 class Parser:
     def __init__(self):
         self._parser = _PARSER
@@ -211,7 +186,7 @@ class Parser:
             err_msg = (
                 f"{raw_line_no:<5}|{display_line}\n"
                 f"     |{' ' * caret_pos}^\n\n"
-                f"Unexpected token at line {raw_line_no} column {raw_col_no}: {unexpected_char}\n"
+                f"Unexpected token at line {raw_line_no} col {raw_col_no}: {unexpected_char}\n"
                 f"Expected any: {expected_str}"
             )
 
