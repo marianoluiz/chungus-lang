@@ -155,8 +155,22 @@ class ParserCore:
             # function call or indexing and all op
             updated_set |= {'(', '['} | ALL_OP
         elif postfix_target.kind == 'index':
-            # further indexing and all op
-            updated_set |= {'['} | ALL_OP    
+
+            # check dimension count - only allow '[' if not already 2D
+            # From the children of the index node, find the child 'indices'. If none exists, give me None
+            # └─ indices  (check if this exist)
+            #     ├─ int_literal: 1 
+            #     └─ int_literal: 1  
+            indices_node = next((child for child in postfix_target.children if child.kind == 'indices'), None)
+
+            # check how many index
+            num_dimensions = len(indices_node.children) if indices_node else 0
+
+            # only add '[' if less than 2 dimensions
+            if num_dimensions < 2:
+                updated_set |= {'['}
+
+            updated_set |= ALL_OP
         elif postfix_target.kind == 'function_call':
             # further indexing and all op
             updated_set |= ALL_OP        
@@ -257,7 +271,7 @@ class ParserCore:
             self._error([typ], ctx)
 
 
-    def _expect_after_expr(self, base_follow: set, expr_node, ctx: str, *, block_keywords: set | None = None, allow_eof: bool = False):
+    def _expect_after_expr(self, base_follow: set, expr_node, ctx: str):
         """
         Validate token following an expression.
 
@@ -270,32 +284,15 @@ class ParserCore:
             base_follow: Base FOLLOW set.
             expr_node: Parsed expression node (for postfix rules).
             ctx: Grammar context for errors.
-            block_keywords: Extra valid block-ending tokens.
-            allow_eof: Whether EOF is allowed here.
 
         Raises:
             ParseError if the next token is invalid.
         """
         follow = set(base_follow)
 
-        # check if from block statement and add the full follow set
-        if block_keywords:
-            follow |= block_keywords
-
         # check datatype to show full proper context of error
         follow = self._add_postfix_tokens(follow, expr_node)  # you already have this
 
-        # we don't error if token is EOF and we allow EOF (in assignment stmt)
-        if not self._match(*follow) and not (allow_eof and self._match("EOF")):
+        if not self._match(*follow):
             # returns a list
             self._error(sorted(follow), ctx)
-
-
-    def _first_general_statement(self: "RDParser"):
-        """
-        First set of general statements, used for error printings
-        
-        Returns:
-            Set: First set tokens of general statements
-        """
-        return {'array_add','array_remove','for','id','if','show','todo','try','while'}

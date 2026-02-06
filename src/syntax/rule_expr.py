@@ -375,7 +375,7 @@ class ExprRules:
             -> [ <index> ] <index_loop>
 
         <index_loop>
-            -> [ <index> ] <index_loop>
+            -> [ <index> ]
             -> λ
         ```
 
@@ -386,15 +386,27 @@ class ExprRules:
         indices: list[ASTNode] = []
         first_bracket: Token | None = None
 
-        while self._match('['):
-            tok = self._advance()  # consume '['
-            if first_bracket is None:
-                first_bracket = tok
+
+        tok = self._advance()  # consume '['
+
+        # make first index first_bracket for ast
+        if first_bracket is None:
+            first_bracket = tok
+
+        indices.append(self._index())
+
+        self._expect_type(']', 'postfix_index')
+        self._advance()
+
+        # optional index for 2D
+        if self._match('['):
+            self._advance() 
 
             indices.append(self._index())
 
             self._expect_type(']', 'postfix_index')
             self._advance()
+
 
         # first_bracket must exist if we got here
         return self._ast_node(
@@ -421,7 +433,7 @@ class ExprRules:
             ASTNode
         """
         
-        self._expect(self.PRED_INDEX, 'index')
+        self._expect({INT_LIT_T, ID_T}, 'index')
 
         if self._match(INT_LIT_T):
             tok = self._advance()

@@ -1,1 +1,14 @@
-1.1111
+
+try:
+
+    show x ;
+
+fail :
+
+    show 'hi';
+
+always:
+
+    show '1';
+
+close
