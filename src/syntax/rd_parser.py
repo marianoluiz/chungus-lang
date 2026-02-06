@@ -34,11 +34,7 @@ class RDParser(ParserCore, ExprRules, SingleStmtRules, BlockStmtRules):
     PRED_GENERAL_STMT = {'for', ID_T,'if','show','todo','try','while'}
     PRED_PROGRAM      = PRED_GENERAL_STMT | {'fn'}
     PRED_EXPR = {'!', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'}
-
-    PRED_ID_STMT_TAIL = {'(', '=', '['}
-    PRED_ASSIGN_VALUE = {'!', '[', 'false', 'float', FLOAT_LIT_T, ID_T, 'int', INT_LIT_T, 'read', STR_LIT_T, 'true'}
-    PRED_ELEMENT_LIST = {'[', ']', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'}
-    PRED_ARRAY_ELEMENT      = {'[', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'}
+    PRED_ARRAY_ELEMENT = {'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'}
 
     def parse(self: "RDParser") -> ParseResult:
         """

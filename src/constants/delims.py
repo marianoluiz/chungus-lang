@@ -22,7 +22,8 @@ DELIMS = {
         *ATOMS['assignment_op'], 
         *ATOMS['arithmetic_op'],
         *ATOMS['relational_op'], 
-        '(', '[', ')', ']', ','
+        '(', '[', ')', ']', ',',
+        *ATOMS['header_terminator']
     },
 
     

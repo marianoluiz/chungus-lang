@@ -72,13 +72,13 @@ class BlockStmtRules():
         params = self._arg_list_opt()
             
         # check if next is ) or else error, this is checked already in arg_list_opt since we need expr tokens
-        self._expect_type(')', 'function_statement')
+        self._expect_type(')', 'function_block')
         self._advance()
-        
+
         # require colon after function header
-        self._expect_type(':', 'function_statement')
+        self._expect_type(':', 'function_block')
         self._advance()
-        
+
         # check inside the function block
         fn_nodes = []
         predict_keywords = {'close', 'ret'}
@@ -86,17 +86,17 @@ class BlockStmtRules():
         # require 1 local statement
         # block_keywords args is just for assignment stmt error context printing, so we stil need manual checking of predict set
         fn_nodes.append(self._general_statement())
-        self._expect(self.PRED_GENERAL_STMT | predict_keywords, 'function_statement')
-        
+        self._expect(self.PRED_GENERAL_STMT | predict_keywords, 'function_block')
+
         # 0 or many local statement
         while not self._match('ret', 'close'):
             # ret can be null so we need to check always to show correct error
             fn_nodes.append(self._general_statement())
-            self._expect(self.PRED_GENERAL_STMT | {'close', 'ret'}, 'function_statement')
+            self._expect(self.PRED_GENERAL_STMT | predict_keywords, 'function_block')
 
         ret_node = self._return_opt()
         
-        self._expect_type('close', 'function_statement')
+        self._expect_type('close', 'function_block')
         self._advance()
 
         # We will add 1. params, then 2. local_nodes, then 3. ret_nodes
@@ -140,12 +140,14 @@ class BlockStmtRules():
             ASTNode
         """
         # If blocks
-        self._expect_type('if', 'conditional_statement')
+        self._expect_type('if', 'conditional_block')
         if_tok = self._advance() 
 
         # condition expression
         cond = self._expr()
-        self._expect_after_expr({':', 'colon'}, cond, 'if_block')
+        self._expect_after_expr({':'}, cond, 'if_block')
+
+        # backup required
         self._expect_type(':', 'if_block')
         self._advance()
 
@@ -171,7 +173,7 @@ class BlockStmtRules():
             elif_tok = self._advance()
             cond = self._expr()
 
-            self._expect_after_expr({':', 'colon'}, cond, 'elif_block')
+            self._expect_after_expr({':'}, cond, 'elif_block')
             self._expect_type(':', 'elif_block')
             self._advance()
 
@@ -210,7 +212,7 @@ class BlockStmtRules():
             else_node = self._ast_node('else', else_tok, children=else_body)
 
         # final close, probably handled by previous expect already we add just incase.
-        self._expect_type('close', 'conditional_statement')
+        self._expect_type('close', 'conditional_block')
         self._advance()
 
         # combine if, elif, else nodes
@@ -219,10 +221,10 @@ class BlockStmtRules():
         if else_node:
             children.append(else_node)
 
-        return self._ast_node('conditional_statement', if_tok, children=children)
+        return self._ast_node('conditional_block', if_tok, children=children)
 
 
-    def _looping_statement(self: "RDParser") -> ASTNode:
+    def _looping_block(self: "RDParser") -> ASTNode:
         """
         Parse a for/while loop statement.
 
@@ -259,14 +261,14 @@ class BlockStmtRules():
         if self._match('for'):
             self._advance()
 
-            self._expect_type(ID_T, 'for_statement')
+            self._expect_type(ID_T, 'for_block')
             loop_var = self._advance().lexeme   # advance and get variable name
 
-            self._expect_type('in', 'for_statement')
+            self._expect_type('in', 'for_block')
             self._advance()
 
             # range ( <expression_list> )
-            self._expect_type('range', 'for_statement')
+            self._expect_type('range', 'for_block')
             self._advance()
 
             self._expect_type('(', 'range_expression')
@@ -346,19 +348,19 @@ class BlockStmtRules():
             predict_keywords = {'close'}
 
             # after parsing expr, we need to show full error context
-            self._expect_after_expr({':', 'colon'}, cond, 'while_statement')
-            self._expect_type(':', 'while_statement')
+            self._expect_after_expr({':'}, cond, 'while_block')
+            self._expect_type(':', 'while_block')
             self._advance()
 
             body.append(self._general_statement())
-            self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'while_body')
+            self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'while_block')
 
             while not self._match('close'):
                 body.append(self._general_statement())
-                self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'while_body')
+                self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'while_block')
 
             # expect close, might be handled already by previous expect
-            self._expect_type('close', 'while_statement')
+            self._expect_type('close', 'while_block')
             self._advance()
 
             return self._ast_node('while', while_tok, children=[cond] + body)
@@ -372,18 +374,18 @@ class BlockStmtRules():
         <error_handling_block>
             -> <try_block> <fail_block> <error_handling_tail> close
 
-        <try_block>
-            -> try : <local_statement>
+            <try_block>
+                -> try : <local_statement>
 
-        <fail_block>
-            -> fail : <local_statement>
+            <fail_block>
+                -> fail : <local_statement>
 
-        <error_handling_tail>
-            -> <always_block>
-            -> λ
+            <error_handling_tail>
+                -> <always_block>
+                -> λ
 
-        <always_block>
-            -> always : <local_statement>
+            <always_block>
+                -> always : <local_statement>
         ```
 
         Returns:

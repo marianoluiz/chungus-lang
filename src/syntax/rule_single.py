@@ -88,7 +88,7 @@ class SingleStmtRules:
 
         # looping (for / while ... close)
         elif self._match('for', 'while'):
-            node = self._looping_statement()
+            node = self._looping_block()
             return ASTNode('general_statement', children=[node])
 
         # error handling (try / fail / always ... close)
@@ -182,276 +182,6 @@ class SingleStmtRules:
         return None
 
 
-    def _element_list_opt(self: "RDParser") -> List[ASTNode]:
-        """
-        Parse an optional, possibly-empty list of array literal elements.
-        Used for inline array literals without size declaration.
-
-        ```
-        <element_list>
-            -> <array_element> <array_tail>
-            -> λ
-        
-        <array_tail>
-            -> , <array_element> <array_tail>
-            -> λ
-        ```
-        Returns:
-            List[ASTNode]: Parsed element nodes (may be empty).
-        """
-
-        self._expect(self.PRED_ELEMENT_LIST, 'element_list_opt')
-
-        elements: List[ASTNode] = []
-
-        # empty element list allowed
-        if self._match(']'):
-            return elements
-
-        # at least one element
-        elements.append(self._array_element())
-        self._expect({',', ']'}, 'element_list_opt')
-
-        while self._match(','):
-            self._advance()
-            # parse next element
-            elements.append(self._array_element())
-
-            self._expect({',', ']'}, 'element_list')
-
-        return elements
-
-
-    def _array_element(self: "RDParser") -> ASTNode:
-        """
-        Parse a single array element (literal or id).
-
-        ```
-        <array_element>
-            -> <int_float_str_bool_lit>
-            -> id
-        
-        <int_float_str_bool_lit>
-            -> <int_float_str_lit>
-            -> true
-            -> false
-        
-        <int_float_str_lit>
-            -> <int_float_lit>
-            -> str_literal
-        
-        <int_float_lit>
-            -> int_literal
-            -> float_literal
-        ```
-
-        Returns:
-            ASTNode: AST node for the array element.
-        """
-
-        if self._match(INT_LIT_T, FLOAT_LIT_T):
-            tok = self._advance()
-            kind = INT_LIT_T if tok.type == INT_LIT_T else FLOAT_LIT_T
-            return self._ast_node(kind, tok, value=tok.lexeme)
-
-        elif self._match(STR_LIT_T):
-            tok = self._advance()
-            return self._ast_node(STR_LIT_T, tok, value=tok.lexeme)
-
-        elif self._match('true', 'false'):
-            tok = self._advance()
-            return self._ast_node(BOOL_LIT_T, tok, value=tok.lexeme)
-
-        elif self._match(ID_T):
-            tok = self._advance()
-            return self._ast_node(ID_T, tok, value=tok.lexeme)
-
-        elif self._match('['):
-            # nested array literal
-            self._advance()
-            elems = self._element_list_opt()
-            
-            # backup expect to be ]
-            self._expect_type(']', 'array_literal')
-            self._advance()
-
-            return ASTNode('array_literal', children=elems)
-
-        else:
-            self._error(self.PRED_ARRAY_ELEMENT, 'array_element')
-
-
-    def _one_d_array_init(self: "RDParser", bracket_tok: Token, size_idx: ASTNode) -> ASTNode:
-        """
-        Parse 1D array initialization.
-
-        ```
-        <1d_array_init>
-            -> = [ <1d_element_list> ]
-        
-        <1d_element_list>
-            -> <array_element> <1d_array_tail>
-            -> λ
-        
-        <1d_array_tail>
-            -> , <array_element> <1d_array_tail>
-            -> λ
-        ```
-
-        Args:
-            bracket_tok: Token for the opening bracket
-            size_idx: Size index node
-
-        Returns:
-            ASTNode: AST node for 1D array initialization
-        """
-        # expect = after [size]
-        self._expect_type('=', 'one_d_array_init')
-        self._advance()
-
-        # expect [ for array literal
-        self._expect_type('[', 'one_d_array_init')
-        self._advance()
-
-        # parse 1D element list (no nested arrays allowed)
-        elements: List[ASTNode] = []
-
-        # empty list allowed
-        if not self._match(']'):
-            # parse first element
-            elements.append(self._array_element())
-            self._expect({',', ']'}, 'one_d_element_list')
-
-            # parse remaining elements
-            while self._match(','):
-                self._advance()
-                elements.append(self._array_element())
-                self._expect({',', ']'}, 'one_d_element_list')
-
-        # expect closing ]
-        self._expect_type(']', 'one_d_array_init')
-        self._advance()
-
-        # create size node
-        size_node = ASTNode('size', children=[size_idx])
-
-        return self._ast_node('array_1d_init', bracket_tok, children=[size_node] + elements)
-
-
-    def _two_d_array_init(self: "RDParser", bracket_tok: Token, row_idx: ASTNode) -> ASTNode:
-        """
-        Parse 2D array initialization.
-
-        ```
-        <2d_array_init>
-            -> = [ <2d_element_list> ]
-        
-        <2d_element_list>
-            -> <2d_array_element> <2d_array_tail>
-            -> λ
-        
-        <2d_array_element>
-            -> [ <array_element> <two_d_inner_tail> ]
-        
-        <two_d_inner_tail>
-            -> , <array_element> <two_d_inner_tail>
-            -> λ
-        
-        <2d_array_tail>
-            -> , <2d_array_element> <2d_array_tail>
-            -> λ
-        ```
-
-        Args:
-            bracket_tok: Token for the opening bracket
-            row_idx: First dimension (row) index node
-
-        Returns:
-            ASTNode: AST node for 2D array initialization
-        """
-        # expect [col_size] after [row_size]
-        self._expect_type('[', 'two_d_array_init')
-        self._advance()
-
-        col_idx = self._index()
-
-        self._expect_type(']', 'two_d_array_init')
-        self._advance()
-
-        # expect = after [row][col]
-        self._expect_type('=', 'two_d_array_init')
-        self._advance()
-
-        # expect [ for array literal
-        self._expect_type('[', 'two_d_array_init')
-        self._advance()
-
-        # parse 2D element list (nested arrays required)
-        rows: List[ASTNode] = []
-
-        # empty list allowed
-        if not self._match(']'):
-            # parse first row
-            rows.append(self._two_d_array_element())
-            self._expect({',', ']'}, 'two_d_element_list')
-
-            # parse remaining rows
-            while self._match(','):
-                self._advance()
-                rows.append(self._two_d_array_element())
-                self._expect({',', ']'}, 'two_d_element_list')
-
-        # expect closing ]
-        self._expect_type(']', 'two_d_array_init')
-        self._advance()
-
-        # create size node with both dimensions
-        size_node = ASTNode('size', children=[row_idx, col_idx])
-
-        return self._ast_node('array_2d_init', bracket_tok, children=[size_node] + rows)
-
-
-    def _two_d_array_element(self: "RDParser") -> ASTNode:
-        """
-        Parse a 2D array row element.
-
-        ```
-        <2d_array_element>
-            -> [ <array_element> <two_d_inner_tail> ]
-        
-        <two_d_inner_tail>
-            -> , <array_element> <two_d_inner_tail>
-            -> λ
-        ```
-
-        Returns:
-            ASTNode: AST node for a row in 2D array
-        """
-        # expect [ for row
-        self._expect_type('[', 'two_d_array_element')
-        row_tok = self._advance()
-
-        # parse row elements
-        row_elements: List[ASTNode] = []
-
-        # at least one element required (no empty rows)
-        if not self._match(']'):
-            row_elements.append(self._array_element())
-            self._expect({',', ']'}, 'two_d_inner_tail')
-
-            # parse remaining elements in row
-            while self._match(','):
-                self._advance()
-                row_elements.append(self._array_element())
-                self._expect({',', ']'}, 'two_d_inner_tail')
-
-        # expect closing ]
-        self._expect_type(']', 'two_d_array_element')
-        self._advance()
-
-        return self._ast_node('array_row', row_tok, children=row_elements)
-
-
     def _output_statement(self: "RDParser") -> ASTNode:
         """
         Parse a 'show' statement.
@@ -506,7 +236,8 @@ class SingleStmtRules:
             ASTNode: AST node representing the id_statement_tail.
         """
 
-        self._expect(self.PRED_ID_STMT_TAIL, 'id_statement_tail')
+        # expect predict set of id_stmt_tail
+        self._expect({'(', '=', '['}, 'id_statement_tail')
 
         # Assignment statement: = <assignment_value>
         if self._match('='):
@@ -592,8 +323,8 @@ class SingleStmtRules:
             ASTNode
         """
 
-
-        self._expect(self.PRED_ASSIGN_VALUE, 'assignment_value')
+        # predict of assignment value
+        self._expect({'!', '[', 'false', 'float', FLOAT_LIT_T, ID_T, 'int', INT_LIT_T, 'read', STR_LIT_T, 'true'}, 'assignment_value')
 
         # input method
         if self._match('read'):
@@ -628,6 +359,8 @@ class SingleStmtRules:
 
             self._expect_type(']', 'arrays')
             self._advance()
+
+            self._expect({'=', '['}, 'arrays')
 
             # check if 1D or 2D array
             if self._match('['):
@@ -700,3 +433,229 @@ class SingleStmtRules:
             self._expect_after_expr({';'}, expr, 'assignment_value_no_arrayinit')
 
             return expr
+
+
+    def _one_d_array_init(self: "RDParser", bracket_tok: Token, size_idx: ASTNode) -> ASTNode:
+        """
+        Parse 1D array initialization.
+
+        ```
+        <1d_array_init>
+            -> = [ <1d_element_list> ]
+        
+            <1d_element_list>
+                -> <array_element> <1d_array_tail>
+                -> λ
+            
+            <1d_array_tail>
+                -> , <array_element> <1d_array_tail>
+                -> λ
+        ```
+
+        Args:
+            bracket_tok: Token for the opening bracket
+            size_idx: Size index node
+
+        Returns:
+            ASTNode: AST node for 1D array initialization
+        """
+        # expect = after [size]
+        self._expect_type('=', 'one_d_array_init')
+        self._advance()
+
+        # expect [ for array literal
+        self._expect_type('[', 'one_d_array_init')
+        self._advance()
+
+        # combine pred array element and follow set
+        self._expect({']'} | self.PRED_ARRAY_ELEMENT, '_one_d_array_init')
+
+        # parse 1D element list (no nested arrays allowed)
+        elements: List[ASTNode] = []
+
+        # empty list allowed
+        if not self._match(']'):
+            
+            # parse first element
+            elements.append(self._array_element())
+            self._expect({',', ']'}, 'one_d_element_list')
+
+            # parse remaining elements
+            while self._match(','):
+                self._advance()
+                elements.append(self._array_element())
+                self._expect({',', ']'}, 'one_d_element_list')
+
+        # expect closing ]
+        self._expect_type(']', 'one_d_array_init')
+        self._advance()
+
+        # create size node
+        size_node = ASTNode('size', children=[size_idx])
+
+        return self._ast_node('array_1d_init', bracket_tok, children=[size_node] + elements)
+
+
+    def _two_d_array_init(self: "RDParser", bracket_tok: Token, row_idx: ASTNode) -> ASTNode:
+        """
+        Parse 2D array initialization.
+
+        ```
+        <2d_array_init>
+            -> = [ <2d_element_list> ]
+        
+            <2d_element_list>
+                -> <2d_array_element> <2d_array_tail>
+                -> λ
+            
+            <2d_array_element>
+                -> [ <array_element> <two_d_inner_tail> ]
+            
+            <two_d_inner_tail>
+                -> , <array_element> <two_d_inner_tail>
+                -> λ
+            
+            <2d_array_tail>
+                -> , <2d_array_element> <2d_array_tail>
+                -> λ
+        ```
+
+        Args:
+            bracket_tok: Token for the opening bracket
+            row_idx: First dimension (row) index node
+
+        Returns:
+            ASTNode: AST node for 2D array initialization
+        """
+        # expect [col_size] after [row_size]
+        self._expect_type('[', 'two_d_array_init')
+        self._advance()
+
+        col_idx = self._index()
+
+        self._expect_type(']', 'two_d_array_init')
+        self._advance()
+
+        # expect = after [row][col]
+        self._expect_type('=', 'two_d_array_init')
+        self._advance()
+
+        # expect [ for array literal
+        self._expect_type('[', 'two_d_array_init')
+        self._advance()
+
+        # check predict
+        self._expect({'[', ']'}, 'two_d_array_init')
+
+        # parse 2D element list (nested arrays required)
+        rows: List[ASTNode] = []
+        
+        # empty list allowed
+        if not self._match(']'):
+            # parse first row
+            rows.append(self._two_d_array_element())
+            self._expect({',', ']'}, 'two_d_element_list')
+
+            # parse remaining rows
+            while self._match(','):
+                self._advance()
+                rows.append(self._two_d_array_element())
+                self._expect({',', ']'}, 'two_d_element_list')
+
+        # expect closing ]
+        self._expect_type(']', 'two_d_array_init')
+        self._advance()
+
+        # create size node with both dimensions
+        size_node = ASTNode('size', children=[row_idx, col_idx])
+
+        return self._ast_node('array_2d_init', bracket_tok, children=[size_node] + rows)
+
+
+    def _two_d_array_element(self: "RDParser") -> ASTNode:
+        """
+        Parse a 2D array row element.
+
+        ```
+        <2d_array_element>
+            -> [ <array_element> <two_d_inner_tail> ]
+        
+            <two_d_inner_tail>
+                -> , <array_element> <two_d_inner_tail>
+                -> λ
+        ```
+
+        Returns:
+            ASTNode: AST node for a row in 2D array
+        """
+        # expect [ for row
+        self._expect_type('[', 'two_d_array_element')
+        row_tok = self._advance()
+
+        # parse row elements
+        row_elements: List[ASTNode] = []
+
+        # at least one element required (no empty rows)
+        if not self._match(']'):
+            row_elements.append(self._array_element())
+            self._expect({',', ']'}, 'two_d_inner_tail')
+
+            # parse remaining elements in row
+            while self._match(','):
+                self._advance()
+                row_elements.append(self._array_element())
+                self._expect({',', ']'}, 'two_d_inner_tail')
+
+        # expect closing ]
+        self._expect_type(']', 'two_d_array_element')
+        self._advance()
+
+        return self._ast_node('array_row', row_tok, children=row_elements)
+
+
+    def _array_element(self: "RDParser") -> ASTNode:
+        """
+        Parse a single array element (literal or id).
+
+        ```
+        <array_element>
+            -> <int_float_str_bool_lit>
+            -> id
+        
+        <int_float_str_bool_lit>
+            -> <int_float_str_lit>
+            -> true
+            -> false
+        
+        <int_float_str_lit>
+            -> <int_float_lit>
+            -> str_literal
+        
+        <int_float_lit>
+            -> int_literal
+            -> float_literal
+        ```
+
+        Returns:
+            ASTNode: AST node for the array element.
+        """
+
+        # predict set of array element
+        self._expect(self.PRED_ARRAY_ELEMENT, 'array_element')
+
+        if self._match(INT_LIT_T, FLOAT_LIT_T):
+            tok = self._advance()
+            kind = INT_LIT_T if tok.type == INT_LIT_T else FLOAT_LIT_T
+            return self._ast_node(kind, tok, value=tok.lexeme)
+
+        elif self._match(STR_LIT_T):
+            tok = self._advance()
+            return self._ast_node(STR_LIT_T, tok, value=tok.lexeme)
+
+        elif self._match('true', 'false'):
+            tok = self._advance()
+            return self._ast_node(BOOL_LIT_T, tok, value=tok.lexeme)
+
+        elif self._match(ID_T):
+            tok = self._advance()
+            return self._ast_node(ID_T, tok, value=tok.lexeme)
