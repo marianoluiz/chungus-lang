@@ -2903,7 +2903,6 @@ show x;
 close +
 ","line 3 col 7: +
 Expected any: for, id, if, show, todo, try, while",,
-,,,
 "for i in range(1, 10, 2):
  show i; 
 close
@@ -3036,6 +3035,541 @@ todo;
  close
 ","line 1 col 7: :
 Expected any: !, false, float_literal, id, int_literal, str_literal, true",,
+"for i in range(5): 
+show 
+'hello'; 
+close",NO SYNTAX ERROR,,
+"for i in range(5): 
+show 'hello' 
+close
+","line 3 col 1: c
+Expected any: ;",,
+"for i in range(5) 
+show 'hello'; 
+close
+","line 2 col 1: s
+Expected any: :",,
+"for i range(5): 
+show 'hello'; 
+close
+","line 1 col 7: r
+Expected any: in",,
+"for range(5): 
+show 'hello'; 
+close
+","line 1 col 5: r
+Expected any: id",,
+"for i in range(1, 10, 2): 
+show i; 
+close
+",NO SYNTAX ERROR,,
+"while x < 5:
+ x = x + 1; 
+close
+",NO SYNTAX ERROR,,
+"while x < 5: 
+x = x + 1 
+close
+","line 3 col 1: c
+Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
+"while x < 5 x = x + 1; 
+close
+","line 1 col 13: x
+Expected any: !=, %, *, **, +, -, /, //, :, <, <=, ==, >, >=, and, or",,
+"while (x < 5):
+ x = x + 1;
+ close
+","line 1 col 7: (
+Expected any: !, false, float_literal, id, int_literal, str_literal, true",,
+"for i in range(10):
+ if i == 5: 
+show i; 
+close close
+",NO SYNTAX ERROR,,
+"for i in range(5): 
+show i; 
+close
+",NO SYNTAX ERROR,,
+"for i in range(5):
+ show i;
+ close close
+"," line 3 col 8: c
+Expected any: for, id, if, show, todo, try, while",,
+"for i in range(5): 
+show i; 
+close )
+","line 3 col 7: )
+Expected any: for, id, if, show, todo, try, while",,
+"for i in range(5): 
+show i 
+close
+","line 3 col 1: c
+Expected any: ;",,
+"for i in range(5) 
+show i; 
+close
+","line 2 col 1: s
+Expected any: :",,
+"for i range(5): 
+show i; 
+close
+","Unexpected token at line 1 col 7: r
+Expected any: in",,
+"for in range(5): 
+show i; 
+close
+"," line 1 col 5: i
+Expected any: id",,
+"for i in range(5.5): 
+show i; 
+close
+","Unexpected token in index at line 1 col 16: float_literal
+Expected any: id, int_literal",,
+"for i in range('5'): 
+show i; 
+close
+","line 1 col 16: '
+Expected any: id, int_literal",,
+"for i in range(1, 10, 0): 
+show i; 
+close
+",NO SYNTAX ERROR,,
+"for i in range(1, 10, 2): 
+show i; 
+close
+",NO SYNTAX ERROR,,
+"while x < 10:
+ x = x + 1; 
+close
+",NO SYNTAX ERROR,,
+"while x < 10:
+ x = x + 1 
+close
+","line 3 col 1: c
+Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
+"while x < 10 x = x + 1; 
+close
+","line 1 col 14: x
+Expected any: !=, %, *, **, +, -, /, //, :, <, <=, ==, >, >=, and, or",,
+"while (x < 10):
+ x = x + 1;
+ close
+","Unexpected token at line 1 col 7: (
+Expected any: !, false, float_literal, id, int_literal, str_literal, true",,
+"while x < 10: 
+x = x + 1; 
+close close
+"," line 3 col 7: c
+Expected any: for, id, if, show, todo, try, while",,
+"while x < 10:
+ x = x + 1; 
+close 5
+","line 3 col 7: 5
+Expected any: for, id, if, show, todo, try, while",,
+"while true:
+ show 'looping'; 
+close
+",NO SYNTAX ERROR,,
+"while false: 
+show 'looping';
+ close
+",NO SYNTAX ERROR,,
+"while 1: 
+show 'looping'; 
+close
+",NO SYNTAX ERROR,,
+"while 1: 
+show 'looping'; 
+close
+",NO SYNTAX ERROR,,
+"for i in range(3):
+ for j in range(3): 
+show j; 
+close close
+",NO SYNTAX ERROR,,
+"for i in range(3): 
+for j in range(3): 
+show j; 
+close","Unexpected token at line 4 col 6: <EOL>
+Expected any: close, for, id, if, show, todo, try, while",,
+"for i in range(3): 
+for j in range(3): 
+show j;
+","line 3 col 8: <EOL>
+Expected any: close, for, id, if, show, todo, try, while",,
+"while x < 5: while y < 5: 
+show x;
+ close close
+",NO SYNTAX ERROR,,
+"while x < 5: 
+while y < 5: show x; 
+close
+","line 3 col 6: <EOL>
+Expected any: close, for, id, if, show, todo, try, while",,
+"for i in range(5):
+ if i == 2: show i;
+ close close
+",NO SYNTAX ERROR,,
+"for i in range(5): 
+if i == 2: 
+show i; 
+close
+"," line 4 col 6: <EOL>
+Expected any: close, for, id, if, show, todo, try, while",,
+"if x == 1: 
+for i in range(5): 
+show i;
+ close close
+",NO SYNTAX ERROR,,
+"if x == 1: 
+for i in range(5): 
+show i; 
+close
+"," line 4 col 6: <EOL>
+Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+"while x < 5: 
+x = x + 1; 
+todo; 
+close
+",NO SYNTAX ERROR,,
+"while x < 5: 
+x = x + 1; 
+todo; 
+close
+
+",NO SYNTAX ERROR,,
+"for i in range(5): 
+show i; 
+close 
+if x == 1: 
+show x; 
+close
+",NO SYNTAX ERROR,,
+"for i in range(5): 
+show i; 
+close -
+if x == 1: 
+show x; 
+close
+","line 3 col 7: -
+Expected any: for, id, if, show, todo, try, while",,
+"for i in range(1, 5): 
+x = array(arr, i); 
+close
+",NO SYNTAX ERROR,,
+"while !done: 
+done = true; 
+close
+",NO SYNTAX ERROR,,
+"for x in range(len(arr)): 
+show x; 
+close
+","line 1 col 19: (
+Expected any: ), ,",,
+"while x != 0: 
+x = x  1; 
+close
+","line 2 col 8: 1
+Expected any: !=, %, (, *, **, +, -, /, //, ;, <, <=, ==, >, >=, [, and, or",,
+"for i in range(1, 10, ~2): 
+show i; 
+close
+",NO SYNTAX ERROR,,
+"if x == 1:
+ if y == 1:
+","line 2 col 12: <EOL>
+Expected any: for, id, if, show, todo, try, while",,
+"if x == 1: 
+if y == 1: 
+show 'XY'
+"," line 3 col 10: <EOL>
+Expected any: ;",,
+"if x == 1:
+ if y == 1: 
+show 'XY';
+"," line 3 col 11: <EOL>
+Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+"if x == 1:
+ if y == 1: 
+show 'XY'; c
+lose
+","line 4 col 1: l
+Expected any: (, =, [",,
+"if x == 1: 
+if y == 1: 
+show 'XY'; 
+close close
+",NO SYNTAX ERROR,,
+if a == b and c == d:," line 1 col 22: <EOL>
+Expected any: for, id, if, show, todo, try, while",,
+"if a == b and c == d: 
+todo","Unexpected token at line 2 col 5: <EOL>
+Expected any: ;",,
+"if a == b and c == d: 
+todo;
+","line 2 col 6: <EOL>
+Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+"if a == b and c == d: todo; 
+close
+",NO SYNTAX ERROR,,
+if !is_true:,"line 1 col 13: <EOL>
+Expected any: for, id, if, show, todo, try, while",,
+if !is_true: show 'No',"line 1 col 23: <EOL>
+Expected any: ;",,
+"if !is_true: 
+show 'No';
+","line 2 col 11: <EOL>
+Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+"if !is_true: 
+show 'No'; 
+close
+",NO SYNTAX ERROR,,
+if score == ~10:," line 1 col 17: <EOL>
+Expected any: for, id, if, show, todo, try, while",,
+"if score == ~10: 
+show 'Neg'
+"," line 2 col 11: <EOL>
+Expected any: ;",,
+"if score == ~10:
+ show 'Neg';
+","line 2 col 13: <EOL>
+Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+"if score == ~10: 
+show 'Neg';
+ close
+",NO SYNTAX ERROR,,
+"if x == 1: 
+show 'A';
+ elif x == 2: 
+show 'B'; 
+elif x == 3: 
+show 'C'; 
+else: 
+show 'D'; 
+close
+",NO SYNTAX ERROR,,
+"if x == 1:
+ show 'A'; 
+close 
+if y == 1: 
+show 'B'; 
+close
+",NO SYNTAX ERROR,,
+if (score >= 75):," line 1 col 4: (
+Expected any: !, false, float_literal, id, int_literal, str_literal, true",,
+"if score >= 75:
+ show 'A'; 
+close _
+"," line 3 col 8: <EOL>
+Expected any: (, =, [",,
+"if score >= 75:
+ show 'A'; 
+close close
+","line 3 col 7: c
+Expected any: for, id, if, show, todo, try, while",,
+"if score >= 75:
+ show 'A'
+ close","Unexpected token at line 3 col 2: c
+Expected any: ;",,
+"if score >= 75: 
+show 'A'; 
+else: 
+show 'B'; 
+close
+",NO SYNTAX ERROR,,
+"if status == true: 
+x = 100; 
+show x; 
+close
+",NO SYNTAX ERROR,,
+"if status == false:
+ todo; 
+close
+",NO SYNTAX ERROR,,
+"if x == 1: 
+if y == 2: 
+if z == 3: 
+show '3'; 
+close close close
+",NO SYNTAX ERROR,,
+"if x == 1:
+ show 'A';
+ elif y == 2: 
+show 'B'; 
+else: 
+show 'C'; 
+close
+",NO SYNTAX ERROR,,
+,,,
+for," line 1 col 4: <EOL>
+Expected any: id",,
+for i," line 1 col 6: <EOL>
+Expected any: in",,
+for i in," line 1 col 9: <EOL>
+Expected any: range",,
+for i in range,"line 1 col 15: <EOL>
+Expected any: (",,
+for i in range(," line 1 col 16: <EOL>
+Expected any: id, int_literal",,
+for i in range(10," line 1 col 18: <EOL>
+Expected any: ), ,",,
+for i in range(10),"line 1 col 19: <EOL>
+Expected any: :",,
+for i in range(10):," line 1 col 20: <EOL>
+Expected any: for, id, if, show, todo, try, while",,
+"for i in range(10): 
+show
+","line 2 col 5: <EOL>
+Expected any: id, str_literal",,
+"for i in range(10): 
+show i
+"," line 2 col 7: <EOL>
+Expected any: ;",,
+"for i in range(10):
+ show i;
+"," line 2 col 9: <EOL>
+Expected any: close, for, id, if, show, todo, try, while",,
+"for i in range(10): 
+show i; 
+close
+",NO SYNTAX ERROR,,
+"for i in range(1, 10): 
+show i; 
+close
+",NO SYNTAX ERROR,,
+"for i in range(1, 10, 2):
+ show i;
+ close
+",NO SYNTAX ERROR,,
+while," line 1 col 6: <EOL>
+Expected any: !, false, float_literal, id, int_literal, str_literal, true",,
+while x,"line 1 col 8: <EOL>
+Expected any: !=, %, (, *, **, +, -, /, //, :, <, <=, ==, >, >=, [, and, or",,
+while x <,"line 1 col 10: <EOL>
+Expected any: float_literal, id, int_literal",,
+while x < 5," line 1 col 12: <EOL>
+Expected any: !=, %, *, **, +, -, /, //, :, <, <=, ==, >, >=, and, or",,
+while x < 5:,"line 1 col 13: <EOL>
+Expected any: for, id, if, show, todo, try, while",,
+while x < 5: x," line 1 col 15: <EOL>
+Expected any: (, =, [",,
+while x < 5: x =,"line 1 col 17: <EOL>
+Expected any: !, [, false, float, float_literal, id, int, int_literal, read, str_literal, true",,
+while x < 5: x = x,"line 1 col 19: <EOL>
+Expected any: !=, %, (, *, **, +, -, /, //, ;, <, <=, ==, >, >=, [, and, or",,
+while x < 5: x = x +,"line 1 col 21: <EOL>
+Expected any: float_literal, id, int_literal",,
+while x < 5: x = x + 1,"line 1 col 23: <EOL>
+Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
+while x < 5: x = x + 1;,"line 1 col 24: <EOL>
+Expected any: close, for, id, if, show, todo, try, while",,
+"while x < 5: x = x + 1; 
+close
+",NO SYNTAX ERROR,,
+while status == true:,"line 1 col 22: <EOL>
+Expected any: for, id, if, show, todo, try, while",,
+"while status == true: 
+todo
+"," line 2 col 5: <EOL>
+Expected any: ;",,
+"while status == true: 
+todo;","Unexpected token at line 2 col 6: <EOL>
+Expected any: close, for, id, if, show, todo, try, while",,
+"while status == true: 
+todo; 
+close
+",NO SYNTAX ERROR,,
+"for i in range(5): 
+for j in range(5):
+","line 2 col 19: <EOL>
+Expected any: for, id, if, show, todo, try, while",,
+"for i in range(5): 
+for j in range(5): 
+show j
+","line 3 col 7: <EOL>
+Expected any: ;",,
+"for i in range(5):
+ for j in range(5): 
+show j;
+","line 3 col 8: <EOL>
+Expected any: close, for, id, if, show, todo, try, while",,
+"for i in range(5):
+ for j in range(5): 
+show j;
+ close
+"," line 4 col 7: <EOL>
+Expected any: close, for, id, if, show, todo, try, while",,
+"for i in range(5): 
+for j in range(5): 
+show j;
+close close
+",NO SYNTAX ERROR,,
+while !done:,"line 1 col 13: <EOL>
+Expected any: for, id, if, show, todo, try, while",,
+while !done: if x == 1:,"line 1 col 24: <EOL>
+Expected any: for, id, if, show, todo, try, while",,
+"while !done: if x == 1: 
+show x
+"," line 2 col 7: <EOL>
+Expected any: ;",,
+while !done: if x == 1: show x;," line 1 col 32: <EOL>
+Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+"while !done: if x == 1: 
+show x; 
+close
+","line 3 col 6: <EOL>
+Expected any: close, for, id, if, show, todo, try, while",,
+"while !done: 
+if x == 1:
+ show x; 
+close close
+",NO SYNTAX ERROR,,
+"for x in range(~5, 0): 
+show x; 
+close
+",NO SYNTAX ERROR,,
+"for i in range(10):
+ if i == 5: 
+break; 
+close close
+","line 3 col 6: ;
+Expected any: (, =, [",,
+"for i in range(10):
+ if i == 5: 
+continue; 
+close close
+","line 3 col 9: ;
+Expected any: (, =, [",,
+"while true:
+ if x == 10:
+ ret x; 
+close close
+"," line 3 col 2: r
+Expected any: for, id, if, show, todo, try, while",,
+"while true:
+ show 'infinite'; 
+close
+",NO SYNTAX ERROR,,
+"for i in range(1, 100, 10): 
+show i; 
+close
+",NO SYNTAX ERROR,,
+"while x != 0: 
+x = x + 1; 
+close
+",NO SYNTAX ERROR,,
+"for i in range(len(arr)):
+ show i; 
+close
+"," line 1 col 19: (
+Expected any: ), ,",,
+"for i in range(5):
+ show i;
+ close
+ if x == 1: 
+show x; 
+close
+",NO SYNTAX ERROR,,
 fn,"line 1 col 3: <EOL>
 Expected any: id","Capiral - Fn, Error Handling Block",
 fn name,"line 1 col 8: <EOL>
