@@ -1,14 +1,1 @@
-
-try:
-
-    show x ;
-
-fail :
-
-    show 'hi';
-
-always:
-
-    show '1';
-
-close
+id=[~5]

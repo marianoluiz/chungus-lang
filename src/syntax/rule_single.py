@@ -596,10 +596,10 @@ class SingleStmtRules:
         row_elements: List[ASTNode] = []
 
         # at least one element required (no empty rows)
-        if not self._match(']'):
-            row_elements.append(self._array_element())
-            self._expect({',', ']'}, 'two_d_inner_tail')
+        row_elements.append(self._array_element())
+        self._expect({',', ']'}, 'two_d_inner_tail')
 
+        if not self._match(']'):
             # parse remaining elements in row
             while self._match(','):
                 self._advance()
