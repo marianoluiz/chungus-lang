@@ -63,10 +63,6 @@ class SingleStmtRules:
 
         self._expect(self.PRED_GENERAL_STMT, 'general_statement')
 
-        # Check for misplaced function definition
-        if self._match('fn'):
-            raise ParseError("function definitions must come before any statements")
-        
         # identifier-starting statement (assignment, call, indexed assignment)
         if self._match(ID_T):
             id_tok = self._advance()
