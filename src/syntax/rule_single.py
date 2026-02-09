@@ -1,4 +1,5 @@
 from typing import List, Optional, TYPE_CHECKING
+from src.constants.error_syntax import ParseError
 from src.constants.token import ID_T, INT_LIT_T, STR_LIT_T, BOOL_LIT_T, FLOAT_LIT_T, SKIP_TOKENS, Token
 from src.constants.ast import ASTNode
 
@@ -62,6 +63,10 @@ class SingleStmtRules:
 
         self._expect(self.PRED_GENERAL_STMT, 'general_statement')
 
+        # Check for misplaced function definition
+        if self._match('fn'):
+            raise ParseError("function definitions must come before any statements")
+        
         # identifier-starting statement (assignment, call, indexed assignment)
         if self._match(ID_T):
             id_tok = self._advance()
