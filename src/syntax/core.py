@@ -126,6 +126,9 @@ class ParserCore:
             f"Expected any: {expected_list}"
         )
         
+        if tok.type == 'fn' and context == 'general_statement':
+            msg += "\n\nNote: function blocks are only allowed before any statements, at the top level"
+
         # Stop parsing immediately
         raise ParseError(msg)
 

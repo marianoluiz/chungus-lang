@@ -88,7 +88,9 @@ def test_syntax(rownum, src, expected_error):
         actual_line = int(line_col_match.group(1))
         actual_col = int(line_col_match.group(2))
 
-        actual_tokens = [tok.strip() for tok in actual_error.split("Expected any:")[-1].split(",")]
+        # Extract tokens but stop at newline (to exclude "Note:" messages)
+        tokens_part = actual_error.split("Expected any:")[-1].split("\n")[0]
+        actual_tokens = [tok.strip() for tok in tokens_part.split(",")]
 
         # Debug prints
         print(f"=== CSV row: {rownum} ===")

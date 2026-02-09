@@ -1,4 +1,1 @@
-for i in range(5.5): 
-show i; 
-close
-
+fn a(): fn b(): todo close close
