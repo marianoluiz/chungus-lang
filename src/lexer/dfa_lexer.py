@@ -10,7 +10,7 @@ into raw lexemes, then builds a token stream with source positions.
 """
 
 from src.constants import ATOMS
-from .error_handler import UnknownCharError, DelimError, UnexpectedEOF
+from ..constants.error_lexical import UnknownCharError, DelimError, UnexpectedEOF
 from .dfa_table import TRANSITION_TABLE
 from .token_builder import build_token_stream
 from src.constants.token import Token

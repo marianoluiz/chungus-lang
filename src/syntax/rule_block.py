@@ -1,6 +1,6 @@
 from typing import List, Optional, TYPE_CHECKING
 from src.constants.token import Token, SKIP_TOKENS, ID_T, STR_LIT_T, BOOL_LIT_T, FLOAT_LIT_T, INT_LIT_T
-from src.syntax.ast import ASTNode
+from src.constants.ast import ASTNode
 
 # helps editor understand "self" in mixin methods is an RDParser instance
 if TYPE_CHECKING: from src.syntax.rd_parser import RDParser

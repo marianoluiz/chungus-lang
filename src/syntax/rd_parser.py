@@ -1,7 +1,7 @@
 from typing import List
 from src.constants.token import FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, Token
-from src.syntax.ast import ParseResult
-from src.syntax.errors import ParseError
+from src.constants.ast import ParseResult
+from src.constants.error_syntax import ParseError
 from src.syntax.core import ParserCore
 from src.syntax.rule_expr import ExprRules
 from src.syntax.rule_single import SingleStmtRules

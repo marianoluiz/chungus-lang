@@ -10,8 +10,8 @@ The mixins that implement grammar rules (e.g. ExprRules, BlockStmtRules)
 expect an object that implements these helpers (RDParser inherits ParserCore).
 """
 from typing import List, TYPE_CHECKING
-from src.syntax.ast import ASTNode
-from src.syntax.errors import ParseError, UnexpectedError
+from src.constants.ast import ASTNode
+from src.constants.error_syntax import ParseError, UnexpectedError
 from src.constants.token import ID_T, BOOL_LIT_T, STR_LIT_T, FLOAT_LIT_T, INT_LIT_T, Token, SKIP_TOKENS
 
 # helps editor understand "self" in mixin methods is an RDParser instance
