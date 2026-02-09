@@ -28,7 +28,8 @@ class ExprRules:
             ASTNode
         """
         return self._logical_or_expr()
-    
+
+
     def _logical_or_expr(self: "RDParser") -> ASTNode:
         """
         Parse logical OR expressions.
@@ -52,7 +53,8 @@ class ExprRules:
             right = self._logical_and_expr()
             left = self._ast_node(tok.lexeme, tok, children=[left, right])
         return left
-    
+
+
     def _logical_and_expr(self: "RDParser") -> ASTNode:
         """
         Parse logical AND expressions.
@@ -84,6 +86,7 @@ class ExprRules:
             left = self._ast_node(tok.lexeme, tok, children=[left, right])
         return left
 
+
     def _logical_not_expr(self: "RDParser") -> ASTNode:
         """
         Parse logical NOT expressions.
@@ -112,6 +115,7 @@ class ExprRules:
         # go to production where theres no !
         return self._eq_expr() 
 
+
     def _eq_expr(self: "RDParser") -> ASTNode:
         """
         Parse equality expressions.
@@ -138,7 +142,8 @@ class ExprRules:
             left = self._ast_node(tok.lexeme, tok, children=[left, right])
         
         return left
-    
+
+
     def _comp_operand(self: "RDParser") -> ASTNode:
         """
         Parse a comparison operand.
@@ -231,6 +236,7 @@ class ExprRules:
         
         return left
 
+
     def _term(self: "RDParser") -> ASTNode:
         """
         Parse multiplicative expressions.
@@ -259,7 +265,8 @@ class ExprRules:
             left = self._ast_node(tok.lexeme, tok, children=[left, right])
         
         return left
-    
+
+
     def _factor(self: "RDParser") -> ASTNode:
         """
         Parse power expressions.
