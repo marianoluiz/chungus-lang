@@ -152,6 +152,47 @@ class SingleStmtRules:
         return args
 
 
+    def _param_list_opt(self: "RDParser") -> List[ASTNode]:
+        """ 
+        Parse an optional comma-separated parameter list.
+
+        ```
+        <param_list_opt>
+            -> <param_list>
+            -> λ
+        
+        <param_list>
+            -> ID <param_element_tail>
+        
+        <param_element_tail>
+            -> , ID <param_element_tail>
+            -> λ
+        ```
+
+        Returns:
+            List[ASTNode]: List of expression AST nodes representing parameters.
+        """
+
+        self._expect({')', ID_T}, '_arg_list_opt')
+
+        params: List[ASTNode] = []
+
+        if not self._match(')'):
+            while True:
+                # expect ID
+                self._expect_type(ID_T, 'param_list_opt')
+                params.append(self._advance())  # consume and add the ID token
+
+                self._expect({')', ','}, 'param_list_opt')
+
+                if not self._match(','):
+                    break
+            
+                self._advance()
+
+        return params
+    
+
     def _return_opt(self: "RDParser") -> Optional[ASTNode]:
         """
         Parse an optional return statement.

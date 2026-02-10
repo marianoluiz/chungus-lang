@@ -1427,8 +1427,8 @@ fn,"line 1 col 3: <EOL>
 Expected any: id",,
 fn greet,"line 1 col 9: <EOL>
 Expected any: (",,
-fn greet(,"line 1 col 10: <EOL>
-Expected any: !, ), false, float_literal, id, int_literal, str_literal, true",,
+fn greet(,"Unexpected token at line 1 col 10: <EOL>
+Expected any: ), id",,
 fn greet(),"Unexpected token at line 1 col 11: <EOL>
 Expected any: :",,
 fn greet():,"line 1 col 12: <EOL>
@@ -1451,18 +1451,18 @@ fn greet(name): todo close,"line 1 col 22: c
 Expected any: ;",,
 "fn greet(name, age): todo close","line 1 col 27: c
 Expected any: ;",,
-fn greet(name age): todo close,"line 1 col 15: a
-Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",,
+fn greet(name age): todo close,"Unexpected token at line 1 col 15: a
+Expected any: ), ,",,
 fn greet(name): todo close,"line 1 col 22: c
 Expected any: ;",,
 fn greet(age) todo close,"line 1 col 15: t
 Expected any: :",,
 fn (name): todo close,"Unexpected token at line 1 col 4: (
 Expected any: id",,
-fn greet(123): todo close,"line 1 col 21: c
-Expected any: ;",,
-fn greet('name'):,"line 1 col 18: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+fn greet(123): todo close,"Unexpected token at line 1 col 10: 1
+Expected any: ), id",,
+fn greet('name'):,"Unexpected token at line 1 col 10: '
+Expected any: ), id",,
 fn greet(): x = 10; close,"line 1 col 26: <EOL>
 Expected any: fn, for, id, if, show, todo, try, while",,
 fn greet(): x = 10 close,"line 1 col 20: c
@@ -1502,10 +1502,10 @@ fn a(): show 'hi'; CLOSE,"Unexpected token at line 1 col 25: <EOL>
 Expected any: (, =, [",,
 fn a(): x = 5; x close,"line 1 col 18: c
 Expected any: (, =, [",,
-fn a(x = 10): todo close,"line 1 col 8: =
-Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",,
-fn a(arr[0]): todo close,"Unexpected token at line 1 col 20: c
-Expected any: ;",,
+fn a(x = 10): todo close,"Unexpected token at line 1 col 8: =
+Expected any: ), ,",,
+fn a(arr[0]): todo close,"Unexpected token at line 1 col 9: [
+Expected any: ), ,",,
 fn a(): try todo fail todo close close,"line 1 col 13: t
 Expected any: :",,
 fn a(): while true: stop close close,"line 1 col 26: c
@@ -1538,18 +1538,18 @@ Expected any: ;",,
 Expected any: ;",,
 "fn a(p1, p1): todo close","line 1 col 20: c
 Expected any: ;",,
-fn a(p 1): todo close,"line 1 col 8: 1
-Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",,
+fn a(p 1): todo close,"Unexpected token at line 1 col 8: 1
+Expected any: ), ,",,
 "fn a(p1 , p2): todo close","line 1 col 21: c
 Expected any: ;",,
 "fn a( p1 , p2 ) : todo close","line 1 col 24: c
 Expected any: ;",,
 "fn a(p1,p2): todo close","line 1 col 19: c
 Expected any: ;",,
-fn a(int p1): todo close,"line 1 col 6: i
-Expected any: !, ), false, float_literal, id, int_literal, str_literal, true",,
-fn a(p1 = 5): todo close,"line 1 col 9: =
-Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",,
+fn a(int p1): todo close,"Unexpected token at line 1 col 6: i
+Expected any: ), id",,
+fn a(p1 = 5): todo close,"Unexpected token at line 1 col 9: =
+Expected any: ), ,",,
 fn a(p1): x = read; close,"line 1 col 26: <EOL>
 Expected any: fn, for, id, if, show, todo, try, while",,
 fn a(p1): x = read close,"line 1 col 20: c
@@ -1766,8 +1766,8 @@ a(b(),"line 1 col 6: <EOL>
 Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",,
 "fn apt (2)
  for x in range (0, 25)
- show 'apt'","line 2 col 2: f
-Expected any: :",,
+ show 'apt'","Unexpected token at line 1 col 9: 2
+Expected any: ), id",,
 a(b() == c());,NO SYNTAX ERROR,,
 a(b() and c());,NO SYNTAX ERROR,,
 a(b(read,"line 1 col 5: r
@@ -3574,67 +3574,11 @@ fn,"line 1 col 3: <EOL>
 Expected any: id","Capiral - Fn, Error Handling Block",
 fn name,"line 1 col 8: <EOL>
 Expected any: (",,
-fn name(,"line 1 col 9: <EOL>
-Expected any: !, ), false, float_literal, id, int_literal, str_literal, true",,
-fn name(!,"line 1 col 10: <EOL>
-Expected any: false, float_literal, id, int_literal, str_literal, true",,
-fn name(!2.2,"line 1 col 13: <EOL>
-Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",,
-fn name(!2.2!=,"line 1 col 15: <EOL>
-Expected any: false, float_literal, id, int_literal, str_literal, true",,
-fn name(!2.2!=69,"line 1 col 17: <EOL>
-Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",,
-fn name(!2.2!=69//123,"line 1 col 22: <EOL>
-Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",,
-fn name(!2.2!=69//123%456,"line 1 col 26: <EOL>
-Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",,
-fn name(!2.2!=69//123%456>=,"line 1 col 28: <EOL>
-Expected any: float_literal, id, int_literal",,
-fn name(!2.2!=69//123%456>=id,"line 1 col 30: <EOL>
-Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",,
-fn name(!2.2!=69//123%456>=id**7589,"line 1 col 36: <EOL>
-Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",,
-fn name(!2.2!=69//123%456>=id**7589+73,"line 1 col 39: <EOL>
-Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",,
-fn name(!2.2!=69//123%456>=id**7589+73),"line 1 col 40: <EOL>
-Expected any: :",,
-fn name(!2.2!=69//123%456>=id**7589+73):,"line 1 col 41: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
-fn name(!2.2!=69//123%456>=id**7589+73): for,"line 1 col 45: <EOL>
-Expected any: id",wala na ba tayo ret statement,
-fn name(!2.2!=69//123%456>=id**7589+73): for name_1,"line 1 col 52: <EOL>
-Expected any: in",,
-fn name(!2.2!=69//123%456>=id**7589+73): for name_1 in,"line 1 col 55: <EOL>
-Expected any: range",,
-fn name(!2.2!=69//123%456>=id**7589+73): for name_1 in range,"line 1 col 61: <EOL>
-Expected any: (",,
-fn name(!2.2!=69//123%456>=id**7589+73): for name_1 in range(,"line 1 col 62: <EOL>
-Expected any: id, int_literal",,
-fn name(!2.2!=69//123%456>=id**7589+73): for name_1 in range(id,"line 1 col 64: <EOL>
-Expected any: ), ,",,
-"fn name(!2.2!=69//123%456>=id**7589+73): for name_1 in range(id,","line 1 col 65: <EOL>
-Expected any: id, int_literal",,
-"fn name(!2.2!=69//123%456>=id**7589+73): for name_1 in range(id,id","line 1 col 67: <EOL>
-Expected any: ), ,",,
-"fn name(!2.2!=69//123%456>=id**7589+73): for name_1 in range(id,id,","line 1 col 68: <EOL>
-Expected any: id, int_literal",,
-"fn name(!2.2!=69//123%456>=id**7589+73): for name_1 in range(id,id,69","line 1 col 70: <EOL>
-Expected any: )",,
-"fn name(!2.2!=69//123%456>=id**7589+73): for name_1 in range(id,id,69)","line 1 col 71: <EOL>
-Expected any: :",,
-"fn name(!2.2!=69//123%456>=id**7589+73): for name_1 in range(id,id,69):","line 1 col 72: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
-"fn name(!2.2!=69//123%456>=id**7589+73): for name_1 in range(id,id,69):","line 1 col 72: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
-"fn name(!2.2!=69//123%456>=id**7589+73): for name_1 in range(id,id,69): todo","line 1 col 77: <EOL>
-Expected any: ;",,
-"fn name(!2.2!=69//123%456>=id**7589+73): for name_1 in range(id,id,69): todo;","line 1 col 78: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
-"fn name(!2.2!=69//123%456>=id**7589+73): for name_1 in range(id,id,69): todo; close","line 1 col 84: <EOL>
-Expected any: close, for, id, if, ret, show, todo, try, while",,
-"fn name(!2.2!=69//123%456>=id**7589+73): for name_1 in range(id,id,69): todo; close close todo","line 1 col 95: <EOL>
-Expected any: ;",,
-"fn name(!2.2!=69//123%456>=id**7589+73): for name_1 in range(id,id,69): todo; close close todo;",NO SYNTAX ERROR,,
+fn name(,"
+Unexpected token at line 1 col 9: <EOL>
+Expected any: ), id",,
+fn name(!,"Unexpected token at line 1 col 9: !
+Expected any: ), id",,
 try,"line 1 col 4: <EOL>
 Expected any: :",,
 try:,"line 1 col 5: <EOL>
@@ -3875,7 +3819,7 @@ Expected any: id",,
 ","line 2 col 8: <EOL>
 Expected any: :",,
 fn test(,"Unexpected token at line 1 col 9: <EOL>
-Expected any: !, ), false, float_literal, id, int_literal, str_literal, true",,
+Expected any: ), id",,
 fn test(),"Unexpected token at line 1 col 10: <EOL>
 Expected any: :",,
 fn test():,"line 1 col 11: <EOL>
@@ -4589,20 +4533,20 @@ fn f() todo; close,"line 1 col 8: t
 Expected any: :",,
 fn f(): todo; ret 1;,"line 1 col 21: <EOL>
 Expected any: close",,
-fn f( : todo; close,"line 1 col 7: :
-Expected any: !, ), false, float_literal, id, int_literal, str_literal, true",,
+fn f( : todo; close,"Unexpected token at line 1 col 7: :
+Expected any: ), id",,
 fn f): todo; close,"line 1 col 5: )
 Expected any: (",,
-"fn f(x, ): todo; close","line 1 col 9: )
-Expected any: !, false, float_literal, id, int_literal, str_literal, true",,
-"fn f( , x): todo; close","line 1 col 7: ,
-Expected any: !, ), false, float_literal, id, int_literal, str_literal, true",,
-"fn f(x, , y): todo; close","line 1 col 9: ,
-Expected any: !, false, float_literal, id, int_literal, str_literal, true",,
-fn f(x y): todo; close,"line 1 col 8: y
-Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",,
-fn f(int(1)): todo; close,"line 1 col 6: i
-Expected any: !, ), false, float_literal, id, int_literal, str_literal, true",,
+"fn f(x, ): todo; close","Unexpected token at line 1 col 9: )
+Expected any: id",,
+"fn f( , x): todo; close","Unexpected token at line 1 col 7: ,
+Expected any: ), id",,
+"fn f(x, , y): todo; close","Unexpected token at line 1 col 9: ,
+Expected any: id",,
+fn f(x y): todo; close,"Unexpected token at line 1 col 8: y
+Expected any: ), ,",,
+fn f(int(1)): todo; close,"Unexpected token at line 1 col 6: i
+Expected any: ), id",,
 fn f(): x(); close,"line 1 col 19: <EOL>
 Expected any: fn, for, id, if, show, todo, try, while",,
 "fn f(): x(1,2); close","line 1 col 22: <EOL>

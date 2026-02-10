@@ -67,9 +67,9 @@ class BlockStmtRules():
         self._expect_type('(', 'function_block')
         self._advance()
 
-        self._expect({')'} | self.PRED_EXPR, 'function_block')
+        self._expect({')', ID_T}, 'function_block')
 
-        params = self._arg_list_opt()
+        params = self._param_list_opt()
             
         # check if next is ) or else error, this is checked already in arg_list_opt since we need expr tokens
         self._expect_type(')', 'function_block')
