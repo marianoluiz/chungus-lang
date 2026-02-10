@@ -42,7 +42,7 @@ class BlockStmtRules():
 
         ```
         <function_block>
-            -> fn id ( <arg_list_opt> ) : <local_statement> <return_opt> close
+            -> fn id ( <param_list_opt> ) : <local_statement> <return_opt> close
         
         <local_statement>
             -> <general_statement> <local_statement_tail>
@@ -70,7 +70,7 @@ class BlockStmtRules():
         self._expect({')', ID_T}, 'function_block')
 
         params = self._param_list_opt()
-            
+
         # check if next is ) or else error, this is checked already in arg_list_opt since we need expr tokens
         self._expect_type(')', 'function_block')
         self._advance()
