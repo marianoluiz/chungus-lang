@@ -6,17 +6,15 @@ program: (function_statement)* general_statement general_statement_tail
 
 // ─────────── FUNCTIONS ───────────
 
-function_statement: FN ID "(" arg_list_opt ")" ":" local_statement return_opt CLOSE
+function_statement: FN ID "(" param_list_opt ")" ":" local_statement return_opt CLOSE
 
-arg_list_opt: arg_list
-            | 
+param_list_opt: param_list
+              | 
 
-arg_list: arg_element arg_element_tail
+param_list: ID param_element_tail
 
-arg_element_tail: "," arg_element arg_element_tail
-                | 
-
-arg_element: expr
+param_element_tail: "," ID param_element_tail
+                  | 
 
 return_opt: return_statement
           | 
@@ -55,6 +53,17 @@ assignment_value_no_arrayinit: READ
                              | expr
 
 function_call_statement: "(" arg_list_opt ")"
+
+
+arg_list_opt: arg_list
+            | 
+
+arg_list: arg_element arg_element_tail
+
+arg_element_tail: "," arg_element arg_element_tail
+                | 
+
+arg_element: expr
 
 // ─────────── ARRAYS DECLARATION ───────────
 
