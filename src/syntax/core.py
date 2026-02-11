@@ -52,8 +52,8 @@ class ParserCore:
         Returns:
             None
         """
-        while self._i < len(self.tokens) and \
-            self.tokens[self._i].type in SKIP_TOKENS:
+        while self._i < len(self._tokens) and \
+            self._tokens[self._i].type in SKIP_TOKENS:
             self._i += 1
 
 
@@ -66,7 +66,7 @@ class ParserCore:
         """
         self._skip_trivia()
 
-        if self._i >= len(self.tokens):
+        if self._i >= len(self._tokens):
             # Place EOF at the end of the last source line so the caret prints after the line text.
             if self._lines:
                 line_no = len(self._lines)              # Length of whole program from the lines list
@@ -77,7 +77,7 @@ class ParserCore:
 
             return Token(type="EOF", lexeme="", line=line_no, col=col_no)
         
-        return self.tokens[self._i]
+        return self._tokens[self._i]
 
 
     def _match(self, *types: str) -> bool:

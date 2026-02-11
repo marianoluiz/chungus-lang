@@ -22,12 +22,11 @@ class RDParser(ParserCore, ExprRules, SingleStmtRules, BlockStmtRules):
         _debug (bool): Debug mode flag. Prints debug messages if True.
     """
 
-    def __init__(self: "RDParser", tokens: List[dict], source: str, debug: bool = False):
-        self.tokens: List[Token] = tokens   #  [ Token(lexeme, type, line, col), ... ]
-        self._source = source               # source code for printing code lines
+    def __init__(self: "RDParser", tokens: List[Token], source: str, debug: bool = False):
+        self._tokens: List[Token] = tokens   #  [ Token(lexeme, type, line, col), ... ]
         self._lines = source.splitlines(keepends=False)  # source code splitted per newline
         self._i = 0                # current token index
-        self.errors: List[str] = []
+        self._errors: List[str] = []
         self._debug = debug        # Debug switch
 
     # Reusable predict sets used in functions
@@ -45,10 +44,10 @@ class RDParser(ParserCore, ExprRules, SingleStmtRules, BlockStmtRules):
         """
         try:
             tree = self._program()
-            return ParseResult(tree, self.errors)
+            return ParseResult(tree, self._errors)
         except ParseError as e:
             # If any ParseError object is raised anywhere inside the try block, catch it here and bind it to e
-            self.errors.append(str(e))
+            self._errors.append(str(e))
 
-            return ParseResult(None, self.errors)
+            return ParseResult(None, self._errors)
     
