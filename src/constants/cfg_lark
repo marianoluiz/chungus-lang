@@ -95,12 +95,6 @@ type_casting: INT "(" expr ")"
 
 // ─────────── ARRAY ELEMENTS ───────────
 
-one_d_array_tail: "," array_element one_d_array_tail
-          | 
-
-two_d_array_tail: "," two_d_array_element two_d_array_tail
-             | 
-
 array_element: expr
 
 
@@ -167,12 +161,12 @@ for_statement: FOR ID IN range_expression ":" local_statement CLOSE
 
 range_expression: RANGE "(" range_list ")"
 
-range_list: index range_tail_1
+range_list: expr range_tail_1
 
-range_tail_1: "," index range_tail_2
+range_tail_1: "," expr range_tail_2
             | 
 
-range_tail_2: "," index
+range_tail_2: "," expr
             | 
 
 while_statement: WHILE condition ":" local_statement CLOSE
