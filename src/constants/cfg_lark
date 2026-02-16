@@ -41,16 +41,11 @@ general_statement_tail: general_statement general_statement_tail
 
 id_statement_tail: "=" assignment_value
                  | function_call_statement
-                 | "[" index "]" index_loop "=" assignment_value_no_arrayinit
+                 | ":" "[" expr "]" arrays
+                 | "[" expr "]" index_loop "=" assignment_value
 
 assignment_value: READ
-                | type_casting
-                | "[" index "]" arrays
                 | expr
-
-assignment_value_no_arrayinit: READ
-                             | type_casting
-                             | expr
 
 function_call_statement: "(" arg_list_opt ")"
 
@@ -68,22 +63,30 @@ arg_element: expr
 // ─────────── ARRAYS DECLARATION ───────────
 
 arrays: one_d_array_init
-      | "[" index "]" two_d_array_init
+      | "[" expr "]" two_d_array_init
 
 one_d_array_init: "=" "[" one_d_element_list "]"
-
 two_d_array_init: "=" "[" two_d_element_list "]"
 
 one_d_element_list: array_element one_d_array_tail
-               | 
+                  |
 
 two_d_element_list: two_d_array_element two_d_array_tail
-               | 
+                  |
 
-two_d_array_element: "[" array_element two_d_inner_tail "]"
+two_d_array_element: "[" two_d_inner_element_list "]"
+
+two_d_inner_element_list: array_element two_d_inner_tail
+                        |
 
 two_d_inner_tail: "," array_element two_d_inner_tail
-          | 
+                |
+
+one_d_array_tail: "," array_element one_d_array_tail
+                |
+
+two_d_array_tail: "," two_d_array_element two_d_array_tail
+                |
 
 // ─────────── TYPE CASTING ───────────
 
@@ -98,8 +101,8 @@ one_d_array_tail: "," array_element one_d_array_tail
 two_d_array_tail: "," two_d_array_element two_d_array_tail
              | 
 
-array_element: int_float_str_bool_lit
-             | ID
+array_element: expr
+
 
 int_float_str_bool_lit: int_float_str_lit
                       | TRUE
@@ -113,68 +116,25 @@ int_float_lit: INT_LITERAL
 
 // ─────────── EXPRESSIONS ───────────
 
-expr: logical_or_expr
+expr: operand expr_tail
 
-logical_or_expr: logical_and_expr logical_or_expr_tail
-logical_or_expr_tail: OR logical_and_expr logical_or_expr_tail
-                    | 
+expr_tail: operator operand expr_tail
+         |
 
-logical_and_expr: logical_not_expr logical_and_expr_tail
-logical_and_expr_tail: AND logical_not_expr logical_and_expr_tail
-                     | 
-
-logical_not_expr: NOT eq_expr
-                | eq_expr
-
-eq_expr: comp_operand eq_expr_tail
-
-eq_expr_tail: EQ_EQ comp_operand eq_expr_tail
-            | NOT_EQ comp_operand eq_expr_tail
-            | 
-
-comp_operand: rel_expr
-            | STR_LITERAL
-            | TRUE
-            | FALSE
-
-rel_expr: arith_expr rel_expr_tail
-
-rel_expr_tail: rel_op arith_expr rel_expr_tail
-             | 
-
-rel_op: GT | LT | GE | LE
-
-arith_expr: term arith_expr_tail
-
-arith_expr_tail: "+" term arith_expr_tail
-               | "-" term arith_expr_tail
-               | 
-
-term: factor term_tail
-
-term_tail: "*" factor term_tail
-         | "/" factor term_tail
-         | FLOORDIV factor term_tail
-         | "%" factor term_tail
-         | 
-
-factor: power factor_tail
-
-factor_tail: POW factor
-           | 
-
-power: int_float_lit
-     | ID postfix_tail
+operand: int_float_str_bool_lit
+       | NOT operand
+       | "(" expr ")"
+       | type_casting
+       | ID postfix_tail
 
 postfix_tail: "(" arg_list_opt ")"
-            | "[" index "]" index_loop
+            | "[" expr "]" index_loop
             | 
 
-index: INT_LITERAL
-     | ID
-
-index_loop: "[" index "]"
+index_loop: "[" expr "]"
           | 
+
+operator: AND | OR | EQ_EQ | NOT_EQ | GT | LT | GE | LE | "+" | "-" | "*" | "/" | POW | FLOORDIV | "%"
 
 // ─────────── OUTPUT ───────────
 
