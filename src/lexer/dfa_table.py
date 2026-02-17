@@ -262,7 +262,7 @@ TRANSITION_TABLE = {
     127: TransitionState(DELIMS["comma_delim"], is_terminal=True),
 
     128: TransitionState(":", [129]),
-    129: TransitionState(DELIMS["token_delim"], is_terminal=True),
+    129: TransitionState(DELIMS["colon_delim"], is_terminal=True),
 
     130: TransitionState(";", [131]),
     131: TransitionState(DELIMS["terminator_delim"], is_terminal=True),

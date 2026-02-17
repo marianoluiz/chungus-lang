@@ -116,4 +116,9 @@ DELIMS = {
         '_',
     },
 
+    'colon_delim': {
+        *TOKEN_DELIM,
+        '['
+    }
+
 }

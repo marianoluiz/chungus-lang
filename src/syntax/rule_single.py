@@ -336,7 +336,7 @@ class SingleStmtRules:
 
             indices.append(expr)
 
-            self._expect_after_expr(']', 'array_idx_assignment')
+            self._expect_after_expr({']'}, expr, 'array_idx_assignment')
             self._advance()
 
             # expect = or [ after first index
