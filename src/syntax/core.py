@@ -178,14 +178,14 @@ class ParserCore:
             # further indexing and all op
             updated_set |= ALL_OP        
         elif postfix_target.kind in (INT_LIT_T, FLOAT_LIT_T):
-            # numeric literals can use arithmetic, relational, logical operators
+            # numeric literals can use all op
             updated_set |= ALL_OP
         elif postfix_target.kind == STR_LIT_T:
-            # string can use relational eq and logical operators
-            updated_set |= REL_EQ_OP | LOGICAL_OP
+            # string can use all op
+            updated_set |= ALL_OP
         elif postfix_target.kind == BOOL_LIT_T:
-            # string can use relational eq and logical operators
-            updated_set |= REL_EQ_OP | LOGICAL_OP
+            # string can use all op
+            updated_set |= ALL_OP
 
         return updated_set
 

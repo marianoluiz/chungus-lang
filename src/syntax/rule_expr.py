@@ -17,313 +17,137 @@ class ExprRules:
 
     def _expr(self: "RDParser") -> ASTNode:
         """
-        Parse an expression (logical OR).
+        Parse an expression.
 
         ```
         <expr>
-            -> <logical_or_expr>
-        ```
+            -> <operand> <expr_tail>
 
-        Returns:
-            ASTNode
-        """
-        return self._logical_or_expr()
-
-
-    def _logical_or_expr(self: "RDParser") -> ASTNode:
-        """
-        Parse logical OR expressions.
-
-        ```
-        <logical_or_expr>
-            -> <logical_and_expr> <logical_or_expr_tail>
-
-            <logical_or_expr_tail>
-                -> or <logical_and_expr> <logical_or_expr_tail>
-                -> λ
-        ```
-
-        Returns:
-            ASTNode
-        """
-        left  = self._logical_and_expr()
-
-        while self._match('or'):
-            tok = self._advance()
-            right = self._logical_and_expr()
-            left = self._ast_node(tok.lexeme, tok, children=[left, right])
-        return left
-
-
-    def _logical_and_expr(self: "RDParser") -> ASTNode:
-        """
-        Parse logical AND expressions.
-
-        ```
-        <logical_and_expr>
-            -> <logical_not_expr> <logical_and_expr_tail>
-
-            <logical_and_expr_tail>
-                -> and <logical_not_expr> <logical_and_expr_tail>
-                -> λ
-        ```
-
-        Returns:
-            ASTNode
-        """
-
-        # Advance handle errors
-        expected = [ '!', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true' ]
-
-        if not self._match(*expected):
-            self._error(expected, 'logical_and_expr')
-
-        left = self._logical_not_expr()
-
-        while self._match('and'):
-            tok = self._advance()
-            right = self._logical_not_expr()
-            left = self._ast_node(tok.lexeme, tok, children=[left, right])
-        return left
-
-
-    def _logical_not_expr(self: "RDParser") -> ASTNode:
-        """
-        Parse logical NOT expressions.
-
-        ```
-        <logical_not_expr>
-            -> ! <eq_expr>
-            -> <eq_expr>
-        ```
-
-        Returns:
-            ASTNode
-        """
-
-        # Advance handle errors
-        expected = [ '!', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true' ]
-
-        if not self._match(*expected):
-            self._error(expected, 'logical_not_expr')
-
-        if self._match('!'):
-            tok = self._advance()
-            right = self._eq_expr()
-            return self._ast_node('!', tok, children=[right])
-        
-        # go to production where theres no !
-        return self._eq_expr() 
-
-
-    def _eq_expr(self: "RDParser") -> ASTNode:
-        """
-        Parse equality expressions.
-
-        ```
-        <eq_expr>
-            -> <comp_operand> <eq_expr_tail>
-
-            <eq_expr_tail>
-                -> == <comp_operand> <eq_expr_tail>
-                -> != <comp_operand> <eq_expr_tail>
-                -> λ
-        ```
-
-        Returns:
-            ASTNode
-        """
-
-        left = self._comp_operand()
-
-        while self._match('==', '!='):
-            tok = self._advance()
-            right = self._comp_operand()
-            left = self._ast_node(tok.lexeme, tok, children=[left, right])
-        
-        return left
-
-
-    def _comp_operand(self: "RDParser") -> ASTNode:
-        """
-        Parse a comparison operand.
-
-        ```
-        <comp_operand>
-            -> <rel_expr>
-            -> str_literal
-            -> true
-            -> false
-        ```
-
-        Returns:
-            ASTNode
-        """
-
-        # Advance handle errors
-        expected = [ 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true' ]
-
-        if not self._match(*expected):
-            self._error(expected, 'comp_operand')
-
-        # can be rel_expr, str_literal, true, false
-        if self._match(STR_LIT_T):
-            tok = self._advance()
-            return self._ast_node(STR_LIT_T, tok, value=tok.lexeme)
-        
-        if self._match('true', 'false'):
-            tok = self._advance()
-            return self._ast_node(BOOL_LIT_T, tok, value=tok.lexeme)
-        
-        return self._rel_expr()
-
-
-    def _rel_expr(self: "RDParser") -> ASTNode:
-        """
-        Parse relational expressions.
-
-        ```
-        <rel_expr>
-            -> <arith_expr> <rel_expr_tail>
-
-            <rel_expr_tail>
-                -> <rel_op> <arith_expr> <rel_expr_tail>
-                -> λ
-
-            <rel_op>
-                -> >
-                -> <
-                -> >=
-                -> <=
-            ```
-
-        Returns:
-            ASTNode
-        """
-        left = self._arith_expr()
-
-        while self._match('>', '>=', '<', '<='):
-            tok = self._advance()
-            right = self._arith_expr()
-            left = self._ast_node(tok.lexeme, tok, children=[left, right])
-        
-        return left
-
-    def _arith_expr(self: "RDParser") -> ASTNode:
-        """
-        Parse arithmetic expressions.
-
-        ```
-        <arith_expr>
-            -> <term> <arith_expr_tail>
-
-            <arith_expr_tail>
-                -> + <term> <arith_expr_tail>
-                -> - <term> <arith_expr_tail>
-                -> λ
-        ```
-
-        Returns:
-            ASTNode
-        """
-
-        left = self._term()
-
-        while self._match('+', '-'):
-            tok = self._advance()
-            right = self._term()
-            left = self._ast_node(tok.lexeme, tok, children=[left, right])
-        
-        return left
-
-
-    def _term(self: "RDParser") -> ASTNode:
-        """
-        Parse multiplicative expressions.
-
-        ```
-        <term>
-            -> <factor> <term_tail>
-
-        <term_tail>
-            -> * <factor> <term_tail>
-            -> / <factor> <term_tail>
-            -> // <factor> <term_tail>
-            -> % <factor> <term_tail>
+        <expr_tail>
+            -> <operator> <operand> <expr_tail>
             -> λ
         ```
 
         Returns:
             ASTNode
         """
-
-        left = self._factor()
-
-        while self._match('*', '/', '//', '%'):
-            tok = self._advance()
-            right = self._factor()
-            left = self._ast_node(tok.lexeme, tok, children=[left, right])
-        
-        return left
+        left = self._operand()
+        return self._expr_tail(left) # pass operand to tail to build the ast node
 
 
-    def _factor(self: "RDParser") -> ASTNode:
+    def _expr_tail(self: "RDParser", left: ASTNode) -> ASTNode:
         """
-        Parse power expressions.
+        Parse expression tail (operators and operands).
 
         ```
-        <factor>
-            -> <power> <factor_tail>
+        <expr_tail>
+            -> <operator> <operand> <expr_tail>
+            -> λ
 
-            <factor_tail>
-                -> ** <factor>
-                -> λ
+        <operator>
+            -> and | or | == | != | > | < | >= | <= | + | - | * | / | ** | // | %
         ```
 
         Returns:
             ASTNode
         """
+        # All operators that can appear in expr_tail
+        operators = ('and', 'or', '==', '!=', '>', '<', '>=', '<=', '+', '-', '*', '/', '**', '//', '%')
 
-        left = self._power()
-
-        while self._match('**'):
+        if self._match(*operators):
             tok = self._advance()
-            right = self._power()
-            left = self._ast_node(tok.lexeme, tok, children=[left, right])
+            right = self._operand()
+            # Build binary operation node
+            node = self._ast_node(tok.lexeme, tok, children=[left, right])
+            # Recursively parse the rest of the expression tail
+            return self._expr_tail(node)
         
+        # Base case: no more operators (lambda production)
         return left
 
 
-    def _power(self: "RDParser") -> ASTNode:
+    def _operand(self: "RDParser") -> ASTNode:
         """
-        Parse a power operand.
+        Parse an operand.
 
         ```
-        <power>
-            -> <int_float_lit>
+        <operand>
+            -> <int_float_str_bool_lit>
+            -> ! <operand>
+            -> ( <expr> )
+            -> <type_casting>
             -> id <postfix_tail>
+
+        <int_float_str_bool_lit>
+            -> int_literal | float_literal | str_literal | true | false
+        
+        <type_casting>
+            -> int ( <expr> )
+            -> float ( <expr> )
         ```
 
         Returns:
             ASTNode
         """
 
-        if self._match(INT_LIT_T, FLOAT_LIT_T):
-            tok = self._advance()
-            kind = INT_LIT_T if tok.type == INT_LIT_T else FLOAT_LIT_T
-            return self._ast_node(kind, tok, value=tok.lexeme)
+        self._expect(self.PRED_EXPR, 'operand')
 
+        # NOT operand
+        if self._match('!'):
+            tok = self._advance()
+            operand = self._operand()
+            return self._ast_node('!', tok, children=[operand])
+
+        # Parenthesized expression
+        if self._match('('):
+            self._advance()
+            expr = self._expr()
+            self._expect_after_expr({')'}, expr, 'operand')
+            self._advance()
+            return expr
+
+        # Type casting: int(...) or float(...)
+        if self._match('int', 'float'):
+            cast_tok = self._advance()
+            cast_type = cast_tok.lexeme
+
+            self._expect_type('(', 'operand')
+            self._advance()
+
+            expr = self._expr()
+
+            self._expect_after_expr({')'}, expr, 'operand')
+            self._advance()
+
+            return self._ast_node('type_cast', cast_tok, value=cast_type, children=[expr])
+
+        # Literals: int, float, str, bool
+        if self._match(INT_LIT_T):
+            tok = self._advance()
+            return self._ast_node(INT_LIT_T, tok, value=tok.lexeme)
+
+        if self._match(FLOAT_LIT_T):
+            tok = self._advance()
+            return self._ast_node(FLOAT_LIT_T, tok, value=tok.lexeme)
+
+        if self._match(STR_LIT_T):
+            tok = self._advance()
+            return self._ast_node(STR_LIT_T, tok, value=tok.lexeme)
+
+        if self._match('true', 'false'):
+            tok = self._advance()
+            return self._ast_node(BOOL_LIT_T, tok, value=tok.lexeme)
+
+        # Identifier with optional postfix (function call or indexing)
         if self._match(ID_T):
             tok = self._advance()
             node = self._ast_node(ID_T, tok, value=tok.lexeme)
 
-            # handle function call or indexing
+            # Handle function call or indexing
             if self._match('(', '['):
                 node = self._postfix_tail(node, id_tok=tok)
 
             return node
-
-        self._error([INT_LIT_T, FLOAT_LIT_T, ID_T], 'power')
 
 
     def _postfix_tail(self: "RDParser", node: ASTNode, id_tok: Token) -> ASTNode:
@@ -379,10 +203,10 @@ class ExprRules:
 
         ```
         <postfix_tail>
-            -> [ <index> ] <index_loop>
+            -> [ <expr> ] <index_loop>
 
         <index_loop>
-            -> [ <index> ]
+            -> [ <expr> ]
             -> λ
         ```
 
@@ -400,18 +224,21 @@ class ExprRules:
         if first_bracket is None:
             first_bracket = tok
 
-        indices.append(self._index())
+        
+        expr = self._expr()
+        indices.append(expr)
 
-        self._expect_type(']', 'postfix_index')
+        self._expect_after_expr({']'}, expr, 'postfix_index')
         self._advance()
 
-        # optional index for 2D
+        # optional index for 2D (index_loop)
         if self._match('['):
             self._advance() 
+            
+            expr = self._expr()
+            indices.append(expr)
 
-            indices.append(self._index())
-
-            self._expect_type(']', 'postfix_index')
+            self._expect_after_expr({']'}, expr, 'postfix_index')
             self._advance()
 
 
@@ -424,28 +251,4 @@ class ExprRules:
                 ASTNode('indices', children=indices),
             ],
         )
-    
 
-    def _index(self: "RDParser"):
-        """
-        Parse an index.
-
-        ```
-        <index>
-            -> int_literal
-            -> id
-        ```
-
-        Returns:
-            ASTNode
-        """
-        
-        self._expect({INT_LIT_T, ID_T}, 'index')
-
-        if self._match(INT_LIT_T):
-            tok = self._advance()
-            return self._ast_node(INT_LIT_T, tok, value=tok.lexeme)
-
-        elif self._match(ID_T):
-            tok = self._advance()
-            return self._ast_node(ID_T, tok, value=tok.lexeme)

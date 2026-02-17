@@ -32,8 +32,7 @@ class RDParser(ParserCore, ExprRules, SingleStmtRules, BlockStmtRules):
     # Reusable predict sets used in functions
     PRED_GENERAL_STMT = {'for', ID_T,'if','show','todo','try','while'}
     PRED_PROGRAM      = PRED_GENERAL_STMT | {'fn'}
-    PRED_EXPR = {'!', 'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'}
-    PRED_ARRAY_ELEMENT = {'false', FLOAT_LIT_T, ID_T, INT_LIT_T, STR_LIT_T, 'true'}
+    PRED_EXPR = {'!', '(', 'false', 'float', FLOAT_LIT_T, ID_T, 'int', INT_LIT_T, STR_LIT_T, 'true'}
 
     def parse(self: "RDParser") -> ParseResult:
         """
@@ -50,4 +49,3 @@ class RDParser(ParserCore, ExprRules, SingleStmtRules, BlockStmtRules):
             self._errors.append(str(e))
 
             return ParseResult(None, self._errors)
-    

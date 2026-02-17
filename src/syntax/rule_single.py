@@ -261,17 +261,14 @@ class SingleStmtRules:
         <id_statement_tail>
             -> = <assignment_value>
             -> <function_call_statement>
-            -> [ <index> ] <index_loop> = <assignment_value_no_arrayinit>
+            -> : [ <expr> ] <arrays>
+            -> [ <expr> ] <index_loop> = <assignment_value>
         
         <function_call_statement>
             -> ( <arg_list_opt> )
         
-        <index>
-            -> int_literal
-            -> id
-        
         <index_loop>
-            -> [ <index> ]
+            -> [ <expr> ]
             -> λ
         ```
 
@@ -280,7 +277,7 @@ class SingleStmtRules:
         """
 
         # expect predict set of id_stmt_tail
-        self._expect({'(', '=', '['}, 'id_statement_tail')
+        self._expect({'(', '=', '[', ':'}, 'id_statement_tail')
 
         # Assignment statement: = <assignment_value>
         if self._match('='):
@@ -307,25 +304,53 @@ class SingleStmtRules:
 
             return self._ast_node('function_call', id_tok, value=id_tok.lexeme, children=children)
 
-        # Array indexing assignment: [<index>] <index_loop> = <assignment_value>
+        # Array declaration: : [ <expr> ] <arrays>
+        elif self._match(':'):
+            self._advance()
+
+            self._expect_type('[', 'array_declaration')
+            bracket_tok = self._advance()
+
+            # parse first dimension
+            first_idx = self._expr()
+
+            self._expect_after_expr({']'}, first_idx, 'array_declaration')
+            self._advance()
+
+            self._expect({'=', '['}, 'arrays')
+
+            # check if 1D or 2D array
+            if self._match('['):
+                # 2D array: : [expr][expr] = [[...], [...]]
+                return self._two_d_array_init(bracket_tok, first_idx)
+            else:
+                # 1D array: : [expr] = [...]
+                return self._one_d_array_init(bracket_tok, first_idx)
+
+        # Array indexing assignment: [<expr>] <index_loop> = <assignment_value>
         elif self._match('['):
             indices = []
             self._advance()
-            indices.append(self._index())
 
-            self._expect_type(']', 'array_idx_assignment')
+            expr = self._expr()
+
+            indices.append(expr)
+
+            self._expect_after_expr(']', 'array_idx_assignment')
             self._advance()
 
             # expect = or [ after first index
             self._expect({'=', '['}, 'array_idx_assignment')
 
-            # 2nd index col
+            # 2nd index col (index_loop)
             if self._match('['):
                 self._advance()
 
-                indices.append(self._index())
+                expr = self._expr()
 
-                self._expect_type(']', 'index_loop')
+                indices.append(expr)
+
+                self._expect_after_expr({']'}, expr, 'index_loop')
                 self._advance()
 
             # = after indexed variable array
@@ -334,7 +359,9 @@ class SingleStmtRules:
             # consume equal
             self._advance()
 
-            value = self._assignment_value_no_arrayinit()
+            # parse RHS (regular expr, no array init allowed here)
+            value = self._expr()
+            self._expect_after_expr({';'}, value, 'array_idx_assignment')
 
             # create node of indices for ast
             indices_node = ASTNode('indices', children=indices)
@@ -349,17 +376,7 @@ class SingleStmtRules:
         ```
         <assignment_value>
             -> read
-            -> <type_casting>
-            -> [ <index> ] <arrays>
             -> <expr>
-        
-        <type_casting>
-            -> int ( <expr> )
-            -> float ( <expr> )
-        
-        <arrays>
-            -> <1d_array_init>
-            -> [ <index> ] <2d_array_init>
         ```
 
         Returns:
@@ -367,51 +384,11 @@ class SingleStmtRules:
         """
 
         # predict of assignment value
-        self._expect({'!', '[', 'false', 'float', FLOAT_LIT_T, ID_T, 'int', INT_LIT_T, 'read', STR_LIT_T, 'true'}, 'assignment_value')
-
+        self._expect(self.PRED_EXPR, 'assignment_value')
         # input method
         if self._match('read'):
             tok = self._advance()
             return self._ast_node('read', tok)
-
-        # typecast method
-        elif self._match('int', 'float'):
-            cast_tok = self._advance()
-            cast_method = cast_tok.lexeme
-
-            if not self._match('('):
-                self._expect_type('(', 'assignment_value')
-
-            self._advance()
-
-            expr = self._expr()
-
-            # we always need to show whole expected after expr if it errors since it is a unique
-            # this mainly checks ')' after expr but we include the whole context
-            self._expect_after_expr({ ')' }, expr, 'assignment_value')
-            self._advance()
-
-            return self._ast_node('assignment_value', cast_tok, value=cast_method, children=[expr])
-
-        # array declaration: [index] arrays
-        elif self._match('['):
-            bracket_tok = self._advance()
-
-            # parse first dimension index
-            first_idx = self._index()
-
-            self._expect_type(']', 'arrays')
-            self._advance()
-
-            self._expect({'=', '['}, 'arrays')
-
-            # check if 1D or 2D array
-            if self._match('['):
-                # 2D array: [index][index] = [[...], [...]]
-                return self._two_d_array_init(bracket_tok, first_idx)
-            else:
-                # 1D array: [index] = [...]
-                return self._one_d_array_init(bracket_tok, first_idx)
 
         else:
             # other wise, its an expr
@@ -419,61 +396,6 @@ class SingleStmtRules:
 
             # after an expr, proper error display would be first set of equation ops + semi-colon
             self._expect_after_expr({';'}, expr, 'assignment_value')
-
-            return expr
-
-
-    def _assignment_value_no_arrayinit(self: "RDParser"):
-        """
-        Parse the right-hand side of an assignment (without array initialization).
-        Used for indexed assignments where array initialization is not allowed.
-
-        ```
-        <assignment_value_no_arrayinit>
-            -> read
-            -> <type_casting>
-            -> <expr>
-        
-        <type_casting>
-            -> int ( <expr> )
-            -> float ( <expr> )
-        ```
-
-        Returns:
-            ASTNode
-        """
-        
-        self._expect({'!', 'false', 'float', FLOAT_LIT_T, ID_T, 'int', INT_LIT_T, 'read', STR_LIT_T, 'true'}, 'assignment_value_no_arrayinit')
-
-        # input method
-        if self._match('read'):
-            tok = self._advance()
-            return self._ast_node('read', tok)
-
-        # typecast method
-        elif self._match('int', 'float'):
-            cast_tok = self._advance()
-            cast_method = cast_tok.lexeme
-
-            if not self._match('('):
-                self._expect_type('(', 'assignment_value_no_arrayinit')
-
-            self._advance()
-
-            expr = self._expr()
-
-            # check for closing parenthesis
-            self._expect_after_expr({ ')' }, expr, 'assignment_value_no_arrayinit')
-            self._advance()
-
-            return self._ast_node('assignment_value', cast_tok, value=cast_method, children=[expr])
-
-        else:
-            # otherwise, it's an expr (including array literals but not array initialization)
-            expr = self._expr()
-
-            # after an expr, proper error display would be first set of equation ops + semi-colon
-            self._expect_after_expr({';'}, expr, 'assignment_value_no_arrayinit')
 
             return expr
 
@@ -511,7 +433,7 @@ class SingleStmtRules:
         self._advance()
 
         # combine pred array element and follow set
-        self._expect({']'} | self.PRED_ARRAY_ELEMENT, '_one_d_array_init')
+        self._expect({']'} | self.PRED_EXPR, '_one_d_array_init')
 
         # parse 1D element list (no nested arrays allowed)
         elements: List[ASTNode] = []
@@ -544,22 +466,26 @@ class SingleStmtRules:
         Parse 2D array initialization.
 
         ```
-        <2d_array_init>
-            -> = [ <2d_element_list> ]
+        <two_d_array_init>
+            -> [ <expr> ] = [ <two_d_element_list> ]
         
-            <2d_element_list>
-                -> <2d_array_element> <2d_array_tail>
+            <two_d_element_list>
+                -> <two_d_array_element> <two_d_array_tail>
                 -> λ
             
-            <2d_array_element>
-                -> [ <array_element> <two_d_inner_tail> ]
+            <two_d_array_element>
+                -> [ <two_d_inner_element_list> ]
+            
+            <two_d_inner_element_list>
+                -> <array_element> <two_d_inner_tail>
+                -> λ
             
             <two_d_inner_tail>
                 -> , <array_element> <two_d_inner_tail>
                 -> λ
             
-            <2d_array_tail>
-                -> , <2d_array_element> <2d_array_tail>
+            <two_d_array_tail>
+                -> , <two_d_array_element> <two_d_array_tail>
                 -> λ
         ```
 
@@ -574,9 +500,9 @@ class SingleStmtRules:
         self._expect_type('[', 'two_d_array_init')
         self._advance()
 
-        col_idx = self._index()
+        col_idx = self._expr()
 
-        self._expect_type(']', 'two_d_array_init')
+        self._expect_after_expr({']'}, col_idx, 'two_d_array_init')
         self._advance()
 
         # expect = after [row][col]
@@ -592,7 +518,7 @@ class SingleStmtRules:
 
         # parse 2D element list (nested arrays required)
         rows: List[ASTNode] = []
-        
+
         # empty list allowed
         if not self._match(']'):
             # parse first row
@@ -620,8 +546,12 @@ class SingleStmtRules:
         Parse a 2D array row element.
 
         ```
-        <2d_array_element>
-            -> [ <array_element> <two_d_inner_tail> ]
+        <two_d_array_element>
+            -> [ <two_d_inner_element_list> ]
+        
+            <two_d_inner_element_list>
+                -> <array_element> <two_d_inner_tail>
+                -> λ
         
             <two_d_inner_tail>
                 -> , <array_element> <two_d_inner_tail>
@@ -635,14 +565,18 @@ class SingleStmtRules:
         self._expect_type('[', 'two_d_array_element')
         row_tok = self._advance()
 
+        # check predict set: can be expr or ]
+        self._expect({']'} | self.PRED_EXPR, 'two_d_inner_element_list')
+
         # parse row elements
         row_elements: List[ASTNode] = []
 
-        # at least one element required (no empty rows)
-        row_elements.append(self._array_element())
-        self._expect({',', ']'}, 'two_d_inner_tail')
-
+        # empty row allowed
         if not self._match(']'):
+            # parse first element
+            row_elements.append(self._array_element())
+            self._expect({',', ']'}, 'two_d_inner_tail')
+
             # parse remaining elements in row
             while self._match(','):
                 self._advance()
@@ -658,25 +592,11 @@ class SingleStmtRules:
 
     def _array_element(self: "RDParser") -> ASTNode:
         """
-        Parse a single array element (literal or id).
+        Parse a single array element.
 
         ```
         <array_element>
-            -> <int_float_str_bool_lit>
-            -> id
-        
-        <int_float_str_bool_lit>
-            -> <int_float_str_lit>
-            -> true
-            -> false
-        
-        <int_float_str_lit>
-            -> <int_float_lit>
-            -> str_literal
-        
-        <int_float_lit>
-            -> int_literal
-            -> float_literal
+            -> <expr>
         ```
 
         Returns:
@@ -684,21 +604,6 @@ class SingleStmtRules:
         """
 
         # predict set of array element
-        self._expect(self.PRED_ARRAY_ELEMENT, 'array_element')
+        self._expect(self.PRED_EXPR, 'array_element')
 
-        if self._match(INT_LIT_T, FLOAT_LIT_T):
-            tok = self._advance()
-            kind = INT_LIT_T if tok.type == INT_LIT_T else FLOAT_LIT_T
-            return self._ast_node(kind, tok, value=tok.lexeme)
-
-        elif self._match(STR_LIT_T):
-            tok = self._advance()
-            return self._ast_node(STR_LIT_T, tok, value=tok.lexeme)
-
-        elif self._match('true', 'false'):
-            tok = self._advance()
-            return self._ast_node(BOOL_LIT_T, tok, value=tok.lexeme)
-
-        elif self._match(ID_T):
-            tok = self._advance()
-            return self._ast_node(ID_T, tok, value=tok.lexeme)
+        return self._expr()

@@ -73,7 +73,8 @@ DELIMS = {
         *ATOMS['arithmetic_op'],
         *ATOMS['relational_op'],
         ')', ',',
-        *ATOMS['header_terminator']
+        *ATOMS['header_terminator'],
+        ']'
     },
 
 
