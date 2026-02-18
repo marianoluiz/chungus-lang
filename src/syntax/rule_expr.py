@@ -80,7 +80,7 @@ class ExprRules:
 
         <int_float_str_bool_lit>
             -> int_literal | float_literal | str_literal | true | false
-        
+
         <type_casting>
             -> int ( <expr> )
             -> float ( <expr> )

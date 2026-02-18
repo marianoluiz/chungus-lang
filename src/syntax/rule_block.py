@@ -279,40 +279,40 @@ class BlockStmtRules():
 
             # up to 3 range expression
 
-            # <range_list> -> <index> <range_tail_1>
-            # first index (required)
-            index = self._index()
-            indices.append(index)
+            # <range_list> -> <expr> <range_tail_1>
+            # first expr (required)
+            expr_node = self._expr()
+            indices.append(expr_node)
 
             # follow tokens for this argument.
             predict_keywords = { ')', ',' }
-            self._expect(predict_keywords, 'range_expression')
+            self._expect_after_expr(predict_keywords, expr_node, 'range_expression')
 
             # optional second expression
             # <range_tail_1>
-            #     -> , <index> <range_tail_2>
+            #     -> , <expr> <range_tail_2>
             #     -> λ
             if self._match(','):
                 self._advance()
-                index = self._index()
-                indices.append(index)
+                expr_node = self._expr()
+                indices.append(expr_node)
 
                 # follow tokens for this argument.
                 predict_keywords = { ')', ',' }
-                self._expect(predict_keywords, 'range_expression')
+                self._expect_after_expr(predict_keywords, expr_node, 'range_expression')
 
                 # optional third expression
                 #  <range_tail_2>
-                #       -> , <index>
+                #       -> , <expr>
                 #       -> λ
                 if self._match(','):
                     self._advance()
-                    index = self._index()
-                    indices.append(index)
+                    expr_node = self._expr()
+                    indices.append(expr_node)
 
                     # follow tokens for this argument.
                     predict_keywords = {')'}
-                    self._expect(predict_keywords, 'range_expression')
+                    self._expect_after_expr(predict_keywords, expr_node, 'range_expression')
 
             self._expect_type(')', 'range_expression')
             self._advance()
