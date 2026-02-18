@@ -1,0 +1,88 @@
+### Demo program that exercises (almost) every statement form in the grammar. ###
+
+fn add_mul(a, b):
+    # ID "=" expr ;
+    sum = a + b;
+    prod = a * b;
+    show 'inside add_mul';
+    ret sum + prod;
+close
+
+fn safe_div(n, d):
+    # try / fail / always ... close
+    try:
+        q = n / d;
+        show 'try ok';
+    fail:
+        q = 0;
+        show 'fail ran';
+    always:
+        show 'always ran';
+    close
+
+    ret q;
+close
+
+# ─────────── Top-level general statements (program requires these) ───────────
+
+# ID "=" READ ;
+x = read;
+
+# ID "=" expr ; (uses casts + unary !)
+y = int(3.9) + float(2);
+
+# show STR_LITERAL ;
+show 'hello from top level';
+
+# Array declarations:
+# ID ":" "[" expr "]" "=" "[" one_d_element_list "]" ;
+arr : [5] = [1, 2, 3, 4, 5];
+
+# 2D array declaration:
+mat : [2][3] = [[1, 2, 3], [4, 5, 6]];
+
+# Function call statement: ID("(" args ")") ;
+z = add_mul(x, y);
+safe_div(z, 2);
+
+# Index assignment statement:
+arr[0] = read;
+mat[0][1] = 99;
+mat[1][2] = mat[0][1] + arr[0];
+
+# Output ID ;
+show z;
+
+# Control structures: if / elif / else ... close
+if (x > 0) and !(x == 1):
+    show 'if branch';
+elif (x <= 0) or (x != 1):
+    show 'elif branch';
+else:
+    show 'else branch';
+close
+
+# while ... close (uses //, %, **)
+i = 0;
+while i < 3:
+    tmp = (i ** 2) // 1;
+    rem = tmp % 2;
+    show 'looping';
+    i = i + 1;
+close
+
+# for ... in range(...) ... close
+for j in range(0, 5, 2):
+    # uses -, /, <, >=
+    t = (j - 1) / 2;
+    if t < 1:
+        show 'small';
+    elif t >= 1:
+        show 'big';
+    else:
+        show 'impossible';
+    close
+close
+
+# todo ;
+todo;

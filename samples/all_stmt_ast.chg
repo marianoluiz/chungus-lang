@@ -1,0 +1,218 @@
+(.venv) marianoluiz@marianoluiz-Nitro-AN515-58:.../compiler/chungus-lang$ python3 -m src.syntax
+└─ program
+   ├─ function: add_mul  @(3,1)
+   │  ├─ params  @(3,1)
+   │  │  ├─ id: a  @(3,12)
+   │  │  └─ id: b  @(3,15)
+   │  ├─ general_statement
+   │  │  └─ assignment_statement: sum  @(5,5)
+   │  │     └─ +  @(5,13)
+   │  │        ├─ id: a  @(5,11)
+   │  │        └─ id: b  @(5,15)
+   │  ├─ general_statement
+   │  │  └─ assignment_statement: prod  @(6,5)
+   │  │     └─ *  @(6,14)
+   │  │        ├─ id: a  @(6,12)
+   │  │        └─ id: b  @(6,16)
+   │  ├─ general_statement
+   │  │  └─ output_statement  @(7,5)
+   │  │     └─ str_literal: 'inside add_mul'  @(7,10)
+   │  └─ return_statement
+   │     └─ +  @(8,13)
+   │        ├─ id: sum  @(8,9)
+   │        └─ id: prod  @(8,15)
+   ├─ function: safe_div  @(11,1)
+   │  ├─ params  @(11,1)
+   │  │  ├─ id: n  @(11,13)
+   │  │  └─ id: d  @(11,16)
+   │  ├─ general_statement
+   │  │  └─ error_handling  @(13,5)
+   │  │     ├─ try  @(13,5)
+   │  │     │  ├─ general_statement
+   │  │     │  │  └─ assignment_statement: q  @(14,9)
+   │  │     │  │     └─ /  @(14,15)
+   │  │     │  │        ├─ id: n  @(14,13)
+   │  │     │  │        └─ id: d  @(14,17)
+   │  │     │  └─ general_statement
+   │  │     │     └─ output_statement  @(15,9)
+   │  │     │        └─ str_literal: 'try ok'  @(15,14)
+   │  │     ├─ fail  @(16,5)
+   │  │     │  ├─ general_statement
+   │  │     │  │  └─ assignment_statement: q  @(17,9)
+   │  │     │  │     └─ int_literal: 0  @(17,13)
+   │  │     │  └─ general_statement
+   │  │     │     └─ output_statement  @(18,9)
+   │  │     │        └─ str_literal: 'fail ran'  @(18,14)
+   │  │     └─ always  @(19,5)
+   │  │        └─ general_statement
+   │  │           └─ output_statement  @(20,9)
+   │  │              └─ str_literal: 'always ran'  @(20,14)
+   │  └─ return_statement
+   │     └─ id: q  @(23,9)
+   ├─ general_statement
+   │  └─ assignment_statement: x  @(29,1)
+   │     └─ read  @(29,5)
+   ├─ general_statement
+   │  └─ assignment_statement: y  @(32,1)
+   │     └─ +  @(32,14)
+   │        ├─ type_cast: int  @(32,5)
+   │        │  └─ float_literal: 3.9  @(32,9)
+   │        └─ type_cast: float  @(32,16)
+   │           └─ int_literal: 2  @(32,22)
+   ├─ general_statement
+   │  └─ output_statement  @(35,1)
+   │     └─ str_literal: 'hello from top level'  @(35,6)
+   ├─ general_statement
+   │  └─ array_1d_init  @(39,7)
+   │     ├─ size
+   │     │  └─ int_literal: 5  @(39,8)
+   │     ├─ int_literal: 1  @(39,14)
+   │     ├─ int_literal: 2  @(39,17)
+   │     ├─ int_literal: 3  @(39,20)
+   │     ├─ int_literal: 4  @(39,23)
+   │     └─ int_literal: 5  @(39,26)
+   ├─ general_statement
+   │  └─ array_2d_init  @(42,7)
+   │     ├─ size
+   │     │  ├─ int_literal: 2  @(42,8)
+   │     │  └─ int_literal: 3  @(42,11)
+   │     ├─ array_row  @(42,17)
+   │     │  ├─ int_literal: 1  @(42,18)
+   │     │  ├─ int_literal: 2  @(42,21)
+   │     │  └─ int_literal: 3  @(42,24)
+   │     └─ array_row  @(42,28)
+   │        ├─ int_literal: 4  @(42,29)
+   │        ├─ int_literal: 5  @(42,32)
+   │        └─ int_literal: 6  @(42,35)
+   ├─ general_statement
+   │  └─ assignment_statement: z  @(45,1)
+   │     └─ function_call: add_mul  @(45,5)
+   │        ├─ id: x  @(45,13)
+   │        └─ id: y  @(45,16)
+   ├─ general_statement
+   │  └─ function_call: safe_div  @(46,1)
+   │     └─ args
+   │        ├─ id: z  @(46,10)
+   │        └─ int_literal: 2  @(46,13)
+   ├─ general_statement
+   │  └─ array_idx_assignment: arr  @(49,1)
+   │     ├─ indices
+   │     │  └─ int_literal: 0  @(49,5)
+   │     └─ read  @(49,10)
+   ├─ general_statement
+   │  └─ array_idx_assignment: mat  @(50,1)
+   │     ├─ indices
+   │     │  ├─ int_literal: 0  @(50,5)
+   │     │  └─ int_literal: 1  @(50,8)
+   │     └─ int_literal: 99  @(50,13)
+   ├─ general_statement
+   │  └─ array_idx_assignment: mat  @(51,1)
+   │     ├─ indices
+   │     │  ├─ int_literal: 1  @(51,5)
+   │     │  └─ int_literal: 2  @(51,8)
+   │     └─ +  @(51,23)
+   │        ├─ index  @(51,16)
+   │        │  ├─ base
+   │        │  │  └─ id: mat  @(51,13)
+   │        │  └─ indices
+   │        │     ├─ int_literal: 0  @(51,17)
+   │        │     └─ int_literal: 1  @(51,20)
+   │        └─ index  @(51,28)
+   │           ├─ base
+   │           │  └─ id: arr  @(51,25)
+   │           └─ indices
+   │              └─ int_literal: 0  @(51,29)
+   ├─ general_statement
+   │  └─ output_statement  @(54,1)
+   │     └─ id: z  @(54,6)
+   ├─ general_statement
+   │  └─ conditional_block  @(57,1)
+   │     ├─ if  @(57,1)
+   │     │  ├─ and  @(57,12)
+   │     │  │  ├─ >  @(57,7)
+   │     │  │  │  ├─ id: x  @(57,5)
+   │     │  │  │  └─ int_literal: 0  @(57,9)
+   │     │  │  └─ !  @(57,16)
+   │     │  │     └─ ==  @(57,20)
+   │     │  │        ├─ id: x  @(57,18)
+   │     │  │        └─ int_literal: 1  @(57,23)
+   │     │  └─ general_statement
+   │     │     └─ output_statement  @(58,5)
+   │     │        └─ str_literal: 'if branch'  @(58,10)
+   │     ├─ elif  @(59,1)
+   │     │  ├─ or  @(59,15)
+   │     │  │  ├─ <=  @(59,9)
+   │     │  │  │  ├─ id: x  @(59,7)
+   │     │  │  │  └─ int_literal: 0  @(59,12)
+   │     │  │  └─ !=  @(59,21)
+   │     │  │     ├─ id: x  @(59,19)
+   │     │  │     └─ int_literal: 1  @(59,24)
+   │     │  └─ general_statement
+   │     │     └─ output_statement  @(60,5)
+   │     │        └─ str_literal: 'elif branch'  @(60,10)
+   │     └─ else  @(61,1)
+   │        └─ general_statement
+   │           └─ output_statement  @(62,5)
+   │              └─ str_literal: 'else branch'  @(62,10)
+   ├─ general_statement
+   │  └─ assignment_statement: i  @(66,1)
+   │     └─ int_literal: 0  @(66,5)
+   ├─ general_statement
+   │  └─ while  @(67,1)
+   │     ├─ <  @(67,9)
+   │     │  ├─ id: i  @(67,7)
+   │     │  └─ int_literal: 3  @(67,11)
+   │     ├─ general_statement
+   │     │  └─ assignment_statement: tmp  @(68,5)
+   │     │     └─ //  @(68,20)
+   │     │        ├─ **  @(68,14)
+   │     │        │  ├─ id: i  @(68,12)
+   │     │        │  └─ int_literal: 2  @(68,17)
+   │     │        └─ int_literal: 1  @(68,23)
+   │     ├─ general_statement
+   │     │  └─ assignment_statement: rem  @(69,5)
+   │     │     └─ %  @(69,15)
+   │     │        ├─ id: tmp  @(69,11)
+   │     │        └─ int_literal: 2  @(69,17)
+   │     ├─ general_statement
+   │     │  └─ output_statement  @(70,5)
+   │     │     └─ str_literal: 'looping'  @(70,10)
+   │     └─ general_statement
+   │        └─ assignment_statement: i  @(71,5)
+   │           └─ +  @(71,11)
+   │              ├─ id: i  @(71,9)
+   │              └─ int_literal: 1  @(71,13)
+   ├─ general_statement
+   │  └─ for: j  @(85,1)
+   │     ├─ int_literal: 0  @(75,16)
+   │     ├─ int_literal: 5  @(75,19)
+   │     ├─ int_literal: 2  @(75,22)
+   │     ├─ general_statement
+   │     │  └─ assignment_statement: t  @(77,5)
+   │     │     └─ /  @(77,17)
+   │     │        ├─ -  @(77,12)
+   │     │        │  ├─ id: j  @(77,10)
+   │     │        │  └─ int_literal: 1  @(77,14)
+   │     │        └─ int_literal: 2  @(77,19)
+   │     └─ general_statement
+   │        └─ conditional_block  @(78,5)
+   │           ├─ if  @(78,5)
+   │           │  ├─ <  @(78,10)
+   │           │  │  ├─ id: t  @(78,8)
+   │           │  │  └─ int_literal: 1  @(78,12)
+   │           │  └─ general_statement
+   │           │     └─ output_statement  @(79,9)
+   │           │        └─ str_literal: 'small'  @(79,14)
+   │           ├─ elif  @(80,5)
+   │           │  ├─ >=  @(80,12)
+   │           │  │  ├─ id: t  @(80,10)
+   │           │  │  └─ int_literal: 1  @(80,15)
+   │           │  └─ general_statement
+   │           │     └─ output_statement  @(81,9)
+   │           │        └─ str_literal: 'big'  @(81,14)
+   │           └─ else  @(82,5)
+   │              └─ general_statement
+   │                 └─ output_statement  @(83,9)
+   │                    └─ str_literal: 'impossible'  @(83,14)
+   └─ general_statement
+      └─ todo  @(88,1)

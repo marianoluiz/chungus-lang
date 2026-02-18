@@ -13,6 +13,37 @@ SOURCE CODE → LEXER → TOKENS → PARSER → AST → [SEMANTIC ANALYZER] → 
 - **Semantic Analyzer** (🔨 To Build): Validates the AST against language rules
 - **Code Generation** (Future): Converts validated AST to executable code
 
+## Important Note About CHUNGUS Grammar
+
+**CHUNGUS does NOT have explicit type annotations in the grammar.** Unlike typed languages:
+
+```chungus
+# ✅ CHUNGUS: No type annotations
+fn add(x, y):
+    ret x + y;
+close
+
+# ❌ NOT CHUNGUS: (This would be Java/C++)
+fn add(int x, int y) -> int:
+    ret x + y;
+close
+```
+
+This means your semantic analyzer must:
+1. **Infer types** from literals and operations
+2. Track type information **dynamically** during runtime analysis
+3. Use type coercion rules (int, float, bool, string conversions)
+4. Report type **incompatibilities** when operations don't make sense
+
+**Type inference example:**
+```chungus
+x = 5;          # Infer: x is int_literal
+y = 3.14;       # Infer: y is float_literal
+z = x + y;      # Infer: z is float_literal (int coerces to float)
+w = "hello";    # Infer: w is str_literal
+v = x + w;      # ❌ Error: can't add int + string (no valid coercion)
+```
+
 ## Why Do You Need a Semantic Analyzer?
 
 The **parser** only checks if code follows the **grammar rules**. It answers:
@@ -27,66 +58,76 @@ The **semantic analyzer** checks if code makes **logical sense**. It answers:
 ### Example: Why You Need Semantic Analysis
 
 ```chungus
-fn add(int x, int y)
+fn add(x, y):
     ret x + y
-END
+close
 
-// Syntactically valid: ✅ PARSER ACCEPTS
-// But semantically problematic:
-let z = add(5, "hello")    // Type mismatch!
-let w = undefined_var + 3  // Variable not declared!
+# Syntactically valid: ✅ PARSER ACCEPTS
+# But semantically problematic:
+z = add(5, "hello")        # Type mismatch!
+w = undefined_var + 3      # Variable not declared!
+result = add(1)            # Wrong number of arguments!
 ```
 
-**The parser accepts both lines.** The semantic analyzer must reject them.
+**The parser accepts all three problematic lines.** The semantic analyzer must:
+1. ✅ Report the type mismatch in `add(5, "hello")`
+2. ✅ Report `undefined_var` is not declared
+3. ✅ Report wrong argument count for `add(1)`
+4. ✅ Continue analysis to find ALL errors, not stop at the first one
 
 ---
 
 ## Key Responsibilities of a Semantic Analyzer
 
 ### 1. **Symbol Table Management**
-Track all declared variables, functions, and parameters.
+Track all declared variables, functions, and parameters with **inferred types**.
 
 ```python
 # What you track:
 {
-  "x": {"type": "int", "scope": "local", "line": 5},
-  "result": {"type": "float", "scope": "local", "line": 7},
-  "add": {"type": "function", "params": [("int", "x"), ("int", "y")], "return_type": "int"}
+  "x": {"type": "int_literal", "scope": "local", "line": 5, "inferred": True},
+  "result": {"type": "float_literal", "scope": "local", "line": 7, "inferred": True},
+  "add": {"type": "function", "params": ["x", "y"], "return_type": "unknown"}
 }
 ```
+
+**Note:** Since CHUNGUS has no type annotations, all types are **inferred** from:
+- Literal values (`5` → int_literal, `3.14` → float_literal, `"hi"` → str_literal)
+- Operations (`int + float` → float_literal)
+- Control flow analysis
 
 ### 2. **Type Checking**
 Ensure operations are type-safe.
 
-```
-int x = 5;
-float y = x;      // ✅ Implicit conversion (int → float) - OK
-string s = y;     // ❌ float → string not allowed
-z = x + "hello";  // ❌ int + string not allowed
+```chungus
+x = 5;
+y = x;            # ✅ OK - same type
+z = x + 3.14;     # ✅ OK - numeric coercion
+w = x + "hello";  # ❌ int + string not allowed (depends on your rules)
 ```
 
 ### 3. **Scope Management**
 Track where variables are visible (global vs local vs function-scoped).
 
 ```chungus
-fn foo()
-    let x = 5        // x is local to foo
-END
+fn foo():
+    x = 5;        # x is local to foo
+close
 
-print x              // ❌ ERROR: x not visible here
+show x;           # ❌ ERROR: x not visible here
 ```
 
 ### 4. **Function Call Validation**
 Check arguments match parameters.
 
 ```chungus
-fn greet(str name, int age)
-    ret name
-END
+fn greet(name, age):
+    ret name;
+close
 
-greet("Alice", 30)   // ✅ 2 args, correct types
-greet("Bob")         // ❌ Missing argument
-greet(100, 200)      // ❌ First arg wrong type
+greet("Alice", 30);   # ✅ 2 args, correct types
+greet("Bob");         # ❌ Missing argument
+greet(100, 200);      # ⚠️ May be valid or invalid depending on type rules
 ```
 
 ### 5. **Forward Declaration Checking**
@@ -338,22 +379,33 @@ class SemanticAnalyzer:
         self.errors: List[SemanticError] = []
     
     def analyze(self) -> "SemanticResult":
-        """Run semantic analysis and return results."""
+        """
+        Run semantic analysis and return results.
+        
+        ⚠️ CRITICAL: This method MUST collect ALL errors, not stop at first one!
+        """
         if self.tree is None:
             return SemanticResult(tree=None, errors=["No AST to analyze"])
         
+        # ✅ Initialize error list (empty at start)
+        self.errors = []
+        
         try:
-            # First pass: collect declarations
+            # ✅ First pass: collect declarations (may add errors)
             self._collect_declarations(self.tree)
             
-            # Second pass: type check
+            # ✅ Second pass: type check (may add MORE errors)
+            # Even if pass 1 had errors, still run pass 2 to find ALL problems
             self._type_check(self.tree)
             
         except Exception as e:
+            # Only catch unexpected crashes (bugs in analyzer itself)
+            # NOT semantic errors (those go in self.errors list)
             self.errors.append(SemanticError(
                 f"Internal semantic analyzer error: {str(e)}", 0, 0
             ))
         
+        # ✅ Return ALL collected errors (might be 0, might be many)
         return SemanticResult(
             tree=self.tree,
             errors=[str(e) for e in self.errors]
@@ -451,7 +503,9 @@ class SemanticAnalyzer:
     def _type_check(self, node: ASTNode) -> Optional[str]:
         """
         Second pass: traverse AST and type check.
-        Returns the inferred type of the node, or None if type error.
+        Returns the inferred type of the node, or TY_UNKNOWN if type error.
+        
+        ⚠️ CRITICAL: Never stop at first error - collect ALL errors!
         """
         if node is None:
             return None
@@ -462,42 +516,141 @@ class SemanticAnalyzer:
             symbol = self.symbol_table.lookup(var_name)
             
             if symbol is None:
+                # ✅ Record error but DON'T STOP - continue analysis
                 self.errors.append(
                     UndefinedVariableError(
-                        f"Variable '{var_name}' not defined", 0, 0
+                        f"Variable '{var_name}' not defined", 
+                        node.line, node.col
                     )
                 )
-                return None
+                # ✅ Return safe fallback type to allow continued analysis
+                return TY_UNKNOWN
             
             return symbol.type_
         
         elif node.kind == "int_literal":
-            return "int"
+            return TY_INT
         
         elif node.kind == "float_literal":
-            return "float"
+            return TY_FLOAT
         
-        elif node.kind == "string_literal":
-            return "string"
+        elif node.kind == "str_literal":
+            return TY_STRING
         
         elif node.kind == "bool_literal":
-            return "bool"
+            return TY_BOOL
         
-        elif node.kind == "binary_op":
-            # binary_op: value="+", children=[left, right]
-            op = node.value
-            left_type = self._type_check(node.children[0])
-            right_type = self._type_check(node.children[1])
+        elif node.kind in ["+", "-", "*", "/", "//", "%", "**"]:
+            # Binary arithmetic operation
+            op = node.kind
+            left_type = self._type_check(node.children[0]) if node.children else TY_UNKNOWN
+            right_type = self._type_check(node.children[1]) if len(node.children) > 1 else TY_UNKNOWN
             
+            # ✅ Even if children have errors, try to infer type
             if left_type and right_type:
-                result_type = self.type_checker.infer_type(op, left_type, right_type)
+                result_type = TypeChecker.infer_binary_type(op, left_type, right_type)
                 if result_type is None:
+                    # ✅ Record error but DON'T STOP
                     self.errors.append(
                         TypeMismatchError(
                             f"Invalid operation '{op}' between '{left_type}' and '{right_type}'",
-                            0, 0
+                            node.line, node.col
                         )
                     )
+                    # ✅ Return safe fallback to continue
+                    return TY_UNKNOWN
+                return result_type
+            
+            return TY_UNKNOWN
+        
+        elif node.kind == "assignment_statement":
+            # assignment: id_name = expr
+            var_name = node.value
+            symbol = self.symbol_table.lookup(var_name)
+            
+            if symbol is None:
+                # ✅ Variable might not be declared yet
+                self.errors.append(
+                    UndefinedVariableError(
+                        f"Variable '{var_name}' used before declaration",
+                        node.line, node.col
+                    )
+                )
+                # ✅ Continue checking RHS even if LHS has error
+                if node.children:
+                    self._type_check(node.children[0])
+                return TY_UNKNOWN
+            
+            var_type = symbol.type_
+            expr_type = self._type_check(node.children[0]) if node.children else TY_UNKNOWN
+            
+            # ✅ Check compatibility but don't stop if error
+            if expr_type and expr_type != TY_UNKNOWN:
+                result_type = TypeChecker.infer_binary_type("=", expr_type, var_type)
+                if result_type is None:
+                    self.errors.append(
+                        TypeMismatchError(
+                            f"Cannot assign '{expr_type}' to variable '{var_name}' of type '{var_type}'",
+                            node.line, node.col
+                        )
+                    )
+            
+            return var_type
+        
+        elif node.kind == "function_call":
+            # function_call: func_name, children=[args]
+            func_name = node.value
+            symbol = self.symbol_table.lookup(func_name)
+            
+            if symbol is None or symbol.kind != "function":
+                # ✅ Function not found - record error but continue
+                self.errors.append(
+                    FunctionNotDefinedError(
+                        f"Function '{func_name}' not defined",
+                        node.line, node.col
+                    )
+                )
+                # ✅ Still type-check arguments to find MORE errors
+                if node.children:
+                    for arg in node.children:
+                        self._type_check(arg)
+                return TY_UNKNOWN
+            
+            # Check argument count
+            args = node.children if node.children else []
+            actual_count = len(args)
+            expected_count = len(symbol.params) if symbol.params else 0
+            
+            if actual_count != expected_count:
+                # ✅ Record error but keep checking argument types
+                self.errors.append(
+                    ArgumentCountMismatchError(
+                        f"Function '{func_name}' expects {expected_count} args, got {actual_count}",
+                        node.line, node.col
+                    )
+                )
+            
+            # ✅ Type check arguments even if count is wrong
+            for i, arg in enumerate(args):
+                arg_type = self._type_check(arg)
+                if i < expected_count and arg_type and arg_type != TY_UNKNOWN:
+                    expected_type = symbol.params[i][0]
+                    if not TypeChecker.is_compatible(arg_type, expected_type):
+                        # ✅ Record type mismatch for THIS argument
+                        self.errors.append(
+                            TypeMismatchError(
+                                f"Argument {i+1} to '{func_name}': expected '{expected_type}', got '{arg_type}'",
+                                node.line, node.col
+                            )
+                        )
+            
+            return symbol.return_type if symbol.return_type else TY_UNKNOWN
+        
+        # ✅ Recurse to children even if current node had errors
+        for child in node.children:
+            self._type_check(child)
+        
+        return None
                 return result_type
             
             return None
@@ -665,16 +818,59 @@ class SemanticVisitor:
     def visit_binary_op(self, node): ...
 ```
 
-### 3. **Error Collection**
-Don't stop at first error—collect all errors:
+### 3. **Error Collection - CRITICAL: Never Stop at First Error**
 
+**🔴 BAD APPROACH (Don't do this):**
 ```python
-self.errors = []  # List, not single error
-
-# Keep analyzing even after error
-self.errors.append(semantic_error)
-continue_analysis()
+def analyze(self):
+    try:
+        self._collect_declarations(self.tree)
+        self._type_check(self.tree)
+    except SemanticError as e:
+        # ❌ BAD: Returns after first error
+        return SemanticResult(None, [str(e)])
 ```
+
+**✅ GOOD APPROACH (Always do this):**
+```python
+def analyze(self):
+    """Collect ALL errors before returning."""
+    self.errors = []  # ✅ List of errors, not just one
+    
+    try:
+        # Continue even if errors found
+        self._collect_declarations(self.tree)
+        self._type_check(self.tree)
+    except Exception as e:
+        # Only catch unexpected crashes, not semantic errors
+        self.errors.append(SemanticError(
+            f"Internal error: {str(e)}", 0, 0
+        ))
+    
+    # ✅ Return ALL collected errors
+    return SemanticResult(self.tree, [str(e) for e in self.errors])
+
+def _type_check(self, node):
+    """Type check without stopping on errors."""
+    if node.kind == "id":
+        symbol = self.symbol_table.lookup(node.value)
+        if symbol is None:
+            # ✅ Record error and CONTINUE
+            self.errors.append(
+                UndefinedVariableError(f"Variable '{node.value}' not defined", node.line, node.col)
+            )
+            return TY_UNKNOWN  # Return safe default, don't crash
+    
+    # ✅ Keep analyzing other nodes
+    for child in node.children:
+        self._type_check(child)
+```
+
+**Why This Matters:**
+- Users want to see ALL problems in their code, not just the first one
+- Fixing one error shouldn't require re-running to find the next
+- IDE integration (future) needs complete error lists for red squiggles
+- Professional compilers (GCC, Clang, rustc) all report multiple errors
 
 ---
 
@@ -732,4 +928,170 @@ def test_type_compatibility():
 5. Test with sample programs from `samples/`
 6. Integrate with `main.py`
 
+---
+
+## Complete Example: Error Collection in Action
+
+### Input Program (with MULTIPLE errors):
+```chungus
+fn add(x, y):
+    ret x + y
+close
+
+# Multiple semantic errors below:
+result = add(5)              # Error 1: Wrong arg count
+value = undefined_var + 10   # Error 2: Undefined variable
+output = add("hello", 3.14)  # Error 3: Type mismatch (depending on your rules)
+another = missing_func(1, 2) # Error 4: Function not defined
+
+show result;
+```
+
+### Expected Output (ALL 4 errors reported):
+```
+Semantic Error/s:
+Line 5, Col 9: Function 'add' expects 2 args, got 1
+Line 6, Col 9: Variable 'undefined_var' not defined
+Line 7, Col 10: Invalid operation '+' between 'str_literal' and 'float_literal'
+Line 8, Col 11: Function 'missing_func' not defined
+```
+
+### How Your Analyzer Achieves This:
+
+```python
+class SemanticAnalyzer:
+    def analyze(self):
+        self.errors = []  # ✅ Empty list ready to collect
+        
+        # Pass 1: declarations
+        self._collect_declarations(self.tree)
+        # After pass 1: errors = [<function_redeclaration_errors_if_any>]
+        
+        # Pass 2: type checking
+        self._type_check(self.tree)
+        # After pass 2: errors = [<all_declaration_errors> + <all_type_errors>]
+        
+        # ✅ Return everything found
+        return SemanticResult(self.tree, [str(e) for e in self.errors])
+    
+    def _type_check(self, node):
+        """Type checks ONE node, records errors, continues to siblings."""
+        
+        # Check this node
+        if node.kind == "function_call":
+            # ... validation logic ...
+            if error_found:
+                self.errors.append(error)  # ✅ Add to list
+                # ✅ DON'T return/raise - keep going!
+        
+        # ✅ Always check children, even if current node had error
+        for child in node.children:
+            self._type_check(child)  # Recursive - finds MORE errors
+```
+
+---
+
+## Common Mistakes to Avoid
+
+### ❌ **MISTAKE 1: Stopping at First Error**
+```python
+def _type_check(self, node):
+    if symbol is None:
+        raise SemanticError("Variable not found")  # ❌ BAD: stops immediately
+```
+
+### ✅ **CORRECT: Collect and Continue**
+```python
+def _type_check(self, node):
+    if symbol is None:
+        self.errors.append(SemanticError("Variable not found"))  # ✅ GOOD
+        return TY_UNKNOWN  # Safe fallback, analysis continues
+```
+
+### ❌ **MISTAKE 2: Not Checking Children After Error**
+```python
+def _type_check(self, node):
+    if node.kind == "function_call" and func_not_found:
+        self.errors.append(error)
+        return  # ❌ BAD: doesn't check arguments for MORE errors
+```
+
+### ✅ **CORRECT: Always Traverse Children**
+```python
+def _type_check(self, node):
+    if node.kind == "function_call" and func_not_found:
+        self.errors.append(error)
+        # ✅ GOOD: Still check arguments to find MORE errors
+        for arg in node.children:
+            self._type_check(arg)
+        return TY_UNKNOWN
+```
+
+### ❌ **MISTAKE 3: Returning None on Error**
+```python
+def _type_check(self, node):
+    if error:
+        self.errors.append(error)
+        return None  # ❌ BAD: causes crashes in parent nodes
+```
+
+### ✅ **CORRECT: Return Safe Fallback Type**
+```python
+def _type_check(self, node):
+    if error:
+        self.errors.append(error)
+        return TY_UNKNOWN  # ✅ GOOD: parent can continue safely
+```
+
+---
+
+## Integration with Existing Pipeline
+
+Your current pipeline already handles error collection well in lexer and parser:
+
+```python
+# Lexer collects ALL lexical errors
+lexer.start()
+if lexer.log:
+    errors = lexer.log.splitlines()  # Multiple errors
+
+# Parser collects ALL syntax errors
+parse_result = parser.parse()
+if parse_result.errors:
+    errors = parse_result.errors  # Multiple errors
+
+# ✅ Semantic analyzer MUST do the same!
+semantic_result = analyzer.analyze()
+if semantic_result.errors:
+    errors = semantic_result.errors  # Multiple errors
+```
+
+---
+
+## Testing Error Collection
+
+Create tests that verify multiple errors are caught:
+
+```python
+def test_multiple_errors():
+    """Verify analyzer reports ALL errors, not just first."""
+    source = """
+    x = undefined + 5;
+    y = another_undefined * 2;
+    z = yet_another + 1;
+    """
+    
+    result = semantic_analyzer.analyze(parse(source), source)
+    
+    # ✅ Should find ALL 3 undefined variables
+    assert len(result.errors) == 3
+    assert "undefined" in result.errors[0]
+    assert "another_undefined" in result.errors[1]
+    assert "yet_another" in result.errors[2]
+```
+
+---
+
 Good luck building your semantic analyzer! 🚀
+
+**Remember: The golden rule is "COLLECT ALL ERRORS, NEVER STOP AT THE FIRST"** 🎯

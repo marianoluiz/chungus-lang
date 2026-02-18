@@ -1,3 +1,4 @@
-if x 
-    show 'chingching'
-close
+
+x = y() + x;
+
+x = 1;

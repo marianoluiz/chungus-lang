@@ -1,5 +1,6 @@
 from typing import List
 from src.lexer.dfa_lexer import Lexer
+from src.semantic.semantic_analyzer import SemanticAnalyzer
 from src.syntax.rd_parser import RDParser
 from src.constants.token import Token
 import os
@@ -47,23 +48,36 @@ def main():
     tokens: List[Token] = lexer.token_stream
     
     # Tokens: [ {type, token_type, line_index, col_index}, ... ]
-    parser = RDParser(tokens, source_code, debug=True)
-    parse_result = parser.parse()
+    syntax = RDParser(tokens, source_code, debug=True)
+    syntax_result = syntax.parse()
+
+    semantic = SemanticAnalyzer(syntax_result.tree, source_code, debug=False)
+    semantic_result = semantic.analyze()
 
     if lexer.log:
         errors.append("Lexical Error/s:")
         errors.extend(lexer.log.splitlines())
         # End if have lexical error
-        return tokens, errors, parse_result
+        return tokens, errors, syntax_result, semantic_result
 
-    if parse_result.errors:
-        errors.append("Syntax Error/s:")
-        errors.extend(parse_result.errors)
+    if syntax_result.errors:
+        errors.append("Syntax Error:")
+        errors.extend(syntax_result.errors)
+        # End if have syntax error
+        return tokens, errors, syntax_result, semantic_result
 
-    return tokens, errors, parse_result
+    if semantic_result.errors:
+        errors.append("Semantic Error/s:")
+        errors.extend(semantic_result.errors)
+
+        return tokens, errors, syntax_result, semantic_result
+
+
+    return tokens, errors, syntax_result, semantic_result
+
 
 if __name__ == '__main__':
-    tokens, errors, parse_result = main()
+    tokens, errors, syntax_result, semantic_result = main()
     
     # print("\n\nTOKENS:")
     # for t in tokens:
@@ -72,8 +86,12 @@ if __name__ == '__main__':
     #         f"(line {t['line']}, col {t['col']})"
     #     )
     
-    if parse_result.tree is not None:
-        print_ast(parse_result.tree)
+    if syntax_result.tree is not None:
+        pass
+        # print_ast(syntax_result.tree)
+    if semantic_result.tree is not None:
+        pass
+        print_ast(semantic_result.tree)
     else:
         print("No AST generated.")
 
