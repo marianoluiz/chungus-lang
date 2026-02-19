@@ -23,7 +23,7 @@ fn safe_div(n, d):
     ret q;
 close
 
-# Top-level general statements (program requires these) 
+# ─────────── Top-level general statements (program requires these) ───────────
 
 # ID "=" READ ;
 x = read;

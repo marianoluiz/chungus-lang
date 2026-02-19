@@ -182,7 +182,9 @@ class SingleStmtRules:
             while True:
                 # expect ID
                 self._expect_type(ID_T, 'param_list_opt')
-                params.append(self._advance())  # consume and add the ID token
+                tok = self._advance()
+                # Wrap Token in ASTNode for consistent tree structure
+                params.append(self._ast_node(ID_T, tok, value=tok.lexeme))
 
                 self._expect({')', ','}, 'param_list_opt')
 
@@ -360,8 +362,8 @@ class SingleStmtRules:
             self._advance()
 
             # parse RHS (regular expr, no array init allowed here)
-            value = self._expr()
-            self._expect_after_expr({';'}, value, 'array_idx_assignment')
+            value = self._assignment_value()
+            self._expect_type(';', 'array_idx_assignment')
 
             # create node of indices for ast
             indices_node = ASTNode('indices', children=indices)
@@ -384,7 +386,7 @@ class SingleStmtRules:
         """
 
         # predict of assignment value
-        self._expect(self.PRED_EXPR, 'assignment_value')
+        self._expect(self.PRED_EXPR | {'read'}, 'assignment_value')
         # input method
         if self._match('read'):
             tok = self._advance()

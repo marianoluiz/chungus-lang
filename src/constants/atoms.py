@@ -12,7 +12,7 @@ ATOMS = {
     'alphabet_low': set('abcdefghijklmnopqrstuvwxyz'),
     'alphabet_up': set('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
     'all_num': set('0123456789'),
-    
+
     # --- Composite Atoms ---
     'all_alphabet': set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
     'alpha_num': set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'),
@@ -23,7 +23,7 @@ ATOMS = {
     # - does NOT include raw newline
     'string_ascii': {
         ' ', '!', '#', '$', '"', '%', '&', '(', ')', '*', '+', ',', '-', '.', '/', 
-        ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~',
+        ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~','\n',
         *set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
     },
     'single_comment_ascii': {
