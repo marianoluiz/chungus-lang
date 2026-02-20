@@ -82,7 +82,7 @@ DELIMS = {
         *TOKEN_DELIM, 
         *ATOMS['under_alpha_num'],
         *ATOMS['unary_negative_op'], 
-        '[', ']',"'"
+        '[', ']',"'", '!', '('
     },
 
 
