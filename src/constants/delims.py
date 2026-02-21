@@ -55,7 +55,7 @@ DELIMS = {
         *ATOMS['under_alpha_num'], 
         *ATOMS['unary_negative_op'], 
         *ATOMS['logical_not_op'],
-        '[', "'"
+        '[', "'", '('
     },
 
 
@@ -64,7 +64,7 @@ DELIMS = {
         *ATOMS['under_alpha_num'],
         *ATOMS['unary_negative_op'], 
         *ATOMS['logical_not_op'],
-        ')', "'", 
+        ')', "'", '('
     },
 
 
