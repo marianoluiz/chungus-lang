@@ -70,6 +70,7 @@ class SingleStmtRules:
             node = self._id_statement_tail(id_tok)
 
             self._expect_type(';', 'general_statement')
+            
             self._advance()
 
             return ASTNode('general_statement', children=[node])
@@ -444,14 +445,16 @@ class SingleStmtRules:
         if not self._match(']'):
             
             # parse first element
-            elements.append(self._array_element())
-            self._expect({',', ']'}, 'one_d_element_list')
+            expr = self._array_element()
+            elements.append(expr)
+            self._expect_after_expr({',', ']'}, expr, 'one_d_element_list')
 
             # parse remaining elements
             while self._match(','):
                 self._advance()
-                elements.append(self._array_element())
-                self._expect({',', ']'}, 'one_d_element_list')
+                expr = self._array_element()
+                elements.append(expr)
+                self._expect_after_expr({',', ']'}, expr, 'one_d_element_list')
 
         # expect closing ]
         self._expect_type(']', 'one_d_array_init')
@@ -576,14 +579,16 @@ class SingleStmtRules:
         # empty row allowed
         if not self._match(']'):
             # parse first element
-            row_elements.append(self._array_element())
-            self._expect({',', ']'}, 'two_d_inner_tail')
+            expr = self._array_element()
+            row_elements.append(expr)
+            self._expect_after_expr({',', ']'}, expr, 'two_d_inner_tail')
 
             # parse remaining elements in row
             while self._match(','):
                 self._advance()
-                row_elements.append(self._array_element())
-                self._expect({',', ']'}, 'two_d_inner_tail')
+                expr = self._array_element()
+                row_elements.append(expr)
+                self._expect({',', ']'}, expr, 'two_d_inner_tail')
 
         # expect closing ]
         self._expect_type(']', 'two_d_array_element')

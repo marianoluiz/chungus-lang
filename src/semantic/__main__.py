@@ -51,7 +51,7 @@ def main():
     syntax = RDParser(tokens, source_code, debug=True)
     syntax_result = syntax.parse()
 
-    semantic = SemanticAnalyzer(syntax_result.tree, source_code, debug=False)
+    semantic = SemanticAnalyzer(syntax_result.tree, source_code, debug=True)
     semantic_result = semantic.analyze()
 
     if lexer.log:

@@ -54,9 +54,7 @@ s = 'hello,Invalid Character
 Invalid Delimiter
 Invalid Character"
 "s = 'line1
-line2'","Invalid Character
-Invalid Delimiter
-Invalid Character"
+line2'",NO LEXICAL ERROR/S
 s = '\'quote\'',"Invalid Delimiter
 Invalid Delimiter
 Invalid Character"
@@ -216,9 +214,7 @@ s = '$(fn())',NO LEXICAL ERROR/S
 s = ''',"Invalid Delimiter
 Invalid Character"
 "s = 'line1
- line2'","Invalid Character
-Invalid Delimiter
-Invalid Character"
+ line2'",NO LEXICAL ERROR/S
 "s = """"'""""","Invalid Character
 Invalid Character
 Invalid Character
@@ -232,10 +228,7 @@ Invalid Character"
 s = '$(a b)',NO LEXICAL ERROR/S
 s = '$(a!b)',NO LEXICAL ERROR/S
 "s='\\
- '","Invalid Character
-Invalid Character
-Invalid Character
-Invalid Character"
+ '",NO LEXICAL ERROR/S
 s='test\ ',NO LEXICAL ERROR/S
 s='\x',NO LEXICAL ERROR/S
 s='C:\\path',NO LEXICAL ERROR/S
@@ -359,3 +352,56 @@ x = 'x'<'x',NO LEXICAL ERROR/S
  'hello'>='hi',NO LEXICAL ERROR/S
  'hello'or'hi',"Invalid Delimiter
 Invalid Delimiter"
+x = !(y);,NO LEXICAL ERROR/S
+x = !(y == 1);,NO LEXICAL ERROR/S
+x = ((1+2));,NO LEXICAL ERROR/S
+x = (1+2)*(3+4);,NO LEXICAL ERROR/S
+show;,Invalid Delimiter
+x = ~ (1 + 1);,Invalid Character
+fn wrong_symbol(): ret a $ b; close,Invalid Character
+x = ( ( ( ( ( matrix ) ) ) ) )[0][0];,Invalid Delimiter
+x = ~ ( matrix[0][0] + matrix[1][1] );,Invalid Character
+matrix[ (int(read)) ][ (int(read)) ] = 100;,"Invalid Delimiter
+Invalid Delimiter"
+fn wrong_symbol(): ret a $ b; close,Invalid Character
+try: x = read; fail: x = 0; always: ret; close,Invalid Delimiter
+"try: x = ~10 / 0; fail: show 'neg div'; close
+",NO LEXICAL ERROR/S
+"try: show 'hi'; close
+",NO LEXICAL ERROR/S
+x = 5;,NO LEXICAL ERROR/S
+x = 5;,NO LEXICAL ERROR/S
+"x = 'It';
+",NO LEXICAL ERROR/S
+"x = fn_call(1, 2);
+",NO LEXICAL ERROR/S
+"x = 10 + (y * 2);
+",NO LEXICAL ERROR/S
+"x = 'hello';
+",NO LEXICAL ERROR/S
+x = ~ (10);,Invalid Character
+"x = (y + 5);
+",NO LEXICAL ERROR/S
+"x = ~10;
+",NO LEXICAL ERROR/S
+"Var = 5;
+",NO LEXICAL ERROR/S
+fn wrong_symbol(): show '10'; close ,NO LEXICAL ERROR/S
+"fn test(a, b): if ( a + b): show id; close close
+",NO LEXICAL ERROR/S
+x = 10;,NO LEXICAL ERROR/S
+fn fail(): todo; close,Invalid Delimiter
+while x < 10: x = x + 1; close,NO LEXICAL ERROR/S
+"while int(rAad) < 10: show 'loop'; close
+",NO LEXICAL ERROR/S
+for i in range(2): show i; close,NO LEXICAL ERROR/S
+while x == 10: show x; close,NO LEXICAL ERROR/S
+try: fn fail3(): todo; close fail: todo; close,NO LEXICAL ERROR/S
+"fn test(): while true: if false: todo ; close close close
+",NO LEXICAL ERROR/S
+while x == 10: if y == 5: show id; close close,NO LEXICAL ERROR/S
+show x.y;,"Invalid Delimiter
+Invalid Character"
+fn main(): if true: ret; close close,Invalid Delimiter
+if x == 1: show 1; else: show 2; close;,Invalid Delimiter
+x = ( 1 + 2 ) * ( 3 / ( 4 - 5 ) ) + ~ ( 6 * 7 );,Invalid Character

@@ -100,6 +100,15 @@ class SymbolTable:
                 return scope[name]
         return None
     
+    def lookup_current_scope(self, name: str) -> Optional[Symbol]:
+        """
+        Look up a symbol ONLY in the current (innermost) scope.
+        Used to distinguish shadowing from reassignment.
+        """
+        current_scope = self.scopes[-1]
+        return current_scope.get(name, None)
+    
+
 
 # Type Checker
 
@@ -175,6 +184,7 @@ class TypeChecker:
         if op in REL_OPS:
             if not (TypeChecker.is_number_coercible(left_type) and TypeChecker.is_number_coercible(right_type)):
                 return None
+
             return TY_BOOL
 
         if op in LOGICAL_OPS:
@@ -233,6 +243,10 @@ class SemanticAnalyzer:
             # First pass: collect declarations
             self._collect_declarations(self._tree)
             
+            if self._debug:
+                self._dump()
+
+
             # Second pass: type check
             self._type_check(self._tree)
         
@@ -249,6 +263,7 @@ class SemanticAnalyzer:
             tree=self._tree,
             errors=[str(e) for e in self._errors] # equal to errors.append(str(e))
         )
+
 
     def _error(self, node: ASTNode, message: str, error_class=SemanticError):
         """
@@ -271,6 +286,14 @@ class SemanticAnalyzer:
         # Create error with context
         error = error_class(message, line, col, source_line)
         self._errors.append(error)
+
+
+    def _dump(self):
+        """ Check symbol table """
+        for i, scope in enumerate(self._symbol_table.scopes):
+            print(f"Scope {i}:")
+            for name, sym in scope.items():
+                print(f"  {name} -> {sym}")
 
 
     def _collect_declarations(self, node: ASTNode) -> None:
@@ -339,25 +362,21 @@ class SemanticAnalyzer:
             return
 
         elif node.kind == "assignment_statement":
-            # assignment_statement: id_name = expr
+            # First pass: only ensure the LHS name exists in the CURRENT scope.
+            # Do NOT infer RHS, do NOT rebind functions here.
             var_name = node.value
-            var_type = TY_UNKNOWN  # TODO: infer from RHS or annotation
-            
-            symbol = Symbol(
-                name=var_name,
-                kind="variable",
-                type_=var_type,
-                line=node.line if node.line else 0,
-                col=node.col if node.col else 0,
-                scope_level=self._symbol_table.scope_level
-            )
-            
-            if not self._symbol_table.declare(symbol):
-                self._error(node,
-                    f"Variable '{var_name}' already defined in this scope",
-                    VariableAlreadyDefinedError)
-            
-            # Don't recurse into assignment children (just declarations, not RHS expressions)
+
+            if self._symbol_table.lookup_current_scope(var_name) is None:
+                symbol = Symbol(
+                    name=var_name,
+                    kind="variable",
+                    type_=TY_UNKNOWN,
+                    line=node.line or 0,
+                    col=node.col or 0,
+                    scope_level=self._symbol_table.scope_level
+                )
+                self._symbol_table.declare(symbol)
+
             return
         
         # Recurse to children, there would always be a children list
@@ -411,22 +430,25 @@ class SemanticAnalyzer:
             # ✅ Even if children have errors, try to infer type
             if left_type and right_type:
                 result_type = TypeChecker.infer_binary_type(op, left_type, right_type)
+
                 if result_type is None:
                     # ✅ Record error but DON'T STOP
                     self._error(node, 
                         f"Invalid operation '{op}' between '{left_type}' and '{right_type}'",
                         TypeMismatchError)
+
                     # ✅ Return safe fallback to continue
                     return TY_UNKNOWN
+
                 return result_type
-            
+
             return TY_UNKNOWN
-        
+
         elif node.kind == "assignment_statement":
             # assignment_statement: id_name = expr
             # Note: Assignment DECLARES the variable, so we don't check if it exists
             # The declaration pass already handled duplicate declarations
-            
+
             var_name = node.value
             symbol = self._symbol_table.lookup(var_name)
             

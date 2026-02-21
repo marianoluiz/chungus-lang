@@ -33,6 +33,8 @@ class RDParser(ParserCore, ExprRules, SingleStmtRules, BlockStmtRules):
     PRED_GENERAL_STMT = {'for', ID_T,'if','show','todo','try','while'}
     PRED_PROGRAM      = PRED_GENERAL_STMT | {'fn'}
     PRED_EXPR = {'!', '(', 'false', 'float', FLOAT_LIT_T, ID_T, 'int', INT_LIT_T, STR_LIT_T, 'true'}
+    # PRED_PAREN = {'!=', '%', '*', '**', '+', '-', '/', '//', ';', '<', '<=', '==', '>', '>=', 'and', 'or'}
+    
 
     def parse(self: "RDParser") -> ParseResult:
         """

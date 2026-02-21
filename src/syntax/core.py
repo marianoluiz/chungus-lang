@@ -133,6 +133,25 @@ class ParserCore:
         raise ParseError(msg)
 
 
+    def _is_closed_expr(self: "RDParser") -> bool:
+        """
+        Check if the previous non-skip token is ')' - indicates a closed/parenthesized expression.
+        
+        Returns:
+            bool: True if expression is closed by parentheses, False otherwise.
+        """
+        if self._i > 0:
+            # Skip backwards over whitespace/newline/comment tokens to find meaningful token
+            idx = self._i - 1
+            while idx >= 0 and self._tokens[idx].type in ('whitespace', 'newline', 'comment'):
+                idx -= 1
+            
+            if idx >= 0 and self._tokens[idx].type == ')':
+                return True
+        
+        return False
+
+
     def _add_postfix_tokens(self: "RDParser", follow_set: set, expr_node: ASTNode) -> set:
         """
         Add postfix operator tokens to show follow set context based on expression type.
@@ -145,18 +164,46 @@ class ParserCore:
         Returns:
             Updated follow set with postfix tokens added if applicable
         """
-        postfix_target = self._postfixable_root(expr_node)
         updated_set = follow_set.copy()
+        
+        # Check if expression is closed (parenthesized)
+        is_closed = self._is_closed_expr()
         
         REL_EQ_OP = {'!=', '=='}
         LOGICAL_OP = {'and', 'or'}
         REL_OP = {'<', '<=', '>', '>='}
         ARITH_OP = {'%', '*', '**', '+', '-', '/', '//'}
         ALL_OP = REL_EQ_OP | LOGICAL_OP | REL_OP | ARITH_OP
+        BINARY_OPS = ARITH_OP | REL_OP | REL_EQ_OP | LOGICAL_OP
+        UNARY_OPS = {'!'}
 
+        # If expression is closed (parenthesized), only binary operators can follow
+        if is_closed:
+            updated_set |= ALL_OP
+            return updated_set
+
+        # For binary operators: check rightmost operand (can continue with postfix on that operand)
+        # For unary operators: don't add postfix (can't index/call the result)
+        # For direct values: add postfix if applicable
+        if expr_node.kind in BINARY_OPS:
+            # Binary operator - check rightmost operand
+            postfix_target = self._postfixable_root(expr_node)
+        elif expr_node.kind in UNARY_OPS:
+            # Unary operator - can't postfix the result, only binary ops apply
+            updated_set |= ALL_OP
+            return updated_set
+        else:
+            # Direct value (id, index, function_call, literal)
+            postfix_target = expr_node
+
+
+        # self._dbg('DBG:  ' + postfix_target.kind)
+        
         if postfix_target.kind == ID_T:
-            # function call or indexing and all op
+            # Identifier: can be followed by function call or indexing
             updated_set |= {'(', '['} | ALL_OP
+
+
         elif postfix_target.kind == 'index':
 
             # check dimension count - only allow '[' if not already 2D
@@ -165,26 +212,24 @@ class ParserCore:
             #     ├─ int_literal: 1 
             #     └─ int_literal: 1  
             indices_node = next((child for child in postfix_target.children if child.kind == 'indices'), None)
-
-            # check how many index
             num_dimensions = len(indices_node.children) if indices_node else 0
 
-            # only add '[' if less than 2 dimensions
+            # Add '[' only if: less than 2D AND not inside brackets
             if num_dimensions < 2:
                 updated_set |= {'['}
+            
+            updated_set |= ALL_OP
+            
+        elif postfix_target.kind == 'function_call':
 
             updated_set |= ALL_OP
-        elif postfix_target.kind == 'function_call':
-            # further indexing and all op
-            updated_set |= ALL_OP        
-        elif postfix_target.kind in (INT_LIT_T, FLOAT_LIT_T):
-            # numeric literals can use all op
+            
+        elif postfix_target.kind in (INT_LIT_T, FLOAT_LIT_T, STR_LIT_T, BOOL_LIT_T):
+            # Literals: only binary operators apply
             updated_set |= ALL_OP
-        elif postfix_target.kind == STR_LIT_T:
-            # string can use all op
-            updated_set |= ALL_OP
-        elif postfix_target.kind == BOOL_LIT_T:
-            # string can use all op
+            
+        else:
+            # Other not recognized nodes: only binary operators can follow
             updated_set |= ALL_OP
 
         return updated_set

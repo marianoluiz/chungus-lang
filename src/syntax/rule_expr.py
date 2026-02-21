@@ -102,8 +102,10 @@ class ExprRules:
         if self._match('('):
             self._advance()
             expr = self._expr()
+
             self._expect_after_expr({')'}, expr, 'operand')
             self._advance()
+
             return expr
 
         # Type casting: int(...) or float(...)
