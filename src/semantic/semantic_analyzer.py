@@ -35,10 +35,6 @@ class ArgumentCountMismatchError(SemanticError):
     """Function called with wrong number of arguments."""
     pass
 
-class VariableAlreadyDefinedError(SemanticError):
-    """Variable redeclared in same scope."""
-    pass
-
 
 @dataclass
 class Symbol:
@@ -364,10 +360,7 @@ class SemanticAnalyzer:
                 return_type="int"  # TODO: extract from AST
             )
 
-            if not self._symbol_table.declare(func_symbol):
-                self._error(node,
-                    f"Function '{func_name}' already defined",
-                    VariableAlreadyDefinedError)
+            self._symbol_table.declare(func_symbol)
 
             # Enter function scope and collect local declarations
             self._symbol_table.enter_scope()
