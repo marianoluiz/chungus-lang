@@ -133,13 +133,14 @@ class TextLineNumbers(tk.Canvas):
 # ==============================================================================
 
 class ChungusLexerGUI:
-    def __init__(self, root, lexer_callback=None, syntax_callback=None):
+    def __init__(self, root, lexer_callback=None, syntax_callback=None, semantic_callback=None):
         self.root = root
         self.setup_window()
         
         # External logic hooks
         self.lexer_callback = lexer_callback
         self.syntax_callback = syntax_callback
+        self.semantic_callback = semantic_callback
 
         # App State
         self.current_theme = tk.StringVar(value="Oceanic Blue")
@@ -362,6 +363,18 @@ class ChungusLexerGUI:
             cursor="hand2"
         )
         self.btn_syntax.pack(side=tk.LEFT, padx=(0, 10))
+
+        self.btn_semantic = tk.Button(
+            btn_container, 
+            text="▶ RUN SEMANTIC", 
+            command=self.run_semantic,
+            font=self.fonts['subheader'],
+            relief="raised",
+            borderwidth=0,
+            padx=20, pady=8,
+            cursor="hand2"
+        )
+        self.btn_semantic.pack(side=tk.LEFT, padx=(0, 10))
         
         # Right Side: Tool Buttons
         tools_container = tk.Frame(self.toolbar)
@@ -872,7 +885,7 @@ class ChungusLexerGUI:
         elif self.current_theme.get() == "Synthwave 84":
             btn_bg = c["ACCENT_RED"] 
             
-        for btn in [self.btn_lexer, self.btn_syntax]:
+        for btn in [self.btn_lexer, self.btn_syntax, self.btn_semantic]:
             btn.config(bg=btn_bg, fg=btn_fg, activebackground=c["ACCENT_GREEN"], activeforeground=btn_fg)
             
         tool_bg = c.get("BTN_TOOL_BG", "#dddddd")
@@ -1106,6 +1119,41 @@ class ChungusLexerGUI:
         else:
             self.error_output.insert(tk.END, ">>> Syntax analysis complete. No errors found.", "success")
             self.status_msg.config(text="Syntax analysis finished successfully.")
+            
+        self.error_output.config(state=tk.DISABLED)
+
+    def run_semantic(self):
+        self.status_msg.config(text="Running Semantic Analyzer...")
+        self.error_output.config(state=tk.NORMAL)
+        self.error_output.delete("1.0", tk.END)
+        
+        for item in self.token_tree.get_children():
+            self.token_tree.delete(item)
+
+        source_code = self.code_input.get("1.0", "end-1c")
+        source_code = source_code.expandtabs(4)
+
+        if callable(self.semantic_callback):
+            try:
+                tokens, errors = self.semantic_callback(source_code)
+            except Exception as e:
+                messagebox.showerror("Semantic Analyzer Internal Error", str(e))
+                self.status_msg.config(text="Semantic Analysis Failed.")
+                return
+        else:
+            messagebox.showinfo("Semantic Analyzer", "No semantic analyzer callback provided.")
+            self.status_msg.config(text="Semantic analyzer not configured.")
+            return
+
+        self._populate_tokens(tokens)
+
+        if errors:
+            self.error_output.insert(tk.END, "Errors found during semantic analysis:\n", "info")
+            self.error_output.insert(tk.END, "\n".join(errors), "error")
+            self.status_msg.config(text=f"Semantic analysis finished with {len(errors)} errors.")
+        else:
+            self.error_output.insert(tk.END, ">>> Semantic analysis complete. No errors found.", "success")
+            self.status_msg.config(text="Semantic analysis finished successfully.")
             
         self.error_output.config(state=tk.DISABLED)
 
