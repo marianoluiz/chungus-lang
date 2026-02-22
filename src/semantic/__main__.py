@@ -10,11 +10,14 @@ def print_ast(node, prefix: str = "", is_last: bool = True):
     # choose branch symbol
     connector = "└─ " if is_last else "├─ "
 
-    # display node
+    # display node with value, line, and col
+    node_str = f"{node.kind}"
     if node.value is not None:
-        print(prefix + connector + f"{node.kind}: {node.value}")
-    else:
-        print(prefix + connector + f"{node.kind}")
+        node_str += f": {node.value}"
+    if hasattr(node, 'line') and hasattr(node, 'col') and node.line is not None:
+        node_str += f"  @({node.line},{node.col})"
+    
+    print(prefix + connector + node_str)
 
     # prepare prefix for children
     # If this node is the last child → future siblings above are done → just spaces:
@@ -88,10 +91,11 @@ if __name__ == '__main__':
     
     if syntax_result.tree is not None:
         pass
+        # print("\n\nAST:")
         # print_ast(syntax_result.tree)
     if semantic_result.tree is not None:
         pass
-        print_ast(semantic_result.tree)
+        # print_ast(semantic_result.tree)
     else:
         print("No AST generated.")
 

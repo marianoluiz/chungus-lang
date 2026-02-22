@@ -1,4 +1,3 @@
-(.venv) marianoluiz@marianoluiz-Nitro-AN515-58:.../compiler/chungus-lang$ python3 -m src.syntax
 └─ program
    ├─ function: add_mul  @(3,1)
    │  ├─ params  @(3,1)

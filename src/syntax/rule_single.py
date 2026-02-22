@@ -588,7 +588,7 @@ class SingleStmtRules:
                 self._advance()
                 expr = self._array_element()
                 row_elements.append(expr)
-                self._expect({',', ']'}, expr, 'two_d_inner_tail')
+                self._expect_after_expr({',', ']'}, expr, 'two_d_inner_tail')
 
         # expect closing ]
         self._expect_type(']', 'two_d_array_element')

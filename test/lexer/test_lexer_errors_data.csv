@@ -303,7 +303,7 @@ x=1---2,"Invalid Delimiter
 Invalid Delimiter"
 x=!--x,"Invalid Delimiter
 Invalid Delimiter"
-x=!!true,Invalid Delimiter
+x=!!true,NO LEXICAL ERROR/S
 x = 1/**/2,"Invalid Delimiter
 Invalid Delimiter"
 x = 1//2,NO LEXICAL ERROR/S
@@ -405,3 +405,44 @@ Invalid Character"
 fn main(): if true: ret; close close,Invalid Delimiter
 if x == 1: show 1; else: show 2; close;,Invalid Delimiter
 x = ( 1 + 2 ) * ( 3 / ( 4 - 5 ) ) + ~ ( 6 * 7 );,Invalid Character
+varName1 = 5.5;,NO LEXICAL ERROR/S
+another_var = 'text';,NO LEXICAL ERROR/S
+_starting_ = 123;,NO LEXICAL ERROR/S
+end$ing = 9;,"Invalid Delimiter
+Invalid Character"
+2nd_var = 7;,Invalid Delimiter
+IF = 1;,NO LEXICAL ERROR/S
+loop = 0;,NO LEXICAL ERROR/S
+.decimal = 4.0;,Invalid Character
+55.55 = x;,NO LEXICAL ERROR/S
+x = 123456789;,NO LEXICAL ERROR/S
+y = 0.000000001;,Invalid Delimiter
+z = 'single quote';,NO LEXICAL ERROR/S
+"s = ""double quote"";","Invalid Character
+Invalid Delimiter
+Invalid Character"
+s = 'unterminated,Invalid Character
+x = 1 / 2;,NO LEXICAL ERROR/S
+a += 1;,Invalid Delimiter
+b -= 2;,Invalid Delimiter
+# single line comment,NO LEXICAL ERROR/S
+### multi line test ###,NO LEXICAL ERROR/S
+### unclosed,"Invalid Delimiter 
+Invalid Delimiter"
+"arr = [5, 6, 'test'];",NO LEXICAL ERROR/S
+"fn newFunc(a, b);",NO LEXICAL ERROR/S
+ret 1 + 2,NO LEXICAL ERROR/S
+bigNum = 1.2e+5;,Invalid Delimiter
+hexVal = 0xAF;,Invalid Delimiter
+long_variable_name_77 = 0;,NO LEXICAL ERROR/S
+var__name = 'data';,NO LEXICAL ERROR/S
+if = 1;,NO LEXICAL ERROR/S
+class = 2;,NO LEXICAL ERROR/S
+"function(a, b);",NO LEXICAL ERROR/S
+"print ""hello \n world"";","Invalid Character
+Invalid Character 
+Invalid Delimiter 
+Invalid Character"
+x = y === z;,Invalid Delimiter
+a = b && c;,"Invalid Character
+Invalid Character "

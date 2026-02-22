@@ -53,6 +53,9 @@ class Symbol:
     # For functions:
     params: Optional[List[Tuple[str, str]]] = None  # [(type, name), ...]
     return_type: Optional[str] = None
+    
+    # For arrays:
+    array_dims: Optional[List[int]] = None  # [size] for 1D, [rows, cols] for 2D
 
 
 class SymbolTable:
@@ -243,9 +246,8 @@ class SemanticAnalyzer:
             # First pass: collect declarations
             self._collect_declarations(self._tree)
             
-            if self._debug:
-                self._dump()
-
+            # print table
+            self._dbg_symbol_tbl("After _collect_declarations")
 
             # Second pass: type check
             self._type_check(self._tree)
@@ -296,6 +298,32 @@ class SemanticAnalyzer:
                 print(f"  {name} -> {sym}")
 
 
+    def _dbg(self, msg):
+        """ Display in debug mode """
+        if self._debug:
+            print(msg)
+
+    def _dbg_symbol_tbl(self, msg: str = ""):
+        """
+        Print entire symbol table nicely for debugging.
+        Shows full Symbol object representation.
+        """
+        header = f"╔═══ {msg} ═══" if msg else "╔═══ SYMBOL TABLE ═══"
+        self._dbg(f"\n{header}")
+        self._dbg("╔═══" + "═" * 80)
+        
+        for i, scope in enumerate(self._symbol_table.scopes):
+            marker = "►" if i == len(self._symbol_table.scopes) - 1 else " "
+            self._dbg(f"║ {marker} Scope {i}:")
+            if scope:
+                for name, sym in scope.items():
+                    self._dbg(f"║   {name} -> {sym}")
+            else:
+                self._dbg("║     (empty)")
+        
+        self._dbg("╚" + "═" * 80)
+
+
     def _collect_declarations(self, node: ASTNode) -> None:
         """First pass: traverse AST and collect all declarations."""
         if node is None:
@@ -308,26 +336,29 @@ class SemanticAnalyzer:
             return
 
         elif node.kind == "function":
-            # function node: value="func_name", children=[param_list, body]
+            # function node: value="func_name", children=[params, body]
             func_name = node.value
 
-            param_list = node.children[0] if node.children else None
+            params_node = node.children[0] if node.children else None
 
             params = []
 
-            if param_list and param_list.kind == "param_list":
-                for param in param_list.children:
-                    param_type = param.value  # type annotation
-                    param_name = param.children[0].value if param.children else ""
-                    params.append((param_type, param_name))
+            # Extract parameter names from params node
+            if params_node and params_node.kind == "params":
+                for param_id_node in params_node.children:
+                    # Each parameter is an id node with the name as value
+                    if param_id_node.kind == "id":
+                        param_name = param_id_node.value
+                        # For now, all params have unknown type (no type annotations in grammar yet)
+                        params.append((TY_UNKNOWN, param_name))
             
             # Declare function
             func_symbol = Symbol(
                 name=func_name,
                 kind="function",
                 type_="function",
-                line=0,
-                col=0,
+                line=node.line or 0,
+                col=node.col or 0,
                 scope_level=self._symbol_table.scope_level,
                 params=params,
                 return_type="int"  # TODO: extract from AST
@@ -357,8 +388,175 @@ class SemanticAnalyzer:
             # Collect declarations in function body
             if len(node.children) > 1:
                 self._collect_declarations(node.children[1])
+
+            # Debug: print scope before exiting
+            self._dbg_symbol_tbl(f"Function '{func_name}' scope before exit")
+
+            self._symbol_table.exit_scope()
+            return
+
+        elif node.kind == "for":
+            # for loop: value=loop_var, children=[start, end, step, ...body statements]
+            loop_var = node.value
+            
+            # Enter new scope for loop body
+            self._symbol_table.enter_scope()
+            
+            # Declare loop variable in loop scope
+            loop_var_symbol = Symbol(
+                name=loop_var,
+                kind="variable",
+                type_=TY_INT,  # for range loops, variable is always int
+                line=node.line or 0,
+                col=node.col or 0,
+                scope_level=self._symbol_table.scope_level
+            )
+            self._symbol_table.declare(loop_var_symbol)
+            
+            # Collect declarations in loop body (skip first 3 children which are range expressions)
+            for i, child in enumerate(node.children):
+                if i >= 3:  # Skip start, end, step indices
+                    self._collect_declarations(child)
             
             self._symbol_table.exit_scope()
+            return
+        
+        elif node.kind == "while":
+            # while loop: children=[condition, ...body statements]
+            # Enter new scope for loop body
+            self._symbol_table.enter_scope()
+            
+            # Collect declarations in loop body (skip first child which is condition)
+            for i, child in enumerate(node.children):
+                if i >= 1:  # Skip condition
+                    self._collect_declarations(child)
+            
+            self._symbol_table.exit_scope()
+            return
+        
+        elif node.kind in ["conditional_block", "if", "elif", "else"]:
+            # Conditional blocks have nested scopes
+            # conditional_block: children=[if_node, ...elif_nodes, else_node]
+            # if/elif: children=[condition, ...body statements]
+            # else: children=[...body statements]
+            
+            if node.kind == "conditional_block":
+                # Process each branch
+                for child in node.children:
+                    self._collect_declarations(child)
+            else:
+                # Enter new scope for this branch
+                self._symbol_table.enter_scope()
+                
+                # For if/elif, skip condition (first child)
+                start_idx = 1 if node.kind in ["if", "elif"] else 0
+                for i, child in enumerate(node.children):
+                    if i >= start_idx:
+                        self._collect_declarations(child)
+                
+                self._symbol_table.exit_scope()
+            return
+        
+        elif node.kind == "error_handling":
+            # error_handling: children=[try_node, fail_node, always_node]
+            # Each block has its own scope
+            for child in node.children:
+                self._collect_declarations(child)
+            return
+        
+        elif node.kind in ["try", "fail", "always"]:
+            # Enter new scope for this error handling block
+            self._symbol_table.enter_scope()
+            
+            # Collect declarations in block body
+            for child in node.children:
+                self._collect_declarations(child)
+            
+            self._symbol_table.exit_scope()
+            return
+        
+        elif node.kind in ["array_1d_init", "array_2d_init"]:
+            # Array initialization with : syntax (e.g., x: [2] = [1,2])
+            # Parser bug: variable name not attached to array_init node
+            # Extract variable name from source code using line/col information
+            
+            if node.line is not None and node.col is not None:
+                # Get the line from source code
+                if 0 <= node.line - 1 < len(self._lines):
+                    line_text = self._lines[node.line - 1]
+                    
+                    # node.col points to '[', need to find ID before ':'
+                    # Search backwards from node.col to find ID token
+                    search_text = line_text[:node.col - 1]  # col is 1-based
+                    
+                    # Simple regex to find last identifier before ':'
+                    import re
+                    match = re.search(r'(\w+)\s*:\s*$', search_text)
+                    
+                    if match:
+                        var_name = match.group(1)
+                        
+                        # Extract dimensions
+                        array_dims = None
+                        size_node = node.children[0] if node.children else None
+                        
+                        if size_node and size_node.kind == "size":
+                            if node.kind == "array_1d_init" and len(size_node.children) >= 1:
+                                if size_node.children[0].kind == "int_literal":
+                                    dim_val = int(size_node.children[0].value)
+                                    if dim_val <= 0:
+                                        self._error(size_node.children[0],
+                                            f"Array size must be positive, got {dim_val}",
+                                            TypeMismatchError)
+                                    else:
+                                        array_dims = [dim_val]
+                            elif node.kind == "array_2d_init" and len(size_node.children) >= 2:
+                                if (size_node.children[0].kind == "int_literal" and
+                                    size_node.children[1].kind == "int_literal"):
+                                    rows = int(size_node.children[0].value)
+                                    cols = int(size_node.children[1].value)
+                                    if rows <= 0:
+                                        self._error(size_node.children[0],
+                                            f"Array row count must be positive, got {rows}",
+                                            TypeMismatchError)
+                                    if cols <= 0:
+                                        self._error(size_node.children[1],
+                                            f"Array column count must be positive, got {cols}",
+                                            TypeMismatchError)
+                                    if rows > 0 and cols > 0:
+                                        array_dims = [rows, cols]
+                        
+                        # Declare the array variable
+                        if self._symbol_table.lookup_current_scope(var_name) is None:
+                            symbol = Symbol(
+                                name=var_name,
+                                kind="variable",
+                                type_=TY_ARRAY,
+                                line=node.line or 0,
+                                col=node.col or 0,
+                                scope_level=self._symbol_table.scope_level,
+                                array_dims=array_dims
+                            )
+                            self._symbol_table.declare(symbol)
+            
+            return
+        
+        elif node.kind == "array_idx_assignment":
+            # array_idx_assignment: value=arr_name, children=[indices_node, rhs_expr]
+            arr_name = node.value
+            
+            # Ensure array variable exists
+            if self._symbol_table.lookup_current_scope(arr_name) is None:
+                symbol = Symbol(
+                    name=arr_name,
+                    kind="variable",
+                    type_=TY_ARRAY,
+                    line=node.line or 0,
+                    col=node.col or 0,
+                    scope_level=self._symbol_table.scope_level
+                )
+                self._symbol_table.declare(symbol)
+            
             return
 
         elif node.kind == "assignment_statement":
@@ -367,13 +565,30 @@ class SemanticAnalyzer:
             var_name = node.value
 
             if self._symbol_table.lookup_current_scope(var_name) is None:
+                # Check if RHS is array initialization to get dimensions
+                array_dims = None
+                if node.children and node.children[0].kind in ["array_1d_init", "array_2d_init"]:
+                    array_node = node.children[0]
+                    size_node = array_node.children[0] if array_node.children else None
+                    
+                    if size_node and size_node.kind == "size":
+                        if array_node.kind == "array_1d_init" and len(size_node.children) >= 1:
+                            if size_node.children[0].kind == "int_literal":
+                                array_dims = [int(size_node.children[0].value)]
+                        elif array_node.kind == "array_2d_init" and len(size_node.children) >= 2:
+                            if (size_node.children[0].kind == "int_literal" and
+                                size_node.children[1].kind == "int_literal"):
+                                array_dims = [int(size_node.children[0].value), 
+                                            int(size_node.children[1].value)]
+                
                 symbol = Symbol(
                     name=var_name,
                     kind="variable",
-                    type_=TY_UNKNOWN,
+                    type_=TY_ARRAY if array_dims else TY_UNKNOWN,
                     line=node.line or 0,
                     col=node.col or 0,
-                    scope_level=self._symbol_table.scope_level
+                    scope_level=self._symbol_table.scope_level,
+                    array_dims=array_dims
                 )
                 self._symbol_table.declare(symbol)
 
@@ -396,19 +611,261 @@ class SemanticAnalyzer:
         if node is None:
             return None
         
-        if node.kind == "id":
+        if node.kind == "program":
+            # Recursively type check all children (functions and statements)
+            for child in node.children:
+                self._type_check(child)
+            return None
+        
+        elif node.kind == "function":
+            # Enter function scope for type checking the body
+            self._symbol_table.enter_scope()
+            
+            # Re-declare parameters in function scope (needed for type checking)
+            func_symbol = self._symbol_table.lookup(node.value)
+            if func_symbol and func_symbol.params:
+                for param_type, param_name in func_symbol.params:
+                    param_symbol = Symbol(
+                        name=param_name,
+                        kind="parameter",
+                        type_=param_type,
+                        line=0,
+                        col=0,
+                        scope_level=self._symbol_table.scope_level
+                    )
+                    self._symbol_table.declare(param_symbol)
+            
+            # Type check function body (skip params node)
+            if len(node.children) > 1:
+                self._type_check(node.children[1])
+            
+            self._symbol_table.exit_scope()
+            return None
+        
+        elif node.kind == "params":
+            # Skip params node - parameters are not type checked as references
+            # They are declarations, already handled in first pass
+            return None
+        
+        elif node.kind == "for":
+            # for loop: value=loop_var, children=[start, end, step, ...body statements]
+            loop_var = node.value
+
+            # Enter loop scope
+            self._symbol_table.enter_scope()
+            
+            # Re-declare loop variable
+            loop_var_symbol = Symbol(
+                name=loop_var,
+                kind="variable",
+                type_=TY_INT,
+                line=0,
+                col=0,
+                scope_level=self._symbol_table.scope_level
+            )
+            self._symbol_table.declare(loop_var_symbol)
+            
+            # Type check range expressions (first 3 children)
+            for i in range(min(3, len(node.children))):
+                expr_type = self._type_check(node.children[i])
+                # TODO: For now, allow all data types in loop indices
+                # Uncomment below to restrict to numeric types only:
+                # if expr_type and expr_type not in {TY_INT, TY_FLOAT, TY_UNKNOWN}:
+                #     self._error(node.children[i],
+                #         f"Range expression must be numeric, got '{expr_type}'",
+                #         TypeMismatchError)
+            
+            # Type check loop body (skip first 3 children)
+            for i in range(3, len(node.children)):
+                self._type_check(node.children[i])
+            
+            self._symbol_table.exit_scope()
+            return None
+        
+        elif node.kind == "while":
+            # while loop: children=[condition, ...body statements]
+            # Enter loop scope
+            self._symbol_table.enter_scope()
+            
+            # Type check condition (first child)
+            if node.children:
+                cond_type = self._type_check(node.children[0])
+                # Condition should be bool-coercible (already handled by TypeChecker)
+            
+            # Type check loop body (skip first child which is condition)
+            for i in range(1, len(node.children)):
+                self._type_check(node.children[i])
+            
+            self._symbol_table.exit_scope()
+            return None
+        
+        elif node.kind == "conditional_block":
+            # conditional_block: children=[if_node, ...elif_nodes, else_node]
+            # Process each branch
+            for child in node.children:
+                self._type_check(child)
+            return None
+        
+        elif node.kind in ["if", "elif"]:
+            # if/elif: children=[condition, ...body statements]
+            # Enter branch scope
+            self._symbol_table.enter_scope()
+            
+            # Type check condition (first child)
+            if node.children:
+                cond_type = self._type_check(node.children[0])
+            
+            # Type check body (skip first child which is condition)
+            for i in range(1, len(node.children)):
+                self._type_check(node.children[i])
+            
+            self._symbol_table.exit_scope()
+            return None
+        
+        elif node.kind == "else":
+            # else: children=[...body statements]
+            # Enter branch scope
+            self._symbol_table.enter_scope()
+            
+            # Type check body
+            for child in node.children:
+                self._type_check(child)
+            
+            self._symbol_table.exit_scope()
+            return None
+        
+        elif node.kind == "error_handling":
+            # error_handling: children=[try_node, fail_node, always_node]
+            for child in node.children:
+                self._type_check(child)
+            return None
+        
+        elif node.kind in ["try", "fail", "always"]:
+            # Enter block scope
+            self._symbol_table.enter_scope()
+            
+            # Type check block body
+            for child in node.children:
+                self._type_check(child)
+            
+            self._symbol_table.exit_scope()
+            return None
+        
+        elif node.kind == "index":
+            # Array indexing: children=[base, indices_node]
+            # base node contains the array identifier
+            base_node = None
+            indices_node = None
+            
+            for child in node.children:
+                if child.kind == "base":
+                    base_node = child
+                elif child.kind == "indices":
+                    indices_node = child
+            
+            # Get array name from base
+            arr_name = None
+            if base_node and base_node.children and base_node.children[0].kind == "id":
+                arr_name = base_node.children[0].value
+                symbol = self._symbol_table.lookup(arr_name)
+                
+                if symbol and symbol.array_dims and indices_node:
+                    # Check bounds if all indices are literals
+                    indices_values = []
+                    all_literals = True
+                    for idx_node in indices_node.children:
+                        if idx_node.kind == "int_literal":
+                            indices_values.append(int(idx_node.value))
+                        else:
+                            all_literals = False
+                            break
+                    
+                    if all_literals and len(indices_values) == len(symbol.array_dims):
+                        # Check each dimension
+                        for i, (idx_val, dim_size) in enumerate(zip(indices_values, symbol.array_dims)):
+                            if idx_val < 0 or idx_val >= dim_size:
+                                dim_label = "index" if len(symbol.array_dims) == 1 else f"dimension {i+1}"
+                                self._error(indices_node.children[i],
+                                    f"Array index out of bounds: {dim_label} {idx_val} not in range [0, {dim_size-1}]",
+                                    TypeMismatchError)
+            
+            # Type check all children
+            for child in node.children:
+                self._type_check(child)
+            
+            # Return unknown type for now (would need element type tracking)
+            return TY_UNKNOWN
+        
+        elif node.kind == "array_idx_assignment":
+            # array_idx_assignment: value=arr_name, children=[indices_node, rhs_expr]
+            arr_name = node.value
+            symbol = self._symbol_table.lookup(arr_name)
+            
+            if symbol is None:
+                self._error(node,
+                    f"Array '{arr_name}' not defined",
+                    UndefinedVariableError)
+                return TY_UNKNOWN
+            
+            # Check bounds if array dimensions are known and indices are literals
+            if symbol.array_dims and node.children and node.children[0].kind == "indices":
+                indices_node = node.children[0]
+                
+                # Check if all indices are int literals
+                indices_values = []
+                all_literals = True
+                for idx_node in indices_node.children:
+                    if idx_node.kind == "int_literal":
+                        indices_values.append(int(idx_node.value))
+                    else:
+                        all_literals = False
+                        break
+                
+                if all_literals and len(indices_values) == len(symbol.array_dims):
+                    # Check each dimension
+                    for i, (idx_val, dim_size) in enumerate(zip(indices_values, symbol.array_dims)):
+                        if idx_val < 0 or idx_val >= dim_size:
+                            dim_label = "index" if len(symbol.array_dims) == 1 else f"dimension {i+1}"
+                            self._error(indices_node.children[i],
+                                f"Array index out of bounds: {dim_label} {idx_val} not in range [0, {dim_size-1}]",
+                                TypeMismatchError)
+            
+            # Type check indices node
+            if node.children:
+                self._type_check(node.children[0])  # indices node
+            
+            # Type check RHS expression
+            if len(node.children) > 1:
+                expr_type = self._type_check(node.children[1])
+            
+            return TY_UNKNOWN
+        
+        elif node.kind == "indices":
+            # indices node: children=[index expressions]
+            for child in node.children:
+                idx_type = self._type_check(child)
+                # TODO: For now, allow all data types in array indices
+                # Uncomment below to restrict to int type only:
+                # if idx_type and idx_type not in {TY_INT, TY_UNKNOWN}:
+                #     self._error(child,
+                #         f"Array index must be int, got '{idx_type}'",
+                #         TypeMismatchError)
+            return None
+        
+        elif node.kind == "id":
             # Identifier: check if declared
             var_name = node.value
             symbol = self._symbol_table.lookup(var_name)
-            
+
             if symbol is None:
                 # ✅ Record error but DON'T STOP - continue analysis
                 self._error(node, f"Variable '{var_name}' not defined", UndefinedVariableError)
                 # ✅ Return safe fallback type to allow continued analysis
                 return TY_UNKNOWN
             
+            # return the type based on type in symbol table
             return symbol.type_
-        
+
         elif node.kind == "int_literal":
             return TY_INT
         
@@ -421,23 +878,199 @@ class SemanticAnalyzer:
         elif node.kind == "bool_literal":
             return TY_BOOL
         
+        elif node.kind == "read":
+            # Read statement - returns unknown type (user input)
+            return TY_UNKNOWN
+        
+        elif node.kind == "type_cast":
+            # Type cast: value=cast_type, children=[expr]
+            cast_type = node.value  # "int" or "float"
+            
+            # Type check the expression being cast
+            if node.children:
+                expr_type = self._type_check(node.children[0])
+            
+            # Return the target cast type
+            return TY_INT if cast_type == "int" else TY_FLOAT
+        
+        elif node.kind == "return_statement":
+            # Return statement: children=[return_expr]
+            if node.children:
+                return_type = self._type_check(node.children[0])
+                # TODO: Check if return type matches function signature
+            return None
+        
+        elif node.kind == "output_statement":
+            # Output/show statement: children=[expr]
+            if node.children:
+                self._type_check(node.children[0])
+            return None
+        
+        elif node.kind == "todo":
+            # Todo statement - no semantic checking needed
+            return None
+        
+        elif node.kind in ["array_1d_init", "array_2d_init"]:
+            # Array initialization with bounds checking
+            # Structure: children=[size_node, ...initializer elements/rows]
+            
+            if node.kind == "array_1d_init":
+                # 1D array: children=[size, elem1, elem2, ...]
+                size_node = node.children[0] if node.children else None
+                
+                if size_node and size_node.kind == "size":
+                    # Get declared size
+                    if size_node.children and size_node.children[0].kind == "int_literal":
+                        declared_size = int(size_node.children[0].value)
+                        
+                        # Count actual initializer elements (skip size node)
+                        actual_size = len(node.children) - 1
+                        
+                        if actual_size != declared_size:
+                            self._error(node,
+                                f"Array size mismatch: declared [{declared_size}], got {actual_size} elements",
+                                TypeMismatchError)
+            
+            elif node.kind == "array_2d_init":
+                # 2D array: children=[size, row1, row2, ...]
+                size_node = node.children[0] if node.children else None
+                
+                if size_node and size_node.kind == "size":
+                    # Get declared dimensions
+                    if len(size_node.children) >= 2:
+                        if (size_node.children[0].kind == "int_literal" and 
+                            size_node.children[1].kind == "int_literal"):
+                            
+                            declared_rows = int(size_node.children[0].value)
+                            declared_cols = int(size_node.children[1].value)
+                            
+                            # Count actual rows (skip size node)
+                            actual_rows = len(node.children) - 1
+                            
+                            if actual_rows != declared_rows:
+                                self._error(node,
+                                    f"Array row count mismatch: declared [{declared_rows}][{declared_cols}], got {actual_rows} rows",
+                                    TypeMismatchError)
+                            
+                            # Check each row's column count
+                            for i in range(1, len(node.children)):
+                                row = node.children[i]
+                                if row.kind == "array_row":
+                                    actual_cols = len(row.children)
+                                    if actual_cols != declared_cols:
+                                        self._error(row,
+                                            f"Row {i} column count mismatch: expected {declared_cols} columns, got {actual_cols}",
+                                            TypeMismatchError)
+
+            # Type check all initializer expressions
+            for child in node.children:
+                self._type_check(child)
+            return TY_ARRAY
+        
+        elif node.kind in ["size", "array_row"]:
+            # Utility nodes for array initialization
+            for child in node.children:
+                self._type_check(child)
+            return None
+        
+        elif node.kind == "base":
+            # Base node in array indexing: children=[id or expr]
+            if node.children:
+                return self._type_check(node.children[0])
+            return None
+        
+        elif node.kind == "args":
+            # Arguments wrapper node - just recurse
+            for child in node.children:
+                self._type_check(child)
+            return None
+        
+        elif node.kind == "general_statement":
+            # General statement wrapper - just recurse
+            for child in node.children:
+                self._type_check(child)
+            return None
+        
+        elif node.kind in ["<", ">", "<=", ">=", "==", "!="]:
+            # Relational operators
+            op = node.kind
+            left_type = self._type_check(node.children[0]) if node.children else TY_UNKNOWN
+            right_type = self._type_check(node.children[1]) if len(node.children) > 1 else TY_UNKNOWN
+            
+            # Skip if either operand is already TY_UNKNOWN
+            if left_type == TY_UNKNOWN or right_type == TY_UNKNOWN:
+                return TY_UNKNOWN
+            
+            # Check if operation is valid
+            if left_type and right_type:
+                result_type = TypeChecker.infer_binary_type(op, left_type, right_type)
+                if result_type is None:
+                    self._error(node,
+                        f"Invalid comparison '{op}' between '{left_type}' and '{right_type}'",
+                        TypeMismatchError)
+                    return TY_UNKNOWN
+                return result_type
+            return TY_UNKNOWN
+        
+        elif node.kind in ["and", "or"]:
+            # Logical operators
+            op = node.kind
+            left_type = self._type_check(node.children[0]) if node.children else TY_UNKNOWN
+            right_type = self._type_check(node.children[1]) if len(node.children) > 1 else TY_UNKNOWN
+            
+            # Skip if either operand is already TY_UNKNOWN
+            if left_type == TY_UNKNOWN or right_type == TY_UNKNOWN:
+                return TY_UNKNOWN
+            
+            # Check if operation is valid
+            if left_type and right_type:
+                result_type = TypeChecker.infer_binary_type(op, left_type, right_type)
+                if result_type is None:
+                    self._error(node,
+                        f"Invalid logical operation '{op}' between '{left_type}' and '{right_type}'",
+                        TypeMismatchError)
+                    return TY_UNKNOWN
+                return result_type
+            return TY_UNKNOWN
+        
+        elif node.kind == "!":
+            # Logical NOT (unary)
+            operand_type = self._type_check(node.children[0]) if node.children else TY_UNKNOWN
+            
+            # Skip if operand is already TY_UNKNOWN
+            if operand_type == TY_UNKNOWN:
+                return TY_UNKNOWN
+            
+            # Check if operation is valid
+            if operand_type:
+                result_type = TypeChecker.infer_unary_type("!", operand_type)
+                if result_type is None:
+                    self._error(node,
+                        f"Invalid logical NOT on type '{operand_type}'",
+                        TypeMismatchError)
+                    return TY_UNKNOWN
+                return result_type
+            return TY_UNKNOWN
+        
         elif node.kind in ["+", "-", "*", "/", "//", "%", "**"]:
             # Binary arithmetic operation
             op = node.kind
             left_type = self._type_check(node.children[0]) if node.children else TY_UNKNOWN
             right_type = self._type_check(node.children[1]) if len(node.children) > 1 else TY_UNKNOWN
             
-            # ✅ Even if children have errors, try to infer type
+            # Skip type checking if either operand is already TY_UNKNOWN (error already reported)
+            if left_type == TY_UNKNOWN or right_type == TY_UNKNOWN:
+                return TY_UNKNOWN
+            
+            # Check if operation is valid
             if left_type and right_type:
                 result_type = TypeChecker.infer_binary_type(op, left_type, right_type)
 
                 if result_type is None:
-                    # ✅ Record error but DON'T STOP
+                    # Only report error if both types are known (not TY_UNKNOWN)
                     self._error(node, 
                         f"Invalid operation '{op}' between '{left_type}' and '{right_type}'",
                         TypeMismatchError)
-
-                    # ✅ Return safe fallback to continue
                     return TY_UNKNOWN
 
                 return result_type
@@ -489,7 +1122,7 @@ class SemanticAnalyzer:
                 self._error(node,
                     f"Function '{func_name}' expects {expected_count} args, got {actual_count}",
                     ArgumentCountMismatchError)
-            
+
             # ✅ Type check arguments even if count is wrong
             for i, arg in enumerate(args):
                 arg_type = self._type_check(arg)
