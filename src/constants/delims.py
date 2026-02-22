@@ -101,6 +101,7 @@ DELIMS = {
         "'", '[', 
         *ATOMS['unary_negative_op'],
         *ATOMS['logical_not_op'],
+        '('
     },
 
 
