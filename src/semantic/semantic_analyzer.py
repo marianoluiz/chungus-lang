@@ -762,7 +762,18 @@ class SemanticAnalyzer:
                 arr_name = base_node.children[0].value
                 symbol = self._symbol_table.lookup(arr_name)
                 
-                if symbol and symbol.array_dims and indices_node:
+                if symbol is None:
+                    # Variable not defined
+                    self._error(base_node.children[0],
+                        f"Variable '{arr_name}' not defined",
+                        UndefinedVariableError)
+                elif symbol.type_ != TY_ARRAY:
+                    # Indexing a non-array type
+                    self._error(node,
+                        f"Cannot index non-array variable '{arr_name}' of type '{symbol.type_}'",
+                        TypeMismatchError)
+                
+                if symbol and symbol.type_ == TY_ARRAY and symbol.array_dims and indices_node:
                     # Check bounds if all indices are literals
                     indices_values = []
                     all_literals = True
@@ -798,6 +809,13 @@ class SemanticAnalyzer:
                 self._error(node,
                     f"Array '{arr_name}' not defined",
                     UndefinedVariableError)
+                return TY_UNKNOWN
+            
+            # Check that we're assigning to an array, not a scalar
+            if symbol.type_ != TY_ARRAY:
+                self._error(node,
+                    f"Cannot assign to index of non-array variable '{arr_name}' of type '{symbol.type_}'",
+                    TypeMismatchError)
                 return TY_UNKNOWN
             
             # Check bounds if array dimensions are known and indices are literals

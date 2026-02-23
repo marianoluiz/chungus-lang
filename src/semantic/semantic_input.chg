@@ -1,10 +1,4 @@
+array : [1][2] = [[1, 2]];
 
 
-fn func(x,y):
-    show 'print';
-close
-
-x = 1;
-
-
-func(xs);
+array[3] = 1;
