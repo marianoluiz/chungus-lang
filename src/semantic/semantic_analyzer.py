@@ -1106,7 +1106,10 @@ class SemanticAnalyzer:
                 return TY_UNKNOWN
             
             # Check argument count
-            args = node.children if node.children else []
+            # node.children contains [args_node], need to extract the actual arguments from it
+            args_node = node.children[0] if node.children else None
+            args = args_node.children if args_node and args_node.kind == "args" else []
+            
             actual_count = len(args)
             expected_count = len(symbol.params) if symbol.params else 0
             
@@ -1119,11 +1122,12 @@ class SemanticAnalyzer:
             # ✅ Type check arguments even if count is wrong
             for i, arg in enumerate(args):
                 arg_type = self._type_check(arg)
+                # Skip type checking if parameter type is unknown (CHUNGUS is dynamically typed)
                 if i < expected_count and arg_type and arg_type != TY_UNKNOWN:
                     expected_type = symbol.params[i][0]
-                    # Note: TypeChecker.is_compatible doesn't exist yet
-                    # if not TypeChecker.is_compatible(arg_type, expected_type):
-                    if arg_type != expected_type:
+                    # Only check type compatibility if expected type is known (not unknown)
+                    # expected type is always unknown since our params vars are is dynamic
+                    if expected_type != TY_UNKNOWN and arg_type != expected_type:
                         # ✅ Record type mismatch for THIS argument
                         self._error(arg,
                             f"Argument {i+1} to '{func_name}': expected '{expected_type}', got '{arg_type}'",
