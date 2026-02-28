@@ -777,7 +777,7 @@ class SemanticAnalyzer:
                     else:
                         all_literals = False
                         break
-                    
+
                     if all_literals and len(indices_values) == len(symbol.array_dims):
                         # Check each dimension
                         for i, (idx_val, dim_size) in enumerate(zip(indices_values, symbol.array_dims)):
@@ -804,6 +804,13 @@ class SemanticAnalyzer:
                 self._error(node,
                     f"Array '{arr_name}' not defined",
                     UndefinedVariableError)
+                return TY_UNKNOWN
+            
+            # Check that we're assigning to an array, not a scalar
+            if symbol.type_ != TY_ARRAY:
+                self._error(node,
+                    f"Cannot assign to index of non-array variable '{arr_name}' of type '{symbol.type_}'",
+                    TypeMismatchError)
                 return TY_UNKNOWN
             
             # Check bounds if array dimensions are known and indices are literals
@@ -1116,10 +1123,12 @@ class SemanticAnalyzer:
                     FunctionNotDefinedError)
 
             # Check argument count
+
             if node.children and node.children[0].kind == "args":
                 args = node.children[0].children
             else:
                 args = node.children if node.children else []
+
 
             actual_count = len(args)
             expected_count = len(symbol.params) if symbol.params else 0
