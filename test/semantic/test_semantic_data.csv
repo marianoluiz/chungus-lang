@@ -1,0 +1,77 @@
+Source Code,Expected Errors,Actual Output,TESTER
+x = y;,Variable 'y' not defined,Variable 'y' not defined,C.LG.A.
+arr[0] = 1;,Array 'arr' not defined,Array 'arr' not defined,C.LG.A.
+"functionCall(1,2);",Function 'functionCall' not defined,Function 'functionCall' not defined,C.LG.A.
+"fn add(a,b):
+    a = 1;
+    b = 2;
+    ret a + b;
+close
+
+add(1);","Function 'add' expects 2 args, got 1","Function 'add' expects 2 args, got 1",C.LG.A.
+"fn add(a,b):
+    a = 1;
+    b = 2;
+    ret a + b;
+close
+
+add(1, 3);
+",NO SEMANTIC ERROR/S,"Function 'add' expects 2 args, got 1",C.LG.A.
+"fn add(a,b):
+    a = 1;
+    b = 2;
+    ret a + b;
+close
+
+add(1, 2, 3);","
+Function 'add' expects 2 args, got 3 ","
+Function 'add' expects 2 args, got 1",C.LG.A.
+"fn add(a,b):
+    a = 1;
+    b = 2;
+    ret a + b;
+close
+
+add(1, 2, 3);","Function 'add' expects 2 args, got 3","Function 'add' expects 2 args, got 1",C.LG.A.
+"fn add(a,b,c):
+    a = 1;
+    b = 2;
+    ret a + b;
+close
+
+add(1, 2, 3);",NO SEMANTIC ERROR/S,NO SEMANTIC ERROR/S,C.LG.A.
+"arr = 1;
+
+x = arr[0] - 5;",Cannot index non-array type 'int',NO SEMANTIC ERROR/S,
+"add: [1] = [1];
+
+x = add[1] < 5;",,"Array index out of bounds: index 1 not in range [0, 0]",
+"arr:[1]=[1];
+
+x = !arr[~1];",,"Line 0, Col 0: Internal semantic analyzer error: invalid literal for int() with base 10: '~1'",
+"arr:[1][3]=[];
+
+x = arr[0];",NO SEMANTIC ERROR/S,"Array row count mismatch: declared [1][3], got 0 rows",
+"arr:[1][1]=[[1,1]];
+
+x = arr[1];",,"Row 1 column count mismatch: expected 1 columns, got 2",
+"arr:[1][1]=[[1]];
+
+x = arr[1];",NO SEMANTIC ERROR/S,NO SEMANTIC ERROR/S,
+"arr:[1][3]=[[1, 1, 3]];
+
+x = arr[1];",NO SEMANTIC ERROR/S,NO SEMANTIC ERROR/S,
+"arr:[1][3]=[[1, 1, 3, 4]];
+
+x = arr[1];",,"Row 1 column count mismatch: expected 3 columns, got 4",
+"arr:[2][3]=[[1, 1, 3, 4]];
+
+x = arr[1];",,"Array row count mismatch: declared [2][3], got 1 rows
+Row 1 column count mismatch: expected 3 columns, got 4",
+"arr:[2][1]=[[1, 1, 3, 4], [1]];
+
+x = arr[1];",,"Row 1 column count mismatch: expected 1 columns, got 4",
+"x = 10;
+
+y = x [1];
+", Using non-array with index operator,NO SEMANTIC ERROR/S,
