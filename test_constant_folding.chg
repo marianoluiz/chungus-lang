@@ -1,0 +1,63 @@
+// Test constant folding in array sizes
+
+// Should ERROR: size = 0
+arr1: [5 - 5];
+
+// Should ERROR: size = -3
+arr2: [2 - 5];
+
+// Should PASS: size = 10
+arr3: [5 + 5];
+
+// Should PASS: size = 8
+arr4: [2 ** 3];
+
+// Should PASS with type coercion: true → 1, false → 0, so 1 + 1 + 0 = 2
+arr5: [true + true + false];
+
+// Should PASS: "hello" → 1 (non-empty), "" → 0 (empty), so 1 + 0 + 5 = 6
+arr6: ["hello" + "" + 5];
+
+// Should ERROR: float not allowed even in expressions
+arr7: [5 + 3.14];
+
+// Runtime expressions (should PASS structure validation)
+x = 10;
+arr8: [x];
+arr9: [x + 5];
+arr10: [getSize()];
+
+// 2D arrays with constant folding
+// Should PASS: [3][4]
+arr11: [1 + 2][2 * 2];
+
+// Should ERROR: rows = 0
+arr12: [5 - 5][10];
+
+// Should ERROR: cols = 0
+arr13: [10][3 - 3];
+
+// For loops with type checking
+start = 0;
+end = 10;
+step = 1;
+
+// Should PASS: all numeric
+for i in start..end..step do
+    show i;
+end
+
+// Should PASS: expressions
+for j in 0..(5 + 5)..1 do
+    show j;
+end
+
+// Should ERROR: array in range
+arr_test: [5];
+for k in arr_test..10..1 do
+    show k;
+end
+
+fn getSize()
+    ret 10;
+end

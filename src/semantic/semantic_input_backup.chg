@@ -1,7 +1,6 @@
-fn name(): 
-    a : [1] = [];
-    ret a;
+fn func ( ): 
+todo;
+ret 1-1;
 close
 
-
-name();
+array : [func()] = [];

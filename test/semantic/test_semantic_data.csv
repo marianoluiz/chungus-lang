@@ -614,7 +614,9 @@ id=id;
 ",NO SEMANTIC ERROR/S,,
 x = 10 + unknown_func(5);,Function 'unknown_func' not defined,,
 "fn a(x, y): todo; ret x; close z = a(a(1));
-","Function 'a' expects 2 args, got 1",,
+","Function 'a' expects 2 args, got 1
+Function 'a' expects 2 args, got 1
+",,
 "a: [5] = [1,2,3,4,5]; x = a[ ( (0 - 1) ) ];",NO SEMANTIC ERROR/S,,
 "arr: [2.0] = [1, 2];",Invalid array size: expression must be a non-negative integer,,
 "a: [2] = [1, 2]; x = a[3] + unknown;","Array index out of bounds: index 3 not in range [0, 1]
@@ -860,3 +862,42 @@ y = z;
 z = '_123';",NO SEMANTIC ERROR/S,,
 "unDeclared = 10 + (32 - 20 % 34 ** true <= false + !!!!!10) % 20 ** 45 < 12 > 32 < 21 + 'true';
 ",NO SEMANTIC ERROR/S,,
+"fn func_name():
+    todo;
+    y = 1;
+    x : [1] = [];
+    ret x ;
+close
+
+todo;",Cannot return array from function,,
+"fn func_name():
+    x : [1] = [1];
+    ret x;
+close
+todo;",Cannot return array from function,,
+"x = 10 / 0;
+y = 10 // 0;
+z = 10 % 0;","Division by zero
+Floor division by zero
+Modulo by zero",,
+"arr: [10] = [1,2,3,4,5,6,7,8,9,10];
+
+a = (5 + 3) / 0;
+b = 10 / (2 - 2);
+c = (10 / 0) + 5;
+d = 3 * (8 % 0);
+e = 100 // (5 - 5);
+
+f = arr[10 / 0];
+g = arr[5 % 0];
+h = arr[(10 // 0) + 1];
+
+i = 10 / ~0;
+j = 10 % 0.0;","Division by zero
+Division by zero
+Modulo by zero
+Division by zero
+Modulo by zero
+Floor division by zero
+Division by zero
+Modulo by zero",,

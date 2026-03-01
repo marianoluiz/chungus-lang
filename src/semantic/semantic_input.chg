@@ -1,7 +1,1 @@
-fn name(): 
-    a : [1] = [];
-    ret a;
-close
-
-
-name();
+a: [true] = [1];

@@ -1,0 +1,58 @@
+// Test constant folding
+
+// ERROR: size 0
+arr1: [5 - 5];
+
+// ERROR: size negative
+arr2: [2 - 5];
+
+// PASS: size 10
+arr3: [5 + 5];
+
+// PASS: size 8
+arr4: [2 ** 3];
+
+// PASS: bool coercion
+arr5: [true + true + false];
+
+// Runtime expression
+x = 10;
+arr8: [x];
+arr9: [x + 5];
+
+// PASS: 2D array
+arr10: [1 + 2][2 * 2];
+
+// ERROR: 2D rows is 0
+arr11: [5 - 5][10];
+
+// ERROR: 2D cols is 0
+arr12: [10][3 - 3];
+
+// PASS: for loop
+for i in range(0, 10, 1):
+    show i;
+close
+
+// PASS: for loop with expression
+for j in range(0, (5 + 5), 1):
+    show j;
+close
+
+arr20: [10];
+
+// PASS: constant index
+show arr20[5];
+
+// PASS: expression index
+show arr20[2 + 3];
+
+// ERROR: out of bounds
+show arr20[10];
+
+// ERROR: negative from expression
+show arr20[2 - 5];
+
+// PASS: runtime index
+idx = 3;
+show arr20[idx];
