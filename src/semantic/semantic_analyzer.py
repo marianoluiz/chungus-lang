@@ -257,8 +257,9 @@ class SemanticAnalyzer:
 
         except Exception as e:
             # Only catch unexpected crashes (bugs in analyzer itself) not semantic errors (those go in self.errors list)
+            import traceback
             self._errors.append(SemanticError(
-                f"Internal semantic analyzer error: {str(e)}", 0, 0
+                f"Internal semantic analyzer error: {str(e)}\\n{traceback.format_exc()}", 0, 0
             ))
         
         # Sort errors by line number for consistent, readable output
@@ -282,11 +283,11 @@ class SemanticAnalyzer:
         Note: Errors are collected, not raised, to allow finding ALL errors.
         """
         # Get line and column from node
-        line = node.line if node and hasattr(node, 'line') else 0
-        col = node.col if node and hasattr(node, 'col') else 0
+        line = node.line if node and hasattr(node, 'line') and node.line is not None else 0
+        col = node.col if node and hasattr(node, 'col') and node.col is not None else 0
 
         # Get source line for formatted error
-        source_line = self._lines[line - 1] if 1 <= line <= len(self._lines) else ""
+        source_line = self._lines[line - 1] if line and 1 <= line <= len(self._lines) else ""
 
         # Create error with context
         error = error_class(message, line, col, source_line)
@@ -327,8 +328,260 @@ class SemanticAnalyzer:
         self._dbg("╚" + "═" * 80)
 
 
+    def _is_valid_array_size_expr(self, node: ASTNode, in_arithmetic: bool = False) -> bool:
+        """
+        Check if expression is valid for array size (compile-time or runtime).
+        
+        Valid standalone:
+            - Positive int_literal (>= 1)
+            - Variables (non-array)
+            - Function calls
+            - Index access
+            - Arithmetic expressions
+            
+        Valid in arithmetic only (due to type coercion):
+            - bool_literal, str_literal
+            - Zero or negative int_literal
+            
+        Never valid:
+            - float_literal (even in arithmetic)
+            - Relational/logical operations
+            - Array variables
+        """
+        if node is None:
+            return False
+        
+        # NEVER allow float - even in arithmetic
+        if node.kind == "float_literal":
+            return False
+        
+        # Bool/string: allow in arithmetic (coercion), reject standalone
+        if node.kind in {"bool_literal", "str_literal"}:
+            return in_arithmetic
+        
+        # Int literals: check value
+        if node.kind == "int_literal":
+            try:
+                value_str = node.value
+                if value_str.startswith('~'):
+                    value = -int(value_str[1:])
+                else:
+                    value = int(value_str)
+                
+                if value < 1:
+                    return in_arithmetic
+            except (ValueError, TypeError):
+                return False
+            return True
+        
+        # Reject relational and logical operations
+        if node.kind in {"<", ">", "<=", ">=", "==", "!=", "and", "or", "!"}:
+            return False
+        
+        # Arithmetic operations: recursively check with in_arithmetic=True
+        if node.kind in {"+", "-", "*", "/", "//", "%", "**"}:
+            if len(node.children) >= 2:
+                return (self._is_valid_array_size_expr(node.children[0], in_arithmetic=True) and 
+                        self._is_valid_array_size_expr(node.children[1], in_arithmetic=True))
+            elif len(node.children) == 1:
+                return self._is_valid_array_size_expr(node.children[0], in_arithmetic=True)
+            return False
+        
+        # Variables, function calls, index access
+        if node.kind == "id":
+            var_name = node.value
+            symbol = self._symbol_table.lookup(var_name)
+            if symbol and symbol.type_ == TY_ARRAY:
+                return False
+            return True
+        
+        if node.kind in {"function_call", "index"}:
+            return True
+        
+        # Type casts: treat as arithmetic context
+        if node.kind == "type_cast":
+            if node.children:
+                return self._is_valid_array_size_expr(node.children[0], in_arithmetic=True)
+            return False
+        
+        return False
+
+
+    def _is_valid_array_index_expr(self, node: ASTNode, in_arithmetic: bool = False) -> bool:
+        """
+        Check if expression is valid for array indexing.
+        
+        Valid standalone:
+            - Non-negative int_literal (>= 0) - arrays are 0-indexed
+            - Arithmetic expressions (with coercible operands)
+            - Variables (non-array)
+            - Function calls
+            - Index access (nested indexing)
+            
+        Valid in arithmetic expressions only:
+            - bool_literal, str_literal (will be coerced to numbers)
+            - Negative int_literal (will be used in arithmetic)
+            
+        Invalid everywhere:
+            - float_literal (reject even in expressions)
+            - Relational/logical operations (return bool)
+            - Array variables
+            
+        Args:
+            node: AST node to validate
+            in_arithmetic: True if we're inside an arithmetic expression (allows bool/string/negative)
+        """
+        if node is None:
+            return False
+        
+        # NEVER allow float literals (even in arithmetic expressions)
+        if node.kind == "float_literal":
+            return False
+        
+        # Bool/string literals: allow in arithmetic, reject standalone
+        if node.kind in {"bool_literal", "str_literal"}:
+            return in_arithmetic
+        
+        # Int literals: all valid (bounds checking will handle out-of-range/negative)
+        if node.kind == "int_literal":
+            return True
+        
+        # Reject relational and logical operations
+        if node.kind in {"<", ">", "<=", ">=", "==", "!=", "and", "or", "!"}:
+            return False
+        
+        # Arithmetic operations: recursively check with in_arithmetic=True
+        if node.kind in {"+", "-", "*", "/", "//", "%", "**"}:
+            if len(node.children) >= 2:
+                return (self._is_valid_array_index_expr(node.children[0], in_arithmetic=True) and 
+                        self._is_valid_array_index_expr(node.children[1], in_arithmetic=True))
+            elif len(node.children) == 1:  # Unary +/-
+                return self._is_valid_array_index_expr(node.children[0], in_arithmetic=True)
+            return False
+        
+        # Variables (but not array variables), function calls, index access
+        if node.kind == "id":
+            var_name = node.value
+            symbol = self._symbol_table.lookup(var_name)
+            if symbol and symbol.type_ == TY_ARRAY:
+                return False  # Arrays can't be used as indices
+            return True
+        
+        if node.kind in {"function_call", "index"}:
+            return True
+        
+        # Type casts
+        if node.kind == "type_cast":
+            # Type casts count as arithmetic context
+            return self._is_valid_array_index_expr(node.children[0], in_arithmetic=True) if node.children else False
+        
+        # Reject everything else
+        return False
+
+
+    def _evaluate_constant_expr(self, node: ASTNode) -> Optional[float]:
+        """
+        Evaluate constant expressions at compile time for array sizes (optimization).
+        
+        Returns:
+            float value if expression is constant, None if runtime-dependent
+            
+        Note: This is an optimization - tries to evaluate at compile-time if possible.
+        If it returns None, the expression will be evaluated at runtime instead.
+        """
+        if node is None:
+            return None
+        
+        # Literals
+        if node.kind == "int_literal":
+            # Handle CHUNGUS negative syntax (~5 instead of -5)
+            value_str = node.value
+            if value_str.startswith('~'):
+                return float(-int(value_str[1:]))  # Remove ~ and negate
+            else:
+                return float(int(value_str))
+        
+        elif node.kind == "float_literal":
+            return float(node.value)
+        
+        # Binary operations - node.kind is the operator itself
+        elif node.kind in {"+", "-", "*", "/", "//", "%", "**"}:
+            op = node.kind
+            
+            if len(node.children) < 2:
+                return None
+            
+            left_val = self._evaluate_constant_expr(node.children[0])
+            right_val = self._evaluate_constant_expr(node.children[1])
+            
+            if left_val is None or right_val is None:
+                return None  # Contains non-constant (will be runtime)
+            
+            # Arithmetic operations
+            if op == "+":
+                return left_val + right_val
+            elif op == "-":
+                return left_val - right_val
+            elif op == "*":
+                return left_val * right_val
+            elif op == "/":
+                if right_val == 0:
+                    return None  # Division by zero - can't evaluate
+                return left_val / right_val
+            elif op == "//":
+                if right_val == 0:
+                    return None  # Division by zero
+                return float(int(left_val) // int(right_val))
+            elif op == "%":
+                if right_val == 0:
+                    return None  # Modulo by zero
+                return float(int(left_val) % int(right_val))
+            elif op == "**":
+                try:
+                    return left_val ** right_val
+                except (OverflowError, ValueError):
+                    return None  # Too large or invalid
+            else:
+                return None  # Unknown operator
+        
+        # Unary operations - node.kind is the operator
+        elif node.kind in {"-", "+"}:  # Unary minus or plus
+            if not node.children:
+                return None
+            
+            operand_val = self._evaluate_constant_expr(node.children[0])
+            
+            if operand_val is None:
+                return None
+            
+            if node.kind == "-":
+                return -operand_val
+            elif node.kind == "+":
+                return operand_val
+        
+        # Type cast
+        elif node.kind == "type_cast":
+            cast_type = node.value
+            if not node.children:
+                return None
+            
+            expr_val = self._evaluate_constant_expr(node.children[0])
+            if expr_val is None:
+                return None
+            
+            if cast_type == "int":
+                return float(int(expr_val))
+            elif cast_type == "float":
+                return float(expr_val)
+            else:
+                return None
+        
+        # Everything else is not constant (variables, function calls, etc.)
+        # Will be evaluated at runtime
+        return None
+
+
     def _collect_declarations(self, node: ASTNode) -> None:
-        """First pass: traverse AST and collect all declarations."""
         if node is None:
             return
 
@@ -387,10 +640,9 @@ class SemanticAnalyzer:
 
                 self._symbol_table.declare(param_symbol)
 
-            # TODO FIX BUG 
-            # Collect declarations in function body
-            if len(node.children) > 1:
-                self._collect_declarations(node.children[1])
+            # Collect declarations in function body (skip params at index 0)
+            for i in range(1, len(node.children)):
+                self._collect_declarations(node.children[i])
 
             # Debug: print scope before exiting
             self._dbg_symbol_tbl(f"Function '{func_name}' scope before exit")
@@ -496,43 +748,86 @@ class SemanticAnalyzer:
                     # node.col points to '[', need to find ID before ':'
                     # Search backwards from node.col to find ID token
                     search_text = line_text[:node.col - 1]  # col is 1-based
-                    
+
                     # Simple regex to find last identifier before ':'
                     import re
                     match = re.search(r'(\w+)\s*:\s*$', search_text)
-                    
+
                     if match:
                         var_name = match.group(1)
                         
                         # Extract dimensions
                         array_dims = None
                         size_node = node.children[0] if node.children else None
-                        
+
                         if size_node and size_node.kind == "size":
                             if node.kind == "array_1d_init" and len(size_node.children) >= 1:
-                                if size_node.children[0].kind == "int_literal":
-                                    dim_val = int(size_node.children[0].value)
-                                    if dim_val <= 0:
-                                        self._error(size_node.children[0],
-                                            f"Array size must be positive, got {dim_val}",
-                                            TypeMismatchError)
+                                # Check if size expression is valid
+                                size_expr = size_node.children[0]
+                                
+                                if not self._is_valid_array_size_expr(size_expr):
+                                    self._error(size_expr,
+                                        f"Invalid array size: expression must be a non-negative integer",
+                                        TypeMismatchError)
+                                else:
+                                    # Try to evaluate as constant (optimization)
+                                    dim_val_float = self._evaluate_constant_expr(size_expr)
+
+                                    if dim_val_float is not None:
+                                        # Constant expression - validate at compile time
+                                        dim_val = int(dim_val_float)
+                                        
+                                        if dim_val < 1:
+                                            self._error(size_expr,
+                                                f"Array size must be 1 or greater, got {dim_val}",
+                                                TypeMismatchError)
+                                        else:
+                                            array_dims = [dim_val]
                                     else:
-                                        array_dims = [dim_val]
+                                        # Runtime expression - size unknown at compile time
+                                        array_dims = None
+                                        
                             elif node.kind == "array_2d_init" and len(size_node.children) >= 2:
-                                if (size_node.children[0].kind == "int_literal" and
-                                    size_node.children[1].kind == "int_literal"):
-                                    rows = int(size_node.children[0].value)
-                                    cols = int(size_node.children[1].value)
-                                    if rows <= 0:
-                                        self._error(size_node.children[0],
-                                            f"Array row count must be positive, got {rows}",
-                                            TypeMismatchError)
-                                    if cols <= 0:
-                                        self._error(size_node.children[1],
-                                            f"Array column count must be positive, got {cols}",
-                                            TypeMismatchError)
-                                    if rows > 0 and cols > 0:
-                                        array_dims = [rows, cols]
+                                # Check if both dimension expressions are valid
+                                row_expr = size_node.children[0]
+                                col_expr = size_node.children[1]
+                                
+                                row_valid = self._is_valid_array_size_expr(row_expr)
+                                col_valid = self._is_valid_array_size_expr(col_expr)
+                                
+                                if not row_valid:
+                                    self._error(row_expr,
+                                        f"Invalid array row expression: cannot use bool/string literals, relational, or logical operations",
+                                        TypeMismatchError)
+                                    
+                                if not col_valid:
+                                    self._error(col_expr,
+                                        f"Invalid array column expression: cannot use bool/string literals, relational, or logical operations",
+                                        TypeMismatchError)
+                                
+                                if row_valid and col_valid:
+                                    # Try to evaluate as constants (optimization)
+                                    rows_float = self._evaluate_constant_expr(row_expr)
+                                    cols_float = self._evaluate_constant_expr(col_expr)
+                                    
+                                    if rows_float is not None and cols_float is not None:
+                                        # Both constant - validate at compile time
+                                        rows = int(rows_float)
+                                        cols = int(cols_float)
+                                        
+                                        if rows < 1:
+                                            self._error(row_expr,
+                                                f"Array row count must be 1 or greater, got {rows}",
+                                                TypeMismatchError)
+                                        if cols < 1:
+                                            self._error(col_expr,
+                                                f"Array column count must be 1 or greater, got {cols}",
+                                                TypeMismatchError)
+                                        if rows >= 1 and cols >= 1:
+                                            array_dims = [rows, cols]
+                                    else:
+                                        # At least one is runtime - size unknown at compile time
+                                        array_dims = None
                         
                         # Declare the array variable
                         if self._symbol_table.lookup_current_scope(var_name) is None:
@@ -614,9 +909,9 @@ class SemanticAnalyzer:
                     )
                     self._symbol_table.declare(param_symbol)
 
-            # Type check function body (skip params node)
-            if len(node.children) > 1:
-                self._type_check(node.children[1])
+            # Type check function body (skip params node at index 0)
+            for i in range(1, len(node.children)):
+                self._type_check(node.children[i])
 
             self._symbol_table.exit_scope()
             return None
@@ -767,19 +1062,39 @@ class SemanticAnalyzer:
                         f"Cannot index non-array type '{symbol.type_}'",
                         TypeMismatchError)
 
+            # Check dimension count matches
+            if symbol and getattr(symbol, "array_dims", None) and indices_node:
+                num_indices = len(indices_node.children)
+                num_dims = len(symbol.array_dims)
+                
+                if num_indices != num_dims:
+                    dim_str = "1D" if num_dims == 1 else f"{num_dims}D"
+                    # Use the first index child for error location (has line/col info)
+                    error_node = indices_node.children[0] if indices_node.children else node
+                    self._error(error_node,
+                        f"Dimension mismatch: {dim_str} array requires {num_dims} indices, got {num_indices}",
+                        TypeMismatchError)
+
             # Bounds checking if symbol exists and indices are literals
             if symbol and getattr(symbol, "array_dims", None) and indices_node:
                 indices_values = []
                 all_literals = True
                 for idx_node in indices_node.children:
                     if idx_node.kind == "int_literal":
-                        indices_values.append(int(idx_node.value))
+                        # Handle CHUNGUS negative syntax (~5 instead of -5)
+                        value_str = idx_node.value
+                        if value_str.startswith('~'):
+                            indices_values.append(-int(value_str[1:]))
+                        else:
+                            indices_values.append(int(value_str))
                     else:
                         all_literals = False
                         break
 
-                    if all_literals and len(indices_values) == len(symbol.array_dims):
-                        # Check each dimension
+                # Check bounds only if all indices are literals and dimensions match
+                if all_literals and len(indices_values) == len(symbol.array_dims):
+                    # Check each dimension (ensure no None values in array_dims)
+                    if None not in symbol.array_dims:
                         for i, (idx_val, dim_size) in enumerate(zip(indices_values, symbol.array_dims)):
                             if idx_val < 0 or idx_val >= dim_size:
                                 dim_label = "index" if len(symbol.array_dims) == 1 else f"dimension {i+1}"
@@ -787,9 +1102,15 @@ class SemanticAnalyzer:
                                     f"Array index out of bounds: {dim_label} {idx_val} not in range [0, {dim_size-1}]",
                                     TypeMismatchError)
 
-            # Type check indices only (skip base, already checked)
+            # Validate and type check indices (skip base, already checked)
             if indices_node:
                 for idx_node in indices_node.children:
+                    # Validate index expression type
+                    if not self._is_valid_array_index_expr(idx_node):
+                        self._error(idx_node,
+                            f"Invalid array index: expression must be 0 or non-negative integer",
+                            TypeMismatchError)
+                    # Type check the index expression
                     self._type_check(idx_node)
             
             # Return unknown type for now (would need element type tracking)
@@ -813,32 +1134,59 @@ class SemanticAnalyzer:
                     TypeMismatchError)
                 return TY_UNKNOWN
             
-            # Check bounds if array dimensions are known and indices are literals
+            # Check dimension count matches
             if symbol.array_dims and node.children and node.children[0].kind == "indices":
                 indices_node = node.children[0]
+                num_indices = len(indices_node.children)
+                num_dims = len(symbol.array_dims)
                 
-                # Check if all indices are int literals
-                indices_values = []
-                all_literals = True
-                for idx_node in indices_node.children:
-                    if idx_node.kind == "int_literal":
-                        indices_values.append(int(idx_node.value))
-                    else:
-                        all_literals = False
-                        break
-                
-                if all_literals and len(indices_values) == len(symbol.array_dims):
-                    # Check each dimension
-                    for i, (idx_val, dim_size) in enumerate(zip(indices_values, symbol.array_dims)):
-                        if idx_val < 0 or idx_val >= dim_size:
-                            dim_label = "index" if len(symbol.array_dims) == 1 else f"dimension {i+1}"
-                            self._error(indices_node.children[i],
-                                f"Array index out of bounds: {dim_label} {idx_val} not in range [0, {dim_size-1}]",
-                                TypeMismatchError)
+                if num_indices != num_dims:
+                    dim_str = "1D" if num_dims == 1 else f"{num_dims}D"
+                    # Use the first index child for error location (has line/col info)
+                    error_node = indices_node.children[0] if indices_node.children else node
+                    self._error(error_node,
+                        f"Dimension mismatch: {dim_str} array requires {num_dims} indices, got {num_indices}",
+                        TypeMismatchError)
             
-            # Type check indices node
-            if node.children:
-                self._type_check(node.children[0])  # indices node
+            # Validate and check indices
+            if node.children and node.children[0].kind == "indices":
+                indices_node = node.children[0]
+                
+                # Validate each index expression type
+                for idx_node in indices_node.children:
+                    if not self._is_valid_array_index_expr(idx_node):
+                        self._error(idx_node,
+                            f"Invalid array index: expression must be 0 or non-negative integer",
+                            TypeMismatchError)
+                
+                # Check bounds if array dimensions are known and indices are literals
+                if symbol.array_dims:
+                    # Check if all indices are int literals
+                    indices_values = []
+                    all_literals = True
+                    for idx_node in indices_node.children:
+                        if idx_node.kind == "int_literal":
+                            # Handle CHUNGUS negative syntax (~5 instead of -5)
+                            value_str = idx_node.value
+                            if value_str.startswith('~'):
+                                indices_values.append(-int(value_str[1:]))
+                            else:
+                                indices_values.append(int(value_str))
+                        else:
+                            all_literals = False
+                            break
+                    
+                    if all_literals and len(indices_values) == len(symbol.array_dims):
+                        # Check each dimension
+                        for i, (idx_val, dim_size) in enumerate(zip(indices_values, symbol.array_dims)):
+                            if idx_val < 0 or idx_val >= dim_size:
+                                dim_label = "index" if len(symbol.array_dims) == 1 else f"dimension {i+1}"
+                                self._error(indices_node.children[i],
+                                    f"Array index out of bounds: {dim_label} {idx_val} not in range [0, {dim_size-1}]",
+                                    TypeMismatchError)
+                
+                # Type check indices node
+                self._type_check(indices_node)
             
             # Type check RHS expression
             if len(node.children) > 1:
@@ -926,18 +1274,27 @@ class SemanticAnalyzer:
                 size_node = node.children[0] if node.children else None
                 
                 if size_node and size_node.kind == "size":
-                    # Get declared size
+                    # Get declared size (only if it's a constant int_literal)
                     if size_node.children and size_node.children[0].kind == "int_literal":
-                        declared_size = int(size_node.children[0].value)
+                        # Handle CHUNGUS negative syntax (~5 instead of -5)
+                        value_str = size_node.children[0].value
+                        if value_str.startswith('~'):
+                            declared_size = -int(value_str[1:])
+                        else:
+                            declared_size = int(value_str)
                         
-                        # Count actual initializer elements (skip size node)
-                        actual_size = len(node.children) - 1
-                        
-                        if actual_size != declared_size:
-                            self._error(node,
-                                f"Array size mismatch: declared [{declared_size}], got {actual_size} elements",
-                                TypeMismatchError)
-            
+                        # Skip element count check if size is invalid (already reported in first pass)
+                        if declared_size >= 1:
+                            # Count actual initializer elements (skip size node)
+                            actual_size = len(node.children) - 1
+                            
+                            # Allow fewer elements (rest will be initialized to 0)
+                            # But reject MORE elements than declared
+                            if actual_size > declared_size:
+                                self._error(node,
+                                    f"Too many array elements: declared [{declared_size}], got {actual_size} elements",
+                                    TypeMismatchError)
+
             elif node.kind == "array_2d_init":
                 # 2D array: children=[size, row1, row2, ...]
                 size_node = node.children[0] if node.children else None
@@ -948,26 +1305,42 @@ class SemanticAnalyzer:
                         if (size_node.children[0].kind == "int_literal" and 
                             size_node.children[1].kind == "int_literal"):
                             
-                            declared_rows = int(size_node.children[0].value)
-                            declared_cols = int(size_node.children[1].value)
+                            # Handle CHUNGUS negative syntax (~5 instead of -5)
+                            row_str = size_node.children[0].value
+                            col_str = size_node.children[1].value
                             
-                            # Count actual rows (skip size node)
-                            actual_rows = len(node.children) - 1
+                            if row_str.startswith('~'):
+                                declared_rows = -int(row_str[1:])
+                            else:
+                                declared_rows = int(row_str)
+                                
+                            if col_str.startswith('~'):
+                                declared_cols = -int(col_str[1:])
+                            else:
+                                declared_cols = int(col_str)
                             
-                            if actual_rows != declared_rows:
-                                self._error(node,
-                                    f"Array row count mismatch: declared [{declared_rows}][{declared_cols}], got {actual_rows} rows",
-                                    TypeMismatchError)
-                            
-                            # Check each row's column count
-                            for i in range(1, len(node.children)):
-                                row = node.children[i]
-                                if row.kind == "array_row":
-                                    actual_cols = len(row.children)
-                                    if actual_cols != declared_cols:
-                                        self._error(row,
-                                            f"Row {i} column count mismatch: expected {declared_cols} columns, got {actual_cols}",
-                                            TypeMismatchError)
+                            # Skip element count check if dimensions are invalid (already reported in first pass)
+                            if declared_rows >= 1 and declared_cols >= 1:
+                                # Count actual rows (skip size node)
+                                actual_rows = len(node.children) - 1
+                                
+                                # Allow fewer rows (rest will be initialized to 0)
+                                # But reject MORE rows than declared
+                                if actual_rows > declared_rows:
+                                    self._error(node,
+                                        f"Too many array rows: declared [{declared_rows}][{declared_cols}], got {actual_rows} rows",
+                                        TypeMismatchError)
+                                
+                                # Check each row's column count
+                                # Allow fewer columns per row (rest will be initialized to 0)
+                                for i in range(1, len(node.children)):
+                                    row = node.children[i]
+                                    if row.kind == "array_row":
+                                        actual_cols = len(row.children)
+                                        if actual_cols > declared_cols:
+                                            self._error(row,
+                                                f"Too many columns in row {i}: expected {declared_cols} columns, got {actual_cols}",
+                                                TypeMismatchError)
 
             # Type check all initializer expressions
             for child in node.children:

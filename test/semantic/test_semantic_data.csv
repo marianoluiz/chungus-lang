@@ -1,14 +1,14 @@
 Source Code,Expected Errors,Actual Output,TESTER
-x = y;,Variable 'y' not defined,Variable 'y' not defined,C.LG.A.
-arr[0] = 1;,Array 'arr' not defined,Array 'arr' not defined,C.LG.A.
-"functionCall(1,2);",Function 'functionCall' not defined,Function 'functionCall' not defined,C.LG.A.
+x = y;,Variable 'y' not defined,,C.LG.A.
+arr[0] = 1;,Array 'arr' not defined,,C.LG.A.
+"functionCall(1,2);",Function 'functionCall' not defined,,C.LG.A.
 "fn add(a,b):
     a = 1;
     b = 2;
     ret a + b;
 close
 
-add(1);","Function 'add' expects 2 args, got 1","Function 'add' expects 2 args, got 1",C.LG.A.
+add(1);","Function 'add' expects 2 args, got 1",,C.LG.A.
 "fn add(a,b):
     a = 1;
     b = 2;
@@ -16,7 +16,7 @@ add(1);","Function 'add' expects 2 args, got 1","Function 'add' expects 2 args, 
 close
 
 add(1, 3);
-",NO SEMANTIC ERROR/S,"Function 'add' expects 2 args, got 1",C.LG.A.
+",NO SEMANTIC ERROR/S,,C.LG.A.
 "fn add(a,b):
     a = 1;
     b = 2;
@@ -24,54 +24,191 @@ add(1, 3);
 close
 
 add(1, 2, 3);","
-Function 'add' expects 2 args, got 3 ","
-Function 'add' expects 2 args, got 1",C.LG.A.
+Function 'add' expects 2 args, got 3 ",,C.LG.A.
 "fn add(a,b):
     a = 1;
     b = 2;
     ret a + b;
 close
 
-add(1, 2, 3);","Function 'add' expects 2 args, got 3","Function 'add' expects 2 args, got 1",C.LG.A.
+add(1, 2, 3);","Function 'add' expects 2 args, got 3",,C.LG.A.
 "fn add(a,b,c):
     a = 1;
     b = 2;
     ret a + b;
 close
 
-add(1, 2, 3);",NO SEMANTIC ERROR/S,NO SEMANTIC ERROR/S,C.LG.A.
+add(1, 2, 3);",NO SEMANTIC ERROR/S,,C.LG.A.
 "arr = 1;
 
-x = arr[0] - 5;",Cannot index non-array type 'int',NO SEMANTIC ERROR/S,
+x = arr[0] - 5;",Cannot index non-array type 'int',,
+"
+x: [5] = [1, 2, 3];",NO SEMANTIC ERROR/S,,
+"x: [5] = [1, 2, 3, 4, 5, 6];","Too many array elements: declared [5], got 6 elements",,
+"matrix: [3][4] = [
+    [1, 2],          
+    [5, 6, 7]        
+];                    ",NO SEMANTIC ERROR/S,,
+"matrix: [2][3] = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]       
+];","Too many array rows: declared [2][3], got 3 rows",,
+"matrix: [2][3] = [
+    [1, 2, 3, 4],
+    [4, 5, 6]
+  
+];","Too many columns in row 1: expected 3 columns, got 4",,
+"matrix: [2][3] = [
+
+];",NO SEMANTIC ERROR/S,,
+"matrix: [2][3] = [
+[],[]
+];",NO SEMANTIC ERROR/S,,
+x: [5] = [];,NO SEMANTIC ERROR/S,,
+arr:[0]=[1];,Invalid array size: expression must be a non-negative integer,,
 "add: [1] = [1];
 
-x = add[1] < 5;",,"Array index out of bounds: index 1 not in range [0, 0]",
+x = add[1] < 5;","Array index out of bounds: index 1 not in range [0, 0]",,
+"lit: [5] = [1, 2, 3];",NO SEMANTIC ERROR/S,,
+"add: [2 + 3] = [1, 2, 3, 4, 5];",NO SEMANTIC ERROR/S,,
+"sub: [10 - 2] = [1, 2, 3, 4, 5, 6, 7, 8];",NO SEMANTIC ERROR/S,,
+"mul: [2 * 3] = [1, 2, 3, 4, 5, 6];",NO SEMANTIC ERROR/S,,
+"div: [20 // 4] = [1, 2, 3, 4, 5];",NO SEMANTIC ERROR/S,,
+"flt: [7.5 + 2.5] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];",Invalid array size: expression must be a non-negative integer,,
+"mat: [2][3] = [[1, 2, 3], [4, 5, 6]];",NO SEMANTIC ERROR/S,,
+"m2: [1 + 1][2 * 2] = [[1, 2, 3, 4], [5, 6, 7, 8]];",NO SEMANTIC ERROR/S,,
+"lit: ['str'] = [1, 2, 3];",Invalid array size: expression must be a non-negative integer,,
+"add: [2 + true] = [1, 2, 3, 4, 5];",NO SEMANTIC ERROR/S,,
+"sub: [1 + 1 and 2 < 2] = [1, 2, 3, 4, 5, 6, 7, 8];",Invalid array size: expression must be a non-negative integer,,
+"good1: [5] = [1, 2, 3];",NO SEMANTIC ERROR/S,,
+"good2: [2 + 3] = [1, 2, 3, 4, 5];",NO SEMANTIC ERROR/S,,
+n = 10;,NO SEMANTIC ERROR/S,,
+"good3: [n] = [1, 2, 3];",Variable 'n' not defined,,
+bad1: [0] = [];,Invalid array size: expression must be a non-negative integer,,
+bad2: [~5] = [];,Invalid array size: expression must be a non-negative integer,,
+bad3: [2.5] = [];,Invalid array size: expression must be a non-negative integer,,
+bad4: [true] = [1];,Invalid array size: expression must be a non-negative integer,,
+"n = 10;
+x : [1] = [1];",NO SEMANTIC ERROR/S,,
+bad1: [x] = [];,Variable 'x' not defined,,
+bad2: [~5] = [];,Invalid array size: expression must be a non-negative integer,,
+"arr: [5] = [1,2,3,4,5];
+
+idx_bad1 = arr[true];",Invalid array index: expression must be 0 or non-negative integer,,
+"arr: [5] = [1,2,3,4,5];
+
+idx_bad2 = arr[2.5];",Invalid array index: expression must be 0 or non-negative integer,,
+"arr: [5] = [1,2,3,4,5];
+
+idx_bad3 = arr['hello'];",Invalid array index: expression must be 0 or non-negative integer,,
+"arr: [5] = [1,2,3,4,5];
+
+x : [1] = [1];
+idx_bad4 = arr[x];",Invalid array index: expression must be 0 or non-negative integer,,
+"arr: [5] = [1,2,3,4,5];
+
+idx_bad5 = arr[~1];","Array index out of bounds: index -1 not in range [0, 4]",,
+"arr: [5] = [1,2,3,4,5];
+
+idx_good1 = arr[0];",NO SEMANTIC ERROR/S,,
+"arr: [5] = [1,2,3,4,5];
+
+idx_good2 = arr[2+1];",NO SEMANTIC ERROR/S,,
+"arr: [5] = [1,2,3,4,5];
+
+n = 10;
+idx_good3 = arr[n];",NO SEMANTIC ERROR/S,,
 "arr:[1]=[1];
 
-x = !arr[~1];",,"Line 0, Col 0: Internal semantic analyzer error: invalid literal for int() with base 10: '~1'",
+x = !arr[~1];","Array index out of bounds: index -1 not in range [0, 0]",,
 "arr:[1][3]=[];
 
-x = arr[0];",NO SEMANTIC ERROR/S,"Array row count mismatch: declared [1][3], got 0 rows",
+x = arr[0];","Dimension mismatch: 2D array requires 2 indices, got 1",,
 "arr:[1][1]=[[1,1]];
 
-x = arr[1];",,"Row 1 column count mismatch: expected 1 columns, got 2",
+x = arr[1];","Too many columns in row 1: expected 1 columns, got 2
+Dimension mismatch: 2D array requires 2 indices, got 1",,
 "arr:[1][1]=[[1]];
 
-x = arr[1];",NO SEMANTIC ERROR/S,NO SEMANTIC ERROR/S,
+x = arr[1];","Dimension mismatch: 2D array requires 2 indices, got 1",,
 "arr:[1][3]=[[1, 1, 3]];
 
-x = arr[1];",NO SEMANTIC ERROR/S,NO SEMANTIC ERROR/S,
+x = arr[1];","Dimension mismatch: 2D array requires 2 indices, got 1",,
 "arr:[1][3]=[[1, 1, 3, 4]];
 
-x = arr[1];",,"Row 1 column count mismatch: expected 3 columns, got 4",
-"arr:[2][3]=[[1, 1, 3, 4]];
+x = arr[1];","Too many columns in row 1: expected 3 columns, got 4",,
+"arr:[1][3]=[[1, 1, 3]];
 
-x = arr[1];",,"Array row count mismatch: declared [2][3], got 1 rows
-Row 1 column count mismatch: expected 3 columns, got 4",
+x = arr[1];
+","Dimension mismatch: 2D array requires 2 indices, got 1",,
+"arr:[1][3]=[[1, 1, 3]];
+
+arr[1] = 1;","Dimension mismatch: 2D array requires 2 indices, got 1",,
+"arr:[2]=[1, 1, 3];
+
+x = arr[1][2];","Too many array elements: declared [2], got 3 elements
+Dimension mismatch: 1D array requires 1 indices, got 2",,
 "arr:[2][1]=[[1, 1, 3, 4], [1]];
 
-x = arr[1];",,"Row 1 column count mismatch: expected 1 columns, got 4",
+x = arr[1];","Too many columns in row 1: expected 1 columns, got 4
+Dimension mismatch: 2D array requires 2 indices, got 1",,
 "x = 10;
 
 y = x [1];
-", Using non-array with index operator,NO SEMANTIC ERROR/S,
+",Cannot index non-array type 'int',,
+"# Standalone - should be rejected
+arr: [10] = [1,2,3,4,5,6,7,8,9,10];
+
+bad1 = arr[true];",Invalid array index: expression must be 0 or non-negative integer,,
+"arr: [10] = [1,2,3,4,5,6,7,8,9,10];
+
+bad2 = arr['hello'];",Invalid array index: expression must be 0 or non-negative integer,,
+"arr: [10] = [1,2,3,4,5,6,7,8,9,10];
+
+bad3 = arr[~1];","Array index out of bounds: index -1 not in range [0, 9]",,
+"arr: [10] = [1,2,3,4,5,6,7,8,9,10];
+
+bad4 = arr[2.5];",Invalid array index: expression must be 0 or non-negative integer,,
+"# In arithmetic - should be OK (except float)
+arr: [10] = [1,2,3,4,5,6,7,8,9,10];
+
+good1 = arr[1 + true];",NO SEMANTIC ERROR/S,,
+"arr: [10] = [1,2,3,4,5,6,7,8,9,10];
+
+good2 = arr[2 + 'hello'];",NO SEMANTIC ERROR/S,,
+"arr: [10] = [1,2,3,4,5,6,7,8,9,10];
+
+good3 = arr[5 + ~1];",NO SEMANTIC ERROR/S,,
+"arr: [10] = [1,2,3,4,5,6,7,8,9,10];
+
+bad5 = arr[1 + 2.5];",Invalid array index: expression must be 0 or non-negative integer,,
+"# Always OK
+arr: [10] = [1,2,3,4,5,6,7,8,9,10];
+
+good4 = arr[0];",NO SEMANTIC ERROR/S,,
+"arr: [10] = [1,2,3,4,5,6,7,8,9,10];
+
+good5 = arr[5];",NO SEMANTIC ERROR/S,,
+"# Array size validation
+
+# Standalone - should be rejected
+bad1: [true] = [];
+bad2: ['hello'] = [];
+bad3: [0] = [];
+bad4: [~1] = [];
+bad5: [2.5] = [];","Invalid array size: expression must be a non-negative integer
+Invalid array size: expression must be a non-negative integer
+Invalid array size: expression must be a non-negative integer
+Invalid array size: expression must be a non-negative integer
+Invalid array size: expression must be a non-negative integer",,
+"
+# In arithmetic - should be OK (except float)
+good1: [1 + true] = [1, 2];
+good2: [2 + 'hello'] = [1, 2];
+good3: [3 + ~1] = [1, 2];
+bad6: [1 + 2.5] = [];
+
+# Always OK
+good4: [5] = [1,2,3,4,5];
+good5: [10] = [];",Invalid array size: expression must be a non-negative integer,,
