@@ -344,20 +344,19 @@ class SemanticAnalyzer:
         if node is None:
             return None
         
-        # Int/Float literals - these can be evaluated standalone
+        # Int literals only - float literals should NOT be evaluated
         if node.kind == "int_literal":
             value_str = node.value
             if value_str.startswith('~'):
                 return float(-int(value_str[1:]))
             return float(int(value_str))
         
+        # Float/Bool/String literals - can't evaluate standalone, only in operations
         elif node.kind == "float_literal":
-            value_str = node.value
-            if value_str.startswith('~'):
-                return -float(value_str[1:])
-            return float(value_str)
+            # Float literals cannot be evaluated in array size/index context
+            # They should be rejected by validation
+            return None
         
-        # Bool/String literals - can't evaluate standalone, only in operations
         elif node.kind == "bool_literal":
             # Standalone bool literal cannot be evaluated as a number
             # Type coercion only happens in operations (e.g., true + 5)

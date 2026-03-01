@@ -79,7 +79,7 @@ x = add[1] < 5;","Array index out of bounds: index 1 not in range [0, 0]",,
 "mat: [2][3] = [[1, 2, 3], [4, 5, 6]];",NO SEMANTIC ERROR/S,,
 "m2: [1 + 1][2 * 2] = [[1, 2, 3, 4], [5, 6, 7, 8]];",NO SEMANTIC ERROR/S,,
 "lit: ['str'] = [1, 2, 3];",Invalid array size: expression must be a non-negative integer,,
-"add: [2 + true] = [1, 2, 3, 4, 5];",NO SEMANTIC ERROR/S,,
+"add: [2 + true] = [1, 2, 3, 4, 5];","Too many array elements: declared [3], got 5 elements",,
 "sub: [1 + 1 and 2 < 2] = [1, 2, 3, 4, 5, 6, 7, 8];",Invalid array size: expression must be a non-negative integer,,
 "good1: [5] = [1, 2, 3];",NO SEMANTIC ERROR/S,,
 "good2: [2 + 3] = [1, 2, 3, 4, 5];",NO SEMANTIC ERROR/S,,
@@ -441,7 +441,7 @@ x = (1 < 2) + 10;,NO SEMANTIC ERROR/S,,
 "m: [2][2] = [[1,1],[2,2]];
 
 x = m[1.5][0];
-",Array index out of bounds,,
+",Invalid array index: expression must be 0 or non-negative integer,,
 "v: [2] = [1, 2];
 
 x = v[~1];
@@ -617,7 +617,7 @@ x = 10 + unknown_func(5);,Function 'unknown_func' not defined,,
 ","Function 'a' expects 2 args, got 1
 Function 'a' expects 2 args, got 1
 ",,
-"a: [5] = [1,2,3,4,5]; x = a[ ( (0 - 1) ) ];",NO SEMANTIC ERROR/S,,
+"a: [5] = [1,2,3,4,5]; x = a[ ( (0 - 1) ) ];","Array index out of bounds: index -1 not in range [0, 4]",,
 "arr: [2.0] = [1, 2];",Invalid array size: expression must be a non-negative integer,,
 "a: [2] = [1, 2]; x = a[3] + unknown;","Array index out of bounds: index 3 not in range [0, 1]
 Variable 'unknown' not defined",,
@@ -663,7 +663,7 @@ todo;
 ",NO SEMANTIC ERROR/S,,
 "while checkStatus(): show 'loop'; close
 ",Function 'checkStatus' not defined,,
-"a: [2] = [1, 2]; x = a[ ( (5 - 3) ) ];",NO SEMANTIC ERROR/S,,
+"a: [2] = [1, 2]; x = a[ ( (5 - 3) ) ];","Array index out of bounds: index 2 not in range [0, 1]",,
 "v: [5] = [1,2,3,4,5]; x = v[~10];","Array index out of bounds: index -10 not in range [0, 4]",,
 m: [1][1] = [[1]]; x = m[1][0];,"Array index out of bounds: dimension 1 1 not in range [0, 0]",,
 m: [1][1] = [[1]]; x = m[0][1];,"Array index out of bounds: dimension 2 1 not in range [0, 0]",,
@@ -700,10 +700,10 @@ x = !10;,NO SEMANTIC ERROR/S,,
 "v: [5] = [1,2,3,4,5]; x = v[5];","Array index out of bounds: index 5 not in range [0, 4]",,
 m: [1][1] = [[1]]; x = m[1][0];,"Array index out of bounds: dimension 1 1 not in range [0, 0]",,
 "m: [2][2] = [[1,1],[2,2]]; x = m[0][2];","Array index out of bounds: dimension 2 2 not in range [0, 1]",,
-"a: [2] = [1, 2]; x = a[ 2**1 ];",NO SEMANTIC ERROR/S,,
+"a: [2] = [1, 2]; x = a[ 2**1 ];","Array index out of bounds: index 2 not in range [0, 1]",,
 "a: [3] = [1,2,3]; x = a[~1];","Array index out of bounds: index -1 not in range [0, 2]",,
 "m: [2][2] = [[1,1],[2,2]]; x = m[0.0][0];",Invalid array index: expression must be 0 or non-negative integer,,
-"v: [2] = [1, 2]; x = v[ ( (1 * 2) ) ];",NO SEMANTIC ERROR/S,,
+"v: [2] = [1, 2]; x = v[ ( (1 * 2) ) ];","Array index out of bounds: index 2 not in range [0, 1]",,
 "m: [3][3] = [[1,2,3]];",NO SEMANTIC ERROR/S,,
 m: [1][1] = [[1]]; m[0][10] = 5;,"Array index out of bounds: dimension 2 10 not in range [0, 0]",,
 "a: ['5'] = [1,2,3,4,5];
@@ -716,7 +716,7 @@ x = true ** 2;,NO SEMANTIC ERROR/S,,
 ",NO SEMANTIC ERROR/S,,
 "s = 'true'; b = true; if s == b: show ''; close
 ",NO SEMANTIC ERROR/S,,
-"a: [5] = [1,2,3,4,5]; x = a[ ( (~2 ** 1) ) ];",NO SEMANTIC ERROR/S,,
+"a: [5] = [1,2,3,4,5]; x = a[ ( (~2 ** 1) ) ];","Array index out of bounds: index -2 not in range [0, 4]",,
 "v: [5] = [1,2,3,4,5]; x = v[0][0];","Dimension mismatch: 1D array requires 1 indices, got 2",,
 for i in range (1): if ghost: show ''; close close,Variable 'ghost' not defined,,
 "m: [1][2] = [[1, 2, 3]];","Too many columns in row 1: expected 2 columns, got 3",,
