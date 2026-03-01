@@ -737,110 +737,99 @@ class SemanticAnalyzer:
         
         elif node.kind in ["array_1d_init", "array_2d_init"]:
             # Array initialization with : syntax (e.g., x: [2] = [1,2])
-            # Parser bug: variable name not attached to array_init node
-            # Extract variable name from source code using line/col information
+            # Variable name is attached to node.value by parser
+            var_name = node.value
             
-            if node.line is not None and node.col is not None:
-                # Get the line from source code
-                if 0 <= node.line - 1 < len(self._lines):
-                    line_text = self._lines[node.line - 1]
+            if not var_name:
+                # Fallback: shouldn't happen with fixed parser
+                self._error(node, "Array initialization missing variable name", SemanticError)
+                return
+            
+            # Extract dimensions
+            array_dims = None
+            size_node = node.children[0] if node.children else None
+
+            if size_node and size_node.kind == "size":
+                if node.kind == "array_1d_init" and len(size_node.children) >= 1:
+                    # Check if size expression is valid
+                    size_expr = size_node.children[0]
                     
-                    # node.col points to '[', need to find ID before ':'
-                    # Search backwards from node.col to find ID token
-                    search_text = line_text[:node.col - 1]  # col is 1-based
+                    if not self._is_valid_array_size_expr(size_expr):
+                        self._error(size_expr,
+                            f"Invalid array size: expression must be a non-negative integer",
+                            TypeMismatchError)
+                    else:
+                        # Try to evaluate as constant (optimization)
+                        dim_val_float = self._evaluate_constant_expr(size_expr)
 
-                    # Simple regex to find last identifier before ':'
-                    import re
-                    match = re.search(r'(\w+)\s*:\s*$', search_text)
-
-                    if match:
-                        var_name = match.group(1)
+                        if dim_val_float is not None:
+                            # Constant expression - validate at compile time
+                            dim_val = int(dim_val_float)
+                            
+                            if dim_val < 1:
+                                self._error(size_expr,
+                                    f"Array size must be 1 or greater, got {dim_val}",
+                                    TypeMismatchError)
+                            else:
+                                array_dims = [dim_val]
+                        else:
+                            # Runtime expression - size unknown at compile time
+                            array_dims = None
+                            
+                elif node.kind == "array_2d_init" and len(size_node.children) >= 2:
+                    # Check if both dimension expressions are valid
+                    row_expr = size_node.children[0]
+                    col_expr = size_node.children[1]
+                    
+                    row_valid = self._is_valid_array_size_expr(row_expr)
+                    col_valid = self._is_valid_array_size_expr(col_expr)
+                    
+                    if not row_valid:
+                        self._error(row_expr,
+                            f"Invalid array row expression: expression must be a non-negative integer",
+                            TypeMismatchError)
                         
-                        # Extract dimensions
-                        array_dims = None
-                        size_node = node.children[0] if node.children else None
-
-                        if size_node and size_node.kind == "size":
-                            if node.kind == "array_1d_init" and len(size_node.children) >= 1:
-                                # Check if size expression is valid
-                                size_expr = size_node.children[0]
-                                
-                                if not self._is_valid_array_size_expr(size_expr):
-                                    self._error(size_expr,
-                                        f"Invalid array size: expression must be a non-negative integer",
-                                        TypeMismatchError)
-                                else:
-                                    # Try to evaluate as constant (optimization)
-                                    dim_val_float = self._evaluate_constant_expr(size_expr)
-
-                                    if dim_val_float is not None:
-                                        # Constant expression - validate at compile time
-                                        dim_val = int(dim_val_float)
-                                        
-                                        if dim_val < 1:
-                                            self._error(size_expr,
-                                                f"Array size must be 1 or greater, got {dim_val}",
-                                                TypeMismatchError)
-                                        else:
-                                            array_dims = [dim_val]
-                                    else:
-                                        # Runtime expression - size unknown at compile time
-                                        array_dims = None
-                                        
-                            elif node.kind == "array_2d_init" and len(size_node.children) >= 2:
-                                # Check if both dimension expressions are valid
-                                row_expr = size_node.children[0]
-                                col_expr = size_node.children[1]
-                                
-                                row_valid = self._is_valid_array_size_expr(row_expr)
-                                col_valid = self._is_valid_array_size_expr(col_expr)
-                                
-                                if not row_valid:
-                                    self._error(row_expr,
-                                        f"Invalid array row expression: cannot use bool/string literals, relational, or logical operations",
-                                        TypeMismatchError)
-                                    
-                                if not col_valid:
-                                    self._error(col_expr,
-                                        f"Invalid array column expression: cannot use bool/string literals, relational, or logical operations",
-                                        TypeMismatchError)
-                                
-                                if row_valid and col_valid:
-                                    # Try to evaluate as constants (optimization)
-                                    rows_float = self._evaluate_constant_expr(row_expr)
-                                    cols_float = self._evaluate_constant_expr(col_expr)
-                                    
-                                    if rows_float is not None and cols_float is not None:
-                                        # Both constant - validate at compile time
-                                        rows = int(rows_float)
-                                        cols = int(cols_float)
-                                        
-                                        if rows < 1:
-                                            self._error(row_expr,
-                                                f"Array row count must be 1 or greater, got {rows}",
-                                                TypeMismatchError)
-                                        if cols < 1:
-                                            self._error(col_expr,
-                                                f"Array column count must be 1 or greater, got {cols}",
-                                                TypeMismatchError)
-                                        if rows >= 1 and cols >= 1:
-                                            array_dims = [rows, cols]
-                                    else:
-                                        # At least one is runtime - size unknown at compile time
-                                        array_dims = None
+                    if not col_valid:
+                        self._error(col_expr,
+                            f"Invalid array column expression: expression must be a non-negative integer",
+                            TypeMismatchError)
+                    
+                    if row_valid and col_valid:
+                        # Try to evaluate as constants (optimization)
+                        rows_float = self._evaluate_constant_expr(row_expr)
+                        cols_float = self._evaluate_constant_expr(col_expr)
                         
-                        # Declare the array variable
-                        if self._symbol_table.lookup_current_scope(var_name) is None:
-                            symbol = Symbol(
-                                name=var_name,
-                                kind="variable",
-                                type_=TY_ARRAY,
-                                line=node.line or 0,
-                                col=node.col or 0,
-                                scope_level=self._symbol_table.scope_level,
-                                array_dims=array_dims
-                            )
-                            self._symbol_table.declare(symbol)
+                        if rows_float is not None and cols_float is not None:
+                            # Both constant - validate at compile time
+                            rows = int(rows_float)
+                            cols = int(cols_float)
+                            
+                            if rows < 1:
+                                self._error(row_expr,
+                                    f"Array row count must be 1 or greater, got {rows}",
+                                    TypeMismatchError)
+                            if cols < 1:
+                                self._error(col_expr,
+                                    f"Array column count must be 1 or greater, got {cols}",
+                                    TypeMismatchError)
+                            if rows >= 1 and cols >= 1:
+                                array_dims = [rows, cols]
+                        else:
+                            # At least one is runtime - size unknown at compile time
+                            array_dims = None
+            
+            # Declare the array variable
+            if self._symbol_table.lookup_current_scope(var_name) is None:
+                symbol = Symbol(
+                    name=var_name,
+                    kind="variable",
+                    type_=TY_ARRAY,
+                    line=node.line or 0,
+                    col=node.col or 0,
+                    scope_level=self._symbol_table.scope_level,
+                    array_dims=array_dims
+                )
+                self._symbol_table.declare(symbol)
             
             return
         
@@ -871,8 +860,6 @@ class SemanticAnalyzer:
         for child in node.children:
             self._collect_declarations(child)
     
-
-
 
     def _type_check(self, node: ASTNode) -> Optional[str]:
         """
@@ -966,7 +953,7 @@ class SemanticAnalyzer:
             if node.children:
                 cond_type = self._type_check(node.children[0])
                 # Condition should be bool-coercible (already handled by TypeChecker)
-            
+
             # Type check loop body (skip first child which is condition)
             for i in range(1, len(node.children)):
                 self._type_check(node.children[i])
@@ -990,7 +977,7 @@ class SemanticAnalyzer:
             # Type check condition (first child)
             if node.children:
                 cond_type = self._type_check(node.children[0])
-            
+
             # Type check body (skip first child which is condition)
             for i in range(1, len(node.children)):
                 self._type_check(node.children[i])
@@ -1009,24 +996,24 @@ class SemanticAnalyzer:
             
             self._symbol_table.exit_scope()
             return None
-        
+
         elif node.kind == "error_handling":
             # error_handling: children=[try_node, fail_node, always_node]
             for child in node.children:
                 self._type_check(child)
             return None
-        
+
         elif node.kind in ["try", "fail", "always"]:
             # Enter block scope
             self._symbol_table.enter_scope()
-            
+
             # Type check block body
             for child in node.children:
                 self._type_check(child)
-            
+
             self._symbol_table.exit_scope()
             return None
-        
+
         elif node.kind == "index":
             # Array indexing: children=[base, indices_node]
             # base node contains the array identifier
@@ -1133,7 +1120,7 @@ class SemanticAnalyzer:
                     f"Cannot assign to index of non-array variable '{arr_name}' of type '{symbol.type_}'",
                     TypeMismatchError)
                 return TY_UNKNOWN
-            
+
             # Check dimension count matches
             if symbol.array_dims and node.children and node.children[0].kind == "indices":
                 indices_node = node.children[0]
@@ -1467,7 +1454,7 @@ class SemanticAnalyzer:
             
             # Type check the RHS expression
             expr_type = self._type_check(node.children[0]) if node.children else TY_UNKNOWN
-            
+
             # Update variable type in symbol table (dynamic typing)
             if symbol:
                 symbol.type_ = expr_type
@@ -1494,6 +1481,7 @@ class SemanticAnalyzer:
                 self._error(node,
                     f"Function '{func_name}' not defined",
                     FunctionNotDefinedError)
+                return TY_UNKNOWN
 
             # Check argument count
 
@@ -1510,6 +1498,10 @@ class SemanticAnalyzer:
                 self._error(node,
                     f"Function '{func_name}' expects {expected_count} args, got {actual_count}",
                     ArgumentCountMismatchError)
+
+            # Type-check each argument
+            for arg in args:
+                self._type_check(arg)
 
             return symbol.return_type if symbol.return_type else TY_UNKNOWN
 

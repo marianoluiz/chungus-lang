@@ -4,7 +4,7 @@
 This is a compiler for CHUNGUS - a clean, minimal, general programming language. The project is written in Python and includes:
 - **Lexer**: DFA-based tokenization
 - **Syntax Analyzer**: Recursive descent parser with AST generation
-- **Semantic Analyzer**: Type checking and semantic validation (in development)
+- **Semantic Analyzer**: Type checking, symbol table management, and semantic validation
 - **GUI**: User interface for compilation
 
 ## Project Structure
@@ -14,42 +14,48 @@ This is a compiler for CHUNGUS - a clean, minimal, general programming language.
   - `dfa_lexer.py`: Main lexer implementation
   - `dfa_table.py`: DFA transition table
   - `token_builder.py`: Token construction utilities
-  - `error_handler.py`: Lexical error handling
   
 - **`src/syntax/`**: Recursive descent parser
   - `rd_parser.py`: Main parser implementation
-  - `ast.py`: Abstract Syntax Tree node definitions
-  - `rule_*.py`: Grammar rule implementations
-  - `errors.py`: Syntax error handling
+  - `core.py`: Core parser utilities
+  - `rule_*.py`: Grammar rule implementations (single, expr, block)
   
-- **`src/semantic/`**: Semantic analysis (in development)
+- **`src/semantic/`**: Semantic analysis
+  - `semantic_analyzer.py`: Full semantic analyzer with:
+    - Symbol table management (SymbolTable class)
+    - Type checking with CHUNGUS coercion rules (TypeChecker class)
+    - Error detection (undefined variables, type mismatches, function errors)
+    - Two-pass analysis (declaration collection + type checking)
 
 - **`src/constants/`**: Shared constants and definitions
   - `token.py`: Token class and token type constants
   - `atoms.py`: Atomic symbols/keywords
   - `delims.py`: Delimiters
   - `cfg_lark`: Grammar definition (Lark format)
+  - `ast.py`: AST node definitions
+  - `error_*.py`: Error class definitions
 
 ### Testing
 - **`test/lexer/`**: Lexer tests with CSV data files
 - **`test/syntax/`**: Syntax parser tests with CSV data files
+- **`test/semantic/`**: Semantic analyzer tests with CSV data files
 - Tests use pytest with parametrized data-driven testing
 
 ### Samples
 - **`samples/`**: Sample `.chg` (CHUNGUS) programs for testing
+  - Includes examples for all statement types, expressions, and features
 
 ## Coding Conventions
 
 ### Python Style
 - Follow PEP 8 style guidelines
 - Use type hints where appropriate
-- Use dataclasses for simple data structures (see `Token` class)
+- Use dataclasses for simple data structures (see `Token`, `Symbol` classes)
 - Keep line length reasonable (configured in `.flake8`)
 
 ### Module Organization
 - Each major component (lexer, syntax, semantic) is a separate package
 - Use `__init__.py` to expose public APIs
-- Adapters (`*_adapter.py`) provide clean interfaces to components
 - `__main__.py` enables running modules with `python -m`
 
 ### Token Handling
@@ -58,9 +64,10 @@ This is a compiler for CHUNGUS - a clean, minimal, general programming language.
 - Terminal token types: `id`, `int_literal`, `float_literal`, `str_literal`, `bool_literal`
 
 ### Error Handling
-- Each component has its own error handler module
-- Errors should be informative with line and column information
+- Each component has error classes (SemanticError, UndefinedVariableError, TypeMismatchError, etc.)
+- Errors include line, column, and source context for helpful messages
 - Collect errors to allow multiple error reporting when possible
+- Never raise exceptions for language errors - collect them in error lists
 
 ### Testing
 - Write data-driven tests using CSV files
@@ -79,7 +86,9 @@ This is a compiler for CHUNGUS - a clean, minimal, general programming language.
 - **GUI**: `python -m src.main`
 - **Lexer CLI**: `python -m src.lexer`
 - **Syntax CLI**: `python -m src.syntax`
+- **Semantic CLI**: `python -m src.semantic`
 - **Tests**: `pytest` or `python -m pytest`
+- **Specific test**: `pytest test/semantic/test_semantic.py`
 
 ### Dependency Management
 - Use pip-tools (see `docs/GUIDE-piptools.md`)
@@ -103,6 +112,22 @@ This is a compiler for CHUNGUS - a clean, minimal, general programming language.
 - AST nodes represent program structure
 - Error recovery for resilient parsing
 
+### Semantic Analyzer
+- **Two-pass analysis**:
+  1. First pass: Collect declarations (build symbol table)
+  2. Second pass: Type check expressions and statements
+- **Symbol table**: Nested scopes with shadowing support
+- **Type checking**: CHUNGUS coercion rules (int, float, bool, string)
+  - Arithmetic operations coerce to numeric types
+  - Comparison operations coerce to numeric, return bool
+  - Logical operations coerce to bool
+- **Error recovery**: Collect all errors, don't stop at first error
+- **Common patterns**:
+  - Always check if symbol exists before accessing attributes
+  - Type-check all child nodes (arguments, operands, etc.)
+  - Return `TY_UNKNOWN` when type cannot be determined
+  - Never raise exceptions for language errors
+
 ### Adapter Pattern
 - Adapters provide clean interfaces: `lexer_adapter.py`, `syntax_adapter.py`, `semantic_adapter.py`
 - Isolate component internals from external usage
@@ -114,6 +139,7 @@ This is a compiler for CHUNGUS - a clean, minimal, general programming language.
 - **Token Types**: `src/constants/token.py` - All token type constants
 - **AST Documentation**: `src/syntax/ast.md` - AST node structure
 - **Sample Programs**: `samples/*.chg` - Example CHUNGUS programs
+- **Semantic Analyzer**: `src/semantic/semantic_analyzer.py` - Full implementation with comments
 
 ## When Adding Features
 

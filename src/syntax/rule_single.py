@@ -325,10 +325,10 @@ class SingleStmtRules:
             # check if 1D or 2D array
             if self._match('['):
                 # 2D array: : [expr][expr] = [[...], [...]]
-                return self._two_d_array_init(bracket_tok, first_idx)
+                return self._two_d_array_init(id_tok.lexeme, bracket_tok, first_idx)
             else:
                 # 1D array: : [expr] = [...]
-                return self._one_d_array_init(bracket_tok, first_idx)
+                return self._one_d_array_init(id_tok.lexeme, bracket_tok, first_idx)
 
         # Array indexing assignment: [<expr>] <index_loop> = <assignment_value>
         elif self._match('['):
@@ -403,7 +403,7 @@ class SingleStmtRules:
             return expr
 
 
-    def _one_d_array_init(self: "RDParser", bracket_tok: Token, size_idx: ASTNode) -> ASTNode:
+    def _one_d_array_init(self: "RDParser", var_name: str, bracket_tok: Token, size_idx: ASTNode) -> ASTNode:
         """
         Parse 1D array initialization.
 
@@ -421,6 +421,7 @@ class SingleStmtRules:
         ```
 
         Args:
+            var_name: Variable name being assigned to
             bracket_tok: Token for the opening bracket
             size_idx: Size index node
 
@@ -463,10 +464,10 @@ class SingleStmtRules:
         # create size node
         size_node = ASTNode('size', children=[size_idx])
 
-        return self._ast_node('array_1d_init', bracket_tok, children=[size_node] + elements)
+        return self._ast_node('array_1d_init', bracket_tok, value=var_name, children=[size_node] + elements)
 
 
-    def _two_d_array_init(self: "RDParser", bracket_tok: Token, row_idx: ASTNode) -> ASTNode:
+    def _two_d_array_init(self: "RDParser", var_name: str, bracket_tok: Token, row_idx: ASTNode) -> ASTNode:
         """
         Parse 2D array initialization.
 
@@ -495,6 +496,7 @@ class SingleStmtRules:
         ```
 
         Args:
+            var_name: Variable name being assigned to
             bracket_tok: Token for the opening bracket
             row_idx: First dimension (row) index node
 
@@ -543,7 +545,7 @@ class SingleStmtRules:
         # create size node with both dimensions
         size_node = ASTNode('size', children=[row_idx, col_idx])
 
-        return self._ast_node('array_2d_init', bracket_tok, children=[size_node] + rows)
+        return self._ast_node('array_2d_init', bracket_tok, value=var_name, children=[size_node] + rows)
 
 
     def _two_d_array_element(self: "RDParser") -> ASTNode:

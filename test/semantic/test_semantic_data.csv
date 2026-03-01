@@ -212,3 +212,651 @@ bad6: [1 + 2.5] = [];
 # Always OK
 good4: [5] = [1,2,3,4,5];
 good5: [10] = [];",Invalid array size: expression must be a non-negative integer,,
+"x = 10;
+z = x + y;
+show z;",Variable 'y' not defined,,
+numbers[0] = 100;,Array 'numbers' not defined,,
+"result = calculateData(5, 10);
+show result;
+",Function 'calculateData' not defined,,
+"fn greet(name):
+    show 'Hello';
+close
+
+greet(123);",NO SEMANTIC ERROR/S,,
+"arr: [0] = [];
+",Invalid array size: expression must be a non-negative integer,,
+x = 'Hello' + 5;,NO SEMANTIC ERROR/S,,
+arr[0] = 5;,Array 'arr' not defined,,
+"res = compute(1, 2);",Function 'compute' not defined,,
+"fn add(a, b):
+show '';
+close 
+
+id = 23;
+",NO SEMANTIC ERROR/S,,
+"fn say(msg):
+show msg;
+close 
+
+say(100);",NO SEMANTIC ERROR/S,,
+"y = 10 / 'world';
+",NO SEMANTIC ERROR/S,,
+"a: [2] = [1, 2];
+if a < 10:
+show 'error';
+close ",Invalid comparison '<' between 'array' and 'int',,
+b = 10 and true;,NO SEMANTIC ERROR/S,,
+"x = 1.5;
+z = !x;",NO SEMANTIC ERROR/S,,
+"v: [3] = [1, 2, 3];
+x = v[~1];","Array index out of bounds: index -1 not in range [0, 2]",,
+"m: [2][2] = [[1, 1], [2, 2]];
+
+x = m[3][0];","Array index out of bounds: dimension 1 3 not in range [0, 1]",,
+"m: [2][2] = [[1, 1], [2, 2]];
+
+x = m[0][2];","Array index out of bounds: dimension 2 2 not in range [0, 1]",,
+"a: [1] = [5];
+
+b = a[10];","Array index out of bounds: index 10 not in range [0, 0]",,
+list: [0] = [];,Invalid array size: expression must be a non-negative integer,,
+list: [~5] = [];,Invalid array size: expression must be a non-negative integer,,
+"list: [3] = [1, 2, 3, 4];","Too many array elements: declared [3], got 4 elements",,
+"grid: [3][2] = [[1,1], [2,2]];",NO SEMANTIC ERROR/S,,
+"grid: [2][2] = [[1,2], [3,4,5]];","Too many columns in row 2: expected 2 columns, got 3",,
+"a: [2] = [1, 2];
+
+x = a[i];",Variable 'i' not defined,,
+"fn test(a): show '';  ret a; close 
+
+x = test(1, 2) + 10;","Function 'test' expects 1 args, got 2",,
+"mat: [~2][2] = [[1,1]];",Invalid array row expression: expression must be a non-negative integer,,
+mat: [2][~1] = [[1]];,Invalid array column expression: expression must be a non-negative integer,,
+"if 'yes' or 'no':
+show Id;
+close ",Variable 'Id' not defined,,
+"while x > 0:
+ x = x - 1; 
+close","Variable 'x' not defined
+Variable 'x' not defined",,
+"fn stop(): 
+show 'a';
+ret B+A; 
+close
+
+B = 10;
+",Variable 'A' not defined,,
+"fn add(a, b): 
+show 'Fn';
+ret a + b; 
+close
+
+x = add(1, 2, 3);","Function 'add' expects 2 args, got 3",,
+"x = 'high' ** 2;
+",NO SEMANTIC ERROR/S,,
+y = true // 2;,NO SEMANTIC ERROR/S,,
+z = 10 % 2.5;,NO SEMANTIC ERROR/S,,
+"if true > false: 
+todo;
+ close",NO SEMANTIC ERROR/S,,
+"if '10' >= 10.0: 
+show 'hello'; 
+close ",NO SEMANTIC ERROR/S,,
+"a: [5] = [1,2,3,4,5];
+x = a[10];
+","Array index out of bounds: index 10 not in range [0, 4]",,
+m: [0][2] = [];,Invalid array row expression: expression must be a non-negative integer,,
+m: [2][0] = [];,Invalid array column expression: expression must be a non-negative integer,,
+"m: [2][3] = [[1,2,3], [1,2]];",NO SEMANTIC ERROR/S,,
+a: [2] = [];,NO SEMANTIC ERROR/S,,
+"a: [1] = [1];
+
+if !a: 
+todo ; 
+close",Invalid logical NOT on type 'array',,
+"if !'hello':
+ show 'Hello'; 
+close",NO SEMANTIC ERROR/S,,
+"if 1 or 1.5: 
+todo; 
+close",NO SEMANTIC ERROR/S,,
+"x = undefined_var + (10 / 'str');
+",Variable 'undefined_var' not defined,,
+"fn test(n): 
+todo; 
+ret n; 
+close
+
+test(1.5);",NO SEMANTIC ERROR/S,,
+"fn get(): 
+todo ;
+ret 10; 
+close 
+
+a: [2] = [1,2];
+
+x = a[get()];
+
+
+",NO SEMANTIC ERROR/S,,
+"m: [1][1] = [[1], [2]];","Too many array rows: declared [1][1], got 2 rows",,
+"a: [5] = [1,2,3,4,5];
+
+x = a[~5];","Array index out of bounds: index -5 not in range [0, 4]",,
+"fn compute(a): 
+b = a + c;
+ ret b; 
+close
+
+todo;",Variable 'c' not defined,,
+if true: show unknown_var; close,Variable 'unknown_var' not defined,,
+x = non_existent_array[0];,Variable 'non_existent_array' not defined,,
+"x = sum(missing_fn(1), 2);",Function 'sum' not defined,,
+try: x = 1; fail: show error_msg; close,Variable 'error_msg' not defined,,
+"a: [2] = [1, 2];
+ x = a ** 2;",Invalid operation '**' between 'array' and 'int',,
+if true == 'true': todo; close,NO SEMANTIC ERROR/S,,
+if 3.14 and true: show 'hello'; close,NO SEMANTIC ERROR/S,,
+"fn test(): todo; ret 1; close 
+
+if !test(): show ''; close
+",NO SEMANTIC ERROR/S,,
+"a: [2] = [1, 2, 3, 4, 5];","Too many array elements: declared [2], got 5 elements",,
+m: [2][2] = [];,NO SEMANTIC ERROR/S,,
+"m: [2][2] = [[1, 2], []];",NO SEMANTIC ERROR/S,,
+"a: [3] = [1, 'two', true, 4.0];
+","Too many array elements: declared [3], got 4 elements",,
+"mat: [~1][5] = [[1,2,3,4,5]];",Invalid array row expression: expression must be a non-negative integer,,
+"a: [3] = [1, 2, 3]; x = a[3];","Array index out of bounds: index 3 not in range [0, 2]",,
+"m: [2][2] = [[1,1],[2,2]];
+ x = m[2][0];
+","Array index out of bounds: dimension 1 2 not in range [0, 1]",,
+"m: [1][5] = [[1,2,3,4,5]]; x = m[0][5];","Array index out of bounds: dimension 2 5 not in range [0, 4]",,
+"a: [2] = [1, 2]; a[5] = 10;","Array index out of bounds: index 5 not in range [0, 1]",,
+a: [1] = [1]; x = a[1 + 1];,"Array index out of bounds: index 2 not in range [0, 0]",,
+"fn test(a): b = a + x; close
+
+test(1);
+",Variable 'x' not defined,,
+"fn one(a): todo; ret a; close
+
+fn two(a, b): todo;  ret a + b; close
+
+x = two(one(1));","Function 'two' expects 2 args, got 1",,
+"arr: [2.5] = [1, 2];",Invalid array size: expression must be a non-negative integer,,
+"x = (10 + 5) * ('error' - 1);
+",NO SEMANTIC ERROR/S,,
+try: x = 10; fail: show y; close,Variable 'y' not defined,,
+try: x = 1; fail: x = 2; always: show z; close,Variable 'z' not defined,,
+for i in range (5): show i; close,NO SEMANTIC ERROR/S,,
+"x = 10; x(1, 2);",Function 'x' not defined,,
+"if true: if false: show secret; close close
+",Variable 'secret' not defined,,
+"m: [1][1] = [[1], [2], [3]];","Too many array rows: declared [1][1], got 3 rows",,
+"m: [2][2] = [[1,2], [1,2,3]];","Too many columns in row 2: expected 2 columns, got 3",,
+m: [~2][~2] = [[1]];,"Invalid array row expression: expression must be a non-negative integer
+Invalid array column expression: expression must be a non-negative integer",,
+"m: [2][2] = [[1,1],[2,2]]; m[1][5] = 10;","Array index out of bounds: dimension 2 5 not in range [0, 1]",,
+"arr: [5] = [1, 2, 3];",NO SEMANTIC ERROR/S,,
+x = 10 // 2.5;,NO SEMANTIC ERROR/S,,
+"x = 'Chungus' % 2;
+",NO SEMANTIC ERROR/S,,
+a: [1] = [1]; b: [1] = [1]; if a > b: show ''; close,Invalid comparison '>' between 'array' and 'array',,
+x = 1; if !x: show ''; close,NO SEMANTIC ERROR/S,,
+if 'true' and true: show ''; close,NO SEMANTIC ERROR/S,,
+"fn rec(n): rec(); close 
+
+todo;","Function 'rec' expects 1 args, got 0",,
+"fn getInt(): todo; ret 10; close 
+
+fn takeStr(s): show ''; close
+
+takeStr(getInt());
+
+",NO SEMANTIC ERROR/S,,
+"fn noRet(): show ''; close 
+
+x = noRet() + 5;",Invalid operation '+' between 'none' and 'int',,
+"fn test(): todo; ret unknown_val; close
+
+todo;",Variable 'unknown_val' not defined,,
+"fn calc(a, b): todo; ret a; close
+
+
+x = calc(1, 2, 3) + 10;","Function 'calc' expects 2 args, got 3",,
+"a: [3] = [1, 2, 3]; x = a[~5];
+","Array index out of bounds: index -5 not in range [0, 2]",,
+"a: [2] = [1, 2]; x = a[0][0];","Dimension mismatch: 1D array requires 1 indices, got 2",,
+x = (1 + (2 * (3 / (4 ** (y)))));,Variable 'y' not defined,,
+size = ~5; arr: [size] = [];,Invalid array size: expression must be a non-negative integer,,
+x = ( ( ( 10 + ( 'fai' * 2 ) ) ) );,NO SEMANTIC ERROR/S,,
+x = (1 + (2 + (3 + (4 + (5 + unknown)))));,Variable 'unknown' not defined,,
+"if 1 == 1 : show 'error'; close
+",NO SEMANTIC ERROR/S,,
+"m: [1][1] = [['hello']];
+
+x = !m[0][0];",NO SEMANTIC ERROR/S,,
+x = (1 < 2) + 10;,NO SEMANTIC ERROR/S,,
+"m: [2][2] = [[1,1],[2,2]];
+
+x = m[1.5][0];
+",Array index out of bounds,,
+"v: [2] = [1, 2];
+
+x = v[~1];
+","Array index out of bounds: index -1 not in range [0, 1]",,
+"m: [2][1] = [[], [1]];",NO SEMANTIC ERROR/S,,
+"fn get(): todo; ret ~1; close
+
+arr: [get()] = [];
+
+",Invalid array size: expression must be a non-negative integer,,
+"m: [1][2] = [[1, 'two', 3]];
+","Too many columns in row 1: expected 2 columns, got 3",,
+"fn fact(n): todo; ret n * fact(n-1, 10); close
+
+todo;
+","Function 'fact' expects 1 args, got 2",,
+"fn addOne(n): todo; ret n + 1; close
+
+x = addOne(true);",NO SEMANTIC ERROR/S,,
+"fn test(): todo; ret 1; close
+
+x = test[0];
+",Cannot index non-array type 'function',,
+"fn get(): todo; ret a + 1; close
+
+todo ;",Variable 'a' not defined,,
+"fn power(b, e): todo; ret b**e; close
+
+
+x = power();
+","Function 'power' expects 2 args, got 0",,
+"for i in range(start, 10): show i; close",Variable 'start' not defined,,
+while true: y = z + 1; close,Variable 'z' not defined,,
+if 'true' != true: show ''; close,NO SEMANTIC ERROR/S,,
+"v: [5] = [1,2,3,4,5];
+
+
+x = v[0][0];","Dimension mismatch: 1D array requires 1 indices, got 2",,
+"m: [2][2] = [[1,1],[2,2]];
+
+
+x = m[((1+1)*2)][0];","Array index out of bounds: dimension 1 4 not in range [0, 1]",,
+"fn err(): x = 1 / 'a' ; close
+
+id=id;",NO SEMANTIC ERROR/S,,
+m: [1][1] = [[]];,NO SEMANTIC ERROR/S,,
+try: ghost(); fail: show ''; close,Function 'ghost' not defined,,
+x = !( ( ( ( 3.14 ) ) ) );,NO SEMANTIC ERROR/S,,
+x = (1 + 2) * ( (3 / ( (y - 1) )) );,Variable 'y' not defined,,
+a: [1] = [1]; if (( a > 0.5 )): show ''; close,Invalid comparison '>' between 'array' and 'float',,
+if ( (10 and 'true') ): show 'error'; close,NO SEMANTIC ERROR/S,,
+x = ( ( (1 == 1) ) ) + 5;,NO SEMANTIC ERROR/S,,
+"fn f(a, b): todo; ret a; close
+
+
+x = f( ( (1) ) );
+","Function 'f' expects 2 args, got 1",,
+"fn g(x): show x; close
+
+
+g(unknown_data);",Variable 'unknown_data' not defined,,
+"fn area(r): todo; ret 3.14 * r; close
+
+
+area('five');",NO SEMANTIC ERROR/S,,
+"fn area(r): todo; ret 3.14 * r; close
+
+
+area('five');",NO SEMANTIC ERROR/S,,
+"fn add(a, b): todo; ret a + b; close
+
+
+x: [1] = [1]; 
+show add;",NO SEMANTIC ERROR/S,,
+try: x = 1; fail: x = 0; always: ghost_func(); close,Function 'ghost_func' not defined,,
+"a: [2] = [1, 2];
+
+
+x = a[ ( (1 + 1) ) ];","Array index out of bounds: index 2 not in range [0, 1]",,
+"m: [2][2] = [[1,1],[2,2]];
+
+
+x = m[ ( (5-2) ) ][0];","Array index out of bounds: dimension 1 3 not in range [0, 1]",,
+"m: [1][1] = [[10]];
+
+
+x = m[0][ ( (1) ) ];","Array index out of bounds: dimension 2 1 not in range [0, 0]",,
+"a: [5] = [1,2,3,4,5];
+
+
+x = a[ ( (~2 - 2) ) ];","Array index out of bounds: index -4 not in range [0, 4]",,
+"v: [1] = [100];
+
+
+v[1] = 200;","Array index out of bounds: index 1 not in range [0, 0]",,
+m: [0][5] = [];,Invalid array row expression: expression must be a non-negative integer,,
+m: [5][0] = [];,Invalid array column expression: expression must be a non-negative integer,,
+"a: [10] = [1, 2, 3];",NO SEMANTIC ERROR/S,,
+"m: [3][1] = [[1], [2]];",NO SEMANTIC ERROR/S,,
+"m: [2][2] = [[1, 2], [1, 2, 3]];","Too many columns in row 2: expected 2 columns, got 3",,
+"a:[1]=[1]; b:[1]=[1];
+
+
+if a != b: show ''; close
+",Invalid comparison '!=' between 'array' and 'array',,
+"m:[2][2]=[[1,1],[2,2]];
+
+
+x = m[idx][0];",Variable 'idx' not defined,,
+x = 'text' / true;,NO SEMANTIC ERROR/S,,
+"m: [2][2] = [[1, 2], [3]];",NO SEMANTIC ERROR/S,,
+"a: [5.5] = [1, 2, 3, 4, 5];",Invalid array size: expression must be a non-negative integer,,
+"m: [1][1] = [[1], [2]];","Too many array rows: declared [1][1], got 2 rows",,
+"x: [~3] = [1, 2, 3];",Invalid array size: expression must be a non-negative integer,,
+"m: [2][2] = [[1, 2, 3], [4, 5]];","Too many columns in row 1: expected 2 columns, got 3",,
+"x = 1 + 10;
+",NO SEMANTIC ERROR/S,,
+"if ( (0.5 and 'ok') ): show ''; close
+",NO SEMANTIC ERROR/S,,
+"fn s(): todo; ret 'hi'; close if !s(): show ''; close
+",NO SEMANTIC ERROR/S,,
+"if ( (true >= 1.0) ): show ''; close
+",NO SEMANTIC ERROR/S,,
+"x = 'hello'; y = ~10;
+",NO SEMANTIC ERROR/S,,
+while true: show ghost_var; close,Variable 'ghost_var' not defined,,
+"for i in range(1, 10): x = missing_func(); close",Function 'missing_func' not defined,,
+x = data_list[ ( (0) ) ];,Variable 'data_list' not defined,,
+"try: show x;  fail: show ''; close
+",Variable 'x' not defined,,
+"fn test(a): todo; ret a; close test( ( ( (y) ) ) );
+",Variable 'y' not defined,,
+"v: [3] = [1, 2, 3]; x = v[100];","Array index out of bounds: index 100 not in range [0, 2]",,
+m: [1][1] = [[1]]; x = m[1][0];,"Array index out of bounds: dimension 1 1 not in range [0, 0]",,
+m: [5][5] = [[0]]; x = m[0][5];,"Array index out of bounds: dimension 2 5 not in range [0, 4]",,
+"v: [4] = [1,2,3,4]; x = v[2**2];","Array index out of bounds: index 4 not in range [0, 3]",,
+v: [1] = [10]; x = v[~1];,"Array index out of bounds: index -1 not in range [0, 0]",,
+"for i in range (1, 2): for j in range (3, 4): show ''; close close
+",NO SEMANTIC ERROR/S,,
+"try: try: x = 1; fail: show 's'; close fail: show 's'; close
+",NO SEMANTIC ERROR/S,,
+"if ( (ghost_func() == true) ): show ''; close
+",Function 'ghost_func' not defined,,
+x = 0; while x < 10: x = x + undefined_step; close,Variable 'undefined_step' not defined,,
+"for i in range (1, 2, 3): show ''; close show 'i';
+",NO SEMANTIC ERROR/S,,
+"m: [2][2] = [[1, 2]];",NO SEMANTIC ERROR/S,,
+m: [2][2] = [];,NO SEMANTIC ERROR/S,,
+"m: [2][2] = [[1, 1], [2, 2]]; x = m[2][0];","Array index out of bounds: dimension 1 2 not in range [0, 1]",,
+"m: [2][2] = [[1, 1], [2, 2]]; x = m[0][2];","Array index out of bounds: dimension 2 2 not in range [0, 1]",,
+"m: [2][2] = [[1], [2, 3]];",NO SEMANTIC ERROR/S,,
+"x = '10' // '2';
+",NO SEMANTIC ERROR/S,,
+x = 10.5 % 2.5;,NO SEMANTIC ERROR/S,,
+"if 'apple' < true: show ''; close
+",NO SEMANTIC ERROR/S,,
+"if 1 and 2: show ''; close
+",NO SEMANTIC ERROR/S,,
+"if x: show ''; close
+",Variable 'x' not defined,,
+"fn ping(): show 'pong'; close ping(1, 2, 3);
+","Function 'ping' expects 0 args, got 3",,
+"fn takeInt(n): todo; ret n; close fn getStr(): todo; ret 'hi'; close takeInt(getStr());
+",NO SEMANTIC ERROR/S,,
+"fn r(n): todo; ret r('string'); close
+
+id=id;
+
+
+",NO SEMANTIC ERROR/S,,
+x = 10 + unknown_func(5);,Function 'unknown_func' not defined,,
+"fn a(x, y): todo; ret x; close z = a(a(1));
+","Function 'a' expects 2 args, got 1",,
+"a: [5] = [1,2,3,4,5]; x = a[ ( (0 - 1) ) ];",NO SEMANTIC ERROR/S,,
+"arr: [2.0] = [1, 2];",Invalid array size: expression must be a non-negative integer,,
+"a: [2] = [1, 2]; x = a[3] + unknown;","Array index out of bounds: index 3 not in range [0, 1]
+Variable 'unknown' not defined",,
+"fn outer(a): todo; close  fn inner(b): todo; ret a + c; close 
+
+todo;
+","Variable 'a' not defined
+Variable 'c' not defined",,
+"fn getInt(): todo; ret 5; close if !!getInt(): show ''; close
+",NO SEMANTIC ERROR/S,,
+"m: [2][2] = [[1,1],[2,2]];x = m['row'][0];
+",Invalid array index: expression must be 0 or non-negative integer,,
+"m: [2][2] = [[1,1],[2,2]];x = m[0][true];",Invalid array index: expression must be 0 or non-negative integer,,
+"m: [2][2] = [[1,1],[2,2],[3,3]];","Too many array rows: declared [2][2], got 3 rows",,
+m: [1][1] = [[10]]; x = m[0][~5];,"Array index out of bounds: dimension 2 -5 not in range [0, 0]",,
+"m: [1][1] = [[1, 2, 3]];","Too many columns in row 1: expected 1 columns, got 3",,
+"x = 2.5 ** 'power';
+",NO SEMANTIC ERROR/S,,
+"a: [1] = [1]; if a <= 1.5: show ''; close
+",Invalid comparison '<=' between 'array' and 'float',,
+"if 'yes' or 3.14: show ''; close
+",NO SEMANTIC ERROR/S,,
+"m: [1][1] = [[1]]; if !m: show ''; close
+",Invalid logical NOT on type 'array',,
+"fn void(): show ''; close x = 10 + void();
+",Invalid operation '+' between 'int' and 'none',,
+"fn getVal(): todo; ret secret_key; close
+
+todo;
+",Variable 'secret_key' not defined,,
+"fn volume(l, w, h):
+todo;
+ ret l*w*h; 
+close 
+
+x = volume(10, 5);
+","Function 'volume' expects 3 args, got 2",,
+"fn square(n): todo; ret n*n; close square('10');
+",NO SEMANTIC ERROR/S,,
+"fn go(n): todo; ret go(true); close
+
+todo;
+",NO SEMANTIC ERROR/S,,
+"while checkStatus(): show 'loop'; close
+",Function 'checkStatus' not defined,,
+"a: [2] = [1, 2]; x = a[ ( (5 - 3) ) ];",NO SEMANTIC ERROR/S,,
+"v: [5] = [1,2,3,4,5]; x = v[~10];","Array index out of bounds: index -10 not in range [0, 4]",,
+m: [1][1] = [[1]]; x = m[1][0];,"Array index out of bounds: dimension 1 1 not in range [0, 0]",,
+m: [1][1] = [[1]]; x = m[0][1];,"Array index out of bounds: dimension 2 1 not in range [0, 0]",,
+m: [1][1] = [[1]]; m[2][0] = 5;,"Array index out of bounds: dimension 1 2 not in range [0, 0]",,
+"x = unknown_var + a[100]; 
+","Variable 'unknown_var' not defined
+Variable 'a' not defined",,
+"fn offset(): todo; ret 10; close a: [2] = [1, 2]; x = a[offset()];
+","Array index out of bounds: index 10 not in range [0, 1]",,
+"m: [2][2] = [[1, 2], []];",NO SEMANTIC ERROR/S,,
+"if true: if (!'string'): show ''; close close
+",NO SEMANTIC ERROR/S,,
+x = ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( 1 ) ) ) ) ) ) ) ) ) ) ) ) ) ) ) ) ) ) ) );,NO SEMANTIC ERROR/S,,
+"try: x = y + 1; fail: show ''; close
+",Variable 'y' not defined,,
+"m: [2][2] = [[1, 2], [1, 2, 3]];","Too many columns in row 2: expected 2 columns, got 3",,
+try: x=1; fail: x=0; always: show msg; close,Variable 'msg' not defined,,
+"a: [1] = [1,2,3,4,5,6,7,8,9,0];","Too many array elements: declared [1], got 10 elements",,
+"try: x = 'fail' - 1; fail: show ''; close
+",NO SEMANTIC ERROR/S,,
+"m: [~2][2] = [[1,1],[2,2]];",Invalid array row expression: expression must be a non-negative integer,,
+"m: [2][~5] = [[1],[1]];",Invalid array column expression: expression must be a non-negative integer,,
+a: [true] = [1];,Invalid array size: expression must be a non-negative integer,,
+"m: [2][3] = [[1, 2], [1, 2, 3]];",NO SEMANTIC ERROR/S,,
+list: [5] = [];,NO SEMANTIC ERROR/S,,
+a: [1] = [1]; x = a // 2;,Invalid operation '//' between 'array' and 'int',,
+"x = 10 % '3';
+",NO SEMANTIC ERROR/S,,
+"a: [1] = [1]; b: [1] = [1]; if a < b: show ''; close
+",Invalid comparison '<' between 'array' and 'array',,
+"if ( (3.14 and false) ): show ''; close
+",NO SEMANTIC ERROR/S,,
+x = !10;,NO SEMANTIC ERROR/S,,
+"v: [5] = [1,2,3,4,5]; x = v[5];","Array index out of bounds: index 5 not in range [0, 4]",,
+m: [1][1] = [[1]]; x = m[1][0];,"Array index out of bounds: dimension 1 1 not in range [0, 0]",,
+"m: [2][2] = [[1,1],[2,2]]; x = m[0][2];","Array index out of bounds: dimension 2 2 not in range [0, 1]",,
+"a: [2] = [1, 2]; x = a[ 2**1 ];",NO SEMANTIC ERROR/S,,
+"a: [3] = [1,2,3]; x = a[~1];","Array index out of bounds: index -1 not in range [0, 2]",,
+"m: [2][2] = [[1,1],[2,2]]; x = m[0.0][0];",Invalid array index: expression must be 0 or non-negative integer,,
+"v: [2] = [1, 2]; x = v[ ( (1 * 2) ) ];",NO SEMANTIC ERROR/S,,
+"m: [3][3] = [[1,2,3]];",NO SEMANTIC ERROR/S,,
+m: [1][1] = [[1]]; m[0][10] = 5;,"Array index out of bounds: dimension 2 10 not in range [0, 0]",,
+"a: ['5'] = [1,2,3,4,5];
+",Invalid array size: expression must be a non-negative integer,,
+a: [1] = [1]; x = a % 2;,Invalid operation '%' between 'array' and 'int',,
+x = true ** 2;,NO SEMANTIC ERROR/S,,
+"if ( (10 and 1) ): show ''; close
+",NO SEMANTIC ERROR/S,,
+"s = 'hello'; if !s: show ''; close
+",NO SEMANTIC ERROR/S,,
+"s = 'true'; b = true; if s == b: show ''; close
+",NO SEMANTIC ERROR/S,,
+"a: [5] = [1,2,3,4,5]; x = a[ ( (~2 ** 1) ) ];",NO SEMANTIC ERROR/S,,
+"v: [5] = [1,2,3,4,5]; x = v[0][0];","Dimension mismatch: 1D array requires 1 indices, got 2",,
+for i in range (1): if ghost: show ''; close close,Variable 'ghost' not defined,,
+"m: [1][2] = [[1, 2, 3]];","Too many columns in row 1: expected 2 columns, got 3",,
+x = (((((((((((((((((((((((((((100)))))))))))))))))))))))))));,NO SEMANTIC ERROR/S,,
+x = (1 + (2 * (3 / (4 - (5 + (6 * (y)))))));,Variable 'y' not defined,,
+CustomerLanding_jsx[0] = 1;,Array 'CustomerLanding_jsx' not defined,,
+CUSTOMERPAGEDRAFT_css[0] = 1;,Array 'CUSTOMERPAGEDRAFT_css' not defined,,
+Dashboard_jsx[0] = 1;,Array 'Dashboard_jsx' not defined,,
+Login_jsx[0] = 1;,Array 'Login_jsx' not defined,,
+main_jsx[0] = 1;,Array 'main_jsx' not defined,,
+Products_css[0] = 1;,Array 'Products_css' not defined,,
+Settings_jsx[0] = 1;,Array 'Settings_jsx' not defined,,
+tailwindcss4[0] = 1;,Array 'tailwindcss4' not defined,,
+Venv[0] = 1;,Array 'Venv' not defined,,
+env_file[0] = 1;,Array 'env_file' not defined,,
+gitignore[0] = 1;,Array 'gitignore' not defined,,
+database_py[0] = 1;,Array 'database_py' not defined,,
+eslint_config_js[0] = 1;,Array 'eslint_config_js' not defined,,
+index_html[0] = 1;,Array 'index_html' not defined,,
+postcss_config_js[0] = 1;,Array 'postcss_config_js' not defined,,
+App_css();,Function 'App_css' not defined,,
+App_jsx();,Function 'App_jsx' not defined,,
+CustomerLanding_jsx();,Function 'CustomerLanding_jsx' not defined,,
+CUSTOMERPAGEDRAFT_css();,Function 'CUSTOMERPAGEDRAFT_css' not defined,,
+Dashboard_jsx();,Function 'Dashboard_jsx' not defined,,
+Login_jsx();,Function 'Login_jsx' not defined,,
+main_jsx();,Function 'main_jsx' not defined,,
+Products_css();,Function 'Products_css' not defined,,
+Settings_jsx();,Function 'Settings_jsx' not defined,,
+tailwindcss4();,Function 'tailwindcss4' not defined,,
+Venv();,Function 'Venv' not defined,,
+env_file();,Function 'env_file' not defined,,
+gitignore();,Function 'gitignore' not defined,,
+database_py();,Function 'database_py' not defined,,
+eslint_config_js();,Function 'eslint_config_js' not defined,,
+index_html();,Function 'index_html' not defined,,
+"fn App_css(a,b): todo; ret a; close App_css(1);","Function 'App_css' expects 2 args, got 1",,
+"fn App_jsx(a,b): show a; ret a; close App_jsx(1);","Function 'App_jsx' expects 2 args, got 1",,
+"fn CustomerLanding_jsx(a,b): todo; ret a; close CustomerLanding_jsx(1);","Function 'CustomerLanding_jsx' expects 2 args, got 1",,
+"fn CUSTOMERPAGEDRAFT_css(a,b): show b; ret a; close CUSTOMERPAGEDRAFT_css(1);","Function 'CUSTOMERPAGEDRAFT_css' expects 2 args, got 1",,
+"fn Dashboard_jsx(a,b): todo; ret a; close Dashboard_jsx(1);","Function 'Dashboard_jsx' expects 2 args, got 1",,
+"fn Login_jsx(a,b): show a; ret a; close Login_jsx(1);","Function 'Login_jsx' expects 2 args, got 1",,
+"fn main_jsx(a,b): todo; ret a; close main_jsx(1);","Function 'main_jsx' expects 2 args, got 1",,
+"fn Products_css(a,b): show a; ret a; close Products_css(1);","Function 'Products_css' expects 2 args, got 1",,
+"fn Settings_jsx(a,b): todo; ret a; close Settings_jsx(1);","Function 'Settings_jsx' expects 2 args, got 1",,
+"fn tailwindcss4(a,b): show a; ret a; close tailwindcss4(1);","Function 'tailwindcss4' expects 2 args, got 1",,
+"fn Venv(a,b): todo; ret a; close Venv(1);","Function 'Venv' expects 2 args, got 1",,
+"fn env_file(a,b): show a; ret a; close env_file(1);","Function 'env_file' expects 2 args, got 1",,
+"fn gitignore(a,b): todo; ret a; close gitignore(1);","Function 'gitignore' expects 2 args, got 1",,
+"fn database_py(a,b): show a; ret a; close database_py(1);","Function 'database_py' expects 2 args, got 1",,
+"fn eslint_config_js(a,b): todo; ret a; close eslint_config_js(1);","Function 'eslint_config_js' expects 2 args, got 1",,
+"fn index_html(a,b): show a; ret a; close index_html(1);","Function 'index_html' expects 2 args, got 1",,
+"fn postcss_config_js(a,b): todo; ret a; close postcss_config_js(1);","Function 'postcss_config_js' expects 2 args, got 1",,
+fn App_css(a): show a; ret a; close App_css('str');,NO SEMANTIC ERROR/S,,
+fn App_jsx(a): todo; ret a; close App_jsx('str');,NO SEMANTIC ERROR/S,,
+fn CustomerLanding_jsx(a): show a; ret a; close CustomerLanding_jsx('str');,NO SEMANTIC ERROR/S,,
+fn CUSTOMERPAGEDRAFT_css(a): todo; ret a; close CUSTOMERPAGEDRAFT_css('str');,NO SEMANTIC ERROR/S,,
+fn Dashboard_jsx(a): show a; ret a; close Dashboard_jsx('str');,NO SEMANTIC ERROR/S,,
+fn Login_jsx(a): todo; ret a; close Login_jsx('str');,NO SEMANTIC ERROR/S,,
+fn main_jsx(a): show a; ret a; close main_jsx('str');,NO SEMANTIC ERROR/S,,
+fn Products_css(a): todo; ret a; close Products_css('str');,NO SEMANTIC ERROR/S,,
+fn Settings_jsx(a): show a; ret a; close Settings_jsx('str');,NO SEMANTIC ERROR/S,,
+fn tailwindcss4(a): todo; ret a; close tailwindcss4('str');,NO SEMANTIC ERROR/S,,
+fn Venv(a): show a; ret a; close Venv('str');,NO SEMANTIC ERROR/S,,
+fn env_file(a): todo; ret a; close env_file('str');,NO SEMANTIC ERROR/S,,
+fn gitignore(a): show a; ret a; close gitignore('str');,NO SEMANTIC ERROR/S,,
+fn database_py(a): todo; ret a; close database_py('str');,NO SEMANTIC ERROR/S,,
+fn eslint_config_js(a): show a; ret a; close eslint_config_js('str');,NO SEMANTIC ERROR/S,,
+fn index_html(a): todo; ret a; close index_html('str');,NO SEMANTIC ERROR/S,,
+fn postcss_config_js(a): show a; ret a; close postcss_config_js('str');,NO SEMANTIC ERROR/S,,
+x = 'App_css' - 5;,NO SEMANTIC ERROR/S,,
+x = 'App_jsx' + 1;,NO SEMANTIC ERROR/S,,
+x = true * 5;,NO SEMANTIC ERROR/S,,
+x = 'Dashboard_jsx' / 2;,NO SEMANTIC ERROR/S,,
+x = 100 % 'Login_jsx';,NO SEMANTIC ERROR/S,,
+x = 'main_jsx' ** 2;,NO SEMANTIC ERROR/S,,
+x = 10 // 'Products_css';,NO SEMANTIC ERROR/S,,
+fn err(a): x = a + 'a'; ret x; close err(1);,NO SEMANTIC ERROR/S,,
+x = false - 'Settings_jsx';,NO SEMANTIC ERROR/S,,
+x = 'tailwind' * 'css';,NO SEMANTIC ERROR/S,,
+x = 10 + false;,NO SEMANTIC ERROR/S,,
+x = 'venv' / 'file';,NO SEMANTIC ERROR/S,,
+x = 5 ** true;,NO SEMANTIC ERROR/S,,
+x = 'env' % 5;,NO SEMANTIC ERROR/S,,
+x = true // 2;,NO SEMANTIC ERROR/S,,
+x = 'gitignore' - 'file';,NO SEMANTIC ERROR/S,,
+x = false * true;,NO SEMANTIC ERROR/S,,
+x = 'App_css' < 5;,NO SEMANTIC ERROR/S,,
+"App_css: [3] = [1,2];",NO SEMANTIC ERROR/S,,
+"App_jsx: [2] = [1,2,3];","Too many array elements: declared [2], got 3 elements",,
+Customer: [5] = [1];,NO SEMANTIC ERROR/S,,
+"Dash: [1] = [1,2];","Too many array elements: declared [1], got 2 elements",,
+"Login: [4] = [1,2];",NO SEMANTIC ERROR/S,,
+main: [2] = [1];,NO SEMANTIC ERROR/S,,
+"Prod: [3] = [1,2,3,4];","Too many array elements: declared [3], got 4 elements",,
+Set: [1] = [];,NO SEMANTIC ERROR/S,,
+"tail: [5] = [1,2,3];",NO SEMANTIC ERROR/S,,
+App_css: [0] = [];,Invalid array size: expression must be a non-negative integer,,
+Customer: [0] = [];,Invalid array size: expression must be a non-negative integer,,
+Login_jsx: [0] = [];,Invalid array size: expression must be a non-negative integer,,
+Settings_m: [0] = [];,Invalid array size: expression must be a non-negative integer,,
+env_m: [0][0] = [];,Invalid array row expression: expression must be a non-negative integer,,
+index_m: [0][5] = [];,Invalid array row expression: expression must be a non-negative integer,,
+"Settings: [2][0] = [[],[]];",Invalid array column expression: expression must be a non-negative integer,,
+git_m: [1][0] = [[]];,Invalid array column expression: expression must be a non-negative integer,,
+"check = 4 < 2 and 5 > 2 + 10 ** 20 // false - true % !!!!true * (320 % 4);",NO SEMANTIC ERROR/S,,
+"flag = !!! 10 == 10;",NO SEMANTIC ERROR/S,,
+add = 5 + 3;,NO SEMANTIC ERROR/S,,
+todo; todo;,NO SEMANTIC ERROR/S,,
+show x; todo;,"Variable 'x' not defined",,
+show 'str';,NO SEMANTIC ERROR/S,,
+"y = 10; 
+x = y;",NO SEMANTIC ERROR/S,,
+"result = undeclared_variable + 5;
+","Variable 'undeclared_variable' not defined",,
+"calculation = 'test' - out_of_scope_variable;","Variable 'out_of_scope_variable' not defined
+",,
+"constant_max_score = 999;",NO SEMANTIC ERROR/S,,
+"read_only_pi = 3.14159;",NO SEMANTIC ERROR/S,,
+"defined_function = 'new string value';
+",NO SEMANTIC ERROR/S,,
+"output = regular_integer_variable('argument');
+","Function 'regular_integer_variable' not defined",,
+"result = regular_boolean_variable(10, 20);
+",Function 'regular_boolean_variable' not defined,,
+"total = undefined_function_call('hello');","Function 'undefined_function_call' not defined",,
+"sum = function_expecting_two(1);
+","Function 'function_expecting_two' not defined",,
+"value = function_expecting_ARG('a', 'b', 'c');","Function 'function_expecting_ARG' not defined
+",,
+"uninitialized_var = uninitialized_var + 1;",NO SEMANTIC ERROR/S,,
+"score = 100; todo;",NO SEMANTIC ERROR/S,,
+"todo; player_name = 'Shawn';
+",NO SEMANTIC ERROR/S,,
+"todo; todo; todo;
+",NO SEMANTIC ERROR/S,,
+"status = 'pending'; todo; result = 1;
+",NO SEMANTIC ERROR/S,,
+"_ = 10;
+x = _;
+y = x;
+y = z;
+z = '_123';",NO SEMANTIC ERROR/S,,
+"unDeclared = 10 + (32 - 20 % 34 ** true <= false + !!!!!10) % 20 ** 45 < 12 > 32 < 21 + 'true';
+",NO SEMANTIC ERROR/S,,
