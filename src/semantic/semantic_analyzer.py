@@ -422,6 +422,7 @@ class SemanticAnalyzer:
         # Non-constant: variables, function calls, etc.
         return None
 
+
     def _evaluate_with_coercion(self, node: ASTNode) -> Optional[float]:
         """
         Evaluate expression with type coercion for bool/string in operations.
@@ -445,6 +446,7 @@ class SemanticAnalyzer:
             return 1.0 if len(str_val) > 0 else 0.0
         
         return None
+
 
     def _is_valid_array_size_expr(self, node: ASTNode, in_arithmetic: bool = False) -> bool:
         """
@@ -688,41 +690,9 @@ class SemanticAnalyzer:
             # Don't enter function scope - local vars declared in pass 2
             return
 
-        # For global-level statements, declare global variables
-        # Only declare if we're at global scope (scope_level == 0)
-        elif node.kind == "assignment_statement":
-            if self._symbol_table.scope_level == 0:
-                # Global assignment: declare variable
-                var_name = node.value
-                if var_name:
-                    symbol = Symbol(
-                        name=var_name,
-                        kind="variable",
-                        type_=TY_UNKNOWN,  # Type will be inferred in pass 2
-                        line=node.line or 0,
-                        col=node.col or 0,
-                        scope_level=self._symbol_table.scope_level
-                    )
-                    self._symbol_table.declare(symbol)
-            return
-        
-        elif node.kind in ["array_1d_init", "array_2d_init"]:
-            if self._symbol_table.scope_level == 0:
-                # Global array: declare variable with extracted dimensions
-                var_name = node.value
-                if var_name:
-                    array_dims = self._extract_array_dims(node)
-                    symbol = Symbol(
-                        name=var_name,
-                        kind="variable",
-                        type_=TY_ARRAY,
-                        line=node.line or 0,
-                        col=node.col or 0,
-                        scope_level=self._symbol_table.scope_level,
-                        array_dims=array_dims
-                    )
-                    self._symbol_table.declare(symbol)
-            return
+        # DO NOT declare global variables in pass 1
+        # Variables (both global and local) are declared during pass 2 (type checking)
+        # when assignments are encountered. This ensures proper order checking.
         
         # Don't recurse into control structures (while, if, for, etc.)
         # Those contain local variables which are declared in pass 2
