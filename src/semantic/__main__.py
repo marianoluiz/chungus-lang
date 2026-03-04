@@ -6,16 +6,51 @@ from src.constants.token import Token
 import os
 
 # ------------------- Pretty Print -------------------
-def print_ast(node, prefix: str = "", is_last: bool = True):
+def print_ast(node, symbol_table=None, prefix: str = "", is_last: bool = True):
     # choose branch symbol
     connector = "└─ " if is_last else "├─ "
 
-    # display node with value, line, and col
+    # display node with value, line, col, and inferred_type
     node_str = f"{node.kind}"
     if node.value is not None:
         node_str += f": {node.value}"
     if hasattr(node, 'line') and hasattr(node, 'col') and node.line is not None:
         node_str += f"  @({node.line},{node.col})"
+    if hasattr(node, 'inferred_type') and node.inferred_type is not None:
+        node_str += f"  [type: {node.inferred_type}]"
+    
+    # Show constant value if available (for ANY node type, not just id)
+    if hasattr(node, 'constant_value') and node.constant_value is not None:
+        const_val = node.constant_value
+        # Format based on Python type
+        if isinstance(const_val, bool):
+            const_display = "true" if const_val else "false"
+            node_str += f"  [const: {const_display}]"
+        elif isinstance(const_val, str):
+            node_str += f"  [const: '{const_val}']"
+        elif isinstance(const_val, int):
+            node_str += f"  [const: {const_val}]"
+        elif isinstance(const_val, float):
+            # Show as int if it's a whole number
+            if const_val == int(const_val):
+                node_str += f"  [const: {int(const_val)}]"
+            else:
+                node_str += f"  [const: {const_val}]"
+    # Fallback: If it's an identifier, also check symbol table
+    elif node.kind == "id" and node.value and symbol_table:
+        symbol = symbol_table.lookup(node.value)
+        if symbol and symbol.constant_value is not None:
+            const_val = symbol.constant_value
+            if isinstance(const_val, bool):
+                const_display = "true" if const_val else "false"
+                node_str += f"  [const: {const_display}]"
+            elif isinstance(const_val, str):
+                node_str += f"  [const: '{const_val}']"
+            elif isinstance(const_val, (int, float)):
+                if isinstance(const_val, float) and const_val == int(const_val):
+                    node_str += f"  [const: {int(const_val)}]"
+                else:
+                    node_str += f"  [const: {const_val}]"
     
     print(prefix + connector + node_str)
 
@@ -28,7 +63,7 @@ def print_ast(node, prefix: str = "", is_last: bool = True):
     count = len(node.children)
     for i, child in enumerate(node.children):
         is_last_child = (i == count - 1)
-        print_ast(child, new_prefix, is_last_child)
+        print_ast(child, symbol_table, new_prefix, is_last_child)
 
 def main():
     # This takes the input folder path
@@ -89,13 +124,9 @@ if __name__ == '__main__':
     #         f"(line {t['line']}, col {t['col']})"
     #     )
     
-    if syntax_result.tree is not None:
-        pass
-        # print("\n\nAST:")
-        # print_ast(syntax_result.tree)
     if semantic_result.tree is not None:
-        pass
-        # print_ast(semantic_result.tree)
+        print("\n\nAST with Type Annotations:")
+        print_ast(semantic_result.tree, semantic_result.symbol_table)
     else:
         print("No AST generated.")
 

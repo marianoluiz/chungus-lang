@@ -118,7 +118,7 @@ idx_good2 = arr[2+1];",NO SEMANTIC ERROR/S,,
 "arr: [5] = [1,2,3,4,5];
 
 n = 10;
-idx_good3 = arr[n];",NO SEMANTIC ERROR/S,,
+idx_good3 = arr[n];","Array index out of bounds: index 10 not in range [0, 4]",,
 "arr:[1]=[1];
 
 x = !arr[~1];","Array index out of bounds: index -1 not in range [0, 0]",,
@@ -286,7 +286,8 @@ ret B+A;
 close
 
 B = 10;
-",Variable 'A' not defined,,
+","Variable 'B' not defined
+Variable 'A' not defined",,
 "fn add(a, b): 
 show 'Fn';
 ret a + b; 
@@ -417,7 +418,7 @@ takeStr(getInt());
 ",NO SEMANTIC ERROR/S,,
 "fn noRet(): show ''; close 
 
-x = noRet() + 5;",Invalid operation '+' between 'none' and 'int',,
+x = noRet() + 5;",NO SEMANTIC ERROR/S,,
 "fn test(): todo; ret unknown_val; close
 
 todo;",Variable 'unknown_val' not defined,,
@@ -643,7 +644,7 @@ m: [1][1] = [[10]]; x = m[0][~5];,"Array index out of bounds: dimension 2 -5 not
 "m: [1][1] = [[1]]; if !m: show ''; close
 ",Invalid logical NOT on type 'array',,
 "fn void(): show ''; close x = 10 + void();
-",Invalid operation '+' between 'int' and 'none',,
+",NO SEMANTIC ERROR/S,,
 "fn getVal(): todo; ret secret_key; close
 
 todo;
@@ -907,3 +908,67 @@ x = z;
 
 
 z = 10;",Variable 'z' not defined,,
+"fn void(): 
+    show ''; 
+close
+
+fn returns_int(): 
+    show '';
+    ret 42; 
+close  
+
+fn returns_float(): 
+    show '';
+    ret 3.14; 
+close
+
+fn returns_bool(): 
+    show '';
+    ret true; 
+close
+
+fn returns_string(): 
+    show '';
+    ret 'test'; 
+close
+
+x = 10 + void();
+y = 5 + returns_int();
+z = 1.5 + returns_float();
+b = true and returns_bool();
+s = 'hello' + returns_string();",NO SEMANTIC ERROR/S,,
+"
+z = false;
+a = true and z;
+x = false and a;
+arr1: [x] = [1, 2, 3];
+
+y = true;
+b = true or y;
+arr2: [b] = [1];
+
+empty = '';
+arr3: [empty] = [1];
+
+nonempty = 'hello';
+arr4: [nonempty] = [1];
+
+num = 5;
+arr5: [num] = [1, 2, 3, 4, 5];
+
+computed = 2 + 3;
+arr6: [computed] = [1, 2, 3, 4, 5];
+
+dynamic = read;
+arr7: [dynamic] = [1, 2, 3];
+
+
+","Invalid array size: expression must be a non-negative integer
+Invalid array size: expression must be a non-negative integer
+Invalid array size: expression must be a non-negative integer
+Invalid array size: expression must be a non-negative integer
+",,
+"x = true and 1 - 2 + 'string';
+# result 0
+arr:[x] = [];
+",Invalid array size: expression must be a non-negative integer,,

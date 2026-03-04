@@ -1,6 +1,0 @@
-fn func ( ): 
-todo;
-ret 1-1;
-close
-
-array : [func()] = [];

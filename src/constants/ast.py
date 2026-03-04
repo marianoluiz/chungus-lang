@@ -36,6 +36,8 @@ class ASTNode:
     line: Optional[int] = None
     col: Optional[int] = None
 
+    inferred_type: Optional[str] = None                     # added after semantic
+
 
 @dataclass
 class ParseResult:

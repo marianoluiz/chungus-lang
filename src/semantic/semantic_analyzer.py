@@ -1,6 +1,6 @@
 """Semantic analysis error definitions."""
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
 from src.constants.ast import ASTNode, ParseResult
 
@@ -52,6 +52,9 @@ class Symbol:
     
     # For arrays:
     array_dims: Optional[List[int]] = None  # [size] for 1D, [rows, cols] for 2D
+    
+    # For constant propagation:
+    constant_value: Optional[Any] = None  # Compile-time constant value (bool, int, float, str) - NOT promoted!
 
 
 class SymbolTable:
@@ -215,9 +218,10 @@ class TypeChecker:
 
 class SemanticResult:
     """Result of semantic analysis."""
-    def __init__(self, tree: Optional[ASTNode], errors: List[str]):
+    def __init__(self, tree: Optional[ASTNode], errors: List[str], symbol_table: Optional[SymbolTable] = None):
         self.tree = tree
         self.errors = errors
+        self.symbol_table = symbol_table
 
 
 class SemanticAnalyzer:
@@ -267,7 +271,8 @@ class SemanticAnalyzer:
 
         return SemanticResult(
             tree=self._tree,
-            errors=[str(e) for e in self._errors] # equal to errors.append(str(e))
+            errors=[str(e) for e in self._errors], # equal to errors.append(str(e))
+            symbol_table=self._symbol_table
         )
 
 
@@ -328,45 +333,64 @@ class SemanticAnalyzer:
         self._dbg("╚" + "═" * 80)
 
 
-    def _evaluate_constant_expr(self, node: ASTNode) -> Optional[float]:
+    def _evaluate_constant_expr(self, node: ASTNode) -> Optional[Any]:
         """
-        Evaluate constant expressions at compile-time with CHUNGUS type coercion.
-        Returns numeric value if expression is constant, None otherwise.
+        Evaluate constant expressions at compile-time - returns ORIGINAL values.
         
-        IMPORTANT: Follows AST structure (left-to-right evaluation in CHUNGUS).
+        CRITICAL: Returns actual values (bool, int, str), NOT promoted numbers!
+        - TY_BOOL: True or False (Python bool)
+        - TY_INT: integer value (Python int)
+        - TY_STRING: string value (Python str)
+        - TY_FLOAT: float value or None (floats not compile-time constants in array context)
         
-        Type coercion ONLY happens in operations, not for standalone literals:
-        - TY_INT: integer value
-        - TY_FLOAT: float value
-        - TY_BOOL: Can't evaluate standalone, only in operations (→ 1/0)
-        - TY_STRING: Can't evaluate standalone, only in operations (→ 1/0)
+        Promotion ONLY happens in _evaluate_with_coercion() during operations!
         """
         if node is None:
             return None
         
-        # Int literals only - float literals should NOT be evaluated
+        # Clear any existing constant value
+        if hasattr(node, 'constant_value'):
+            node.constant_value = None
+
+        # Int literals - return actual int
         if node.kind == "int_literal":
             value_str = node.value
+
             if value_str.startswith('~'):
-                return float(-int(value_str[1:]))
-            return float(int(value_str))
+                val = -int(value_str[1:])
+            else:
+                val = int(value_str)
+
+            node.constant_value = val  # ← ATTACH HERE!
+            return val
         
-        # Float/Bool/String literals - can't evaluate standalone, only in operations
+        # Float literals - not compile-time constants for array sizes
         elif node.kind == "float_literal":
-            # Float literals cannot be evaluated in array size/index context
-            # They should be rejected by validation
+            node.constant_value = None
             return None
         
+        # Bool literals - return actual bool (NOT 0/1)
         elif node.kind == "bool_literal":
-            # Standalone bool literal cannot be evaluated as a number
-            # Type coercion only happens in operations (e.g., true + 5)
-            return None
+            val = node.value.lower() == "true"
+            node.constant_value = val  # ← ATTACH HERE!
+            return val
         
+        # String literals - return actual string (NOT 0/1)
         elif node.kind == "str_literal":
-            # Standalone string literal cannot be evaluated as a number
-            # Type coercion only happens in operations (e.g., "hello" + 5)
+            val = node.value[1:-1] if len(node.value) >= 2 else node.value
+            node.constant_value = val  # ← ATTACH HERE!
+            return val
+
+        # Variable lookup - check if it's a compile-time constant
+        elif node.kind == "id":
+            var_name = node.value
+            symbol = self._symbol_table.lookup(var_name)
+            if symbol and symbol.constant_value is not None:
+                node.constant_value = symbol.constant_value  # ← ATTACH HERE!
+                return symbol.constant_value
+            node.constant_value = None
             return None
-        
+
         # Binary arithmetic operations - evaluate based on AST structure
         elif node.kind in {"+", "-", "*", "/", "//", "%", "**"}:
             if len(node.children) < 2:
@@ -377,73 +401,166 @@ class SemanticAnalyzer:
             right_val = self._evaluate_with_coercion(node.children[1])
             
             if left_val is None or right_val is None:
+                node.constant_value = None
                 return None
             
-            # Perform operation
+            # Perform operation - result is numeric
             try:
                 if node.kind == "+":
-                    return left_val + right_val
+                    result = left_val + right_val
                 elif node.kind == "-":
-                    return left_val - right_val
+                    result = left_val - right_val
                 elif node.kind == "*":
-                    return left_val * right_val
+                    result = left_val * right_val
                 elif node.kind == "/":
                     if right_val == 0:
                         return None  # Division by zero
-                    return left_val / right_val
+                    result = left_val / right_val
                 elif node.kind == "//":
                     if right_val == 0:
                         return None
-                    return float(int(left_val) // int(right_val))
+                    result = int(left_val) // int(right_val)
                 elif node.kind == "%":
                     if right_val == 0:
                         return None
-                    return float(int(left_val) % int(right_val))
+                    result = int(left_val) % int(right_val)
                 elif node.kind == "**":
-                    return left_val ** right_val
+                    result = left_val ** right_val
+                else:
+                    node.constant_value = None
+                    return None
+                
+                # Store the result
+                node.constant_value = result  # ← ATTACH HERE!
+
+                return result
             except (ValueError, ZeroDivisionError, OverflowError):
+                node.constant_value = None
                 return None
         
-        # Type casts
+        # Type casts - return int or float
         elif node.kind == "type_cast":
             if not node.children:
+                node.constant_value = None
                 return None
             
             expr_val = self._evaluate_with_coercion(node.children[0])
             if expr_val is None:
+                node.constant_value = None
                 return None
             
             cast_type = node.value
             if cast_type == "int":
-                return float(int(expr_val))
+                return int(expr_val)
             elif cast_type == "float":
                 return float(expr_val)
+            else:
+                node.constant_value = None
+                return None
+
+        # Logical operations (and, or, !) - return bool
+        elif node.kind in {"and", "or"}:
+            if len(node.children) < 2:
+                node.constant_value = None
+                return None
+            
+            left_val = self._evaluate_with_coercion(node.children[0])
+            right_val = self._evaluate_with_coercion(node.children[1])
+            
+            if left_val is None or right_val is None:
+                node.constant_value = None
+                return None
+            
+            # Convert to bool: 0 is false, non-zero is true
+            left_bool = bool(left_val) if not isinstance(left_val, str) else len(left_val) > 0
+            right_bool = bool(right_val) if not isinstance(right_val, str) else len(right_val) > 0
+            
+            if node.kind == "and":
+                result = left_bool and right_bool
+            else:  # "or"
+                result = left_bool or right_bool
+            
+            node.constant_value = result  # ← ATTACH HERE!
+            return result
         
-        # Non-constant: variables, function calls, etc.
+        elif node.kind == "!":
+            if not node.children:
+                node.constant_value = None
+                return None
+            
+            operand_val = self._evaluate_with_coercion(node.children[0])
+            if operand_val is None:
+                node.constant_value = None
+                return None
+            
+            # Convert to bool and negate
+            operand_bool = bool(operand_val) if not isinstance(operand_val, str) else len(operand_val) > 0
+            result = not operand_bool
+            
+            node.constant_value = result  # ← ATTACH HERE!
+            return result
+        
+        # Relational operations - return bool
+        elif node.kind in {"<", ">", "<=", ">=", "==", "!="}:
+            if len(node.children) < 2:
+                node.constant_value = None
+                return None
+            
+            left_val = self._evaluate_with_coercion(node.children[0])
+            right_val = self._evaluate_with_coercion(node.children[1])
+            
+            if left_val is None or right_val is None:
+                node.constant_value = None
+                return None
+            
+            if node.kind == "<":
+                result = left_val < right_val
+            elif node.kind == ">":
+                result = left_val > right_val
+            elif node.kind == "<=":
+                result = left_val <= right_val
+            elif node.kind == ">=":
+                result = left_val >= right_val
+            elif node.kind == "==":
+                result = left_val == right_val
+            else:  # "!="
+                result = left_val != right_val
+            
+            node.constant_value = result  # ← ATTACH HERE!
+            return result
+        
+        # Non-constant: function calls, read, etc.
+        node.constant_value = None
         return None
 
 
     def _evaluate_with_coercion(self, node: ASTNode) -> Optional[float]:
         """
-        Evaluate expression with type coercion for bool/string in operations.
-        This is called when evaluating operands in binary operations.
+        Evaluate expression and promote to number for arithmetic/relational operations.
+        This is where CHUNGUS type coercion happens!
+        
+        Promotion rules:
+        - bool: True → 1.0, False → 0.0
+        - int: keep as float
+        - string: non-empty → 1.0, empty → 0.0
         """
         if node is None:
             return None
         
-        # Try normal evaluation first
+        # Evaluate to get original value
         val = self._evaluate_constant_expr(node)
-        if val is not None:
+        if val is None:
+            return None
+        
+        # Promote based on type
+        if isinstance(val, bool):
+            return 1.0 if val else 0.0
+        elif isinstance(val, int):
+            return float(val)
+        elif isinstance(val, float):
             return val
-        
-        # Apply coercion for bool/string literals when used in operations
-        if node.kind == "bool_literal":
-            return 1.0 if node.value.lower() == "true" else 0.0
-        
-        elif node.kind == "str_literal":
-            # Remove quotes from string value
-            str_val = node.value[1:-1] if len(node.value) >= 2 else node.value
-            return 1.0 if len(str_val) > 0 else 0.0
+        elif isinstance(val, str):
+            return 1.0 if len(val) > 0 else 0.0
         
         return None
 
@@ -586,7 +703,7 @@ class SemanticAnalyzer:
             if symbol and symbol.type_ == TY_ARRAY:
                 return False  # Arrays can't be used as indices
             return True
-        
+
         if node.kind in {"function_call", "index"}:
             return True
         
@@ -643,6 +760,56 @@ class SemanticAnalyzer:
         return None
 
 
+    def _infer_function_return_type(self, func_node: ASTNode) -> str:
+        """
+        Infer the return type of a function by finding return_statement nodes.
+        If no return statement is found, returns "int" (default return value is 0).
+        
+        Args:
+            func_node: The function AST node
+            
+        Returns:
+            The inferred return type as a string ("int", "float", "bool", "string")
+        """
+        def find_return_stmt(node: ASTNode) -> Optional[ASTNode]:
+            """Recursively search for return_statement node."""
+            if node is None:
+                return None
+            if node.kind == "return_statement":
+                return node
+            for child in node.children:
+                result = find_return_stmt(child)
+                if result:
+                    return result
+            return None
+        
+        return_stmt = find_return_stmt(func_node)
+        
+        if return_stmt is None:
+            # No return statement found - function returns 0 by default
+            return TY_INT
+        
+        # Return statement has one child: the expression being returned
+        if return_stmt.children:
+            expr_node = return_stmt.children[0]
+            # Try to infer the type from the expression
+            # For literals, we can determine the type directly
+            if expr_node.kind == "int_literal":
+                return TY_INT
+            elif expr_node.kind == "float_literal":
+                return TY_FLOAT
+            elif expr_node.kind == "bool_literal":
+                return TY_BOOL
+            elif expr_node.kind == "str_literal":
+                return TY_STRING
+            # For more complex expressions, default to int
+            # (A more sophisticated analyzer would do full type inference here)
+            return TY_INT
+        
+        # Empty return statement - default to int
+        return TY_INT
+
+
     def _collect_declarations(self, node: ASTNode) -> None:
         """
         First pass: Collect only GLOBAL declarations (functions).
@@ -674,6 +841,9 @@ class SemanticAnalyzer:
                         param_name = param_id_node.value
                         params.append((param_name, TY_UNKNOWN))
 
+            # Infer return type from function body
+            return_type = self._infer_function_return_type(node)
+
             # Declare function in global scope
             func_symbol = Symbol(
                 name=func_name,
@@ -683,7 +853,7 @@ class SemanticAnalyzer:
                 col=node.col or 0,
                 scope_level=self._symbol_table.scope_level,
                 params=params,
-                return_type="int"  # TODO: extract from AST
+                return_type=return_type
             )
 
             self._symbol_table.declare(func_symbol)
@@ -921,19 +1091,26 @@ class SemanticAnalyzer:
                             
                             if idx_val is not None:
                                 # Constant expression - reject non-integers and check bounds
-                                if idx_val != int(idx_val):
+                                # Check if it's a string or bool (invalid for array index)
+                                if isinstance(idx_val, (str, bool)):
                                     self._error(idx_node,
                                         "Invalid array index: expression must be 0 or non-negative integer",
                                         TypeMismatchError)
-                                else:
-                                    idx_int = int(idx_val)
-                                    dim_size = symbol.array_dims[i] if i < len(symbol.array_dims) else None
-                                    
-                                    if dim_size is not None and (idx_int < 0 or idx_int >= dim_size):
-                                        dim_label = "index" if len(symbol.array_dims) == 1 else f"dimension {i+1}"
+                                elif isinstance(idx_val, (int, float)):
+                                    # Check if it's a whole number
+                                    if idx_val != int(idx_val):
                                         self._error(idx_node,
-                                            f"Array index out of bounds: {dim_label} {idx_int} not in range [0, {dim_size-1}]",
+                                            "Invalid array index: expression must be 0 or non-negative integer",
                                             TypeMismatchError)
+                                    else:
+                                        idx_int = int(idx_val)
+                                        dim_size = symbol.array_dims[i] if i < len(symbol.array_dims) else None
+                                        
+                                        if dim_size is not None and (idx_int < 0 or idx_int >= dim_size):
+                                            dim_label = "index" if len(symbol.array_dims) == 1 else f"dimension {i+1}"
+                                            self._error(idx_node,
+                                                f"Array index out of bounds: {dim_label} {idx_int} not in range [0, {dim_size-1}]",
+                                                TypeMismatchError)
 
             # Validate and type check indices (skip base, already checked)
             if indices_node:
@@ -994,20 +1171,25 @@ class SemanticAnalyzer:
                             idx_val = self._evaluate_constant_expr(idx_node)
                             
                             if idx_val is not None and i < len(symbol.array_dims):
-                                # Reject non-integer results
-                                if idx_val != int(idx_val):
+                                # Reject non-integer results (strings, bools, floats that aren't whole numbers)
+                                if isinstance(idx_val, (str, bool)):
                                     self._error(idx_node,
                                         "Invalid array index: expression must be 0 or non-negative integer",
                                         TypeMismatchError)
-                                else:
-                                    idx_int = int(idx_val)
-                                    dim_size = symbol.array_dims[i]
-                                    
-                                    if dim_size is not None and (idx_int < 0 or idx_int >= dim_size):
-                                        dim_label = "index" if len(symbol.array_dims) == 1 else f"dimension {i+1}"
+                                elif isinstance(idx_val, (int, float)):
+                                    if idx_val != int(idx_val):
                                         self._error(idx_node,
-                                            f"Array index out of bounds: {dim_label} {idx_int} not in range [0, {dim_size-1}]",
+                                            "Invalid array index: expression must be 0 or non-negative integer",
                                             TypeMismatchError)
+                                    else:
+                                        idx_int = int(idx_val)
+                                        dim_size = symbol.array_dims[i]
+                                        
+                                        if dim_size is not None and (idx_int < 0 or idx_int >= dim_size):
+                                            dim_label = "index" if len(symbol.array_dims) == 1 else f"dimension {i+1}"
+                                            self._error(idx_node,
+                                                f"Array index out of bounds: {dim_label} {idx_int} not in range [0, {dim_size-1}]",
+                                                TypeMismatchError)
                 
                 # Type check indices node
                 self._type_check(indices_node)
@@ -1040,21 +1222,27 @@ class SemanticAnalyzer:
                 # ✅ Record error but DON'T STOP - continue analysis
                 self._error(node, f"Variable '{var_name}' not defined", UndefinedVariableError)
                 # ✅ Return safe fallback type to allow continued analysis
+                node.inferred_type = TY_UNKNOWN
                 return TY_UNKNOWN
             
             # return the type based on type in symbol table
+            node.inferred_type = symbol.type_
             return symbol.type_
 
         elif node.kind == "int_literal":
+            node.inferred_type = TY_INT
             return TY_INT
         
         elif node.kind == "float_literal":
+            node.inferred_type = TY_FLOAT
             return TY_FLOAT
         
         elif node.kind == "str_literal":
+            node.inferred_type = TY_STRING
             return TY_STRING
         
         elif node.kind == "bool_literal":
+            node.inferred_type = TY_BOOL
             return TY_BOOL
         
         elif node.kind == "read":
@@ -1070,7 +1258,9 @@ class SemanticAnalyzer:
                 expr_type = self._type_check(node.children[0])
             
             # Return the target cast type
-            return TY_INT if cast_type == "int" else TY_FLOAT
+            result_type = TY_INT if cast_type == "int" else TY_FLOAT
+            node.inferred_type = result_type
+            return result_type
         
         elif node.kind == "return_statement":
             # Return statement: children=[return_expr]
@@ -1124,13 +1314,22 @@ class SemanticAnalyzer:
                     if size_node.children:
                         size_expr = size_node.children[0]
                         
+                        # Check if size expression type is valid (must be int or int expression)
+                        # Reject bool/string variables or literals (even if they have constant values)
+                        size_type = self._type_check(size_expr)
+
                         # Try constant folding first
                         const_val = self._evaluate_constant_expr(size_expr)
-                        
+
                         if const_val is not None:
-                            # Constant expression - validate value
+                            # Constant expression - validate type and value
+                            # Reject if the type is bool or string
+                            if size_type in {TY_BOOL, TY_STRING}:
+                                self._error(size_expr,
+                                    "Invalid array size: expression must be a non-negative integer",
+                                    TypeMismatchError)
                             # Reject non-integer results (e.g., 1.5 + 0.5 = 2.0 is ok, but 1.1 + 0.5 = 1.6 is not)
-                            if const_val != int(const_val):
+                            elif const_val != int(const_val):
                                 self._error(size_expr,
                                     "Invalid array size: expression must be a non-negative integer",
                                     TypeMismatchError)
@@ -1166,12 +1365,26 @@ class SemanticAnalyzer:
                         row_expr = size_node.children[0]
                         col_expr = size_node.children[1]
                         
+                        # Check types
+                        row_type = self._type_check(row_expr)
+                        col_type = self._type_check(col_expr)
+                        
                         # Try constant folding
                         row_const = self._evaluate_constant_expr(row_expr)
                         col_const = self._evaluate_constant_expr(col_expr)
                         
                         if row_const is not None and col_const is not None:
-                            # Both dimensions are constant - validate values
+                            # Both dimensions are constant - validate types and values
+                            # Reject if the type is bool or string
+                            if row_type in {TY_BOOL, TY_STRING}:
+                                self._error(row_expr,
+                                    "Invalid array row expression: expression must be a non-negative integer",
+                                    TypeMismatchError)
+                            if col_type in {TY_BOOL, TY_STRING}:
+                                self._error(col_expr,
+                                    "Invalid array column expression: expression must be a non-negative integer",
+                                    TypeMismatchError)
+                            
                             # Reject non-integer results
                             if row_const != int(row_const):
                                 self._error(row_expr,
@@ -1223,8 +1436,10 @@ class SemanticAnalyzer:
                                     f"Invalid array column expression: must evaluate to a positive integer",
                                     TypeMismatchError)
 
-            # Type check all initializer expressions
-            for child in node.children:
+            # Type check all initializer expressions (skip size node, already checked above)
+            for i, child in enumerate(node.children):
+                if i == 0:  # Skip size node (already type-checked above)
+                    continue
                 self._type_check(child)
             return TY_ARRAY
         
@@ -1251,7 +1466,7 @@ class SemanticAnalyzer:
             for child in node.children:
                 self._type_check(child)
             return None
-        
+
         elif node.kind in ["<", ">", "<=", ">=", "==", "!="]:
             # Relational operators
             op = node.kind
@@ -1260,6 +1475,7 @@ class SemanticAnalyzer:
 
             # Skip if either operand is already TY_UNKNOWN
             if left_type == TY_UNKNOWN or right_type == TY_UNKNOWN:
+                node.inferred_type = TY_UNKNOWN
                 return TY_UNKNOWN
             
             # Check if operation is valid
@@ -1269,8 +1485,15 @@ class SemanticAnalyzer:
                     self._error(node,
                         f"Invalid comparison '{op}' between '{left_type}' and '{right_type}'",
                         TypeMismatchError)
+                    node.inferred_type = TY_UNKNOWN
                     return TY_UNKNOWN
+                
+                node.inferred_type = result_type
+                # Try to evaluate constant - THIS WILL ATTACH TO NODE!
+                self._evaluate_constant_expr(node)
                 return result_type
+            
+            node.inferred_type = TY_UNKNOWN
             return TY_UNKNOWN
 
         elif node.kind in ["and", "or"]:
@@ -1281,6 +1504,7 @@ class SemanticAnalyzer:
             
             # Skip if either operand is already TY_UNKNOWN
             if left_type == TY_UNKNOWN or right_type == TY_UNKNOWN:
+                node.inferred_type = TY_UNKNOWN
                 return TY_UNKNOWN
             
             # Check if operation is valid
@@ -1290,8 +1514,15 @@ class SemanticAnalyzer:
                     self._error(node,
                         f"Invalid logical operation '{op}' between '{left_type}' and '{right_type}'",
                         TypeMismatchError)
+                    node.inferred_type = TY_UNKNOWN
                     return TY_UNKNOWN
+                
+                node.inferred_type = result_type
+                # Try to evaluate constant - THIS WILL ATTACH TO NODE!
+                self._evaluate_constant_expr(node)
                 return result_type
+            
+            node.inferred_type = TY_UNKNOWN
             return TY_UNKNOWN
 
         elif node.kind == "!":
@@ -1300,6 +1531,7 @@ class SemanticAnalyzer:
             
             # Skip if operand is already TY_UNKNOWN
             if operand_type == TY_UNKNOWN:
+                node.inferred_type = TY_UNKNOWN
                 return TY_UNKNOWN
             
             # Check if operation is valid
@@ -1309,8 +1541,15 @@ class SemanticAnalyzer:
                     self._error(node,
                         f"Invalid logical NOT on type '{operand_type}'",
                         TypeMismatchError)
+                    node.inferred_type = TY_UNKNOWN
                     return TY_UNKNOWN
+                
+                node.inferred_type = result_type
+                # Try to evaluate constant - THIS WILL ATTACH TO NODE!
+                self._evaluate_constant_expr(node)
                 return result_type
+            
+            node.inferred_type = TY_UNKNOWN
             return TY_UNKNOWN
         
         elif node.kind in ["+", "-", "*", "/", "//", "%", "**"]:
@@ -1355,6 +1594,7 @@ class SemanticAnalyzer:
 
             # Skip type checking if either operand is already TY_UNKNOWN (error already reported)
             if left_type == TY_UNKNOWN or right_type == TY_UNKNOWN:
+                node.inferred_type = TY_UNKNOWN
                 return TY_UNKNOWN
             
             # Check if operation is valid
@@ -1366,10 +1606,15 @@ class SemanticAnalyzer:
                     self._error(node, 
                         f"Invalid operation '{op}' between '{left_type}' and '{right_type}'",
                         TypeMismatchError)
+                    node.inferred_type = TY_UNKNOWN
                     return TY_UNKNOWN
 
+                node.inferred_type = result_type
+                # Try to evaluate constant - THIS WILL ATTACH TO NODE!
+                self._evaluate_constant_expr(node)
                 return result_type
 
+            node.inferred_type = TY_UNKNOWN
             return TY_UNKNOWN
 
         elif node.kind == "assignment_statement":
@@ -1383,9 +1628,15 @@ class SemanticAnalyzer:
             # Type check the RHS expression
             expr_type = self._type_check(node.children[0]) if node.children else TY_UNKNOWN
 
+            # Try to evaluate as compile-time constant
+            const_val = None
+            if node.children:
+                const_val = self._evaluate_constant_expr(node.children[0])
+
             # Update variable type in symbol table (dynamic typing)
             if symbol:
                 symbol.type_ = expr_type
+                symbol.constant_value = const_val  # Track if it's a constant
             else:
                 # If variable not declared, declare with inferred type
                 symbol = Symbol(
@@ -1394,7 +1645,8 @@ class SemanticAnalyzer:
                     type_=expr_type,
                     line=node.line or 0,
                     col=node.col or 0,
-                    scope_level=self._symbol_table.scope_level
+                    scope_level=self._symbol_table.scope_level,
+                    constant_value=const_val
                 )
                 self._symbol_table.declare(symbol)
 
@@ -1431,7 +1683,9 @@ class SemanticAnalyzer:
             for arg in args:
                 self._type_check(arg)
 
-            return symbol.return_type if symbol.return_type else TY_UNKNOWN
+            result_type = symbol.return_type if symbol.return_type else TY_UNKNOWN
+            node.inferred_type = result_type
+            return result_type
 
         # ✅ Recurse to children even if current node had errors
         for child in node.children:
