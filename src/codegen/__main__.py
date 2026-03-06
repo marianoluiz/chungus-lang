@@ -1,14 +1,18 @@
 """
 CLI entry point for CHUNGUS code generator.
 
+Generates C code from CHUNGUS source files.
+
 Usage:
     python -m src.codegen [input_file.chg]
     
 If no input file is specified, reads from src/codegen/input_codegen.chg
+
+To compile and run the generated C code:
+    python -m src.runtime <generated_file.c>
 """
 
 import sys
-import subprocess
 from pathlib import Path
 from src.lexer.dfa_lexer import Lexer
 from src.syntax.rd_parser import RDParser
@@ -97,51 +101,15 @@ def main():
     print(codegen_result.code)
     print()
     
-    # Save generated C code
-    output_file = input_file.with_suffix('.c')
+    # Save generated C code to output/ directory
+    output_dir = Path(__file__).parent.parent.parent / "output"
+    output_dir.mkdir(exist_ok=True)
+    output_file = output_dir / input_file.with_suffix('.c').name
     output_file.write_text(codegen_result.code)
     print(f"✓ Saved to: {output_file}")
     print()
-    
-    # Phase 5: Compile and Run
-    print("=== PHASE 5: COMPILE AND RUN ===")
-    
-    # Compile the C code
-    exe_file = input_file.with_suffix('')  # Remove extension for executable
-    runtime_c = Path(__file__).parent / "chungus_runtime.c"
-    runtime_h_dir = Path(__file__).parent
-
-    compile_cmd = [
-        "gcc", "-Wall", "-Wextra",
-        f"-I{runtime_h_dir}",
-        "-o", str(exe_file),
-        str(output_file),
-        str(runtime_c),
-        "-lm"
-    ]
-
-    print(f"Compiling: {' '.join(compile_cmd)}")
-    try:
-        result = subprocess.run(compile_cmd, capture_output=True, text=True, check=True)
-        print(f"✓ Compilation successful: {exe_file}")
-    except subprocess.CalledProcessError as e:
-        print("COMPILATION ERRORS:")
-        print(e.stderr)
-        sys.exit(1)
-    
-    # Run the executable
-    print(f"\nRunning: {exe_file.name}")
-    print()
-    try:
-        result = subprocess.run([f"./{exe_file.name}"], capture_output=True, text=True, check=True, cwd=exe_file.parent if exe_file.parent.exists() else ".")
-        print(result.stdout, end='')
-        if result.stderr:
-            print(result.stderr, end='')
-    except subprocess.CalledProcessError as e:
-        print("RUNTIME ERROR:")
-        print(e.stderr)
-        sys.exit(1)
-    print(f"\n✓ Execution complete")
+    print("To compile and run:")
+    print(f"  python -m src.runtime {output_file}")
 
 
 if __name__ == "__main__":

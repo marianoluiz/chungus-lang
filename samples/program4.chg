@@ -1,3 +1,7 @@
-for i in range(5)
-    show '$(i)\n'
-close
+# Simple counting
+i = 0;
+j = 1;
+k = 2;
+show i;
+show j;
+show k;

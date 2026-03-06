@@ -1,3 +1,4 @@
-x = 9
-x++
-show x
+# Simple output
+x = 9;
+
+show x;

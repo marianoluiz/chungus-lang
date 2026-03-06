@@ -1,9 +1,10 @@
+import sys
+from pathlib import Path
 from typing import List
 from src.lexer.dfa_lexer import Lexer
 from src.semantic.semantic_analyzer import SemanticAnalyzer
 from src.syntax.rd_parser import RDParser
 from src.constants.token import Token
-import os
 
 # ------------------- Pretty Print -------------------
 def print_ast(node, symbol_table=None, prefix: str = "", is_last: bool = True):
@@ -71,15 +72,18 @@ def print_ast(node, symbol_table=None, prefix: str = "", is_last: bool = True):
         print_ast(child, symbol_table, new_prefix, is_last_child)
 
 def main():
-    # This takes the input folder path
-    test_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'semantic_input.chg'))
+    # Determine input file
+    if len(sys.argv) > 1:
+        input_file = Path(sys.argv[1])
+    else:
+        input_file = Path(__file__).parent / "input_semantic.chg"
     
-    try:
-        with open(test_path, 'r', encoding='utf-8') as f:
-            source_code = f.read()
-    except FileNotFoundError:
-        print(f"Test file not found: {test_path}")
-        return
+    if not input_file.exists():
+        print(f"Error: Input file not found: {input_file}")
+        sys.exit(1)
+    
+    # Read source code
+    source_code = input_file.read_text(encoding='utf-8')
     
     tokens = []
     errors = []

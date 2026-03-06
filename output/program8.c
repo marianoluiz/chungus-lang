@@ -4,10 +4,9 @@
 #include <stdlib.h>
 
 int main() {
-    ChValue x = ch_int(42);
-    ChValue y = ch_int(10);
-    ChValue result = ch_add(x, y);
+    ChValue x = ch_int(10);
+    ChValue y = ch_int(2);
+    ChValue result = ch_div(x, y);
     ch_print(result);
-    ch_print(ch_str("\nmayor railey frias"));
     return 0;
 }

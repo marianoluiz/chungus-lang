@@ -1,4 +1,8 @@
-arr = [10, 20, 30]
+# Multiple values
+first = 10;
+second = 20;
+third = 30;
 
-show 'First: $(arr[0])'
-show 'Second: $(arr[1])'
+show first;
+show second;
+show third;

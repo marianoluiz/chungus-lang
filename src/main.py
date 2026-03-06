@@ -1,6 +1,5 @@
 import tkinter as tk
 import subprocess
-import tempfile
 from pathlib import Path
 from src.gui import ChungusLexerGUI
 from src.lexer.dfa_lexer import Lexer
@@ -145,17 +144,22 @@ def codegen_adapter(source: str):
         errors.extend(codegen_result.errors)
         return tokens, errors
 
+    # Save generated C code to output/ directory
+    output_dir = Path(__file__).parent.parent / "output"
+    output_dir.mkdir(exist_ok=True)
+    
+    # Use timestamp for GUI-generated files to avoid conflicts
+    import datetime
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    c_path = output_dir / f"gui_output_{timestamp}.c"
+    c_path.write_text(codegen_result.code)
+    
     # Compile and execute the generated C code
     try:
-        # Create temporary files
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.c', delete=False) as c_file:
-            c_file.write(codegen_result.code)
-            c_path = Path(c_file.name)
-        
         exe_path = c_path.with_suffix('')
-        runtime_c = Path(__file__).parent / "codegen" / "chungus_runtime.c"
-        runtime_h_dir = Path(__file__).parent / "codegen"
-        
+        runtime_c = Path(__file__).parent / "runtime" / "chungus_runtime.c"
+        runtime_h_dir = Path(__file__).parent / "runtime"
+
         # Compile
         compile_cmd = [
             "gcc", "-Wall", "-Wextra",
@@ -169,40 +173,41 @@ def codegen_adapter(source: str):
         result = subprocess.run(compile_cmd, capture_output=True, text=True)
         
         if result.returncode != 0:
-            errors.append("=== COMPILATION FAILED ===")
+            errors.append("Compilation Error:")
             errors.append(result.stderr)
-            # Clean up
-            c_path.unlink(missing_ok=True)
             return tokens, errors
         
         # Execute
         result = subprocess.run([str(exe_path)], capture_output=True, text=True, timeout=5)
-        
-        # Clean up
-        c_path.unlink(missing_ok=True)
-        exe_path.unlink(missing_ok=True)
 
         if result.returncode != 0:
-            errors.append("=== RUNTIME ERROR ===")
+            errors.append("Runtime Error:")
             errors.append(result.stderr)
+            # Clean up executable
+            exe_path.unlink(missing_ok=True)
             return tokens, errors
         
         # Success - return execution output
-        errors.append("=== PROGRAM OUTPUT ===")
+        # errors.append("Program Output:")
         if result.stdout:
             errors.append(result.stdout.rstrip())
         else:
-            errors.append("(no output)")
+            # errors.append("(no output)")
+            pass
+        
+        # Clean up executable after running (keep C file)
+        exe_path.unlink(missing_ok=True)
 
     except subprocess.TimeoutExpired:
-        errors.append("=== EXECUTION TIMEOUT ===")
+        errors.append("Execution Timeout:")
         errors.append("Program exceeded 5 second time limit")
-        # Clean up
-        c_path.unlink(missing_ok=True)
+        # Clean up executable
         exe_path.unlink(missing_ok=True)
     except Exception as e:
-        errors.append("=== EXECUTION ERROR ===")
+        errors.append("Execution Error:")
         errors.append(str(e))
+        # Clean up executable
+        exe_path.unlink(missing_ok=True)
 
     return tokens, errors
 

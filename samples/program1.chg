@@ -1,9 +1,6 @@
-fn multiply(a, b)
-    ret a * b
-close
+# Simple multiplication
+a = 3;
+b = 4;
+result = a * b;
 
-x = 3
-y = 4
-result = multiply(x, y)
-
-show result
+show result;

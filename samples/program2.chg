@@ -1,7 +1,3 @@
-num = 5
-
-if num > 10
-    show 'Big\n'
-else
-    show 'Small\n'
-close
+# Simple number display
+num = 5;
+show num;

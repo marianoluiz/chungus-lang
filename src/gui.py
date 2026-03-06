@@ -379,7 +379,7 @@ class ChungusLexerGUI:
 
         self.btn_codegen = tk.Button(
             btn_container, 
-            text="▶ CODEGEN", 
+            text="▶ RUN PROGRAM", 
             command=self.run_codegen,
             font=self.fonts['subheader'],
             relief="raised",
@@ -1092,7 +1092,7 @@ class ChungusLexerGUI:
         self._populate_tokens(tokens)
         
         if errors:
-            self.error_output.insert(tk.END, "Errors found during lexical analysis:\n", "info")
+            # self.error_output.insert(tk.END, "Errors found during lexical analysis:\n", "info")
             self.error_output.insert(tk.END, "\n".join(errors), "error")
             self.status_msg.config(text=f"Lexer finished with {len(errors)} errors.")
         else:
@@ -1126,7 +1126,7 @@ class ChungusLexerGUI:
         self._populate_tokens(tokens)
 
         if errors:
-            self.error_output.insert(tk.END, "Errors found during syntax analysis:\n", "info")
+            # self.error_output.insert(tk.END, "Errors found during syntax analysis:\n", "info")
             self.error_output.insert(tk.END, "\n".join(errors), "error")
             self.status_msg.config(text=f"Syntax analysis finished with {len(errors)} errors.")
         else:
@@ -1196,7 +1196,7 @@ class ChungusLexerGUI:
         self._populate_tokens(tokens)
 
         if errors:
-            self.error_output.insert(tk.END, "Code generation output:\n", "info")
+            # self.error_output.insert(tk.END, "Program Output:\n", "info")
             for line in errors:
                 if "Error" in line:
                     self.error_output.insert(tk.END, line + "\n", "error")

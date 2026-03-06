@@ -1,27 +1,28 @@
 """CLI entry point for the lexer package.
 
-Behavior:
-- Loads src/test/lexer_test.chg
-- Runs the DFA-based lexer
-- Prints the collected raw lexemes, the token stream, and any error logs
-
 Usage:
-    python -m src.lexer
+    python -m src.lexer [input_file.chg]
+    
+If no input file is specified, reads from src/lexer/input_lexer.chg
 """
-import os
+import sys
+from pathlib import Path
 from src.lexer.dfa_lexer import Lexer
 
 
 def main():
-    # This takes the input folder path
-    test_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'lexer_input.chg'))
-
-    try:
-        with open(test_path, 'r', encoding='utf-8') as f:
-            source_code = f.read()
-    except FileNotFoundError:
-        print(f"Test file not found: {test_path}")
-        return
+    # Determine input file
+    if len(sys.argv) > 1:
+        input_file = Path(sys.argv[1])
+    else:
+        input_file = Path(__file__).parent / "input_lexer.chg"
+    
+    if not input_file.exists():
+        print(f"Error: Input file not found: {input_file}")
+        sys.exit(1)
+    
+    # Read source code
+    source_code = input_file.read_text(encoding='utf-8')
 
     # create the lexer and run the lexemizer
     lexer = Lexer(source_code, debug=True)
