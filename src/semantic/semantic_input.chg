@@ -1,4 +1,4 @@
-z = '' and 1;
+z = read;
 a = true and z;
 x = false and a;
 val = 1 + true;
