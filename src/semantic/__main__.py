@@ -19,6 +19,11 @@ def print_ast(node, symbol_table=None, prefix: str = "", is_last: bool = True):
     if hasattr(node, 'inferred_type') and node.inferred_type is not None:
         node_str += f"  [type: {node.inferred_type}]"
     
+    # Show declaration vs reassignment for assignment statements
+    if node.kind == "assignment_statement" and hasattr(node, 'is_declaration'):
+        decl_str = "declaration" if node.is_declaration else "reassignment"
+        node_str += f"  [{decl_str}]"
+    
     # Show constant value if available (for ANY node type, not just id)
     if hasattr(node, 'constant_value') and node.constant_value is not None:
         const_val = node.constant_value

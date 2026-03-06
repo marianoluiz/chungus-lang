@@ -146,7 +146,7 @@ BOOL_COERCIBLE = {TY_INT, TY_FLOAT, TY_BOOL, TY_STRING}
 ```
 
 ### Keywords and Operators
-**Keywords**: `fn`, `ret`, `if`, `elif`, `else`, `close`, `while`, `for`, `try`, `except`, `finally`, `read`, `write`, `todo`, `TRUE`, `FALSE`
+**Keywords**: `fn`, `ret`, `if`, `elif`, `else`, `close`, `while`, `for`, `try`, `except`, `finally`, `read`, `show`, `todo`, `TRUE`, `FALSE`
 
 **Arithmetic**: `+`, `-`, `*`, `/`, `//`, `%`, `^` (power)
 **Comparison**: `<`, `>`, `<=`, `>=`, `==`, `!=`
@@ -161,7 +161,7 @@ BOOL_COERCIBLE = {TY_INT, TY_FLOAT, TY_BOOL, TY_STRING}
 3. **Array Assignment**: `arr[0] = 42;`, `matrix[i][j] = 99;`
 4. **Function Definition**: `fn name(param1, param2): ... ret value; close`
 5. **Function Call**: `result = foo(1, 2);`, `bar();`
-6. **Output**: `write expr;`
+6. **Output**: `show expr;`
 7. **Control Flow**: `if`, `elif`, `else`, `while`, `for`
 8. **Error Handling**: `try`, `except`, `finally`
 9. **Todo**: `todo "implement feature";`

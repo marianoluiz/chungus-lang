@@ -1619,8 +1619,7 @@ class SemanticAnalyzer:
 
         elif node.kind == "assignment_statement":
             # assignment_statement: id_name = expr
-            # Note: Assignment DECLARES the variable, so we don't check if it exists
-            # The declaration pass already handled duplicate declarations
+            # Note: Assignment DECLARES the variable if it doesn't exist
 
             var_name = node.value
             symbol = self._symbol_table.lookup(var_name)
@@ -1633,12 +1632,15 @@ class SemanticAnalyzer:
             if node.children:
                 const_val = self._evaluate_constant_expr(node.children[0])
 
-            # Update variable type in symbol table (dynamic typing)
+            # Annotate node for code generation: is this a declaration or reassignment?
             if symbol:
+                # Variable exists (in current or outer scope) - this is a reassignment
+                node.is_declaration = False
                 symbol.type_ = expr_type
                 symbol.constant_value = const_val  # Track if it's a constant
             else:
-                # If variable not declared, declare with inferred type
+                # Variable not found - this is the first assignment (declaration)
+                node.is_declaration = True
                 symbol = Symbol(
                     name=var_name,
                     kind="variable",

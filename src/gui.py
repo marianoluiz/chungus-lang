@@ -133,7 +133,7 @@ class TextLineNumbers(tk.Canvas):
 # ==============================================================================
 
 class ChungusLexerGUI:
-    def __init__(self, root, lexer_callback=None, syntax_callback=None, semantic_callback=None):
+    def __init__(self, root, lexer_callback=None, syntax_callback=None, semantic_callback=None, codegen_callback=None):
         self.root = root
         self.setup_window()
         
@@ -141,6 +141,7 @@ class ChungusLexerGUI:
         self.lexer_callback = lexer_callback
         self.syntax_callback = syntax_callback
         self.semantic_callback = semantic_callback
+        self.codegen_callback = codegen_callback
 
         # App State
         self.current_theme = tk.StringVar(value="Oceanic Blue")
@@ -375,6 +376,18 @@ class ChungusLexerGUI:
             cursor="hand2"
         )
         self.btn_semantic.pack(side=tk.LEFT, padx=(0, 10))
+
+        self.btn_codegen = tk.Button(
+            btn_container, 
+            text="▶ CODEGEN", 
+            command=self.run_codegen,
+            font=self.fonts['subheader'],
+            relief="raised",
+            borderwidth=0,
+            padx=20, pady=8,
+            cursor="hand2"
+        )
+        self.btn_codegen.pack(side=tk.LEFT, padx=(0, 10))
         
         # Right Side: Tool Buttons
         tools_container = tk.Frame(self.toolbar)
@@ -885,7 +898,7 @@ class ChungusLexerGUI:
         elif self.current_theme.get() == "Synthwave 84":
             btn_bg = c["ACCENT_RED"] 
             
-        for btn in [self.btn_lexer, self.btn_syntax, self.btn_semantic]:
+        for btn in [self.btn_lexer, self.btn_syntax, self.btn_semantic, self.btn_codegen]:
             btn.config(bg=btn_bg, fg=btn_fg, activebackground=c["ACCENT_GREEN"], activeforeground=btn_fg)
             
         tool_bg = c.get("BTN_TOOL_BG", "#dddddd")
@@ -1154,6 +1167,50 @@ class ChungusLexerGUI:
         else:
             self.error_output.insert(tk.END, ">>> Semantic analysis complete. No errors found.", "success")
             self.status_msg.config(text="Semantic analysis finished successfully.")
+            
+        self.error_output.config(state=tk.DISABLED)
+
+    def run_codegen(self):
+        self.status_msg.config(text="Running Code Generator...")
+        self.error_output.config(state=tk.NORMAL)
+        self.error_output.delete("1.0", tk.END)
+        
+        for item in self.token_tree.get_children():
+            self.token_tree.delete(item)
+
+        source_code = self.code_input.get("1.0", "end-1c")
+        source_code = source_code.expandtabs(4)
+
+        if callable(self.codegen_callback):
+            try:
+                tokens, errors = self.codegen_callback(source_code)
+            except Exception as e:
+                messagebox.showerror("Code Generator Internal Error", str(e))
+                self.status_msg.config(text="Code Generation Failed.")
+                return
+        else:
+            messagebox.showinfo("Code Generator", "No code generator callback provided.")
+            self.status_msg.config(text="Code generator not configured.")
+            return
+
+        self._populate_tokens(tokens)
+
+        if errors:
+            self.error_output.insert(tk.END, "Code generation output:\n", "info")
+            for line in errors:
+                if "Error" in line:
+                    self.error_output.insert(tk.END, line + "\n", "error")
+                elif "===" in line:
+                    self.error_output.insert(tk.END, line + "\n", "info")
+                else:
+                    self.error_output.insert(tk.END, line + "\n")
+            if any("Error" in e for e in errors):
+                self.status_msg.config(text="Code generation failed with errors.")
+            else:
+                self.status_msg.config(text="Code generation complete.")
+        else:
+            self.error_output.insert(tk.END, ">>> Code generation complete.", "success")
+            self.status_msg.config(text="Code generation finished successfully.")
             
         self.error_output.config(state=tk.DISABLED)
 
