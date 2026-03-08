@@ -128,8 +128,7 @@ class ParserCore:
 
         msg = (
             f"{err_block}"
-            f"at line {tok.line} col {tok.col}"
-            f"\nExpected any: {expected_list}"
+            f"Expected any: {expected_list}"
         )
         
         if tok.type == 'fn' and context == 'general_statement':
