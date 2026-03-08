@@ -1160,3 +1160,74 @@ show val2;","Array index out of bounds: index 21 not in range [0, 9]",,
 # PASS: expression index
 val2 = arr20[2 - 5];
 show val2;","Array index out of bounds: index -3 not in range [0, 9]",,
+"x = true and false;
+res = '' + 1;
+res2 = false ** 2;
+
+for i in range(x, res, res2):
+    todo;
+close","Range start must be integer type, got 'bool'",,
+"for i in range(1, 10, 1):
+    show i;
+close",NO SEMANTIC ERROR/S,,
+"start = 1;
+end = 10;
+step = 1;
+for i in range(start, end, step):
+    show i;
+close",NO SEMANTIC ERROR/S,,
+"end = 10;
+for i in range(0, end, 1):
+    show i;
+close",NO SEMANTIC ERROR/S,,
+"for i in range(1+2, 5*2, 2-1):
+    show i;
+close",NO SEMANTIC ERROR/S,,
+"for i in range(1.5, 10, 1):
+    show i;
+close","Range start must be integer type, got 'float'",,
+"for i in range(1, 10.0, 1):
+    show i;
+close","Range end must be integer type, got 'float'",,
+"for i in range(1, 10, 0.5):
+    show i;
+close","Range step must be integer type, got 'float'",,
+"for i in range(true, 10, 1):
+    show i;
+close","Range start must be integer type, got 'bool'",,
+"for i in range(1, false, 1):
+    show i;
+close","Range end must be integer type, got 'bool'",,
+"for i in range('5', 10, 1):
+    show i;
+close","Range start must be integer type, got 'string'",,
+"x = 1.5;
+for i in range(x, 10, 1):
+    show i;
+close","Range start must be integer type, got 'float'",,
+"b = true;
+for i in range(1, b, 1):
+    show i;
+close","Range end must be integer type, got 'bool'",,
+"s = '1';
+for i in range(1, 10, s):
+    show i;
+close","Range step must be integer type, got 'string'",,
+"for i in range(1, 10/2, 1):
+    show i;
+close","Range end must be integer type, got 'float'",,
+"for i in range(1, 5 > 3, 1):
+    show i;
+close","Range end must be integer type, got 'bool'",,
+"for i in range(1, true and false, 1):
+    show i;
+close","Range end must be integer type, got 'bool'",,
+"for i in range(1.1, true, '1'):
+    show i;
+close","Range start must be integer type, got 'float'
+Range end must be integer type, got 'bool'
+Range step must be integer type, got 'string'",,
+"x = 5.5;
+for i in range(int(x), 10, 1):
+    show i;
+close",NO SEMANTIC ERROR/S,,
