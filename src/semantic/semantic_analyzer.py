@@ -337,6 +337,12 @@ class SemanticAnalyzer:
         """
         Evaluate constant expressions at compile-time - returns ORIGINAL values.
         
+        Used throughout semantic analysis for:
+        - Array size/index bounds checking (compile-time validation)
+        - Division by zero detection (catch errors early)
+        - General constant folding (optimization)
+        - Variable initialization tracking
+        
         CRITICAL: Returns actual values (bool, int, str), NOT promoted numbers!
         - TY_BOOL: True or False (Python bool)
         - TY_INT: integer value (Python int)
@@ -366,7 +372,6 @@ class SemanticAnalyzer:
         
         # Float literals - not compile-time constants for array sizes
         elif node.kind == "float_literal":
-            node.constant_value = None
             return None
         
         # Bool literals - return actual bool (NOT 0/1)
@@ -395,15 +400,15 @@ class SemanticAnalyzer:
         elif node.kind in {"+", "-", "*", "/", "//", "%", "**"}:
             if len(node.children) < 2:
                 return None
-            
+
             # Recursively evaluate children with coercion for operations
             left_val = self._evaluate_with_coercion(node.children[0])
             right_val = self._evaluate_with_coercion(node.children[1])
-            
+
             if left_val is None or right_val is None:
                 node.constant_value = None
                 return None
-            
+
             # Perform operation - result is numeric
             try:
                 if node.kind == "+":
@@ -460,13 +465,9 @@ class SemanticAnalyzer:
 
         # Logical operations (and, or, !) - return bool
         elif node.kind in {"and", "or"}:
-            if len(node.children) < 2:
-                node.constant_value = None
-                return None
-            
             left_val = self._evaluate_with_coercion(node.children[0])
             right_val = self._evaluate_with_coercion(node.children[1])
-            
+
             if left_val is None or right_val is None:
                 node.constant_value = None
                 return None
@@ -499,7 +500,7 @@ class SemanticAnalyzer:
             
             node.constant_value = result  # ← ATTACH HERE!
             return result
-        
+
         # Relational operations - return bool
         elif node.kind in {"<", ">", "<=", ">=", "==", "!="}:
             if len(node.children) < 2:
@@ -538,6 +539,11 @@ class SemanticAnalyzer:
         """
         Evaluate expression and promote to number for arithmetic/relational operations.
         This is where CHUNGUS type coercion happens!
+
+        Used for:
+        - Division by zero checking (needs numeric values after promotion)
+        - Array index bounds checking (promotes bool/string to numeric)
+        - Arithmetic constant folding (all operands promoted to numbers)
         
         Promotion rules:
         - bool: True → 1.0, False → 0.0
@@ -548,10 +554,14 @@ class SemanticAnalyzer:
             return None
         
         # Evaluate to get original value
+        # we passed the children at param so we evaluate that first
+        # so if this was a tree, that would continue until its the deepest children.
+        # if we are at deepest this would just return node value like str, int... currently no float idk why
         val = self._evaluate_constant_expr(node)
+
         if val is None:
             return None
-        
+
         # Promote based on type
         if isinstance(val, bool):
             return 1.0 if val else 0.0
@@ -1217,7 +1227,6 @@ class SemanticAnalyzer:
             var_name = node.value
             symbol = self._symbol_table.lookup(var_name)
 
-
             if symbol is None:
                 # ✅ Record error but DON'T STOP - continue analysis
                 self._error(node, f"Variable '{var_name}' not defined", UndefinedVariableError)
@@ -1558,45 +1567,29 @@ class SemanticAnalyzer:
             left_type = self._type_check(node.children[0]) if node.children else TY_UNKNOWN
             right_type = self._type_check(node.children[1]) if len(node.children) > 1 else TY_UNKNOWN
 
-            # Check for division by zero (compile-time check for literal zero)
+            # Check for division by zero (compile-time check)
             if op in ["/", "//", "%"] and len(node.children) > 1:
                 right_node = node.children[1]
                 
-                # Check if divisor is a literal zero
-                if right_node.kind == "int_literal":
-                    value_str = right_node.value
-                    # Handle CHUNGUS negative syntax (~0 is still 0)
-                    if value_str == "0" or value_str == "~0":
-                        op_name = {
-                            "/": "Division",
-                            "//": "Floor division",
-                            "%": "Modulo"
-                        }[op]
-                        self._error(right_node,
-                            f"{op_name} by zero",
-                            TypeMismatchError)
-                        return TY_UNKNOWN
-                
-                elif right_node.kind == "float_literal":
-                    try:
-                        if float(right_node.value) == 0.0:
-                            op_name = {
-                                "/": "Division",
-                                "//": "Floor division",
-                                "%": "Modulo"
-                            }[op]
-                            self._error(right_node,
-                                f"{op_name} by zero",
-                                TypeMismatchError)
-                            return TY_UNKNOWN
-                    except ValueError:
-                        pass
+                # Try to evaluate the divisor as a constant expression
+                divisor_val = self._evaluate_with_coercion(right_node)
+
+                if divisor_val is not None and divisor_val == 0:
+                    op_name = {
+                        "/": "Division",
+                        "//": "Floor division",
+                        "%": "Modulo"
+                    }[op]
+                    self._error(right_node,
+                        f"{op_name} by zero",
+                        TypeMismatchError)
+                    return TY_UNKNOWN
 
             # Skip type checking if either operand is already TY_UNKNOWN (error already reported)
             if left_type == TY_UNKNOWN or right_type == TY_UNKNOWN:
                 node.inferred_type = TY_UNKNOWN
                 return TY_UNKNOWN
-            
+
             # Check if operation is valid
             if left_type and right_type:
                 result_type = TypeChecker.infer_binary_type(op, left_type, right_type)
@@ -1629,6 +1622,7 @@ class SemanticAnalyzer:
 
             # Try to evaluate as compile-time constant
             const_val = None
+
             if node.children:
                 const_val = self._evaluate_constant_expr(node.children[0])
 
@@ -1681,9 +1675,14 @@ class SemanticAnalyzer:
                     f"Function '{func_name}' expects {expected_count} args, got {actual_count}",
                     ArgumentCountMismatchError)
 
-            # Type-check each argument
+            # Type-check each argument and prevent array passing
             for arg in args:
-                self._type_check(arg)
+                arg_type = self._type_check(arg)
+                # Disallow passing whole arrays to functions
+                if arg_type == TY_ARRAY:
+                    self._error(arg,
+                        f"Cannot pass array as function argument (use array elements instead)",
+                        TypeMismatchError)
 
             result_type = symbol.return_type if symbol.return_type else TY_UNKNOWN
             node.inferred_type = result_type

@@ -1,0 +1,12 @@
+fn fn_test(x, y, z):
+    show x;
+close
+
+arr : [1] = [];
+
+fn_test(arr,arr,arr);
+
+val = true -false;
+arr: [val] = [];
+
+

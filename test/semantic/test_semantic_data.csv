@@ -823,7 +823,8 @@ env_m: [0][0] = [];,Invalid array row expression: expression must be a non-negat
 index_m: [0][5] = [];,Invalid array row expression: expression must be a non-negative integer,,
 "Settings: [2][0] = [[],[]];",Invalid array column expression: expression must be a non-negative integer,,
 git_m: [1][0] = [[]];,Invalid array column expression: expression must be a non-negative integer,,
-"check = 4 < 2 and 5 > 2 + 10 ** 20 // false - true % !!!!true * (320 % 4);",NO SEMANTIC ERROR/S,,
+"check = 4 < 2 and 5 > 2 + 10 ** 20 // false - true % !!!!true * (320 % 4);
+",Floor division by zero,,
 "flag = !!! 10 == 10;",NO SEMANTIC ERROR/S,,
 add = 5 + 3;,NO SEMANTIC ERROR/S,,
 todo; todo;,NO SEMANTIC ERROR/S,,
@@ -972,3 +973,190 @@ Invalid array size: expression must be a non-negative integer
 # result 0
 arr:[x] = [];
 ",Invalid array size: expression must be a non-negative integer,,
+"z = read;
+a = true and z;
+x = false and a;
+val = 1 + true;
+arr: [5] = [1, 2, 3];",NO SEMANTIC ERROR/S,,
+"n = true; 
+
+a:[n] = [];",Invalid array size: expression must be a non-negative integer,,
+a:[5-5] = []; ,Invalid array size: expression must be a non-negative integer,,
+a:[5-50] = [];,Invalid array size: expression must be a non-negative integer,,
+a:[50-5] = []; ,NO SEMANTIC ERROR/S,,
+a:[false] = [];,Invalid array size: expression must be a non-negative integer,,
+a:[~1] = []; ,Invalid array size: expression must be a non-negative integer,,
+a:[~1*~1] = []; ,NO SEMANTIC ERROR/S,,
+a:[1**~1] = []; ,NO SEMANTIC ERROR/S,,
+a:[~1**~1] = []; ,Invalid array size: expression must be a non-negative integer,,
+a:[~1**1] = []; ,Invalid array size: expression must be a non-negative integer,,
+a:[!(1**~1)] = [];,Invalid array size: expression must be a non-negative integer,,
+a:[(~1**~1)] = []; ,Invalid array size: expression must be a non-negative integer,,
+a:[!(~1**~1)] = []; ,Invalid array size: expression must be a non-negative integer,,
+a:[1*(~1**~1)] = [];,Invalid array size: expression must be a non-negative integer,,
+a:[~1*(~1**~1)] = []; ,NO SEMANTIC ERROR/S,,
+"a = 1; 
+b = 2; 
+n = a + b; 
+a:[n] = [];",NO SEMANTIC ERROR/S,,
+"a = 1; 
+b = ~2; 
+n = a + b; 
+a:[n] = []; ",Invalid array size: expression must be a non-negative integer,,
+"a = 1; 
+b = ~2; 
+n = a - b; 
+a:[n] = []; ",NO SEMANTIC ERROR/S,,
+"a = 1; 
+b = ~2; 
+n = a - b; 
+a:[a+b] = []; ",Invalid array size: expression must be a non-negative integer,,
+"a = 1; 
+b = ~2; 
+n = a - b; 
+a:[a+b+n] = []; ",NO SEMANTIC ERROR/S,,
+"a = 1; 
+b = ~2; 
+n = a + b; 
+a:[a+b+n] = []; ",Invalid array size: expression must be a non-negative integer,,
+"a = 1; 
+b = ~2; 
+n = a + b; 
+a:[a-b+n] = []; ",NO SEMANTIC ERROR/S,,
+"arr:[3] = [1,2,3]; ",NO SEMANTIC ERROR/S,,
+"arr:[3-2] = [1,2,3]; ","Too many array elements: declared [1], got 3 elements",,
+"arr:[3-3] = [1,2,3];",Invalid array size: expression must be a non-negative integer,,
+"arr:[10-3] = [1,2,3]; ",NO SEMANTIC ERROR/S,,
+"arr:[10-0] = [1,2,3]; ",NO SEMANTIC ERROR/S,,
+"arr:[10-1] = [1,2,3]; ",NO SEMANTIC ERROR/S,,
+"n = true; 
+arr:[10-n] = [1,2,3]; ",NO SEMANTIC ERROR/S,,
+"n = true; 
+arr:[10-n] = [1,2,3,4,5,6,7,8,9,10]; ","Too many array elements: declared [9], got 10 elements",,
+"n = true; 
+arr:[true-n] = [1,2,3,4,5,6,7,8,9,10]; ",Invalid array size: expression must be a non-negative integer,,
+"n = false; 
+arr:[true-n] = [1,2,3,4,5,6,7,8,9,10]; ","Too many array elements: declared [1], got 10 elements",,
+"n = false; 
+arr:[true-n] = [1]; ",NO SEMANTIC ERROR/S,,
+"n = false; 
+arr:[true>n] = [1]; ",Invalid array size: expression must be a non-negative integer,,
+arr:[true+true+(1>0)] = [1];,NO SEMANTIC ERROR/S,,
+arr:[true+true+(0>1)] = [1]; ,NO SEMANTIC ERROR/S,,
+arr:[false+true+(0>1)] = [1];,NO SEMANTIC ERROR/S,,
+arr:[false*true+(0>1)] = [1]; ,Invalid array size: expression must be a non-negative integer,,
+ arr:[true*true+(0>1)] = [1]; ,NO SEMANTIC ERROR/S,,
+arr:[true-true+(0>1)] = [1]; ,Invalid array size: expression must be a non-negative integer,,
+ arr:[true-true+(1>=1)] = [1]; ,NO SEMANTIC ERROR/S,,
+ arr:[false-true+(1>=1)] = [1];,Invalid array size: expression must be a non-negative integer,,
+ arr:[true + (5-5) ] = [1]; ,NO SEMANTIC ERROR/S,,
+ arr:[true * (5-5) ] = [1]; ,Invalid array size: expression must be a non-negative integer,,
+"x = 10;
+arr8: [x] = [];
+arr9: [x + 5] = [];",NO SEMANTIC ERROR/S,,
+"x = 10;
+x = ~1; 
+arr8: [x] = [];
+arr9: [x + 5] = [];",Invalid array size: expression must be a non-negative integer,,
+"x = 10;
+x = ~1; 
+arr8: [x] = [];
+arr9: [~1] = [];","Invalid array size: expression must be a non-negative integer
+
+   
+Invalid array size: expression must be a non-negative integer",,
+"x = 10;
+x = ~1; 
+arr8: [x] = [];
+arr9: [x-5] = [];","Invalid array size: expression must be a non-negative integer
+Invalid array size: expression must be a non-negative integer",,
+"x = 10;
+x = ~1; 
+x = 3+3; 
+arr8: [x] = [];
+arr9: [x-5] = [1,2,3,4,5];","Too many array elements: declared [1], got 5 elements",,
+"x = 10;
+x = ~1; 
+x = 3+3; 
+arr8: [x] = [];
+arr9: [x-5] = [1];",NO SEMANTIC ERROR/S,,
+"x = 10;
+x = ~1; 
+x = 3+3; 
+arr8: [x] = [];
+arr9: [x-x] = [1];",Invalid array size: expression must be a non-negative integer,,
+"x = 10;
+x = ~1; 
+x = 3+3; 
+arr8: [x] = [1,2,3,4,5,6,7];
+arr9: [x-x] = [1];","Too many array elements: declared [6], got 7 elements     
+Invalid array size: expression must be a non-negative integer",,
+"x = 10;
+x = ~1; 
+x = 3+3; 
+arr8: [x] = [1,2,3,4,5,6];
+arr9: [x-x] = [1];",Invalid array size: expression must be a non-negative integer,,
+"x = 10;
+x = ~1; 
+x = 3+3; 
+arr8: [x] = [1,2,3,4,5,6];
+arr9: [x*x] = [1];",NO SEMANTIC ERROR/S,,
+"x = 10;
+x = ~1; 
+x = 3+3; 
+arr8: [x] = [1,2,3,4,5,6];
+arr9: [x/x] = [1];",NO SEMANTIC ERROR/S,,
+"x = 10;
+x = ~1; 
+x = 3+3; 
+arr8: [x] = [1,2,3,4,5,6];
+arr9: [x/x] = [1/1];",NO SEMANTIC ERROR/S,,
+"arr10: [1 + 2][2 * 2] = [[1,2,3,4], [5,6,7,8], [9,10,11,12]];",NO SEMANTIC ERROR/S,,
+"arr10: [1 + 2][2 * 2] = [[1,2,3], [5,6,7,8], [9,10,11,12]];",NO SEMANTIC ERROR/S,,
+"arr10: [1 + 2][2 * 2] = [[1,2,3,4,5], [5,6,7,8], [9,10,11,12]];","Too many columns in row 1: expected 4 columns, got 5",,
+"arr10: [1 + 2][2 * 2] = [[1,2,3,4], [5,6,7,8,9], [9,10,11,12]];","Too many columns in row 2: expected 4 columns, got 5",,
+"arr10: [1 + 2][2 * 2] = [[1,2,3,4], [5,6,7,8,9,10,11], [9,10,11,12]];","Too many columns in row 2: expected 4 columns, got 7",,
+"arr10: [1 + 2][2 * 2] = [[1,2,3,4], [5,6,7,8], [9,10,11,12],[1,1,1,1]];","Too many array rows: declared [3][4], got 4 rows",,
+"arr10: [4 + 2][2 * 2] = [[1,2,3,4], [5,6,7,8], [9,10,11,12],[1,1,1,1]];",NO SEMANTIC ERROR/S,,
+"arr10: [4 + 2][2 * 2+true] = [[1,2,3,4], [5,6,7,8], [9,10,11,12],[1,1,1,1]];",NO SEMANTIC ERROR/S,,
+"arr10: [4 + 2 - 4][2 * 2 + true] = [[1,2,3,4], [5,6,7,8], [9,10,11,12],[1,1,1,1]];","Too many array rows: declared [2][5], got 4 rows",,
+"arr10: [4 + 2][2] = [[1,2,3,4], [5,6,7,8], [9,10,11,12],[1,1,1,1]];
+","Too many columns in row 1: expected 2 columns, got 4
+Too many columns in row 2: expected 2 columns, got 4
+Too many columns in row 3: expected 2 columns, got 4
+Too many columns in row 4: expected 2 columns, got 4",,
+"arr10: [4 + 2][2+4] = [[1,2,3,4], [5,6,7,8], [9,10,11,12],[1,1,1,1]];",NO SEMANTIC ERROR/S,,
+"arr10: [5-5][2+4] = [[1,2,3,4], [5,6,7,8], [9,10,11,12],[1,1,1,1]];",Invalid array row expression: expression must be a non-negative integer,,
+"arr10: [5-5+5][2+4] = [[1,2,3,4], [5,6,7,8], [9,10,11,12],[1,1,1,1]];",NO SEMANTIC ERROR/S,,
+"arr10: [5-(5+5)][2+4] = [[1,2,3,4], [5,6,7,8], [9,10,11,12],[1,1,1,1]];",Invalid array row expression: expression must be a non-negative integer,,
+"arr10: [5-(~5+5)][2+4] = [[1,2,3,4], [5,6,7,8], [9,10,11,12],[1,1,1,1]];",NO SEMANTIC ERROR/S,,
+"arr10: [5-(~5+5)][2+4-6] = [[1,2,3,4], [5,6,7,8], [9,10,11,12],[1,1,1,1]];",Invalid array row expression: expression must be a non-negative integer,,
+"arr10: [5-(~5+5)][2+(4-6)] = [[1,2,3,4], [5,6,7,8], [9,10,11,12],[1,1,1,1]];",Invalid array column expression: expression must be a non-negative integer,,
+"arr10: [5-(~5+5)][26+(4-6)] = [[1,2,3,4], [5,6,7,8], [9,10,11,12],[1,1,1,1]];",Invalid array column expression: expression must be a non-negative integer,,
+"arr10: [5-(~5+5)][false+false] = [[1,2,3,4], [5,6,7,8], [9,10,11,12],[1,1,1,1]];",Invalid array column expression: expression must be a non-negative integer,,
+arr10: [5-(~5+5)][false+false+true] = [];,NO SEMANTIC ERROR/S,,
+arr10: [5-(~5+5)][false+false+true] = [[]];,NO SEMANTIC ERROR/S,,
+"x = true;  
+y = false; 
+arr10: [5-(~5+5)][x+y] = [[]];",NO SEMANTIC ERROR/S,,
+"x = true;  
+y = false; 
+arr10: [5-(~5+5)][x*y] = [[]];",Invalid array column expression: expression must be a non-negative integer,,
+"x = true;  
+y = false; 
+arr10: [1][x/y] = [[]];",Division by zero,,
+"x = true;  
+y = false; 
+arr10: [1][1/0] = [[]];",Division by zero,,
+"arr20: [10] = [0,1,2,3,4,5,6,7,8,9];
+# PASS: expression index
+val2 = arr20[2 + 3];
+show val2;",NO SEMANTIC ERROR/S,,
+"arr20: [10] = [0,1,2,3,4,5,6,7,8,9];
+# PASS: expression index
+val2 = arr20[2 + 19];
+show val2;","Array index out of bounds: index 21 not in range [0, 9]",,
+"arr20: [10] = [0,1,2,3,4,5,6,7,8,9];
+# PASS: expression index
+val2 = arr20[2 - 5];
+show val2;","Array index out of bounds: index -3 not in range [0, 9]",,

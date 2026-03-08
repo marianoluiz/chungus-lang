@@ -1,0 +1,5 @@
+z = read;
+a = true and z;
+x = false and a;
+val = 1 + true;
+arr: [5] = [1, 2, 3];
