@@ -954,19 +954,18 @@ class SemanticAnalyzer:
             )
             self._symbol_table.declare(loop_var_symbol)
             
-            # Type check range expressions (first 3 children) - must produce integers
+            # Type check range expressions (first 3 children) - must produce integers only
             for i in range(min(3, len(node.children))):
                 expr_type = self._type_check(node.children[i])
                 
-                # Range expressions must produce integers (with type promotion)
-                # All types can be promoted to numbers: int, float, bool, string → number
-                # But we want to ensure the result is usable as an integer index
-                if expr_type and expr_type not in {TY_INT, TY_FLOAT, TY_BOOL, TY_STRING, TY_UNKNOWN}:
+                # Range expressions MUST produce integers (no floats, bools, or strings)
+                # Only TY_INT or TY_UNKNOWN (for variables/expressions) are allowed
+                if expr_type and expr_type not in {TY_INT, TY_UNKNOWN}:
                     range_label = ["start", "end", "step"][i] if i < 3 else "range"
                     self._error(node.children[i],
-                        f"Range {range_label} must be numeric (integer-promotable), got '{expr_type}'",
+                        f"Range {range_label} must be integer type, got '{expr_type}'",
                         TypeMismatchError)
-            
+
             # Type check loop body (skip first 3 children)
             for i in range(3, len(node.children)):
                 self._type_check(node.children[i])
