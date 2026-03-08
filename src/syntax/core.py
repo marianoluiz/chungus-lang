@@ -119,11 +119,17 @@ class ParserCore:
         err_block = str(UnexpectedError(line_text, (tok.line, tok.col)))
         expected_list = ", ".join(sorted(expected))
 
+        # msg = (
+        #     f"{err_block}"
+        #     f"Unexpected token in {context} at line {tok.line} col {tok.col}: "
+        #     f"{tok.type or tok.lexeme}\n"
+        #     f"Expected any: {expected_list}"
+        # )
+
         msg = (
             f"{err_block}"
-            f"Unexpected token in {context} at line {tok.line} col {tok.col}: "
-            f"{tok.type or tok.lexeme}\n"
-            f"Expected any: {expected_list}"
+            f"at line {tok.line} col {tok.col}"
+            f"\nExpected any: {expected_list}"
         )
         
         if tok.type == 'fn' and context == 'general_statement':
