@@ -953,21 +953,30 @@ class SemanticAnalyzer:
                 scope_level=self._symbol_table.scope_level
             )
             self._symbol_table.declare(loop_var_symbol)
-            
-            # Type check range expressions (first 3 children) - must produce integers only
-            for i in range(min(3, len(node.children))):
+
+            # Detect where body starts. Parser wraps statements as
+            # `general_statement`, and range() supports 1..3 expressions.
+            body_start = len(node.children)
+            for i, child in enumerate(node.children):
+                if child.kind == "general_statement":
+                    body_start = i
+                    break
+
+            # Type check range expressions (up to 3) - must produce integers only
+            range_count = min(3, body_start)
+            for i in range(range_count):
                 expr_type = self._type_check(node.children[i])
-                
+
                 # Range expressions MUST produce integers (no floats, bools, or strings)
                 # Only TY_INT or TY_UNKNOWN (for variables/expressions) are allowed
                 if expr_type and expr_type not in {TY_INT, TY_UNKNOWN}:
-                    range_label = ["start", "end", "step"][i] if i < 3 else "range"
+                    range_label = ["start", "end", "step"][i]
                     self._error(node.children[i],
                         f"Range {range_label} must be integer type, got '{expr_type}'",
                         TypeMismatchError)
 
-            # Type check loop body (skip first 3 children)
-            for i in range(3, len(node.children)):
+            # Type check loop body
+            for i in range(body_start, len(node.children)):
                 self._type_check(node.children[i])
 
             self._symbol_table.exit_scope()

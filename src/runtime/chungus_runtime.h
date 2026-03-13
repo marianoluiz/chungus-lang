@@ -13,6 +13,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <math.h>
+#include <stdint.h>
 
 // Forward declaration
 typedef struct ChValue ChValue;
@@ -31,7 +32,7 @@ typedef struct ChValue {
     ChType type;
     
     union {
-        int i;
+        int64_t i;
         double f;
         bool b;
         char* s;
@@ -51,7 +52,7 @@ typedef struct ChValue {
 // CONSTRUCTORS
 // ============================================================================
 
-ChValue ch_int(int x);
+ChValue ch_int(int64_t x);
 ChValue ch_float(double x);
 ChValue ch_bool(bool x);
 ChValue ch_str(const char* x);
@@ -157,7 +158,10 @@ void ch_array_set_2d(ChValue* arr, int row, int col, ChValue value);
 void ch_print(ChValue v);
 
 // Read input from stdin (for "read" expression)
-// Returns string value
+// Dynamic typing:
+//   - integer text -> TY_INT
+//   - floating text -> TY_FLOAT
+//   - otherwise -> TY_STRING
 ChValue ch_read(void);
 
 

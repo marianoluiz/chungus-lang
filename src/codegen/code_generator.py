@@ -226,7 +226,8 @@ class CodeGenerator:
         self._errors.append(error)
         
         if self._debug:
-            print(f"ERROR: {error}")    
+            print(f"ERROR: {error}")
+
     def _gen_temp(self) -> str:
         """Generate a unique temporary variable name."""
         temp = f"_t{self._temp_counter}"
@@ -297,6 +298,8 @@ class CodeGenerator:
         """Helper for binary operations."""
         left_code = self._visit(node.children[0]) if node.children else "ch_int(0)"
         right_code = self._visit(node.children[1]) if len(node.children) > 1 else "ch_int(0)"
+
+        # it would be something like ch_add(_ , _)
         return f"{func}({left_code}, {right_code})"
     
     # Arithmetic operators
@@ -368,12 +371,32 @@ class CodeGenerator:
         return f"ch_not({operand_code})"
     
     # ==================== OUTPUT VISITOR ====================
-    
+
     def _visit_output_statement(self, node: ASTNode) -> None:
         """Generate code for output/show statement."""
-        expr_code = self._visit(node.children[0]) if node.children else "ch_int(0)"
-        self._emit(f"ch_print({expr_code});")
-    
+        if not node.children:
+            self._emit("ch_print(ch_int(0));")
+            return
+
+        child = node.children[0]
+        expr_code = self._visit(child)
+
+        # If the expression is a plain variable reference (id), print it
+        # directly — we must NOT free it because the variable still owns
+        # that memory and may be used later.
+        #
+        # For everything else (literals, function calls, binary ops, etc.)
+        # the result is a temporary ChValue.  String temporaries hold a
+        # strdup-allocated pointer that would leak without an explicit free.
+        # ch_free is safe for all types (no-op for int/float/bool).
+        if child.kind == "id":
+            self._emit(f"ch_print({expr_code});")
+        else:
+            temp = self._gen_temp()
+            self._emit(f"ChValue {temp} = {expr_code};")
+            self._emit(f"ch_print({temp});")
+            self._emit(f"ch_free(&{temp});")
+
     # ==================== CONTROL FLOW VISITORS ====================
     
     def _visit_conditional_block(self, node: ASTNode) -> None:
@@ -420,6 +443,88 @@ class CodeGenerator:
         for stmt in node.children:
             self._visit(stmt)
         
+        self._dedent()
+        self._emit("}")
+
+    def _visit_for(self, node: ASTNode) -> None:
+        """Generate code for for loop.
+
+        AST contract from parser:
+            node.value = loop variable name
+            node.children = [range_expr_1..3, general_statement...]
+
+        Supported forms:
+            range(stop)
+            range(start, stop)
+            range(start, stop, step)
+        """
+        loop_var = node.value or "_i"
+
+        # Body statements are wrapped as `general_statement` nodes. while range expr are not.
+        body_start = len(node.children)
+        for i, child in enumerate(node.children):
+            if child.kind == "general_statement":
+                body_start = i
+                break
+
+        range_nodes = node.children[:body_start]
+        body_nodes = node.children[body_start:]
+
+        # Parse range args with Python-like defaults.
+        # range(stop) -> start=0, step=1
+        # range(start, stop) -> step=1
+        # range(start, stop, step)
+        if len(range_nodes) == 1:
+            start_expr = "ch_int(0)"
+            stop_expr = self._visit(range_nodes[0])
+            step_expr = "ch_int(1)"
+        elif len(range_nodes) == 2:
+            start_expr = self._visit(range_nodes[0])
+            stop_expr = self._visit(range_nodes[1])
+            step_expr = "ch_int(1)"
+        else:
+            start_expr = self._visit(range_nodes[0]) if len(range_nodes) > 0 else "ch_int(0)"
+            stop_expr = self._visit(range_nodes[1]) if len(range_nodes) > 1 else "ch_int(0)"
+            step_expr = self._visit(range_nodes[2]) if len(range_nodes) > 2 else "ch_int(1)"
+
+        # Use unique temporaries so nested loops are safe.
+        t_start = self._gen_temp() + "_start"
+        t_stop = self._gen_temp() + "_stop"
+        t_step = self._gen_temp() + "_step"
+
+        self._emit("{")
+        self._indent()
+        # initialize range expr vars
+        self._emit(f"int {t_start} = (int)ch_to_number({start_expr});")
+        self._emit(f"int {t_stop} = (int)ch_to_number({stop_expr});")
+        self._emit(f"int {t_step} = (int)ch_to_number({step_expr});")
+        self._emit("")
+        # handle 0 step
+        self._emit(f"if ({t_step} == 0) {{")
+        self._indent()
+        self._emit('fprintf(stderr, "Runtime Error: range() step cannot be zero\\n");')
+        self._dedent()
+        self._emit("} else {")
+        self._indent()
+        # initialize loop variable
+        self._emit(f"ChValue {loop_var} = ch_int({t_start});")
+
+        # step > 0 → continue while loop_var < stop
+        # step < 0 → continue while loop_var > stop
+        self._emit(
+            f"while (({t_step} > 0) ? ((int)ch_to_number({loop_var}) < {t_stop}) : ((int)ch_to_number({loop_var}) > {t_stop})) {{"
+        )
+        self._indent()
+
+        for stmt in body_nodes:
+            self._visit(stmt)
+
+        self._emit(f"{loop_var} = ch_int((int)ch_to_number({loop_var}) + {t_step});")
+        self._dedent()
+        self._emit("}")
+        self._emit(f"ch_free(&{loop_var});")
+        self._dedent()
+        self._emit("}")
         self._dedent()
         self._emit("}")
     

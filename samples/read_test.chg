@@ -1,0 +1,4 @@
+x = read;
+
+res = 0 + ~1;
+show res;

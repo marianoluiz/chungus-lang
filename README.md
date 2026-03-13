@@ -53,6 +53,20 @@ This will:
 4. Generate C code in `output/` (Codegen)
 5. Compile and execute (Runtime)
 
+### Current Language/Runtime Notes
+
+- `read` is assignment-only (e.g. `x = read;`) and is not parsed as a general expression.
+- Runtime `read` is dynamic:
+  - integer text (e.g. `42`) → `int`
+  - floating text (e.g. `3.14`) → `float`
+  - otherwise → `string`
+- `for ... in range(...)` supports:
+  - `range(stop)`
+  - `range(start, stop)`
+  - `range(start, stop, step)`
+- `range(..., step=0)` is guarded at runtime with an error message.
+- GUI execution has a timeout for long-running programs and reports partial output on timeout.
+
 ### Individual Phase CLIs
 
 Run specific compilation phases for debugging or testing:

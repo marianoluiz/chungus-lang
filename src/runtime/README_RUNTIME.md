@@ -103,6 +103,13 @@ void ch_print(ChValue v);     // Print value (for "show" statement)
 ChValue ch_read(void);        // Read line from stdin (for "read" expression)
 ```
 
+`ch_read()` performs dynamic input typing:
+- integer text → `TY_INT`
+- floating text → `TY_FLOAT`
+- non-numeric text (or empty after parse fallback) → `TY_STRING`
+
+`ch_print()` flushes stdout after each print so output is visible for long-running loops.
+
 ### Memory Management
 ```c
 ChValue ch_copy(ChValue src);  // Deep copy (handles strings/arrays)
@@ -201,6 +208,11 @@ The runtime provides:
 - Deep copying for assignment (no aliasing issues)
 
 Runtime errors print helpful messages to stderr and return safe default values.
+
+When codegen lowers `for ... in range(...)`, runtime behavior includes:
+- support for 1/2/3 range arguments
+- positive and negative step handling
+- runtime guard for `step == 0` (prints error and skips loop)
 
 ## Performance Notes
 

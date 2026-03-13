@@ -1,0 +1,23 @@
+# Test 1: valid integer input
+#   Limits: up to 19 digits AND within signed 64-bit range
+#   Min: -9223372036854775808
+#   Max:  9223372036854775807
+a = read;
+show a;
+show '\n';
+
+# Test 2: invalid integer input (>19 digits)
+b = read;
+show b;
+show '\n';
+
+# Test 3: valid float input
+#   Fractional precision limit: up to 6 digits after decimal point
+c = read;
+show c;
+show '\n';
+
+# Test 4: invalid float input (>6 digits after decimal)
+d = read;
+show d;
+show '\n';

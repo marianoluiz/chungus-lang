@@ -1,0 +1,6 @@
+x = 0;
+
+while x < 10:
+    show 'x is less than 10\n';
+    x = x + 1;
+close

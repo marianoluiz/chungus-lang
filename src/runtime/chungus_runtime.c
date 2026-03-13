@@ -6,13 +6,96 @@
 
 #define _POSIX_C_SOURCE 200809L
 #include "chungus_runtime.h"
+#include <ctype.h>
+#include <errno.h>
+#include <limits.h>
+
+// ============================================================================
+// INPUT VALIDATION HELPERS
+// ============================================================================
+
+static int ch_count_digits(const char* s) {
+    int count = 0;
+    for (const char* p = s; *p; p++) {
+        if (isdigit((unsigned char)*p)) {
+            count++;
+        }
+    }
+    return count;
+}
+
+static bool ch_is_integer_text(const char* s) {
+    if (!s || *s == '\0') return false;
+
+    const char* p = s;
+    if (*p == '+' || *p == '-') p++;
+    if (!isdigit((unsigned char)*p)) return false;
+
+    while (*p) {
+        if (!isdigit((unsigned char)*p)) return false;
+        p++;
+    }
+    return true;
+}
+
+static bool ch_is_decimal_text(const char* s, int* frac_digits_out) {
+    if (!s || *s == '\0') return false;
+
+    const char* p = s;
+    if (*p == '+' || *p == '-') p++;
+
+    bool seen_dot = false;
+    bool seen_digit = false;
+    int frac_digits = 0;
+
+    while (*p) {
+        if (*p == '.') {
+            if (seen_dot) return false;
+            seen_dot = true;
+            p++;
+            continue;
+        }
+
+        if (!isdigit((unsigned char)*p)) {
+            return false;
+        }
+
+        seen_digit = true;
+        if (seen_dot) frac_digits++;
+        p++;
+    }
+
+    if (frac_digits_out) *frac_digits_out = frac_digits;
+    return seen_digit && seen_dot;
+}
+
+static double ch_round_to_6dp(double x) {
+    return round(x * 1000000.0) / 1000000.0;
+}
+
+static bool ch_double_to_int64_checked(double x, int64_t* out) {
+    if (!isfinite(x)) {
+        fprintf(stderr, "Runtime Error: Numeric result is not finite\n");
+        return false;
+    }
+
+    long double xl = (long double)x;
+    if (xl < -9223372036854775808.0L || xl > 9223372036854775807.0L) {
+        fprintf(stderr,
+                "Runtime Error: Integer result out of signed 64-bit range [-9223372036854775808, 9223372036854775807]\n");
+        return false;
+    }
+
+    *out = (int64_t)x;
+    return true;
+}
 
 
 // ============================================================================
 // CONSTRUCTORS
 // ============================================================================
 
-ChValue ch_int(int x) {
+ChValue ch_int(int64_t x) {
     ChValue v;
     v.type = TY_INT;
     v.i = x;
@@ -22,7 +105,14 @@ ChValue ch_int(int x) {
 ChValue ch_float(double x) {
     ChValue v;
     v.type = TY_FLOAT;
-    v.f = x;
+
+    if (!isfinite(x)) {
+        fprintf(stderr, "Runtime Error: Float value is not finite\n");
+        v.f = 0.0;
+    } else {
+        v.f = ch_round_to_6dp(x);
+    }
+
     return v;
 }
 
@@ -146,8 +236,12 @@ ChValue ch_add(ChValue left, ChValue right) {
     if (left.type == TY_FLOAT || right.type == TY_FLOAT) {
         return ch_float(result);
     }
-    
-    return ch_int((int)result);
+
+    int64_t ires = 0;
+    if (!ch_double_to_int64_checked(result, &ires)) {
+        return ch_int(0);
+    }
+    return ch_int(ires);
 }
 
 ChValue ch_sub(ChValue left, ChValue right) {
@@ -158,8 +252,12 @@ ChValue ch_sub(ChValue left, ChValue right) {
     if (left.type == TY_FLOAT || right.type == TY_FLOAT) {
         return ch_float(result);
     }
-    
-    return ch_int((int)result);
+
+    int64_t ires = 0;
+    if (!ch_double_to_int64_checked(result, &ires)) {
+        return ch_int(0);
+    }
+    return ch_int(ires);
 }
 
 ChValue ch_mul(ChValue left, ChValue right) {
@@ -170,13 +268,22 @@ ChValue ch_mul(ChValue left, ChValue right) {
     if (left.type == TY_FLOAT || right.type == TY_FLOAT) {
         return ch_float(result);
     }
-    
-    return ch_int((int)result);
+
+    int64_t ires = 0;
+    if (!ch_double_to_int64_checked(result, &ires)) {
+        return ch_int(0);
+    }
+    return ch_int(ires);
 }
 
 ChValue ch_div(ChValue left, ChValue right) {
     double l = ch_to_number(left);
     double r = ch_to_number(right);
+
+    if (r == 0.0) {
+        fprintf(stderr, "Runtime Error: Division by zero\n");
+        return ch_float(0.0);
+    }
     
     // Division always returns float in CHUNGUS
     return ch_float(l / r);
@@ -192,7 +299,12 @@ ChValue ch_idiv(ChValue left, ChValue right) {
         return ch_int(0);
     }
     
-    return ch_int((int)(l / r));
+    double result = l / r;
+    int64_t ires = 0;
+    if (!ch_double_to_int64_checked(result, &ires)) {
+        return ch_int(0);
+    }
+    return ch_int(ires);
 }
 
 ChValue ch_mod(ChValue left, ChValue right) {
@@ -204,7 +316,19 @@ ChValue ch_mod(ChValue left, ChValue right) {
         return ch_int(0);
     }
     
-    return ch_int((int)l % (int)r);
+    int64_t li = 0;
+    int64_t ri = 0;
+
+    if (!ch_double_to_int64_checked(l, &li) || !ch_double_to_int64_checked(r, &ri)) {
+        return ch_int(0);
+    }
+
+    if (ri == 0) {
+        fprintf(stderr, "Runtime Error: Modulo by zero\n");
+        return ch_int(0);
+    }
+
+    return ch_int(li % ri);
 }
 
 ChValue ch_pow(ChValue left, ChValue right) {
@@ -215,8 +339,12 @@ ChValue ch_pow(ChValue left, ChValue right) {
     if (left.type == TY_FLOAT || right.type == TY_FLOAT) {
         return ch_float(result);
     }
-    
-    return ch_int((int)result);
+
+    int64_t ires = 0;
+    if (!ch_double_to_int64_checked(result, &ires)) {
+        return ch_int(0);
+    }
+    return ch_int(ires);
 }
 
 
@@ -374,14 +502,53 @@ void ch_array_set_2d(ChValue* arr, int row, int col, ChValue value) {
 // I/O OPERATIONS
 // ============================================================================
 
+static void ch_print_float_6dp(double value) {
+    bool is_neg = value < 0.0;
+    if (is_neg) {
+        value = -value;
+    }
+
+    // Print with fixed 6 decimal places, then trim trailing zeros,
+    // but keep at least one fractional digit so float stays visibly float.
+    char buf[64];
+    snprintf(buf, sizeof(buf), "%.6f", value);
+
+    char* dot = strchr(buf, '.');
+    if (!dot) {
+        printf("%s", buf);
+        return;
+    }
+
+    char* end = buf + strlen(buf) - 1;
+    while (end > dot && *end == '0') {
+        *end-- = '\0';
+    }
+    if (end == dot) {
+        *(++end) = '0';
+        *(++end) = '\0';
+    }
+
+    if (is_neg) {
+        printf("~%s", buf);
+    } else {
+        printf("%s", buf);
+    }
+}
+
 void ch_print(ChValue v) {
     switch (v.type) {
         case TY_INT:
-            printf("%d", v.i);
+            if (v.i < 0) {
+                // Print CHUNGUS negative style (~N) while safely handling INT64_MIN
+                uint64_t mag = (uint64_t)(-(v.i + 1)) + 1;
+                printf("~%llu", (unsigned long long)mag);
+            } else {
+                printf("%lld", (long long)v.i);
+            }
             break;
         
         case TY_FLOAT:
-            printf("%g", v.f);  // %g removes trailing zeros
+            ch_print_float_6dp(v.f);
             break;
         
         case TY_BOOL:
@@ -396,17 +563,97 @@ void ch_print(ChValue v) {
             printf("[Array %zux%zu]", v.arr.rows, v.arr.cols);
             break;
     }
+
+    // Important for GUI/live execution: force buffered output to appear
+    // even if the program is long-running or stuck in an infinite loop.
+    fflush(stdout);
 }
 
 ChValue ch_read(void) {
     char buffer[1024];
+
     if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
         // Remove trailing newline
         size_t len = strlen(buffer);
         if (len > 0 && buffer[len - 1] == '\n') {
             buffer[len - 1] = '\0';
         }
-        return ch_str(buffer);
+
+        // Trim leading/trailing whitespace for numeric parsing
+        char* start = buffer;
+        while (*start && isspace((unsigned char)*start)) {
+            start++;
+        }
+
+        char* end = start + strlen(start);
+        while (end > start && isspace((unsigned char)end[-1])) {
+            end--;
+        }
+        *end = '\0';
+
+        // Empty input -> empty string
+        if (*start == '\0') {
+            return ch_str("");
+        }
+
+        // CHUNGUS negative style support for input parsing:
+        // ~123 and ~1.25 are treated as -123 and -1.25 for numeric reads.
+        const char* parse_text = start;
+        char normalized[1024];
+        if (start[0] == '~') {
+            normalized[0] = '-';
+            strncpy(normalized + 1, start + 1, sizeof(normalized) - 2);
+            normalized[sizeof(normalized) - 1] = '\0';
+            parse_text = normalized;
+        }
+
+        // Integer input: max 19 digits
+        if (ch_is_integer_text(parse_text)) {
+            int digit_count = ch_count_digits(parse_text);
+            if (digit_count > 19) {
+                fprintf(stderr, "Runtime Error: Integer input exceeds 19-digit limit: '%s'\n", start);
+                return ch_int(0);
+            }
+
+            errno = 0;
+            char* int_end = NULL;
+            long long int_val = strtoll(parse_text, &int_end, 10);
+            if (errno == ERANGE) {
+                fprintf(stderr,
+                        "Runtime Error: Integer input out of signed 64-bit range [-9223372036854775808, 9223372036854775807]: '%s'\n",
+                        start);
+                return ch_int(0);
+            }
+
+            if (int_end == parse_text || *int_end != '\0') {
+                fprintf(stderr, "Runtime Error: Invalid integer input: '%s'\n", start);
+                return ch_int(0);
+            }
+
+            return ch_int((int64_t)int_val);
+        }
+
+        // Decimal input: max 6 fractional digits
+        int frac_digits = 0;
+        if (ch_is_decimal_text(parse_text, &frac_digits)) {
+            if (frac_digits > 6) {
+                fprintf(stderr, "Runtime Error: Decimal input exceeds 6 fractional digits: '%s'\n", start);
+                return ch_float(0.0);
+            }
+
+            errno = 0;
+            char* float_end = NULL;
+            double float_val = strtod(parse_text, &float_end);
+            if (errno != 0 || float_end == parse_text || *float_end != '\0') {
+                fprintf(stderr, "Runtime Error: Invalid decimal input: '%s'\n", start);
+                return ch_float(0.0);
+            }
+
+            return ch_float(float_val);
+        }
+
+        // Fallback: string
+        return ch_str(start);
     }
     return ch_str("");
 }

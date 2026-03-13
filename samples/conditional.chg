@@ -1,0 +1,11 @@
+x = ~6000;
+
+if x == 0:
+	show 'x is 0\n';
+	x = x + 1;
+elif x == 1:
+	show 'x is 1\n';
+	x = x + 1;
+else:
+	show 'kanya kanya na\n';
+close

@@ -148,25 +148,25 @@ def main():
     print(f"{'='*60}\n")
     
     try:
-        result = subprocess.run(
+        # Run attached to current terminal so output is shown live.
+        # Using capture_output buffers everything until process exit,
+        # which makes infinite/long-running programs appear blank.
+        subprocess.run(
             [f"./{exe_file.name}"],
-            capture_output=True,
-            text=True,
             check=True,
             cwd=exe_file.parent
         )
-        print(result.stdout, end='')
-        if result.stderr:
-            print(result.stderr, end='', file=sys.stderr)
     except subprocess.CalledProcessError as e:
         print("\n✗ RUNTIME ERROR:")
-        print(e.stderr, file=sys.stderr)
+        if e.stderr:
+            print(e.stderr, file=sys.stderr)
         # Clean up executable
-        exe_file.unlink(missing_ok=True)
+        # exe_file.unlink(missing_ok=True)
         sys.exit(e.returncode)
     finally:
         # Clean up executable after running (keep C file)
-        exe_file.unlink(missing_ok=True)
+        # exe_file.unlink(missing_ok=True)
+        pass
     
     print(f"\n{'='*60}")
     print("✓ Compilation and execution successful")

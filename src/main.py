@@ -6,7 +6,7 @@ from src.lexer.dfa_lexer import Lexer
 from src.syntax.rd_parser import RDParser
 from src.semantic.semantic_analyzer import SemanticAnalyzer
 from src.codegen import analyze_codegen
-
+import os
 
 def lexer_only_adapter(source: str):
     """
@@ -94,7 +94,7 @@ def semantic_adapter(source: str):
     return tokens, errors
 
 
-def codegen_adapter(source: str):
+def codegen_adapter(source: str, stdin_data=None):
     """
     Adapter that runs full compilation pipeline and executes the generated code.
     
@@ -177,14 +177,20 @@ def codegen_adapter(source: str):
             errors.append(result.stderr)
             return tokens, errors
         
-        # Execute
-        result = subprocess.run([str(exe_path)], capture_output=True, text=True, timeout=5)
+        # Execute (stdin_data is used by GUI when source contains `read`)
+        result = subprocess.run(
+            [str(exe_path)],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            input=stdin_data
+        )
 
         if result.returncode != 0:
             errors.append("Runtime Error:")
             errors.append(result.stderr)
             # Clean up executable
-            exe_path.unlink(missing_ok=True)
+            # exe_path.unlink(missing_ok=True)
             return tokens, errors
         
         # Success - return execution output
@@ -196,18 +202,25 @@ def codegen_adapter(source: str):
             pass
         
         # Clean up executable after running (keep C file)
-        exe_path.unlink(missing_ok=True)
+        # exe_path.unlink(missing_ok=True)
 
-    except subprocess.TimeoutExpired:
-        errors.append("Execution Timeout:")
-        errors.append("Program exceeded 5 second time limit")
+    except subprocess.TimeoutExpired as e:
+        # Python stores partial output on TimeoutExpired as bytes even when
+        # text=True was passed to subprocess.run, so decode manually.
+        if e.stdout:
+            out = e.stdout.decode('utf-8', errors='replace') if isinstance(e.stdout, bytes) else e.stdout
+            errors.append(out.rstrip())
+        if e.stderr:
+            err = e.stderr.decode('utf-8', errors='replace') if isinstance(e.stderr, bytes) else e.stderr
+            errors.append(err.rstrip())
+        errors.append("Execution Timeout: Program exceeded 5 second time limit")
         # Clean up executable
-        exe_path.unlink(missing_ok=True)
+        # exe_path.unlink(missing_ok=True)
     except Exception as e:
         errors.append("Execution Error:")
         errors.append(str(e))
         # Clean up executable
-        exe_path.unlink(missing_ok=True)
+        # exe_path.unlink(missing_ok=True)
 
     return tokens, errors
 

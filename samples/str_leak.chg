@@ -1,0 +1,21 @@
+# test_string_leak.chg
+
+# Create strings
+s1 = 'Hello, CHUNGUS!';
+s2 = 'Memory test string';
+
+# Print them
+show s1;
+show s2;
+
+# Copy string
+s3 = s1;
+show s3;
+
+# Reassign s1
+s1 = 'New value!';
+show s1;
+
+# Use string in expression (coerces to number internally)
+temp = s1 + s2;
+show temp;

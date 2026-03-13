@@ -1,7 +1,9 @@
 import tkinter as tk
-from tkinter import ttk, font, messagebox, filedialog
+from tkinter import ttk, font, messagebox, filedialog, simpledialog
 import platform
 import datetime
+import threading
+import re
 
 # ==============================================================================
 # 1. LANGUAGE CONFIGURATION
@@ -1171,47 +1173,118 @@ class ChungusLexerGUI:
         self.error_output.config(state=tk.DISABLED)
 
     def run_codegen(self):
-        self.status_msg.config(text="Running Code Generator...")
-        self.error_output.config(state=tk.NORMAL)
-        self.error_output.delete("1.0", tk.END)
-        
-        for item in self.token_tree.get_children():
-            self.token_tree.delete(item)
-
-        source_code = self.code_input.get("1.0", "end-1c")
-        source_code = source_code.expandtabs(4)
-
-        if callable(self.codegen_callback):
-            try:
-                tokens, errors = self.codegen_callback(source_code)
-            except Exception as e:
-                messagebox.showerror("Code Generator Internal Error", str(e))
-                self.status_msg.config(text="Code Generation Failed.")
-                return
-        else:
+        if not callable(self.codegen_callback):
             messagebox.showinfo("Code Generator", "No code generator callback provided.")
             self.status_msg.config(text="Code generator not configured.")
             return
 
+        self.status_msg.config(text="Running program... (compiling & executing)")
+        self.error_output.config(state=tk.NORMAL)
+        self.error_output.delete("1.0", tk.END)
+        self.error_output.insert(tk.END, "Running...\n", "info")
+        self.error_output.config(state=tk.DISABLED)
+
+        for item in self.token_tree.get_children():
+            self.token_tree.delete(item)
+
+        # Disable the button to prevent double-clicks while running.
+        self.btn_codegen.config(state=tk.DISABLED)
+
+        source_code = self.code_input.get("1.0", "end-1c")
+        source_code = source_code.expandtabs(4)
+
+        stdin_data = None
+        # If program uses `read`, ask input via separate fields.
+        read_count = len(re.findall(r"\bread\b", source_code))
+        if read_count > 0:
+            inputs = []
+
+            # First three reads: one dialog per read (as requested)
+            separate_fields = min(read_count, 3)
+            for i in range(separate_fields):
+                value = simpledialog.askstring(
+                    "Program Input",
+                    f"Value for read #{i + 1} of {read_count}:"
+                )
+                if value is None:
+                    self.btn_codegen.config(state=tk.NORMAL)
+                    self.status_msg.config(text="Run canceled.")
+                    self.error_output.config(state=tk.NORMAL)
+                    self.error_output.delete("1.0", tk.END)
+                    self.error_output.insert(tk.END, "Run canceled by user.", "info")
+                    self.error_output.config(state=tk.DISABLED)
+                    return
+                inputs.append(value)
+
+            # If there are more than 3 reads, collect remaining inputs in one box.
+            if read_count > 3:
+                remaining = read_count - 3
+                extra = simpledialog.askstring(
+                    "Program Input",
+                    f"Enter remaining {remaining} input value(s), separated by \\n.\n"
+                    "Example: a\\n2\\n3.14"
+                )
+                if extra is None:
+                    self.btn_codegen.config(state=tk.NORMAL)
+                    self.status_msg.config(text="Run canceled.")
+                    self.error_output.config(state=tk.NORMAL)
+                    self.error_output.delete("1.0", tk.END)
+                    self.error_output.insert(tk.END, "Run canceled by user.", "info")
+                    self.error_output.config(state=tk.DISABLED)
+                    return
+
+                # Support literal "\\n" in input box.
+                extra = extra.replace("\\n", "\n")
+                inputs.extend(extra.splitlines())
+
+            stdin_data = "".join(f"{val}\n" for val in inputs)
+
+        def _worker():
+            """Run the full compile+execute pipeline on a background thread."""
+            try:
+                try:
+                    tokens, errors = self.codegen_callback(source_code, stdin_data=stdin_data)
+                except TypeError as exc:
+                    # Backward compatibility with callbacks that only accept source.
+                    if "stdin_data" in str(exc):
+                        tokens, errors = self.codegen_callback(source_code)
+                    else:
+                        raise
+            except Exception as exc:
+                tokens, errors = [], [f"Code Generator Internal Error: {exc}"]
+            # Schedule GUI update back on the main thread.
+            self.root.after(0, lambda: self._finish_codegen(tokens, errors))
+
+        threading.Thread(target=_worker, daemon=True).start()
+
+    def _finish_codegen(self, tokens, errors):
+        """Called on the main thread after the codegen worker finishes."""
+        self.btn_codegen.config(state=tk.NORMAL)
         self._populate_tokens(tokens)
 
+        self.error_output.config(state=tk.NORMAL)
+        self.error_output.delete("1.0", tk.END)
+
         if errors:
-            # self.error_output.insert(tk.END, "Program Output:\n", "info")
             for line in errors:
+                if isinstance(line, bytes):
+                    line = line.decode('utf-8', errors='replace')
                 if "Error" in line:
                     self.error_output.insert(tk.END, line + "\n", "error")
                 elif "===" in line:
                     self.error_output.insert(tk.END, line + "\n", "info")
+                elif "Timeout" in line:
+                    self.error_output.insert(tk.END, line + "\n", "error")
                 else:
                     self.error_output.insert(tk.END, line + "\n")
-            if any("Error" in e for e in errors):
+            if any("Error" in (e if isinstance(e, str) else '') for e in errors):
                 self.status_msg.config(text="Code generation failed with errors.")
             else:
                 self.status_msg.config(text="Code generation complete.")
         else:
             self.error_output.insert(tk.END, ">>> Code generation complete.", "success")
             self.status_msg.config(text="Code generation finished successfully.")
-            
+
         self.error_output.config(state=tk.DISABLED)
 
     def _populate_tokens(self, tokens):
