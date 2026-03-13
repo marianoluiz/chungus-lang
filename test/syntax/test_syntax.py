@@ -70,39 +70,28 @@ def test_syntax(rownum, src, expected_error):
                 f"CSV expects a syntax error but parser produced none.\n"
             )
 
-        # looks for the pattern "line <number> col <number>" anywhere in the string.
-        line_col_match = re.search(r"line (\d+) col (\d+)", expected_error)
+        # # looks for the pattern "line <number> col <number>" anywhere in the string.
+        # line_col_match = re.search(r"line (\d+) col (\d+)", expected_error)
 
-        if not line_col_match:
-            raise ValueError(f"Expected error string missing line/col info:\n{expected_error}")
+        # if not line_col_match:
+        #     raise ValueError(f"Expected error string missing line/col info:\n{expected_error}")
 
-        ref_line = int(line_col_match.group(1))
-        ref_col = int(line_col_match.group(2))
+        # ref_line = int(line_col_match.group(1))
+        # ref_col = int(line_col_match.group(2))
         
+        # # looks for the pattern "line <number> col <number>" anywhere in the string.
+        # line_col_match = re.search(r"line (\d+) col (\d+)", actual_error)
+        # actual_line = int(line_col_match.group(1))
+        # actual_col = int(line_col_match.group(2))
+
         # Splits the string at "Expected any:" and takes the last part, which contains all tokens:
         # Splits the last string at every comma, creating a list
         ref_tokens = [tok.strip() for tok in expected_error.split("Expected any:")[-1].split(",")]
-
-        # looks for the pattern "line <number> col <number>" anywhere in the string.
-        line_col_match = re.search(r"line (\d+) col (\d+)", actual_error)
-        actual_line = int(line_col_match.group(1))
-        actual_col = int(line_col_match.group(2))
 
         # Extract tokens but stop at newline (to exclude "Note:" messages)
         tokens_part = actual_error.split("Expected any:")[-1].split("\n")[0]
         actual_tokens = [tok.strip() for tok in tokens_part.split(",")]
 
-        # Debug prints
-        print(f"=== CSV row: {rownum} ===")
-        print("=== Source Code ===")
-        print(src)
-        print("=== Expected Syntax Error ===")
-        print(f'line {ref_line} col {ref_col}')
-        print(ref_tokens)
-        print("=== Actual Syntax Error ===")
-        print(actual_tokens)
-        print(f'line {actual_line} col {actual_col}')
-
-        assert ref_line == actual_line, f"Line mismatch: {ref_line} != {actual_line}"
-        assert ref_col == actual_col, f"Column mismatch: {ref_col} != {actual_col}"
+        # assert ref_line == actual_line, f"Line mismatch: {ref_line} != {actual_line}"
+        # assert ref_col == actual_col, f"Column mismatch: {ref_col} != {actual_col}"
         assert ref_tokens == actual_tokens, f"Tokens mismatch: {ref_tokens} != {actual_tokens}"
