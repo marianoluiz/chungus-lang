@@ -249,8 +249,10 @@ class CodeGenerator:
     
     def _visit_bool_literal(self, node: ASTNode) -> str:
         """Generate code for boolean literal."""
-        # CHUNGUS uses TRUE/FALSE
-        c_bool = "true" if node.value == "TRUE" else "false"
+        # Accept both lowercase (true/false) and uppercase (TRUE/FALSE)
+        # to match lexer/parser outputs and avoid silently flipping to false.
+        lexeme = (node.value or "").strip().lower()
+        c_bool = "true" if lexeme == "true" else "false"
         return f"ch_bool({c_bool})"
     
     def _visit_str_literal(self, node: ASTNode) -> str:

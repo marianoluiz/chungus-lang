@@ -92,7 +92,7 @@ double ch_to_number(ChValue v) {
         case TY_STRING:
             // Non-empty→1, empty→0 (integer values)
             return (v.s && strlen(v.s) > 0) ? 1.0 : 0.0;
-        
+
         case TY_ARRAY:
             // Arrays cannot be coerced to number
             fprintf(stderr, "Runtime Error: Cannot coerce array to number\n");
