@@ -6,8 +6,8 @@ This directory contains the C runtime library for the CHUNGUS compiler.
 
 The CHUNGUS runtime implements a dynamic type system with tagged unions and CHUNGUS-specific type coercion rules. All CHUNGUS values are represented as `ChValue` structs that can hold:
 
-- **int**: Integer values
-- **float**: Floating-point values  
+- **int**: 64-bit signed integer values (`int64_t`, range `[-9223372036854775808, 9223372036854775807]`)
+- **float**: Floating-point values, normalized to at most 6 fractional decimal places
 - **bool**: Boolean values
 - **string**: String values (heap-allocated)
 - **array**: 1D or 2D arrays of ChValue (heterogeneous, heap-allocated)
@@ -44,12 +44,28 @@ Converts values to `bool` for logical operations:
 - If either operand is `TY_FLOAT` → result is `TY_FLOAT`
 - Otherwise (both int-like: `TY_INT`, `TY_BOOL`, `TY_STRING`) → result is `TY_INT`
 
+## Numeric Limits
+
+### Integer (`TY_INT`)
+- Stored as `int64_t` (64-bit signed)
+- Valid range: `[-9223372036854775808, 9223372036854775807]`
+- Maximum input digits: **19**
+- Negative notation (CHUNGUS style): `~N` (e.g. `~42`, `~9223372036854775807`)
+- Arithmetic results that overflow the 64-bit range produce a runtime error and return `0`
+
+### Float (`TY_FLOAT`)
+- Stored as `double`, but normalized to at most **6 fractional decimal places**
+- Trailing zeros after the decimal point are trimmed, but at least one digit is kept (e.g. `1.0`, `3.14`, `1.323321`)
+- Negative notation (CHUNGUS style): `~N.NN` (e.g. `~3.14`)
+- Input with more than 6 fractional digits produces a runtime error and returns `0.0`
+- All float values are passed through `ch_round_to_6dp()` on construction
+
 ## API Reference
 
 ### Constructors
 ```c
-ChValue ch_int(int x);
-ChValue ch_float(double x);
+ChValue ch_int(int64_t x);   // 64-bit signed integer
+ChValue ch_float(double x);  // normalized to 6 fractional dp
 ChValue ch_bool(bool x);
 ChValue ch_str(const char* x);
 ChValue ch_array_1d(size_t size);
@@ -103,12 +119,34 @@ void ch_print(ChValue v);     // Print value (for "show" statement)
 ChValue ch_read(void);        // Read line from stdin (for "read" expression)
 ```
 
-`ch_read()` performs dynamic input typing:
-- integer text → `TY_INT`
-- floating text → `TY_FLOAT`
-- non-numeric text (or empty after parse fallback) → `TY_STRING`
+#### `ch_read()` — Dynamic Input Typing
+Reads one line from stdin and infers its type:
+- Integer text (digits only, optional leading `-` or `~`) → `TY_INT`
+- Decimal text (digits with `.`, optional leading `-` or `~`) → `TY_FLOAT`
+- Any other text → `TY_STRING`
 
-`ch_print()` flushes stdout after each print so output is visible for long-running loops.
+Input validation:
+- Integer: max **19 digits**; must fit in signed 64-bit range
+- Float: max **6 fractional digits**
+- Both `~N` and `-N` are accepted as negative numeric input (CHUNGUS and C style)
+- Exceeding any limit prints a runtime error and returns `0` / `0.0`
+
+#### `ch_print()` — CHUNGUS Output Notation
+- Integers: printed as `N` (positive) or `~N` (negative) — **no `-` sign**
+- Floats: printed with up to 6 fractional digits, trailing zeros trimmed, minimum `.0` kept; negative shown as `~N.NN`
+- Bools: `TRUE` or `FALSE`
+- Strings: printed as-is
+- Flushes stdout after each call (important for GUI/live output)
+
+Examples:
+| Value | Output |
+|-------|--------|
+| `ch_int(42)` | `42` |
+| `ch_int(-7)` | `~7` |
+| `ch_float(3.14)` | `3.14` |
+| `ch_float(-1.5)` | `~1.5` |
+| `ch_float(1.0)` | `1.0` |
+| `ch_bool(true)` | `TRUE` |
 
 ### Memory Management
 ```c
@@ -204,19 +242,19 @@ When generating C code from CHUNGUS AST:
 The runtime provides:
 - Bounds checking on all array accesses
 - Null checks on string operations
-- Division by zero detection
+- Division by zero and modulo by zero detection
+- Overflow detection for all integer-producing arithmetic operations
+- 64-bit range validation on `ch_read()` integer input
 - Deep copying for assignment (no aliasing issues)
 
-Runtime errors print helpful messages to stderr and return safe default values.
+Runtime errors print helpful messages to stderr and return safe default values (typically `0`, `0.0`, or `""`).
 
 When codegen lowers `for ... in range(...)`, runtime behavior includes:
-- support for 1/2/3 range arguments
-- positive and negative step handling
-- runtime guard for `step == 0` (prints error and skips loop)
+- Support for 1/2/3 range arguments
+- Positive and negative step handling
+- Runtime guard for `step == 0` (prints error and skips loop)
 
 ## Performance Notes
 
 - Value types (int, float, bool) are copied by value
-- Strings and arrays are heap-allocated and reference-counted via manual copying
-- Type checks happen at runtime for every operation
-- For production use, consider adding JIT compilation or ahead-of-time optimizations based on semantic analysis type annotations
+- Strings and arrays are heap-allocated; use `ch_copy`/`ch_free` for ownership
