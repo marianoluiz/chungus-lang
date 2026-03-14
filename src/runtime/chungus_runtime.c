@@ -552,7 +552,7 @@ void ch_print(ChValue v) {
             break;
         
         case TY_BOOL:
-            printf("%s", v.b ? "TRUE" : "FALSE");
+            printf("%s", v.b ? "true" : "false");
             break;
         
         case TY_STRING:

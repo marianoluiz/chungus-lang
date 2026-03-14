@@ -134,7 +134,7 @@ Input validation:
 #### `ch_print()` — CHUNGUS Output Notation
 - Integers: printed as `N` (positive) or `~N` (negative) — **no `-` sign**
 - Floats: printed with up to 6 fractional digits, trailing zeros trimmed, minimum `.0` kept; negative shown as `~N.NN`
-- Bools: `TRUE` or `FALSE`
+- Bools: `true` or `false`
 - Strings: printed as-is
 - Flushes stdout after each call (important for GUI/live output)
 
@@ -146,7 +146,7 @@ Examples:
 | `ch_float(3.14)` | `3.14` |
 | `ch_float(-1.5)` | `~1.5` |
 | `ch_float(1.0)` | `1.0` |
-| `ch_bool(true)` | `TRUE` |
+| `ch_bool(true)` | `true` |
 
 ### Memory Management
 ```c

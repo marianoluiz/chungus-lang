@@ -246,7 +246,11 @@ class CodeGenerator:
     
     def _visit_float_literal(self, node: ASTNode) -> str:
         """Generate code for float literal."""
-        return f"ch_float({node.value})"
+        value = node.value
+        # Handle CHUNGUS negative syntax: ~3.14 means -3.14
+        if value.startswith('~'):
+            value = '-' + value[1:]
+        return f"ch_float({value})"
     
     def _visit_bool_literal(self, node: ASTNode) -> str:
         """Generate code for boolean literal."""
