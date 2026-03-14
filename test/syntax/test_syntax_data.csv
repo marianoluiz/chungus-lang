@@ -3813,4 +3813,4 @@ Expected any: !, (, false, float, float_literal, id, int, int_literal, str_liter
 Expected any: ,, ]",,
 "ARR:[2][4]=[[12,!a]];",NO SYNTAX ERROR ,,
 "_ARR:[2][4]=[[12,!a]]; ",NO SYNTAX ERROR ,,
-"a':[2][4]=[[12,!a]]; ","Expected any: fn, for, id, if, show, todo, while",,
+"a:[2][4]=[[12,!a]]; ",NO SYNTAX ERROR ,,

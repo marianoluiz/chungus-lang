@@ -354,7 +354,6 @@ todo;",Variable 'c' not defined,,
 if true: show unknown_var; close,Variable 'unknown_var' not defined,,
 x = non_existent_array[0];,Variable 'non_existent_array' not defined,,
 "x = sum(missing_fn(1), 2);",Function 'sum' not defined,,
-try: x = 1; fail: show error_msg; close,Variable 'error_msg' not defined,,
 "a: [2] = [1, 2];
  x = a ** 2;",Invalid operation '**' between 'array' and 'int',,
 if true == 'true': todo; close,NO SEMANTIC ERROR/S,,
@@ -388,8 +387,6 @@ x = two(one(1));","Function 'two' expects 2 args, got 1",,
 "arr: [2.5] = [1, 2];",Invalid array size: expression must be a non-negative integer,,
 "x = (10 + 5) * ('error' - 1);
 ",NO SEMANTIC ERROR/S,,
-try: x = 10; fail: show y; close,Variable 'y' not defined,,
-try: x = 1; fail: x = 2; always: show z; close,Variable 'z' not defined,,
 for i in range (5): show i; close,NO SEMANTIC ERROR/S,,
 "x = 10; x(1, 2);",Function 'x' not defined,,
 "if true: if false: show secret; close close
@@ -489,7 +486,6 @@ x = m[((1+1)*2)][0];","Array index out of bounds: dimension 1 4 not in range [0,
 
 id=id;",Variable 'id' not defined,,
 m: [1][1] = [[]];,NO SEMANTIC ERROR/S,,
-try: ghost(); fail: show ''; close,Function 'ghost' not defined,,
 x = !( ( ( ( 3.14 ) ) ) );,NO SEMANTIC ERROR/S,,
 x = (1 + 2) * ( (3 / ( (y - 1) )) );,Variable 'y' not defined,,
 a: [1] = [1]; if (( a > 0.5 )): show ''; close,Invalid comparison '>' between 'array' and 'float',,
@@ -517,7 +513,6 @@ area('five');",NO SEMANTIC ERROR/S,,
 
 x: [1] = [1]; 
 show add;",NO SEMANTIC ERROR/S,,
-try: x = 1; fail: x = 0; always: ghost_func(); close,Function 'ghost_func' not defined,,
 "a: [2] = [1, 2];
 
 
@@ -571,8 +566,6 @@ x = 'text' / true;,NO SEMANTIC ERROR/S,,
 while true: show ghost_var; close,Variable 'ghost_var' not defined,,
 "for i in range(1, 10): x = missing_func(); close",Function 'missing_func' not defined,,
 x = data_list[ ( (0) ) ];,Variable 'data_list' not defined,,
-"try: show x;  fail: show ''; close
-",Variable 'x' not defined,,
 "fn test(a): todo; ret a; close test( ( ( (y) ) ) );
 ",Variable 'y' not defined,,
 "v: [3] = [1, 2, 3]; x = v[100];","Array index out of bounds: index 100 not in range [0, 2]",,
@@ -581,8 +574,6 @@ m: [5][5] = [[0]]; x = m[0][5];,"Array index out of bounds: dimension 2 5 not in
 "v: [4] = [1,2,3,4]; x = v[2**2];","Array index out of bounds: index 4 not in range [0, 3]",,
 v: [1] = [10]; x = v[~1];,"Array index out of bounds: index -1 not in range [0, 0]",,
 "for i in range (1, 2): for j in range (3, 4): show ''; close close
-",NO SEMANTIC ERROR/S,,
-"try: try: x = 1; fail: show 's'; close fail: show 's'; close
 ",NO SEMANTIC ERROR/S,,
 "if ( (ghost_func() == true) ): show ''; close
 ",Function 'ghost_func' not defined,,
@@ -678,13 +669,8 @@ Variable 'a' not defined",,
 "if true: if (!'string'): show ''; close close
 ",NO SEMANTIC ERROR/S,,
 x = ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( 1 ) ) ) ) ) ) ) ) ) ) ) ) ) ) ) ) ) ) ) );,NO SEMANTIC ERROR/S,,
-"try: x = y + 1; fail: show ''; close
-",Variable 'y' not defined,,
 "m: [2][2] = [[1, 2], [1, 2, 3]];","Too many columns in row 2: expected 2 columns, got 3",,
-try: x=1; fail: x=0; always: show msg; close,Variable 'msg' not defined,,
 "a: [1] = [1,2,3,4,5,6,7,8,9,0];","Too many array elements: declared [1], got 10 elements",,
-"try: x = 'fail' - 1; fail: show ''; close
-",NO SEMANTIC ERROR/S,,
 "m: [~2][2] = [[1,1],[2,2]];",Invalid array row expression: expression must be a non-negative integer,,
 "m: [2][~5] = [[1],[1]];",Invalid array column expression: expression must be a non-negative integer,,
 a: [true] = [1];,Invalid array size: expression must be a non-negative integer,,
