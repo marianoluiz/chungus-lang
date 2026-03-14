@@ -76,14 +76,14 @@ static double ch_round_to_6dp(double x) {
 static bool ch_double_to_int64_checked(double x, int64_t* out) {
     if (!isfinite(x)) {
         fprintf(stderr, "Runtime Error: Numeric result is not finite\n");
-        return false;
+        exit(EXIT_FAILURE);
     }
 
     long double xl = (long double)x;
     if (xl < -9223372036854775808.0L || xl > 9223372036854775807.0L) {
         fprintf(stderr,
                 "Runtime Error: Integer result out of signed 64-bit range [-9223372036854775808, 9223372036854775807]\n");
-        return false;
+        exit(EXIT_FAILURE);
     }
 
     *out = (int64_t)x;
@@ -108,11 +108,10 @@ ChValue ch_float(double x) {
 
     if (!isfinite(x)) {
         fprintf(stderr, "Runtime Error: Float value is not finite\n");
-        v.f = 0.0;
-    } else {
-        v.f = ch_round_to_6dp(x);
-    }
+        exit(EXIT_FAILURE);
+    } 
 
+    v.f = ch_round_to_6dp(x);
     return v;
 }
 
@@ -186,7 +185,7 @@ double ch_to_number(ChValue v) {
         case TY_ARRAY:
             // Arrays cannot be coerced to number
             fprintf(stderr, "Runtime Error: Cannot coerce array to number\n");
-            return 0.0;
+            exit(EXIT_FAILURE);
     }
     
     return 0.0;
@@ -328,7 +327,7 @@ ChValue ch_div(ChValue left, ChValue right) {
 
     if (r == 0.0) {
         fprintf(stderr, "Runtime Error: Division by zero\n");
-        return ch_float(0.0);
+        exit(EXIT_FAILURE);
     }
     
     // Division always returns float in CHUNGUS
@@ -342,7 +341,7 @@ ChValue ch_idiv(ChValue left, ChValue right) {
     // Integer division
     if (r == 0.0) {
         fprintf(stderr, "Runtime Error: Division by zero\n");
-        return ch_int(0);
+        exit(EXIT_FAILURE);
     }
     
     double result = l / r;
@@ -359,7 +358,7 @@ ChValue ch_mod(ChValue left, ChValue right) {
     
     if (r == 0.0) {
         fprintf(stderr, "Runtime Error: Modulo by zero\n");
-        return ch_int(0);
+        exit(EXIT_FAILURE);
     }
     
     int64_t li = 0;
@@ -371,7 +370,7 @@ ChValue ch_mod(ChValue left, ChValue right) {
 
     if (ri == 0) {
         fprintf(stderr, "Runtime Error: Modulo by zero\n");
-        return ch_int(0);
+        exit(EXIT_FAILURE);
     }
 
     return ch_int(li % ri);
@@ -463,14 +462,14 @@ ChValue ch_not(ChValue operand) {
 ChValue ch_array_get_1d(ChValue arr, int index) {
     if (arr.type != TY_ARRAY) {
         fprintf(stderr, "Runtime Error: Cannot index non-array type\n");
-        return ch_int(0);
+        exit(EXIT_FAILURE);
     }
     
     // Bounds checking
     if (index < 0 || (size_t)index >= arr.arr.cols) {
         fprintf(stderr, "Runtime Error: Array index %d out of bounds [0, %zu)\n", 
                 index, arr.arr.cols);
-        return ch_int(0);
+        exit(EXIT_FAILURE);
     }
     
     return ch_copy(arr.arr.items[index]);
@@ -479,14 +478,14 @@ ChValue ch_array_get_1d(ChValue arr, int index) {
 void ch_array_set_1d(ChValue* arr, int index, ChValue value) {
     if (arr->type != TY_ARRAY) {
         fprintf(stderr, "Runtime Error: Cannot index non-array type\n");
-        return;
+        exit(EXIT_FAILURE);
     }
     
     // Bounds checking
     if (index < 0 || (size_t)index >= arr->arr.cols) {
         fprintf(stderr, "Runtime Error: Array index %d out of bounds [0, %zu)\n", 
                 index, arr->arr.cols);
-        return;
+        exit(EXIT_FAILURE);
     }
     
     // Free old value and copy new one
@@ -497,20 +496,20 @@ void ch_array_set_1d(ChValue* arr, int index, ChValue value) {
 ChValue ch_array_get_2d(ChValue arr, int row, int col) {
     if (arr.type != TY_ARRAY) {
         fprintf(stderr, "Runtime Error: Cannot index non-array type\n");
-        return ch_int(0);
+        exit(EXIT_FAILURE);
     }
     
     // Bounds checking
     if (row < 0 || (size_t)row >= arr.arr.rows) {
         fprintf(stderr, "Runtime Error: Row index %d out of bounds [0, %zu)\n", 
                 row, arr.arr.rows);
-        return ch_int(0);
+        exit(EXIT_FAILURE);
     }
     
     if (col < 0 || (size_t)col >= arr.arr.cols) {
         fprintf(stderr, "Runtime Error: Column index %d out of bounds [0, %zu)\n", 
                 col, arr.arr.cols);
-        return ch_int(0);
+        exit(EXIT_FAILURE);
     }
     
     size_t index = row * arr.arr.cols + col;
@@ -520,20 +519,20 @@ ChValue ch_array_get_2d(ChValue arr, int row, int col) {
 void ch_array_set_2d(ChValue* arr, int row, int col, ChValue value) {
     if (arr->type != TY_ARRAY) {
         fprintf(stderr, "Runtime Error: Cannot index non-array type\n");
-        return;
+        exit(EXIT_FAILURE);
     }
     
     // Bounds checking
     if (row < 0 || (size_t)row >= arr->arr.rows) {
         fprintf(stderr, "Runtime Error: Row index %d out of bounds [0, %zu)\n", 
                 row, arr->arr.rows);
-        return;
+        exit(EXIT_FAILURE);
     }
     
     if (col < 0 || (size_t)col >= arr->arr.cols) {
         fprintf(stderr, "Runtime Error: Column index %d out of bounds [0, %zu)\n", 
                 col, arr->arr.cols);
-        return;
+        exit(EXIT_FAILURE);
     }
     
     size_t index = row * arr->arr.cols + col;
@@ -658,7 +657,7 @@ ChValue ch_read(void) {
             int digit_count = ch_count_digits(parse_text);
             if (digit_count > 19) {
                 fprintf(stderr, "Runtime Error: Integer input exceeds 19-digit limit: '%s'\n", start);
-                return ch_int(0);
+                exit(EXIT_FAILURE);
             }
 
             errno = 0;
@@ -668,12 +667,12 @@ ChValue ch_read(void) {
                 fprintf(stderr,
                         "Runtime Error: Integer input out of signed 64-bit range [-9223372036854775808, 9223372036854775807]: '%s'\n",
                         start);
-                return ch_int(0);
+                exit(EXIT_FAILURE);
             }
 
             if (int_end == parse_text || *int_end != '\0') {
                 fprintf(stderr, "Runtime Error: Invalid integer input: '%s'\n", start);
-                return ch_int(0);
+                exit(EXIT_FAILURE);
             }
 
             return ch_int((int64_t)int_val);
@@ -684,7 +683,7 @@ ChValue ch_read(void) {
         if (ch_is_decimal_text(parse_text, &frac_digits)) {
             if (frac_digits > 6) {
                 fprintf(stderr, "Runtime Error: Decimal input exceeds 6 fractional digits: '%s'\n", start);
-                return ch_float(0.0);
+                exit(EXIT_FAILURE);
             }
 
             errno = 0;
@@ -692,7 +691,7 @@ ChValue ch_read(void) {
             double float_val = strtod(parse_text, &float_end);
             if (errno != 0 || float_end == parse_text || *float_end != '\0') {
                 fprintf(stderr, "Runtime Error: Invalid decimal input: '%s'\n", start);
-                return ch_float(0.0);
+                exit(EXIT_FAILURE);
             }
 
             return ch_float(float_val);

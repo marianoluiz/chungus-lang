@@ -76,7 +76,7 @@ double ch_to_number(ChValue v);
 
 // Promote to boolean for logical operations and conditionals
 // Conversion rules:
-//   - bool: value is true
+//   - bool: actual value
 //   - int: non-zero→true, zero→false
 //   - float: non-zero→true, zero→false
 //   - string: non-empty→true, empty→false

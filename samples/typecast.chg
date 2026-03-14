@@ -1,0 +1,8 @@
+x = int(true);
+
+y = float(false);
+
+
+show x;
+show '\n';
+show y;

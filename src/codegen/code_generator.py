@@ -329,6 +329,17 @@ class CodeGenerator:
     def _visit_read(self, node: ASTNode) -> str:
         """Generate code for read statement."""
         return "ch_read()"
+
+    def _visit_type_cast(self, node: ASTNode) -> str:
+        """Generate code for CHUNGUS type casts: int(expr) / float(expr)."""
+        cast_type = (node.value or "").strip()
+        expr_code = self._visit(node.children[0]) if node.children else "ch_int(0)"
+
+        if cast_type == "int":
+            return f"ch_int((int64_t)ch_to_number({expr_code}))"
+
+        # default to float cast behavior for `float(...)` and unknown cast tags
+        return f"ch_float(ch_to_number({expr_code}))"
     
     # ==================== ASSIGNMENT VISITORS ====================
     
@@ -715,7 +726,7 @@ class CodeGenerator:
         """Generate code for if/elif/else block."""
         for child in node.children:
             self._visit(child)
-    
+
     def _visit_if(self, node: ASTNode) -> None:
         """Generate code for if statement."""
         # children = [condition, ...body_statements]
