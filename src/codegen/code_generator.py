@@ -47,6 +47,7 @@ class CodeGenerator:
         self._indent_level = 0
         self._in_function = False  # Track if we're inside a function
         self._temp_counter = 0  # For generating temporary variables
+        self._scope_stack: List[List[str]] = []  # ChValue vars to free per scope
 
     def generate(self) -> CodeGenResult:
         """
@@ -163,9 +164,8 @@ class CodeGenerator:
 
         # Generate forward declarations for functions
         for func in functions:
-            func_name = func.value
-            self._emit(f"ChValue {func_name}();  // Forward declaration")
-        
+            self._emit(f"{self._build_function_signature(func)};  // Forward declaration")
+
         if functions:
             self._emit("")
         
@@ -177,16 +177,46 @@ class CodeGenerator:
         # Generate main function
         self._emit("int main() {")
         self._indent()
+        self._enter_scope()
         
         # Visit main statements
         for stmt in main_stmts:
             self._visit(stmt)
+
+        self._exit_scope()
         
         self._emit("return 0;")
         self._dedent()
         self._emit("}")
         
         return None
+
+    def _extract_function_params(self, fn_node: ASTNode) -> List[str]:
+        """Extract parameter names from a function AST node."""
+        if not fn_node.children:
+            return []
+
+        first = fn_node.children[0]
+        if first.kind != "params":
+            return []
+
+        params: List[str] = []
+        for child in first.children:
+            if child.kind == "id" and child.value:
+                params.append(child.value)
+        return params
+
+    def _build_function_signature(self, fn_node: ASTNode) -> str:
+        """Build a C function signature for a CHUNGUS function node."""
+        fn_name = fn_node.value or "_anonymous_fn"
+        param_names = self._extract_function_params(fn_node)
+
+        if param_names:
+            param_sig = ", ".join([f"ChValue {p}" for p in param_names])
+        else:
+            param_sig = "void"
+
+        return f"ChValue {fn_name}({param_sig})"
     
     def _emit(self, code: str = "") -> None:
         """
@@ -200,6 +230,25 @@ class CodeGenerator:
             self._output.append(indent + code)
         else:
             self._output.append("")
+
+    def _enter_scope(self) -> None:
+        """Enter codegen scope for automatic ChValue cleanup."""
+        self._scope_stack.append([])
+
+    def _declare_scoped_var(self, var_name: str) -> None:
+        """Register variable name to be freed when current scope exits."""
+        if not self._scope_stack:
+            return
+        if var_name not in self._scope_stack[-1]:
+            self._scope_stack[-1].append(var_name)
+
+    def _exit_scope(self) -> None:
+        """Emit cleanup for current scope and pop it."""
+        if not self._scope_stack:
+            return
+        names = self._scope_stack.pop()
+        for name in reversed(names):
+            self._emit(f"ch_free(&{name});")
     
     def _indent(self) -> None:
         """Increase indentation level."""
@@ -286,15 +335,119 @@ class CodeGenerator:
     def _visit_assignment_statement(self, node: ASTNode) -> None:
         """Generate code for assignment statement."""
         var_name = node.value
+        rhs_node = node.children[0] if node.children else None
         rhs_code = self._visit(node.children[0]) if node.children else "ch_int(0)"
         
         # Check if this is a declaration or reassignment
         if hasattr(node, 'is_declaration') and node.is_declaration:
             # First assignment - declare variable
-            self._emit(f"ChValue {var_name} = {rhs_code};")
+            if rhs_node and rhs_node.kind == "id":
+                self._emit(f"ChValue {var_name} = ch_copy({rhs_code});")
+            else:
+                self._emit(f"ChValue {var_name} = {rhs_code};")
+            self._declare_scoped_var(var_name)
         else:
-            # Reassignment - just assign
-            self._emit(f"{var_name} = {rhs_code};")
+            # Reassignment: evaluate RHS first, then replace old value.
+            rhs_tmp = self._gen_temp() + "_rhs"
+            if rhs_node and rhs_node.kind == "id":
+                self._emit(f"ChValue {rhs_tmp} = ch_copy({rhs_code});")
+            else:
+                self._emit(f"ChValue {rhs_tmp} = {rhs_code};")
+            self._emit(f"ch_free(&{var_name});")
+            self._emit(f"{var_name} = {rhs_tmp};")
+
+    # ==================== FUNCTION VISITORS ====================
+
+    def _visit_function(self, node: ASTNode) -> None:
+        """Generate code for a function definition."""
+        signature = self._build_function_signature(node)
+
+        self._emit(f"{signature} {{")
+        self._indent()
+        self._enter_scope()
+
+        self._in_function = True
+
+        start_idx = 0
+        if node.children and node.children[0].kind == "params":
+            start_idx = 1
+
+            # Copy parameters into function-owned values.
+            for param_name in self._extract_function_params(node):
+                self._emit(f"{param_name} = ch_copy({param_name});")
+                self._declare_scoped_var(param_name)
+
+        ret_node: Optional[ASTNode] = None
+        if node.children and node.children[-1].kind == "return_statement":
+            ret_node = node.children[-1]
+            body_end = len(node.children) - 1
+        else:
+            body_end = len(node.children)
+
+        # Emit body statements (wrapped as general_statement nodes)
+        for i in range(start_idx, body_end):
+            self._visit(node.children[i])
+
+        # Optional trailing return statement by grammar
+        if ret_node and ret_node.children:
+            ret_expr_node = ret_node.children[0]
+            ret_expr = self._visit(ret_expr_node)
+            ret_tmp = self._gen_temp() + "_ret"
+
+            # Ownership safety for dynamic values:
+            # - Returning a plain identifier would otherwise pass through the
+            #   same underlying pointer (for string/array), so a caller-side
+            #   free could destroy the original binding.
+            # - For identifier returns, return a deep copy so caller owns it.
+            if ret_expr_node.kind == "id":
+                self._emit(f"ChValue {ret_tmp} = ch_copy({ret_expr});")
+            else:
+                self._emit(f"ChValue {ret_tmp} = {ret_expr};")
+
+            self._exit_scope()
+            self._emit(f"return {ret_tmp};")
+        else:
+            # Dynamic default return when function has no explicit ret
+            self._exit_scope()
+            self._emit("return ch_int(0);")
+
+        self._in_function = False
+
+        self._dedent()
+        self._emit("}")
+
+    def _visit_function_call(self, node: ASTNode) -> str:
+        """Generate code for function call expression."""
+        func_name = node.value or "_unknown_fn"
+
+        # Two parser shapes are supported:
+        # 1) function_call(children=[args...])
+        # 2) function_call(children=[ASTNode('args', children=[...])])
+        if len(node.children) == 1 and node.children[0].kind == "args":
+            args = node.children[0].children
+        else:
+            args = node.children
+
+        arg_codes = [self._visit(arg) for arg in args]
+        return f"{func_name}({', '.join(arg_codes)})"
+
+    def _visit_general_statement(self, node: ASTNode) -> None:
+        """Generate code for top-level/local general statement wrapper."""
+        if not node.children:
+            return
+
+        stmt = node.children[0]
+
+        # Function calls used as statements must still execute.
+        # Capture return into a temp and free it to avoid leaks for strings/arrays.
+        if stmt.kind == "function_call":
+            call_code = self._visit(stmt)
+            temp = self._gen_temp()
+            self._emit(f"ChValue {temp} = {call_code};")
+            self._emit(f"ch_free(&{temp});")
+            return
+
+        self._visit(stmt)
     
     # ==================== EXPRESSION VISITORS ====================
     
@@ -415,10 +568,13 @@ class CodeGenerator:
         
         self._emit(f"if (ch_to_bool({cond_code})) {{")
         self._indent()
+        self._enter_scope()
         
         # Visit body statements
         for stmt in node.children[1:]:
             self._visit(stmt)
+
+        self._exit_scope()
         
         self._dedent()
         self._emit("}")
@@ -430,10 +586,13 @@ class CodeGenerator:
         
         self._emit(f"else if (ch_to_bool({cond_code})) {{")
         self._indent()
+        self._enter_scope()
         
         # Visit body statements
         for stmt in node.children[1:]:
             self._visit(stmt)
+
+        self._exit_scope()
         
         self._dedent()
         self._emit("}")
@@ -442,10 +601,13 @@ class CodeGenerator:
         """Generate code for else statement."""
         self._emit("else {")
         self._indent()
+        self._enter_scope()
         
         # Visit body statements
         for stmt in node.children:
             self._visit(stmt)
+
+        self._exit_scope()
         
         self._dedent()
         self._emit("}")
@@ -498,6 +660,7 @@ class CodeGenerator:
 
         self._emit("{")
         self._indent()
+        self._enter_scope()
         # initialize range expr vars
         self._emit(f"int {t_start} = (int)ch_to_number({start_expr});")
         self._emit(f"int {t_stop} = (int)ch_to_number({stop_expr});")
@@ -512,6 +675,7 @@ class CodeGenerator:
         self._indent()
         # initialize loop variable
         self._emit(f"ChValue {loop_var} = ch_int({t_start});")
+        self._declare_scoped_var(loop_var)
 
         # step > 0 → continue while loop_var < stop
         # step < 0 → continue while loop_var > stop
@@ -519,14 +683,16 @@ class CodeGenerator:
             f"while (({t_step} > 0) ? ((int)ch_to_number({loop_var}) < {t_stop}) : ((int)ch_to_number({loop_var}) > {t_stop})) {{"
         )
         self._indent()
+        self._enter_scope()
 
         for stmt in body_nodes:
             self._visit(stmt)
 
+        self._exit_scope()
         self._emit(f"{loop_var} = ch_int((int)ch_to_number({loop_var}) + {t_step});")
         self._dedent()
         self._emit("}")
-        self._emit(f"ch_free(&{loop_var});")
+        self._exit_scope()
         self._dedent()
         self._emit("}")
         self._dedent()
@@ -539,10 +705,13 @@ class CodeGenerator:
         
         self._emit(f"while (ch_to_bool({cond_code})) {{")
         self._indent()
+        self._enter_scope()
         
         # Visit body statements
         for stmt in node.children[1:]:
             self._visit(stmt)
+
+        self._exit_scope()
         
         self._dedent()
         self._emit("}")

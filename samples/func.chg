@@ -1,0 +1,7 @@
+fn func(x, y):
+    todo;
+    ret x;
+close
+
+x = func(1, true);
+show x;

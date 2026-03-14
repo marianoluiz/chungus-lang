@@ -1,12 +1,14 @@
 import tkinter as tk
 import subprocess
 from pathlib import Path
+import os
+import time
+import selectors
 from src.gui import ChungusLexerGUI
 from src.lexer.dfa_lexer import Lexer
 from src.syntax.rd_parser import RDParser
 from src.semantic.semantic_analyzer import SemanticAnalyzer
 from src.codegen import analyze_codegen
-import os
 
 def lexer_only_adapter(source: str):
     """
@@ -178,44 +180,127 @@ def codegen_adapter(source: str, stdin_data=None):
             return tokens, errors
         
         # Execute (stdin_data is used by GUI when source contains `read`)
-        result = subprocess.run(
+        # Use streamed capture with guards so infinite loops / very chatty
+        # programs do not freeze the GUI thread.
+        TIMEOUT_SECONDS = 5.0
+        MAX_OUTPUT_CHARS = 50000
+
+        proc = subprocess.Popen(
             [str(exe_path)],
-            capture_output=True,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             text=True,
-            timeout=5,
-            input=stdin_data
+            bufsize=1,
         )
 
-        if result.returncode != 0:
-            errors.append("Runtime Error:")
-            errors.append(result.stderr)
-            # Clean up executable
-            # exe_path.unlink(missing_ok=True)
+        # Feed stdin (if any) and close to avoid child waiting forever.
+        if proc.stdin:
+            if stdin_data is not None:
+                proc.stdin.write(stdin_data)
+            proc.stdin.close()
+
+        selector = selectors.DefaultSelector()
+        out_parts = []
+        err_parts = []
+        captured_chars = 0
+        stop_reason = None  # "timeout" | "output-limit" | None
+
+        def _register_stream(stream):
+            if stream is None:
+                return
+            try:
+                os.set_blocking(stream.fileno(), False)
+            except Exception:
+                pass
+            selector.register(stream, selectors.EVENT_READ)
+
+        _register_stream(proc.stdout)
+        _register_stream(proc.stderr)
+
+        start = time.monotonic()
+
+        while True:
+            # Timeout guard
+            if stop_reason is None and (time.monotonic() - start) > TIMEOUT_SECONDS:
+                stop_reason = "timeout"
+                try:
+                    proc.kill()
+                except Exception:
+                    pass
+
+            # Read available output chunks
+            events = selector.select(timeout=0.05)
+            for key, _ in events:
+                stream = key.fileobj
+                try:
+                    chunk = stream.read()
+                except Exception:
+                    chunk = ""
+
+                # EOF: unregister stream
+                if chunk == "":
+                    try:
+                        selector.unregister(stream)
+                    except Exception:
+                        pass
+                    continue
+
+                # Enforce output cap
+                if captured_chars < MAX_OUTPUT_CHARS:
+                    remaining = MAX_OUTPUT_CHARS - captured_chars
+                    kept = chunk[:remaining]
+                    captured_chars += len(kept)
+
+                    if stream is proc.stdout:
+                        out_parts.append(kept)
+                    else:
+                        err_parts.append(kept)
+
+                    if len(chunk) > remaining and stop_reason is None:
+                        stop_reason = "output-limit"
+                        try:
+                            proc.kill()
+                        except Exception:
+                            pass
+                elif stop_reason is None:
+                    stop_reason = "output-limit"
+                    try:
+                        proc.kill()
+                    except Exception:
+                        pass
+
+            # Exit loop when process ended and streams drained
+            if proc.poll() is not None and not selector.get_map():
+                break
+
+        # Build final output text
+        stdout_text = "".join(out_parts)
+        stderr_text = "".join(err_parts)
+
+        # Report partial output first, then guard reason/runtime status
+        if stdout_text:
+            errors.append(stdout_text.rstrip())
+        if stderr_text:
+            errors.append(stderr_text.rstrip())
+
+        if stop_reason == "timeout":
+            errors.append("Execution Timeout: Program exceeded 5 second time limit")
             return tokens, errors
-        
-        # Success - return execution output
-        # errors.append("Program Output:")
-        if result.stdout:
-            errors.append(result.stdout.rstrip())
-        else:
-            # errors.append("(no output)")
-            pass
+
+        if stop_reason == "output-limit":
+            errors.append(f"Execution Stopped: Output exceeded {MAX_OUTPUT_CHARS} characters")
+            return tokens, errors
+
+        if proc.returncode != 0:
+            errors.append("Runtime Error:")
+            if not stderr_text:
+                errors.append(f"Process exited with code {proc.returncode}")
+            return tokens, errors
         
         # Clean up executable after running (keep C file)
         # exe_path.unlink(missing_ok=True)
 
-    except subprocess.TimeoutExpired as e:
-        # Python stores partial output on TimeoutExpired as bytes even when
-        # text=True was passed to subprocess.run, so decode manually.
-        if e.stdout:
-            out = e.stdout.decode('utf-8', errors='replace') if isinstance(e.stdout, bytes) else e.stdout
-            errors.append(out.rstrip())
-        if e.stderr:
-            err = e.stderr.decode('utf-8', errors='replace') if isinstance(e.stderr, bytes) else e.stderr
-            errors.append(err.rstrip())
-        errors.append("Execution Timeout: Program exceeded 5 second time limit")
-        # Clean up executable
-        # exe_path.unlink(missing_ok=True)
     except Exception as e:
         errors.append("Execution Error:")
         errors.append(str(e))
