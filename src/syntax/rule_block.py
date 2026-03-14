@@ -11,7 +11,7 @@ class BlockStmtRules():
     Block-level statements parsing rules.
 
     Used by (`RDParser`) to parse block-introducing constructs like `fn`, `if/elif/else`, `for`, `while`,
-    `try/fail/always` and enforces explicit `close` termination.
+    and enforce explicit `close` termination.
     """
 
     def _function_blocks(self: "RDParser") -> List[ASTNode]:
@@ -365,94 +365,3 @@ class BlockStmtRules():
 
             return self._ast_node('while', while_tok, children=[cond] + body)
 
-
-    def _error_handling_statement(self: "RDParser") -> ASTNode:
-        """
-        Parse a try/fail/(optional)always error-handling block.
-
-        ```
-        <error_handling_block>
-            -> <try_block> <fail_block> <error_handling_tail> close
-
-            <try_block>
-                -> try : <local_statement>
-
-            <fail_block>
-                -> fail : <local_statement>
-
-            <error_handling_tail>
-                -> <always_block>
-                -> λ
-
-            <always_block>
-                -> always : <local_statement>
-        ```
-
-        Returns:
-            ASTNode
-        """
-
-        try_tok = self._advance()
-
-        self._expect_type(':', 'try_block')
-        self._advance()
-
-        try_body: List[ASTNode] = []
-        predict_keywords = {'fail'}
-
-        # require one general statement
-        try_body.append(self._general_statement())
-        self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'try_block')
-
-        while not self._match('fail'):
-            try_body.append(self._general_statement())
-            self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'try_block')
-
-        # fail block
-        fail_tok = self._advance()
-        self._expect_type(':', 'fail_block')
-        self._advance()
-
-        fail_body: List[ASTNode] = []
-        predict_keywords = {'always', 'close'}
-
-        # require one general statement, pass the keywods for expr
-        fail_body.append(self._general_statement())
-        self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'fail_block')
-
-        while not self._match('always', 'close'):
-            fail_body.append(self._general_statement())
-            self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'fail_block')
-
-        # always block optional
-        always_node: Optional[ASTNode] = None
-
-        if self._match('always'):
-            always_tok = self._advance()
-            self._expect_type(':', 'always_block')
-            self._advance()
-
-            always_body: List[ASTNode] = []
-            predict_keywords = {'close'}
-
-            always_body.append(self._general_statement())
-            self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'always_block')
-
-            while not self._match('close'):
-                always_body.append(self._general_statement())
-                self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'always_block')
-
-            always_node = self._ast_node('always', always_tok, children=always_body)
-
-
-        # expect close incase. we handle expecting close in previous expects
-        self._expect_type('close', 'error_handling_statement')
-        self._advance()
-
-        # combine the nodes
-        children = [self._ast_node('try', try_tok, children=try_body), self._ast_node('fail', fail_tok, children=fail_body)]
-
-        if always_node:
-            children.append(always_node)
-
-        return self._ast_node('error_handling', try_tok, children=children)

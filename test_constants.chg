@@ -1,4 +1,0 @@
-z = false;
-a = true and z;
-x = false and a;
-arr: [5] = [1, 2, 3];

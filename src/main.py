@@ -7,6 +7,7 @@ import selectors
 from src.gui import ChungusLexerGUI
 from src.lexer.dfa_lexer import Lexer
 from src.syntax.rd_parser import RDParser
+from src.constants.syntax_test import Parser
 from src.semantic.semantic_analyzer import SemanticAnalyzer
 from src.codegen import analyze_codegen
 
@@ -47,8 +48,12 @@ def syntax_adapter(source: str):
         return tokens, errors
 
     # Recursive Descent Parser
-    parser = RDParser(tokens, source, debug=False)
-    parse_result = parser.parse()
+    # parser = RDParser(tokens, source, debug=False)
+    # parse_result = parser.parse()
+
+    # Syntax Test
+    parser = Parser()
+    parse_result = parser.parse(source)
 
     if parse_result.errors:
         errors.append("Syntax Error:")

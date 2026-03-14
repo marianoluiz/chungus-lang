@@ -57,7 +57,7 @@ Expected any: !=, %, *, **, +, ,, -, /, //, <, <=, ==, >, >=, ], and, or",,
 "id:[12.1]=[1, (false+1-3>true+12-1) !=12] 1] ];  ","Unexpected token at line 1 col 43: 1
 Expected any: ;",,
 "id:[12.1]=[1, (false+1-3>true+12-1) !=12] ; ] ];  ","Unexpected token at line 1 col 45: ]
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "id:[12.1]=[1, (false+1-3>true+12-1) !=12] ;   ",NO SYNTAX ERROR,,
 "id:[]=[1, (false+1-3>true+12-1)!=12];   ","Unexpected token at line 1 col 5: ]
 Expected any: !, (, false, float, float_literal, id, int, int_literal, str_literal, true",,
@@ -159,7 +159,7 @@ Expected any: !=, %, *, **, +, ,, -, /, //, <, <=, ==, >, >=, ], and, or",,
 id:[1][2]= 12; ,"Unexpected token at line 1 col 12: 1
 Expected any: [",,
 if id:[1][2]= 12;  ,"Unexpected token at line 1 col 7: [
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 if id: for [1][2]= 12; ,"Unexpected token at line 1 col 12: [
 Expected any: id",,
 if id: for a [1][2]= 12; ,"Unexpected token at line 1 col 14: [
@@ -241,23 +241,23 @@ Expected any: ;",,
 fn f(): todo close,"line 1 col 14: c
 Expected any: ;",,
 fn f(): todo; todo; close,"line 1 col 26: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn f(): show 'start' todo close,"line 1 col 22: t
 Expected any: ;",,
 fn f(): show 'start'; todo close,"line 1 col 28: c
 Expected any: ;",,
 fn f(): show 'start'; todo; close,"line 1 col 34: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn f(): todo show 'end'; close,"line 1 col 14: s
 Expected any: ;",,
 fn f(): ret todo; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn f(): ret 1 todo close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn f(): ret 1; todo close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn f(): ret 1; todo; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn f(): x = todo; close,"Unexpected token at line 1 col 13: t
 Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str_literal, true",,
 fn f(): todo = 1; close,"line 1 col 14: =
@@ -318,45 +318,21 @@ for i in range(5): if i: todo; close close,NO SYNTAX ERROR,,
 for i in range(5): todo; i = i + 1; close,NO SYNTAX ERROR,,
 for i in range(5): i = i + 1; todo; close,NO SYNTAX ERROR,,
 for i in range(5): i = i + 1; todo; close,NO SYNTAX ERROR,,
-try: todo fail: show 'err'; close,"line 1 col 11: f
-Expected any: ;",,
-try: todo; fail: show 'err'; close,NO SYNTAX ERROR,,
-try: x = 1 / 0; fail: todo close,"line 1 col 28: c
-Expected any: ;",,
-try: x = 1 / 0; fail: todo; close,NO SYNTAX ERROR,,
-try: x = 1; todo; fail: show x; close,NO SYNTAX ERROR,,
-try: todo; fail: show x; todo close,"line 1 col 31: c
-Expected any: ;",,
-try: todo; fail: show x; todo; close,NO SYNTAX ERROR,,
-try: x = 1; fail: x = 2; always: todo; close,NO SYNTAX ERROR,,
-try: todo; fail: todo; always: todo; close,NO SYNTAX ERROR,,
-try: show x; fail: todo always: show y; close,"line 1 col 25: a
-Expected any: ;",,
-try: show x; fail: todo; always: show y; close,NO SYNTAX ERROR,,
-try: todo; fail: todo; always: show y todo close,"line 1 col 39: t
-Expected any: ;",,
-try: todo; fail: todo; always: show y; todo close,"line 1 col 45: c
-Expected any: ;",,
-try: todo; fail: todo; always: show y; todo; close,NO SYNTAX ERROR,,
 fn f(): show 'hi'; todo; ret 1; close,"line 1 col 38: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 if x: todo; else: while y: todo; close close,NO SYNTAX ERROR,,
-try: if x: todo; close fail: todo; close,NO SYNTAX ERROR,,
-for i in range(5): try: todo; fail: todo; close close,NO SYNTAX ERROR,,
 while x: if y: todo; close close,NO SYNTAX ERROR,,
 if x: while y: todo; close close,NO SYNTAX ERROR,,
-fn f(): try: todo; fail: todo; close close,"line 1 col 43: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
 fn f(): for i in range(1): todo; close close,"line 1 col 45: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while
+Expected any: fn, for, id, if, show, todo, while
 ",,
 fn f(): while x: todo; close close,"line 1 col 35: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn f(): if x: todo; close close,"line 1 col 32: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 "fn f(): if x: show x; else: todo; close close 
 ","Unexpected token at line 1 col 47: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 show 'Hello World';,NO SYNTAX ERROR,,
 show '';,NO SYNTAX ERROR,,
 show ' ';,NO SYNTAX ERROR,,
@@ -381,8 +357,7 @@ show temp_val;,NO SYNTAX ERROR,,
 if x: show 'valid'; close,NO SYNTAX ERROR,,
 while x: show x; close,NO SYNTAX ERROR,,
 fn f(): show 'start'; close,"line 1 col 28: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
-try: show 'try'; fail: show 'fail'; close,NO SYNTAX ERROR,,
+Expected any: fn, for, id, if, show, todo, while",,
 for i in range(5): show i; close,NO SYNTAX ERROR,,
 show 123;,"line 1 col 6: 1
 Expected any: id, str_literal",,
@@ -439,11 +414,11 @@ Expected any: ;",,
 if user_is_logged_in,"line 1 col 21: <EOL>
 Expected any: !=, %, (, *, **, +, -, /, //, :, <, <=, ==, >, >=, [, and, or",,
 if user_is_logged_in:,"line 1 col 22: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 if user_is_logged_in: if has_permission,"line 1 col 40: <EOL>
 Expected any: !=, %, (, *, **, +, -, /, //, :, <, <=, ==, >, >=, [, and, or",,
 if user_is_logged_in: if has_permission: if is_admin:,"line 1 col 54: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 if user_is_logged_in: if has_permission: if is_admin: show,"line 1 col 59: <EOL>
 Expected any: id, str_literal",,
 if user_is_logged_in: if has_permission: if is_admin: show 'Welcome Admin',"line 1 col 75: <EOL>
@@ -495,7 +470,7 @@ else:
 close
 ",NO SYNTAX ERROR,,
 read,"Unexpected token at line 1 col 1: r
-Expected any: fn, for, id, if, show, todo, try, while","Cantal - Input, Function Call, Ret",
+Expected any: fn, for, id, if, show, todo, while","Cantal - Input, Function Call, Ret",
 x read,"Unexpected token at line 1 col 3: r
 Expected any: (, :, =, [",,
 x = read,"line 1 col 9: <EOL>
@@ -507,12 +482,12 @@ x = READ;,NO SYNTAX ERROR,,
 x = re ad;,"Unexpected token at line 1 col 8: a
 Expected any: !=, %, (, *, **, +, -, /, //, ;, <, <=, ==, >, >=, [, and, or",,
 james = read; read;,"Unexpected token at line 1 col 15: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 x = read :,"Unexpected token at line 1 col 10: :
 Expected any: ;",,
 Read = x;,NO SYNTAX ERROR,,
 123 = read;,"Unexpected token at line 1 col 1: 1
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 x = read; y = read;,NO SYNTAX ERROR,,
 x = read y = read;,"Unexpected token at line 1 col 10: y
 Expected any: ;",,
@@ -542,17 +517,17 @@ a1b2c3d4 = read;,NO SYNTAX ERROR,,
 show = read;,"line 1 col 6: =
 Expected any: id, str_literal",,
 ret = read;,"line 1 col 1: r
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 close = read;,"line 1 col 1: c
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn = read;,"line 1 col 4: =
 Expected any: id",,
 read = read;,"line 1 col 1: r
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 x_1_2_3 = read;,NO SYNTAX ERROR,,
 totalValueResult = read;,NO SYNTAX ERROR,,
 else = read;,"line 1 col 1: e
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 x = read; y = int(x);,NO SYNTAX ERROR,,
 x = read; y = int ( x ) ;,NO SYNTAX ERROR,,
 x = read; y = float(x);,NO SYNTAX ERROR,,
@@ -588,19 +563,19 @@ Expected any: ), id",,
 fn greet(),"line 1 col 11: <EOL>
 Expected any: :",,
 fn greet():,"line 1 col 12: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn greet(): close,"line 1 col 13: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn greet(): todo close,"line 1 col 18: c
 Expected any: ;",,
 fn greet(): show 'hi'; close,"line 1 col 29: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn greet(): show 'hi' close,"line 1 col 23: c
 Expected any: ;",,
 fn greet(): show 'hi';,"line 1 col 23: <EOL>
-Expected any: close, for, id, if, ret, show, todo, try, while",,
+Expected any: close, for, id, if, ret, show, todo, while",,
 fn greet() : close,"line 1 col 14: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn greet( ) : todo close,"line 1 col 20: c
 Expected any: ;",,
 fn greet(name): todo close,"line 1 col 22: c
@@ -620,50 +595,48 @@ Expected any: ), id",,
 fn greet('name'):,"Unexpected token at line 1 col 10: '
 Expected any: ), id",,
 fn greet(): x = 10; close,"line 1 col 26: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn greet(): x = 10 close,"line 1 col 20: c
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 fn greet(): x = read; close,"line 1 col 28: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn greet(): show x; close,"Unexpected token at line 1 col 26: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn greet(): if x > 0: todo close close,"line 1 col 28: c
 Expected any: ;",,
 fn a(): close fn b(): close,"line 1 col 9: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): todo close fn b(): todo close,"line 1 col 14: c
 Expected any: ;",,
 fn a(): fn b(): todo close close,"line 1 col 9: f
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 x = 5; fn a(): todo close,"line 1 col 8: f
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): x = 5; ret x; close,"line 1 col 28: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn a(): ret 5 close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "fn a(): ret x;
  close","line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "fn a(): ret 1, 2; close","line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret 1; ret 2; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): show 'a'; ret 1; close,"line 1 col 31: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn a(): ret 1; show 'a'; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): show 'hi'; close ;,"Unexpected token at line 1 col 26: ;
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn a(x = 10): todo close,"Unexpected token at line 1 col 8: =
 Expected any: ), ,",,
 fn a(arr[0]): todo close,"Unexpected token at line 1 col 9: [
 Expected any: ), ,",,
-fn a(): try todo fail todo close close,"line 1 col 13: t
-Expected any: :",,
 fn a(): ret int(read close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret (1 + 2) * 3; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(p1): todo close,"line 1 col 16: c
 Expected any: ;",,
 "fn a(p1, p2): todo close","line 1 col 20: c
@@ -701,144 +674,144 @@ Expected any: ), id",,
 fn a(p1 = 5): todo close,"Unexpected token at line 1 col 9: =
 Expected any: ), ,",,
 fn a(p1): x = read; close,"line 1 col 26: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn a(p1): x = read close,"line 1 col 20: c
 Expected any: ;",,
 fn a(): x = 10; y = 20; close,"line 1 col 30: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn a(): x = 10 y = 20; close,"line 1 col 16: y
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 fn a(): x = 10; close x = 20;,NO SYNTAX ERROR,,
 fn a(): x = 1; close fn b(): y = 1; close,"line 1 col 42: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn a(): todo close show 'ok';,"line 1 col 14: c
 Expected any: ;",,
 fn a(): x = read; show x; close,"line 1 col 32: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn a(): x = read; if x == '1': todo close close,"line 1 col 37: c
 Expected any: ;",,
 fn a(): x = read; y = int(x); close,"line 1 col 36: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn a(): x = read; ret x; close,"line 1 col 31: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 ret 10;,"line 1 col 1: r
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn a(): ret 10; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret 10,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret (x); close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret x[0]; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "fn a(): ret [1, 2, 3]; close","line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret ; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret 'string'; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret 1.5; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret float(10); close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret (1 == 1); close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret -5; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret !true; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): x = 10; ret x; close,"line 1 col 29: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn a(): ret x ; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "fn a(): ret array_add(x, 1); close","line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret show 10; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret read; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret ret 10; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret (1 +0); close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret 1 + 2; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret x * y; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret (x + y) / z; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret x > y; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret x == true; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret !x; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret ; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret int(x); close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret float(x); close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret a(); close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret a() + 1; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "fn a(): ret [1, 2, 3]; close","line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret x[0]; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret 'string'; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret true; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret ; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret 1; close ;,"Unexpected token at line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret (1 + 1 close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret 1 + ; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret fn b(): todo close close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret ret 1; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): x = 1; ret x; close,"line 1 col 28: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn a(): x = read; ret x; close,"line 1 col 31: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn a(): x = read; ret int(x); close,"line 1 col 36: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn a(): if true: ret 1; close ret 0; close,"line 1 col 18: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): while x < 5: ret x; close close,"line 1 col 22: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): if true: ret 1; else: todo close close,"line 1 col 18: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret 1; show 'unreachable'; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): show 'reachable'; ret 1; close,"line 1 col 39: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn a(ditto): ret x; close,"line 1 col 14: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): x = [1]; ret x; close,"Unexpected token at line 1 col 13: [
 Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str_literal, true",,
 fn a(): ret x arr x : close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret read = x; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a():  show 'nailong' ret a(); close,"line 1 col 25: r
 Expected any: ;",,
 fn a(): ret x % y; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret x ** y; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret x // y; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret ( ( ( 1 ) ) ); close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret int(float(10)); close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 a(),"line 1 col 4: <EOL>
 Expected any: ;",,
 a();,NO SYNTAX ERROR,,
@@ -912,9 +885,9 @@ a(a());,NO SYNTAX ERROR,,
 fn a(): todo close show 'hi';,"line 1 col 14: c
 Expected any: ;",,
 show 'hi'; fn a(): todo close,"line 1 col 12: f
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 x = 1; fn a(): todo close,"line 1 col 8: f
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): todo close x = 1;,"line 1 col 14: c
 Expected any: ;",,
 fn a(): todo close fn b(): todo close,"line 1 col 14: c
@@ -922,37 +895,33 @@ Expected any: ;",,
 fn a(): todo close x = read;,"line 1 col 14: c
 Expected any: ;",,
 x = read; fn a(): todo close,"line 1 col 11: f
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): todo close a();,"line 1 col 14: c
 Expected any: ;",,
 a(); fn a(): todo close,"line 1 col 6: f
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): todo close show a();,"line 1 col 14: c
 Expected any: ;",,
 fn a(): todo close if true: a(); close,"line 1 col 14: c
 Expected any: ;",,
 if true: a(); close fn a(): todo close,"line 1 col 21: f
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): todo close while true: a(); close,"Unexpected token at line 1 col 14: c
 Expected any: ;",,
 while true: a(); close fn a(): todo close,"line 1 col 24: f
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): todo close for i in range(5): a(); close,"line 1 col 14: c
 Expected any: ;",,
-fn a(): todo close try a(); fail todo close,"line 1 col 14: c
-Expected any: ;",,
-try a(); fail todo close fn a(): todo close,"line 1 col 5: a
-Expected any: :",,
 fn a(): todo close x = a();,"line 1 col 14: c
 Expected any: ;",,
 x = a(); fn a(): todo close,"line 1 col 10: f
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): todo close show 'done';,"line 1 col 14: c
 Expected any: ;",,
 fn a(): x = read; ret x; close y = a();,NO SYNTAX ERROR,,
 fn a(x): show x; close val = read; a(val);,NO SYNTAX ERROR,,
 fn a(): ret read; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): x = read; ret int(x); close y = a();,NO SYNTAX ERROR,,
 fn a(): x = read; ret float(x); close y = a();,NO SYNTAX ERROR,,
 fn a(): x = read; if x == 'hi': todo close close,"line 1 col 38: c
@@ -961,25 +930,25 @@ fn a(): x = read; show x; close a();,NO SYNTAX ERROR,,
 fn a(): x = read; close show x;,NO SYNTAX ERROR,,
 fn a(name): show name; close n = read; a(n);,NO SYNTAX ERROR,,
 fn a(): ret 1; close a(); show 'ok';,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret 1; close x = a(),"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret 1; close show a();,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret 1; close x = a(); y = a();,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): ret 1; close x = a(a());,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(i): ret i + 1; close x = read; y = a(int(x));,"line 1 col 10: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(i): ret i + 1; close x = a(int(read,"line 1 col 10: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(i): ret i + 1; close x = read; y = int(x); z = a(y);,"line 1 col 10: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn a(): x = read; ret x; close y = a(),"line 1 col 39: <EOL>
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 close,"line 1 col 1: c
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 if score,"line 1 col 9: 
 Expected any: !=, %, (, *, **, +, -, /, //, :, <, <=, ==, >, >=, [, and, or",,
 "if score >= 75
@@ -996,17 +965,17 @@ show  'B'","line 2 col 10:
 Expected any: ;",,
 "if score >= 75:
 show  'B';","line 2 col 11: 
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "if score >= 75:
 show  'B';
 close",NO SYNTAX ERROR,,
 if score == false:,"Unexpected token at line 1 col 19: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 if a * b != c,"line 1 col 14
 Expected any: !=, %, (, *, **, +, -, /, //, :, <, <=, ==, >, >=, [, and, or",,
 "if a * b != c: 
 ","line 1 col 16:
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if a * b != c: 
 show","line 2 col 5: 
 Expected any: id, str_literal",,
@@ -1016,7 +985,7 @@ Expected any: ;",,
 "if a * b != c: 
 show 'Mismatch';
 ","line 2 col 17: 
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "if a * b != c: 
 show 'Mismatch';
 close",NO SYNTAX ERROR,,
@@ -1030,13 +999,13 @@ check = total > 50;,NO SYNTAX ERROR,,
 if check:
 
 ","Unexpected token at line 3 col 1: <EOL>
-Expected any: for, id, if, show, todo, try, while",,-
+Expected any: for, id, if, show, todo, while",,-
 if score,"Unexpected token at line 1 col 9: <EOL>
 Expected any: !=, %, (, *, **, +, -, /, //, :, <, <=, ==, >, >=, [, and, or",,
 if score >= 75,"Unexpected token at line 1 col 15: <EOL>
 Expected any: !=, %, *, **, +, -, /, //, :, <, <=, ==, >, >=, and, or",,
 if score >= 75:,"Unexpected token at line 1 col 16: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if score >= 75: 
 show
 ","Unexpected token at line 2 col 5: <EOL>
@@ -1059,13 +1028,13 @@ Expected any: !=, %, *, **, +, -, /, //, :, <, <=, ==, >, >=, and, or",,
 "if x == 1: 
 show 'X';
 elif y == 2:","Unexpected token at line 3 col 13: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 1: 
 show 'X'; 
 elif y == 2: 
 show 'Y';
 ","line 4 col 10: 
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "if x == 1: 
 show 'X'; 
 elif y == 2: 
@@ -1079,12 +1048,12 @@ Expected any: :",,
 "if x == 1: 
 show 'X'; 
 else:","line 3 col 6: 
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 1: 
 show 'X'; 
 else: 
 show 'Z';","line 4 col 10: 
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "if x == 1: 
 show 'X'; 
 else: 
@@ -1094,7 +1063,7 @@ close
 if x = 10:,"line 1 col 6: =
 Expected any: !=, %, (, *, **, +, -, /, //, :, <, <=, ==, >, >=, [, and, or",,
 if x == 10:,"line 1 col 12:
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 10: 
 todo
 ","line 2 col 5: 
@@ -1102,15 +1071,15 @@ Expected any: ;",,
 "if x == 10: 
 todo;
 ","line 2 col 6:
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "if x == 10:
  todo; 
 close
 ",NO SYNTAX ERROR,,
 if x == 5: show 'A'; elif y == 5:,"Unexpected token at line 1 col 34: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 if x == 5: show 'A'; elif y == 5: show 'B';,"Unexpected token at line 1 col 44: <EOL>
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 if x == 5: show 'A'; elif y == 5: show 'B'; close,NO SYNTAX ERROR,,
 "if a != b: 
 show a; 
@@ -1118,7 +1087,7 @@ elif a == b:
 show b; 
 else:
 ","line 5 col 6: 
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if a != b: 
 show a; 
 elif a == b: 
@@ -1126,7 +1095,7 @@ show b;
 else: 
 show 'None';
 ","line 6 col 13: 
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "if a != b: 
 show a; 
 elif a == b: 
@@ -1138,12 +1107,12 @@ close
 "if status == true:
  if count > 0:
 ","Unexpected token at line 2 col 15: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if status == true:
  if count > 0: 
 show 'Yes';
 ","Unexpected token at line 3 col 12: <EOL>
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "if status == true:
  if count > 0: 
 show 'Yes'; 
@@ -1156,27 +1125,27 @@ close
 close close
 ",NO SYNTAX ERROR,,
 if x > 0 and y < 0:,"line 1 col 20: 
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x > 0 and y < 0: 
 show 'Mixed'; 
 close
 ",NO SYNTAX ERROR,,
 if x == 0 or y == 0:,"line 1 col 21: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 0 or y == 0: 
 show 'Zero'; 
 close
 ",NO SYNTAX ERROR,,
 if !is_valid:,"line 1 col 14: 
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if !is_valid: 
 show 'Invalid'; 
 close
 ",NO SYNTAX ERROR,,-
 if x:,"line 1 col 6:
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 if 'admin':,"line 1 col 12: 
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if score >= 90: 
 show 'A'; 
 elif score >= 80: 
@@ -1184,7 +1153,7 @@ show 'B';
  elif score >= 70: 
 show 'C';
 ","line 6 col 10: 
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "if score >= 90: 
 show 'A'; 
 elif score >= 80: 
@@ -1203,22 +1172,22 @@ close
 "if x == 1:
  ret 1;
 ","line 2 col 2: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 1: 
 ret 1; 
 close
 ","line 2 col 1: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "elif x == 5: 
 show 'Error'; 
 close
 ","line 1 col 1: e
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 "else:
  show 'Error'; 
 close
 ","line 1 col 1: e
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 "if x > 0: 
 show 'Pos'; 
 else score < 0:
@@ -1245,18 +1214,18 @@ close
 ",NO SYNTAX ERROR,,
 "if x == true:
  x = false;","Unexpected token at line 2 col 12: <EOL>
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "if x: 
 #comment
 ","line 2 col 9: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 if x == 1: # comment,"line 1 col 21: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 1: 
 show 'X';
 # comment
 ","line 3 col 10: <EOL>
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "if x == 1: 
 show 'X'; 
 close
@@ -1269,7 +1238,7 @@ close
 show 'X'; 
 close
 close","line 4 col 1: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 1 :
  show 'X';
  close
@@ -1296,11 +1265,11 @@ close
 "if x == 1: if y == 1: 
 show 'Nested'; 
 close","Unexpected token at line 3 col 6: <EOL>
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "if x == 1:
  if y == 1:
  show 'Nested';","line 3 col 16: <EOL>
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "if x == 1: 
 show 'A'; 
 else: 
@@ -1318,7 +1287,7 @@ close
 y = 10; 
 z = 20;
 ","line 3 col 8: <EOL>
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "if status == true and count != 0:
  todo; 
 close
@@ -1353,7 +1322,7 @@ show 'Y';
 else: 
 close
 ","line 6 col 1: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 1: 
 show 'X'; 
 else: 
@@ -1420,13 +1389,13 @@ if y == 1:
 show 'Y'; 
 close
 ","Unexpected token at line 3 col 7: ;
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 1: show 'X'; 
 close 
 if y == 1:
  show 'Y';
 ","line 4 col 11: <EOL>
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "if x == 1: 
 show 'X' ; 
 close
@@ -1439,14 +1408,14 @@ show 'X';
 close
 close
 ","line 4 col 1: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 1:
  show 'A'; 
 elif x == 2: 
 show 'B';
  else: show 'C';
 ","line 5 col 17: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "if x == 1: 
 show 'A'; 
 elif x == 2: 
@@ -1460,7 +1429,7 @@ if status == true:
 show 'A'; 
 close
 ","line 4 col 6: <EOL>
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "if score >= 75:
  if status == true: 
 show 'A'; 
@@ -1471,20 +1440,20 @@ elif status == true:
 show 'A'; 
 close
 "," line 2 col 1: e
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if score >= 75: 
 show 'A'; 
 close
  elif status == true:
 ","Unexpected token at line 4 col 2: e
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 1: 
 show 'X'; 
 else: 
 show 'Y'; 
 close close
 ","line 5 col 7: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 1: 
 show 'X'; 
 elif x == 2: 
@@ -1500,7 +1469,7 @@ else:
 elif y == 1: 
 show 'Y'; 
 close","line 4 col 1: e
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 1: 
 show 'X'; 
 else: 
@@ -1509,7 +1478,7 @@ elif z == 1:
 show 'Z'; 
 close
 ","line 5 col 1: e
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "if x == 1: 
 show 'X' 
 else: 
@@ -1525,7 +1494,7 @@ Expected any: !=, %, *, **, +, -, /, //, :, <, <=, ==, >, >=, and, or",,
 "if x == 1: ; 
 close
 ","line 1 col 12: ;
-Expected any: for, id, if, show, todo, try, while",,-
+Expected any: for, id, if, show, todo, while",,-
 "if x == 1: 
 todo; 
 elif y == 2: 
@@ -1554,7 +1523,7 @@ close
 show 'C'; 
 close
 ","line 6 col 2: e
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if status == true or or x == 1: 
 show 'X'; 
 close
@@ -1568,7 +1537,7 @@ show 'Y';
 else: 
 close
 "," line 6 col 1: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 1:
  show 'X'; 
 close 
@@ -1576,7 +1545,7 @@ elif x == 2:
 show 'Y'; 
 close
 ","line 4 col 1: e
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 1: 
 show 'X'; 
 close 
@@ -1592,7 +1561,7 @@ show 'Y';
 close close
 
 ","line 6 col 7: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x > 0: 
 if y > 0:
  if z > 0: 
@@ -1633,7 +1602,7 @@ close
 show 'B'; 
 close =
 ","line 5 col 7: =
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 1: 
 show 'A'; 
 else: show 'B';
@@ -1643,7 +1612,7 @@ show 'C';
  close
 
 ","line 5 col 1: e
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 1:
  show 'A'; 
 elif y == 2: 
@@ -1655,7 +1624,7 @@ elif z == 3:
 show 'D'; 
 close
 "," line 8 col 1: e
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 1: 
 if y == 2: 
 show 'A'; 
@@ -1721,7 +1690,7 @@ else:
 show 'C'; 
 close close
 ","Unexpected token at line 7 col 7: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 1: 
 show 'A'; 
 elif y == 2: 
@@ -1742,7 +1711,7 @@ close
 show 'X'; 
 close
 close","Unexpected token at line 4 col 1: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 1 : 
 show 'X'; 
 close
@@ -1770,12 +1739,12 @@ close close
 if y == 1: 
 show 'Nested'; 
 close","Unexpected token at line 4 col 6: <EOL>
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "if x == 1: 
 if y == 1: 
 show 'Nested';
 "," line 3 col 15: <EOL>
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "if x == 1: 
 show 'A'; 
 else: if y == 1: 
@@ -1790,7 +1759,7 @@ close
 "if x == 1: y = 10; 
 z = 20;
 ","line 2 col 8: <EOL>
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "if status == true and count != 0: 
 todo; 
 close
@@ -1815,14 +1784,14 @@ show i;
 show i; 
 close ;
 ","line 3 col 7: ;
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "for i in range(1, 10): 
 show i; 
 close close
 "," line 3 col 7: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 for i in range(5):," line 1 col 19: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "for i in range(5): 
 show i
 ","line 2 col 7: <EOL>
@@ -1830,13 +1799,13 @@ Expected any: ;",,
 "for i in range(5):
  show i;
 ","line 2 col 9: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "for i in range(5): 
 show i; 
 close
 ",NO SYNTAX ERROR,,
 "for x in range(10, 0, ~1):"," line 1 col 27: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "for x in range(10, 0, ~1): 
 show x
 ","line 2 col 7: <EOL>
@@ -1844,13 +1813,13 @@ Expected any: ;",,
 "for x in range(10, 0, ~1): 
 show x;
 ","line 2 col 8: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "for x in range(10, 0, ~1):
  show x;
  close
 ",NO SYNTAX ERROR,,
 while count > 0:," line 1 col 17: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "while count > 0: 
 show count
 ","line 2 col 11: <EOL>
@@ -1858,7 +1827,7 @@ Expected any: ;",,
 "while count > 0: 
 show count;
 ","line 2 col 12: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "while count > 0:
  count = count - 1
 ","line 2 col 19: <EOL>
@@ -1866,20 +1835,20 @@ Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 "while count > 0: 
 count = count - 1;
 "," line 2 col 19: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "while count > 0:
  count = count - 1; 
 close
 ",NO SYNTAX ERROR,,
 while status == true:," line 1 col 22: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "while status == true: 
 todo","Unexpected token at line 2 col 5: <EOL>
 Expected any: ;",,
 "while status == true: 
 todo;
 ","Unexpected token at line 2 col 6: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "while status == true:
  todo; 
 close
@@ -1893,17 +1862,17 @@ todo;
  if i == 0: 
 todo; 
 close","Unexpected token at line 4 col 6: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "while true: 
 if x == 1: 
 ret x; 
 close close
 ","Unexpected token at line 3 col 1: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "while true: if x == 1: 
 ret x;
  close","Unexpected token at line 2 col 1: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "for i in range(5): 
 for j in range(5): 
 show j; 
@@ -1914,7 +1883,7 @@ for j in range(5):
 show j; 
 close
 "," line 4 col 6: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "while !done:
  for k in range(3):
  todo; 
@@ -1940,20 +1909,20 @@ close
 show i; 
 close ()
 "," line 3 col 7: (
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "for i in range(5): 
 show i; 
 close 
 close
 ","line 4 col 1: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "for i in range(5): 
 show i; 
 close
  if x: 
 close
 ","Unexpected token at line 5 col 1: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "while x: 
 show x; 
 close
@@ -1971,7 +1940,7 @@ Expected any: ;",,
 show x; 
 close +
 ","line 3 col 7: +
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "for i in range(1, 10, 2):
  show i; 
 close
@@ -1985,29 +1954,29 @@ close #
 show i; 
 close close
 "," line 3 col 7: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "for i in range(10):
  show i; 
 elif x == 1: 
 close
 "," line 3 col 1: e
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "for i in range(10): 
 show i; 
 else: 
 close
 "," line 3 col 1: e
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "while x < 10: x = x + 1; 
 elif y == 1:
  close
 ","line 2 col 1: e
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "while x < 10: x = x + 1; 
 else: 
 close
 "," line 2 col 1: e
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "for i in range(5): 
 show i; 
 close
@@ -2022,7 +1991,7 @@ for j in range(5):
 show j; 
 close
 ","line 3 col 8: ]
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "while x: 
 while y: 
 while z:
@@ -2035,14 +2004,14 @@ while z:
 todo; 
 close close
 ","line 5 col 12: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "while x: 
 while y: 
 while z: 
 todo; 
 close
 ","line 5 col 6: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "for x in range(5); close
 ","line 1 col 18: ;
 Expected any: :",,
@@ -2144,12 +2113,12 @@ close
  show i;
  close close
 "," line 3 col 8: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "for i in range(5): 
 show i; 
 close )
 ","line 3 col 7: )
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "for i in range(5): 
 show i 
 close
@@ -2207,12 +2176,12 @@ Expected any: !=, %, *, **, +, -, /, //, :, <, <=, ==, >, >=, and, or",,
 x = x + 1; 
 close close
 "," line 3 col 7: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "while x < 10:
  x = x + 1; 
 close 5
 ","line 3 col 7: 5
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "while true:
  show 'looping'; 
 close
@@ -2238,12 +2207,12 @@ close close
 for j in range(3): 
 show j; 
 close","Unexpected token at line 4 col 6: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "for i in range(3): 
 for j in range(3): 
 show j;
 ","line 3 col 8: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "while x < 5: while y < 5: 
 show x;
  close close
@@ -2252,7 +2221,7 @@ show x;
 while y < 5: show x; 
 close
 ","line 3 col 6: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "for i in range(5):
  if i == 2: show i;
  close close
@@ -2262,7 +2231,7 @@ if i == 2:
 show i; 
 close
 "," line 4 col 6: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "if x == 1: 
 for i in range(5): 
 show i;
@@ -2273,7 +2242,7 @@ for i in range(5):
 show i; 
 close
 "," line 4 col 6: <EOL>
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "while x < 5: 
 x = x + 1; 
 todo; 
@@ -2299,7 +2268,7 @@ if x == 1:
 show x; 
 close
 ","line 3 col 7: -
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "for i in range(1, 5): 
 x = array(arr, i); 
 close
@@ -2324,7 +2293,7 @@ close
 "if x == 1:
  if y == 1:
 ","line 2 col 12: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if x == 1: 
 if y == 1: 
 show 'XY'
@@ -2334,38 +2303,38 @@ Expected any: ;",,
  if y == 1: 
 show 'XY';
 "," line 3 col 11: <EOL>
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "if x == 1: 
 if y == 1: 
 show 'XY'; 
 close close
 ",NO SYNTAX ERROR,,
 if a == b and c == d:," line 1 col 22: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if a == b and c == d: 
 todo","Unexpected token at line 2 col 5: <EOL>
 Expected any: ;",,
 "if a == b and c == d: 
 todo;
 ","line 2 col 6: <EOL>
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "if a == b and c == d: todo; 
 close
 ",NO SYNTAX ERROR,,
 if !is_true:,"line 1 col 13: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 if !is_true: show 'No',"line 1 col 23: <EOL>
 Expected any: ;",,
 "if !is_true: 
 show 'No';
 ","line 2 col 11: <EOL>
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "if !is_true: 
 show 'No'; 
 close
 ",NO SYNTAX ERROR,,
 if score == ~10:," line 1 col 17: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if score == ~10: 
 show 'Neg'
 "," line 2 col 11: <EOL>
@@ -2373,7 +2342,7 @@ Expected any: ;",,
 "if score == ~10:
  show 'Neg';
 ","line 2 col 13: <EOL>
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "if score == ~10: 
 show 'Neg';
  close
@@ -2399,7 +2368,7 @@ close
  show 'A'; 
 close close
 ","line 3 col 7: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "if score >= 75:
  show 'A'
  close","Unexpected token at line 3 col 2: c
@@ -2445,7 +2414,7 @@ Expected any: (",,
 for i in range(10),"line 1 col 19: <EOL>
 Expected any: :",,
 for i in range(10):," line 1 col 20: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "for i in range(10): 
 show
 ","line 2 col 5: <EOL>
@@ -2457,7 +2426,7 @@ Expected any: ;",,
 "for i in range(10):
  show i;
 "," line 2 col 9: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "for i in range(10): 
 show i; 
 close
@@ -2475,7 +2444,7 @@ Expected any: !=, %, (, *, **, +, -, /, //, :, <, <=, ==, >, >=, [, and, or",,
 while x < 5," line 1 col 12: <EOL>
 Expected any: !=, %, *, **, +, -, /, //, :, <, <=, ==, >, >=, and, or",,
 while x < 5:,"line 1 col 13: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 while x < 5: x =,"line 1 col 17: <EOL>
 Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str_literal, true",,
 while x < 5: x = x,"line 1 col 19: <EOL>
@@ -2483,19 +2452,19 @@ Expected any: !=, %, (, *, **, +, -, /, //, ;, <, <=, ==, >, >=, [, and, or",,
 while x < 5: x = x + 1,"line 1 col 23: <EOL>
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 while x < 5: x = x + 1;,"line 1 col 24: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "while x < 5: x = x + 1; 
 close
 ",NO SYNTAX ERROR,,
 while status == true:,"line 1 col 22: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "while status == true: 
 todo
 "," line 2 col 5: <EOL>
 Expected any: ;",,
 "while status == true: 
 todo;","Unexpected token at line 2 col 6: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "while status == true: 
 todo; 
 close
@@ -2503,7 +2472,7 @@ close
 "for i in range(5): 
 for j in range(5):
 ","line 2 col 19: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "for i in range(5): 
 for j in range(5): 
 show j
@@ -2513,33 +2482,33 @@ Expected any: ;",,
  for j in range(5): 
 show j;
 ","line 3 col 8: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "for i in range(5):
  for j in range(5): 
 show j;
  close
 "," line 4 col 7: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "for i in range(5): 
 for j in range(5): 
 show j;
 close close
 ",NO SYNTAX ERROR,,
 while !done:,"line 1 col 13: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 while !done: if x == 1:,"line 1 col 24: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "while !done: if x == 1: 
 show x
 "," line 2 col 7: <EOL>
 Expected any: ;",,
 while !done: if x == 1: show x;," line 1 col 32: <EOL>
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "while !done: if x == 1: 
 show x; 
 close
 ","line 3 col 6: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "while !done: 
 if x == 1:
  show x; 
@@ -2560,7 +2529,7 @@ Expected any: (, :, =, [",,
  ret x; 
 close close
 "," line 3 col 2: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "while true:
  show 'infinite'; 
 close
@@ -2593,441 +2562,19 @@ Unexpected token at line 1 col 9: <EOL>
 Expected any: ), id",,
 fn name(!,"Unexpected token at line 1 col 9: !
 Expected any: ), id",,
-try,"line 1 col 4: <EOL>
-Expected any: :",,
-try:,"line 1 col 5: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
-try: show,"line 1 col 10: <EOL>
-Expected any: id, str_literal",,
-try: show id,"line 1 col 13: <EOL>
-Expected any: ;",,
-try: show id;,"line 1 col 14: <EOL>
-Expected any: fail, for, id, if, show, todo, try, while",,
-try: show id; todo,"line 1 col 19: <EOL>
-Expected any: ;",,
-try: show id; todo;,"line 1 col 20: <EOL>
-Expected any: fail, for, id, if, show, todo, try, while",,
-try: show id; todo; try,"line 1 col 24: <EOL>
-Expected any: :",,
-try: show id; todo; try:,"line 1 col 25: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
-try: show id; todo; try: try,"line 1 col 29: <EOL>
-Expected any: :",,
-try: show id; todo; try: try:,"Unexpected token at line 1 col 30: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
-try: show id; todo; try: try: id,"line 1 col 33: <EOL>
-Expected any: (, :, =, [",,
-try: show id; todo; try: try: id(,"line 1 col 34: <EOL>
-Expected any: !, (, ), false, float, float_literal, id, int, int_literal, str_literal, true",,
-try: show id; todo; try: try: id('string',"line 1 col 42: <EOL>
-Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",,
-"try: show id; todo; try: try: id('string',","line 1 col 43: <EOL>
-Expected any: !, (, false, float, float_literal, id, int, int_literal, str_literal, true",,
-"try: show id; todo; try: try: id('string',true","line 1 col 47: <EOL>
-Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",,
-"try: show id; todo; try: try: id('string',true!=","line 1 col 49: <EOL>
-Expected any: !, (, false, float, float_literal, id, int, int_literal, str_literal, true",,
-"try: show id; todo; try: try: id('string',true!=2.3","line 1 col 52: <EOL>
-Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",,
-"try: show id; todo; try: try: id('string',true!=2.3 and","line 1 col 56: <EOL>
-Expected any: !, (, false, float, float_literal, id, int, int_literal, str_literal, true",,
-"try: show id; todo; try: try: id('string',true!=2.3 and false","line 1 col 62: <EOL>
-Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",,
-"try: show id; todo; try: try: id('string',true!=2.3 and false)","line 1 col 63: <EOL>
-Expected any: ;",,
-"try: show id; todo; try: try: id('string',true!=2.3 and false);","line 1 col 64: <EOL>
-Expected any: fail, for, id, if, show, todo, try, while",,
-"try: show id; todo; try: try: id('string',true!=2.3 and false);
-
-fail","line 3 col 5: <EOL>
-Expected any: :",,
-"try: show id; todo; try: try: id('string',true!=2.3 and false);
-
-fail: ","Unexpected token at line 3 col 7: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
-"try: show id; todo; try: try: id('string',true!=2.3 and false);
-
-fail: try","line 3 col 10: <EOL>
-Expected any: :",,
-"try: show id; todo; try: try: id('string',true!=2.3 and false);
-
-fail: try:","line 3 col 11: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
-"try: show id; todo; try: try: id('string',true!=2.3 and false);
-
-fail: try: todo","line 3 col 16: <EOL>
-Expected any: ;",,
-"try: show id; todo; try: try: id('string',true!=2.3 and false);
-
-fail: try: todo;","line 3 col 17: <EOL>
-Expected any: fail, for, id, if, show, todo, try, while",,
-"try: show id; todo; try: try: id('string',true!=2.3 and false);
-
-fail: try: todo; show","line 3 col 22: <EOL>
-Expected any: id, str_literal",,
-"try: show id; todo; try: try: id('string',true!=2.3 and false);
-
-fail: try: todo; show id","line 3 col 25: <EOL>
-Expected any: ;",,
-"try: show id; todo; try: try: id('string',true!=2.3 and false);
-
-fail: try: todo; show id;","line 3 col 26: <EOL>
-Expected any: fail, for, id, if, show, todo, try, while","dapat pala may try and fail para maclose yung block, bawal try lang",
-,,,
-"try
-","line 1 col 4: <EOL>
-Expected any: :",,
-"try:
-","line 1 col 5: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
-"try:
-    try:","line 2 col 9: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
-"try:
-    try:
-        show","line 3 col 13: <EOL>
-Expected any: id, str_literal",,
-"try:
-    try:
-        show id
-","line 3 col 16: <EOL>
-Expected any: ;",,
-"try:
-    try:
-        show id;","line 3 col 17: <EOL>
-Expected any: fail, for, id, if, show, todo, try, while",,
-"try:
-    try:
-        show id;
-    close
-","line 4 col 5: c
-Expected any: fail, for, id, if, show, todo, try, while",di nagiging expected token ang close,
-"try:
-show","line 2 col 5: <EOL>
-Expected any: id, str_literal",,
-"try:
-show id;","line 2 col 9: <EOL>
-Expected any: fail, for, id, if, show, todo, try, while",,
-"try:
-show id;
-fail","line 3 col 5: <EOL>
-Expected any: :",,
-"try:
-show id;
-fail:","line 3 col 6: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
-"try:
-show id;
-fail:
-show","line 4 col 5: <EOL>
-Expected any: id, str_literal",,
-"try:
-show id;
-fail:
-show id","Unexpected token at line 4 col 8: <EOL>
-Expected any: ;",,
-"try:
-show id;
-fail:
-show id;","line 4 col 9: <EOL>
-Expected any: always, close, for, id, if, show, todo, try, while",,
-"try:
-show id;
-fail:
-show id;
-close",NO SYNTAX ERROR,"bale isang block lang yung try, fail para magclose.",
-"try:
-    try:
-        show id;
-    fail","line 4 col 9: <EOL>
-Expected any: :",,
-"try:
-    try:
-        show id;
-    fail:","line 4 col 10: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
-"try:
-    try:
-        show id;
-    fail:
-        todo"," line 5 col 13: <EOL>
-Expected any: ;",,
-"try:
-    try:
-        show id;
-    fail:
-        todo;","Unexpected token at line 5 col 14: <EOL>
-Expected any: always, close, for, id, if, show, todo, try, while",,
-"try:
-    try:
-        show id;
-    fail:
-        todo;
-    close","line 6 col 10: <EOL>
-Expected any: fail, for, id, if, show, todo, try, while",,
-"try:
-    try:
-        show id;
-    fail:
-        todo;
-    close
-fail","line 7 col 5: <EOL>
-Expected any: :",,
-"try:
-    try:
-        show id;
-    fail:
-        todo;
-    close
-fail:","line 7 col 6: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
-"try:
-    try:
-        show id;
-    fail:
-        todo;
-    close
-fail:
-    id","line 8 col 7: <EOL>
-Expected any: (, :, =, [",,
-"try:
-    try:
-        show id;
-    fail:
-        todo;
-    close
-fail:
-    id=","line 8 col 8: <EOL>
-Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str_literal, true",,
-"try:
-    try:
-        show id;
-    fail:
-        todo;
-    close
-fail:
-    id=1","line 8 col 9: <EOL>
-Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
-"try:
-    try:
-        show id;
-    fail:
-        todo;
-    close
-fail:
-    id=1;","line 8 col 10: <EOL>
-Expected any: always, close, for, id, if, show, todo, try, while",,
-"try:
-    try:
-        show id;
-    fail:
-        todo;
-    close
-fail:
-    id=1;
-close",NO SYNTAX ERROR,,
 "fn
 ","line 1 col 3: <EOL>
 Expected any: id",,
 "fn test():
     try
 ","line 2 col 8: <EOL>
-Expected any: :",,
+Expected any: (, :, =, [",,
 fn test(,"Unexpected token at line 1 col 9: <EOL>
 Expected any: ), id",,
 fn test(),"Unexpected token at line 1 col 10: <EOL>
 Expected any: :",,
 fn test():,"line 1 col 11: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
-"fn test():
-    try","line 2 col 8: <EOL>
-Expected any: :",,
-"fn test():
-    try:","line 2 col 9: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
-"fn test():
-    try:
-	try","line 3 col 8: <EOL>
-Expected any: :",,
-"fn test():
-    try:
-	try:","line 3 col 9: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
-"fn test():
-    try:
-	try:
-	    show","line 4 col 13: <EOL>
-Expected any: id, str_literal",,
-"fn test():
-    try:
-        try:
-            show id","Unexpected token at line 4 col 20: <EOL>
-Expected any: ;",,
-"fn test():
-    try:
-        try:
-            show id;","Unexpected token at line 4 col 21: <EOL>
-Expected any: fail, for, id, if, show, todo, try, while",,
-"fn test():
-    try:
-        try:
-            show id;
-        fail:","Unexpected token at line 5 col 14: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
-"fn test():
-    try:
-	try:
-	    show id;
-	fail:
-	    show id;","line 6 col 17: <EOL>
-Expected any: always, close, for, id, if, show, todo, try, while",,
-"fn test():
-    try:
-	try:
-	    show id;
-	fail:
-	    show id;
-	always","line 7 col 11: <EOL>
-Expected any: :",,
-"fn test():
-    try:
-	try:
-	    show id;
-	fail:
-	    show id;
-	always:","line 7 col 12: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
-"fn test():
-    try:
-	try:
-	    show id;
-	fail:
-	    show id;
-	always:
-	    show id;","line 8 col 17: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
-"fn test():
-    try:
-	try:
-	    show id;
-	fail:
-	    show id;
-	always:
-	    show id;
-	close","line 9 col 10: <EOL>
-Expected any: fail, for, id, if, show, todo, try, while",,
-"fn test():
-    try:
-	try:
-	    show id;
-	fail:
-	    show id;
-	always:
-	    show id;
-	close
-    fail:","line 10 col 10: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
-"fn test():
-    try:
-	try:
-	    show id;
-	fail:
-	    show id;
-	always:
-	    show id;
-	close
-    fail:
-	show id;","line 11 col 13: <EOL>
-Expected any: always, close, for, id, if, show, todo, try, while",,
-"fn test():
-    try:
-	try:
-	    show id;
-	fail:
-	    show id;
-	always:
-	    show id;
-	close
-    fail:
-	show id;
-    always:","line 12 col 12: <EOL>
-Expected any: for, id, if, show, todo, try, while",,
-"fn test():
-    try:
-        try:
-            show id;
-        fail:
-            show id;
-        always:
-            show id;
-        close
-    fail:
-        show id;
-    always:
-        id","line 13 col 11: <EOL>
-Expected any: (, :, =, [",,
-"fn test():
-    try:
-	try:
-	    show id;
-	fail:
-	    show id;
-	always:
-	    show id;
-	close
-    fail:
-	show id;
-    always:
-	id=1;","line 13 col 10: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
-"fn test():
-    try:
-	try:
-	    show id;
-	fail:
-	    show id;
-	always:
-	    show id;
-	close
-    fail:
-	show id;
-    always:
-	id=1;
-    close","line 14 col 10: <EOL>
-Expected any: close, for, id, if, ret, show, todo, try, while",,
-"fn test():
-    try:
-	try:
-	    show id;
-	fail:
-	    show id;
-	always:
-	    show id;
-	close
-    fail:
-	show id;
-    always:
-	id=1;
-    close
-close","line 15 col 6: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
-"fn test():
-    try:
-        try:
-            show id;
-        fail:
-            show id;
-        always:
-            show id;
-        close
-    fail:
-        show id;
-    always:
-        id=1;
-    close
-close
-
-todo;",NO SYNTAX ERROR,dapat may atleast one general statement after ng function declaration,
+Expected any: for, id, if, show, todo, while",,
 todo;,NO SYNTAX ERROR,King - All stmt little test,
 show 'x';,NO SYNTAX ERROR,,
 show x;,NO SYNTAX ERROR,,
@@ -3105,7 +2652,7 @@ Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 x 1;,"line 1 col 3: 1
 Expected any: (, :, =, [",,
  = 1;,"line 1 col 2
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 x = read,"line 1 col 9
 Expected any: ;",,
 show 1;,"line 1 col 6
@@ -3321,18 +2868,18 @@ if x or y: show x; close,NO SYNTAX ERROR,,
 if !x: show x; close,NO SYNTAX ERROR,,
 if 's': show x; close,NO SYNTAX ERROR,,
 if true: show 'ok';,"line 1 col 20: <EOL>
-Expected any: close, elif, else, for, id, if, show, todo, try, while
+Expected any: close, elif, else, for, id, if, show, todo, while
 ",,
 if true show 'ok'; close,"Unexpected token at line 1 col 9: s
 Expected any: !=, %, *, **, +, -, /, //, :, <, <=, ==, >, >=, and, or",,
 if true: show 'ok' close,"line 1 col 20: c
 Expected any: ;",,
 if true: close,"line 1 col 10: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 if : show 'ok'; close,"line 1 col 4: :
 Expected any: !, (, false, float, float_literal, id, int, int_literal, str_literal, true",,
 if true: ; close,"line 1 col 10: ;
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 if true: x=1 close,"line 1 col 14: c
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 "# IF-ELIF valid chain
@@ -3342,7 +2889,7 @@ if x: show 'a'; elif y: show 'b'; elif z: show 'c'; close,NO SYNTAX ERROR,,
 if x: show 'a'; elif y: show 'b'; elif z: show 'c'; else: show 'd'; close,NO SYNTAX ERROR,,
 if x: show 'a'; else: show 'b'; close,NO SYNTAX ERROR,,
 if x: show 'a'; elif y: show 'b'; else: show 'c';,"Unexpected token at line 1 col 50: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 if x: show 'a'; elif : show 'b'; close,"line 1 col 22: :
 Expected any: !, (, false, float, float_literal, id, int, int_literal, str_literal, true",,
 if x: show 'a'; elif y show 'b'; close,"line 1 col 24: s
@@ -3351,12 +2898,12 @@ if x: show 'a'; else show 'b'; close,"
 line 1 col 22: s
 Expected any: :",,
 if x: show 'a'; else: close,"line 1 col 23: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 elif x: show 'a'; close,"line 1 col 1: e
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 else: show 'a'; close,"
 line 1 col 1: e
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 "# WHILE valid
 while true: show 'loop'; close",NO SYNTAX ERROR,,
 while x: x=x+1; close,NO SYNTAX ERROR,,
@@ -3364,14 +2911,14 @@ while x<10: x=x+1; show x; close,NO SYNTAX ERROR,,
 while !x: todo; close,NO SYNTAX ERROR,,
 while true: close,"
 line 1 col 13: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 while true show 'x'; close,"Unexpected token at line 1 col 12: s
 Expected any: !=, %, *, **, +, -, /, //, :, <, <=, ==, >, >=, and, or",,
 while : show 'x'; close,"line 1 col 7: :
 Expected any: !, (, false, float, float_literal, id, int, int_literal, str_literal, true
 ",,
 while true: show 'x';,"line 1 col 22: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 "# FOR valid 1 arg range
 for i in range(10): show i; close",NO SYNTAX ERROR,,
 "for i in range(0,10): show i; close",NO SYNTAX ERROR,,
@@ -3382,7 +2929,6 @@ for i in range(x): show i; close,NO SYNTAX ERROR,,
 for i in range(10): x=i; show x; close,NO SYNTAX ERROR,,
 for i in range(10): if true: show i; close close,NO SYNTAX ERROR,,
 for i in range(10): while true: todo; close close,NO SYNTAX ERROR,,
-for i in range(10): try: todo; fail: todo; close close,NO SYNTAX ERROR,,
 for i in range(): show i; close,"Unexpected token at line 1 col 16: )
 Expected any: !, (, false, float, float_literal, id, int, int_literal, str_literal, true",,
 "for i in range( , ): show i; close","Unexpected token at line 1 col 17: ,
@@ -3403,60 +2949,37 @@ Expected any: in",,
 for i in range(10) : show i; close,NO SYNTAX ERROR,,
 for i in range(10): show i;,"
 line 1 col 28: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
-"# TRY/FAIL minimal valid
-try: todo; fail: todo; close",NO SYNTAX ERROR,,
-try: show 'a'; fail: show 'b'; close,NO SYNTAX ERROR,,
-try: x=1; fail: x=2; close,NO SYNTAX ERROR,,
-try: x=1; fail: x=2; always: x=3; close,NO SYNTAX ERROR,,
-try: show 'a'; fail: show 'b'; always: show 'c'; close,NO SYNTAX ERROR,,
-try: if true: todo; close fail: todo; close,NO SYNTAX ERROR,,
-try: todo; fail: todo; always: todo; close,NO SYNTAX ERROR,,
-try: todo; close,"line 1 col 12: c
-Expected any: fail, for, id, if, show, todo, try, while",,
-fail: todo; close,"line 1 col 1: f
-Expected any: fn, for, id, if, show, todo, try, while",,
-try: todo; fail: close,"line 1 col 18: c
-Expected any: for, id, if, show, todo, try, while",,
-try: todo; fail todo; close,"
-line 1 col 17: t
-Expected any: :",,
-try todo; fail: todo; close,"line 1 col 5: t
-Expected any: :",,
-try: todo; fail: todo; always todo; close,"line 1 col 31: t
-Expected any: :",,
+Expected any: close, for, id, if, show, todo, while",,
 "# FUNCTION minimal valid (must have at least one general_statement inside local_statement)
 fn f(): todo; close","line 2 col 20: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn f(): ret 1; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn f(): todo; ret 1; close,"line 1 col 27: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn f(x): todo; close,"line 1 col 21: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 "fn f(x,y): todo; close","line 1 col 23: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 "fn f(x,y,z): todo; close","line 1 col 25: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 "fn f(x,y,z): ret x; close","line 1 col 14: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn f(x): x=1; ret x; close,"line 1 col 27: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn f(): x=1; show x; ret x; close,"line 1 col 34: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn f(): if true: todo; close ret 1; close,"line 1 col 42: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn f(): for i in range(10): todo; close ret 1; close,"
 line 1 col 53: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
-fn f(): try: todo; fail: todo; close ret 1; close,"line 1 col 50: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn f(): ret 1 close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn f(): ret ; close,"line 1 col 9: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn f(): close,"line 1 col 9: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn f() todo; close,"line 1 col 8: t
 Expected any: :",,
 fn f(): todo; ret 1;,"line 1 col 21: <EOL>
@@ -3476,22 +2999,22 @@ Expected any: ), ,",,
 fn f(int(1)): todo; close,"Unexpected token at line 1 col 6: i
 Expected any: ), id",,
 fn f(): x(); close,"line 1 col 19: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 "fn f(): x(1,2); close","line 1 col 22: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn f(): x=read; close,"line 1 col 22: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn f(): x=int(1); close,"line 1 col 24: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn f(): x=float(1.0); close,"line 1 col 28: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 "# PROGRAM structure tests
 todo; todo;",NO SYNTAX ERROR,,
 fn f(): todo; close todo;,NO SYNTAX ERROR,,
 fn f(): todo; close fn g(): todo; close todo;,NO SYNTAX ERROR,,
 fn f(): todo; close,"
 line 1 col 20: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 "# Mixed statement sequence
 x=1; show x; todo;",NO SYNTAX ERROR,,
 "# Nested blocks
@@ -3639,7 +3162,7 @@ x = [ [ ] ];,"line 1 col 5: [
 Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str_literal, true",,
 if ( ( (x == 1) ) ): todo; close,NO SYNTAX ERROR,,
 while ( (count < 10) and (flag) ): close,"line 1 col 36: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "fn_call( (1+1), (2*2), (3/3) );",NO SYNTAX ERROR,,
 x = 5 * ( ( ( ( (10) ) ) ) )," line 1 col 29: <EOL>
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
@@ -3674,147 +3197,106 @@ if (x + 1) > (y - 1): show 'test'; close,NO SYNTAX ERROR,,
 if ( ( (true) ) ): if ( ( (false) ) ): todo; close close,NO SYNTAX ERROR,,
 while ( x < (10 + 5) ): x = x + 1; close,NO SYNTAX ERROR,,
 for i in range( (10 * 2) ): show i; close,NO SYNTAX ERROR,,
-try: x = (10 / y); fail: show ( ( 'error' ) ); close,"line 1 col 31: (
-Expected any: id, str_literal",,
 if x: if y: if z: show 'deep'; close close close,NO SYNTAX ERROR,,
 while true: if (x == 5): break; close x = x + 1; close,"line 1 col 31: ;
 Expected any: (, :, =, [",,
 if x == 1: show 1; else: if x == 2: show 2; close close,"line 1 col 17: 1
 Expected any: id, str_literal",,
-try: todo; fail: todo; always: todo; close,NO SYNTAX ERROR,,
 "fn test(a, (b)): ret a + b; close","line 1 col 12: (
 Expected any: id",,
 if x: close else: show x; close," line 1 col 7: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 while ( ( (true) and (x < 10) ) ): x = x + 1; close,NO SYNTAX ERROR,,
 "for i in range(len( ( [1,2,3] ) )): show i; close"," line 1 col 23: [
 Expected any: !, (, false, float, float_literal, id, int, int_literal, str_literal, true",,
-try: if true: x = 1 / 0; close fail: show 'fail'; close,NO SYNTAX ERROR,,
 if x > 0: x = 1; else: x = ~1; close,NO SYNTAX ERROR,,
 while (read == 'yes'): show 'looping'; close," line 1 col 8: r
 Expected any: !, (, false, float, float_literal, id, int, int_literal, str_literal, true",,
 fn compute(x): if (x > 0): ret (x * 2); close ret 0; close," line 1 col 28: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 if x: show x; else: show y; always: show z; close,"line 1 col 29: a
-Expected any: close, for, id, if, show, todo, try, while",,
-try: x = read; fail: todo; close,NO SYNTAX ERROR,,
-for i in range(5): try: x = i / 0; fail: show 'err'; close close,NO SYNTAX ERROR,,
+Expected any: close, for, id, if, show, todo, while",,
 if ( (x) == (y) ): show 'equal'; close,NO SYNTAX ERROR,,
-while x: try: if y: todo; close fail: show 'e'; close close,NO SYNTAX ERROR,,
 "fn check(): if true: todo;close close
 ","line 1 col 38: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 if (1 + 1 == 2): if (2 + 2 == 4): show 'math'; close close,NO SYNTAX ERROR,,
-"try: x = [1,2][5]; fail: show 'bounds'; always: close"," line 1 col 10: [
-Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str_literal, true",,
 while ( ( ( ( ( x != 0 ) ) ) ) ): x = x - 1; close,NO SYNTAX ERROR,,
 "for x in range(1, 10): if (x % 2 == 0): show x; close close",NO SYNTAX ERROR,,
 if not ( (a or b) and (c) ): todo; close,NO SYNTAX ERROR,,
-try: try: todo; fail: todo; close fail: todo; close,NO SYNTAX ERROR,,
 fn complex(a): while a: a = a - 1; if a == 5: ret a; close close close,"line 1 col 47: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 if x: show x;,"line 1 col 14: <EOL>
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 if x: show x; else: show y;,"line 1 col 28: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 while (1): : show 1; close,"line 1 col 12: :
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 for i in range(10) show i; close," line 1 col 20: s
-Expected any: :",,
-try show 'hi'; fail: show 'lo'; close,"line 1 col 5: s
 Expected any: :",,
 if ( ( ( ( (true) ) ) ) ) : todo; close,NO SYNTAX ERROR,,
 while (x < 10): x = x + 1; if x == 5: break; close close,"line 1 col 44: ;
 Expected any: (, :, =, [",,
 fn a(): close fn b(): close fn c(): close,"line 1 col 9: c
-Expected any: for, id, if, show, todo, try, while",,
-try: x = int(rEad); fail: x = 0; always: show x; close,NO SYNTAX ERROR,,
+Expected any: for, id, if, show, todo, while",,
 if (x > 0): for i in range(x): show i; close close,NO SYNTAX ERROR,,
-while (true): try: break; fail: todo; close close,"line 1 col 25: ;
-Expected any: (, :, =, [",,
 fn call(x): ret ( ( ( (x) ) ) ); close,"line 1 col 13: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 if ( ( ( (1+1) ) ) == 2 ): show 'ok'; close,NO SYNTAX ERROR,,
-try: x = y; fail: try: z = 1; fail: todo; close close,NO SYNTAX ERROR,,
 for i in range(10): if i: if i: if i: show i; close close close close,NO SYNTAX ERROR,,
 while ( (x < 10) ): while ( (y < 10) ): todo; close close,NO SYNTAX ERROR,,
 fn deep(): if 1: if 1: if 1: if 1: ret 1; close close close close close," line 1 col 36: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 if x: while y: for z in range(10): todo; close close close,NO SYNTAX ERROR,,
 while true: if x == 1: break; else: continue; close close,"line 1 col 29: ;
 Expected any: (, :, =, [",,
-if ( ( (x + 1) * 2 ) > 10 ): try: x = 1; fail: x = 0; close close,NO SYNTAX ERROR,,
 while (read == 'loop'): if true: show 'ok'; close close,"line 1 col 8: r
 Expected any: !, (, false, float, float_literal, id, int, int_literal, str_literal, true",,
 for i in range(5): if i == 0: todo; else: show i; close close,NO SYNTAX ERROR,,
-try: while true: x = read; if x == 'stop': break; close close fail: close,"line 1 col 49: ;
-Expected any: (, :, =, [",,
 if x: close," line 1 col 7: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 while x: close,"line 1 col 10: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn test(): close,"line 1 col 12: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 if x: else: close,"line 1 col 7: e
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 if x: show x; else: close,"line 1 col 21: c
-Expected any: for, id, if, show, todo, try, while",,
-try: close fail: close,"line 1 col 6: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 if x: if y: show 'y'; else: show 'not y'; close else: show 'not x'; close,NO SYNTAX ERROR,,
-while (x > 0): x = x - 1; if x == 5: try: x = 0; fail: close close close," line 1 col 56: c
-Expected any: for, id, if, show, todo, try, while",,
 for i in range(10): for j in range(10): for k in range(10): todo; close close close,NO SYNTAX ERROR,,
 if ( ( ( ( ( (x) ) ) ) ) ): if true: close close,"line 1 col 38: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "fn a(): if 1: todo; close close fn b(): if 1: todo; close close
 ","line 1 col 64: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
-try: x = y[0][1]; fail: show 'error'; always: todo; close,NO SYNTAX ERROR,,
-while ( ( (true) ) ): try: break; fail: continue; close close," line 1 col 33: ;
-Expected any: (, :, =, [",,
+Expected any: fn, for, id, if, show, todo, while",,
 if x: show x; close show y;,NO SYNTAX ERROR,,
 if x: show x; if y: show y; close ;,"line 1 col 35: ;
-Expected any: close, elif, else, for, id, if, show, todo, try, while",,
+Expected any: close, elif, else, for, id, if, show, todo, while",,
 "fn func(a, b): if a > b: ret a; else: ret b; close close"," line 1 col 26: r
-Expected any: for, id, if, show, todo, try, while",,
-try: if x: try: todo; fail: close close fail: close,"line 1 col 29: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 for i in range(len(arr)): if arr[i] == 0: continue; close show i; close," line 1 col 51: ;
 Expected any: (, :, =, [",,
-if (not x or y): while (z): try: todo; fail: close close close,"line 1 col 9: x
-Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",,
-try: x = read; fail: if true: show 'err'; close close,NO SYNTAX ERROR,,
-if x: try: x = 1; always: x = 0; close close,"line 1 col 19: a
-Expected any: fail, for, id, if, show, todo, try, while",,
 while ( ( (x) ) ): for i in range(x): if i: break; close close close,"line 1 col 50: ;
 Expected any: (, :, =, [",,
 fn nested(): fn inner(): close close,"line 1 col 14: f
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 for i in range(10): show i;," line 1 col 28: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 if x: show x; else: show y; close close," line 1 col 35: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 while x: if y: show y; close," line 1 col 29: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 if ( (1) ): show 1; else: show 0; close,"line 1 col 18: 1
 Expected any: id, str_literal",,
-try: x = 1; fail: x = 2; always: x = 3; close,NO SYNTAX ERROR,,
-fn call(): try: ret 1; fail: ret 0; close close,"line 1 col 17: r
-Expected any: for, id, if, show, todo, try, while",,
 if x == 'a': show 'a'; else: if x == 'b': show 'b'; else: show 'c'; close close,NO SYNTAX ERROR,,
 while (x < 10): x = x + 1; for i in range(x): show i; close close,NO SYNTAX ERROR,,
-try: todo; fail: show 'failed'; always: show 'done'; close,NO SYNTAX ERROR,,
 if ( (x > 0) and (x < 100) ): if (x % 2 == 0): show 'even'; close close,NO SYNTAX ERROR,,
 fn many(): if 1: close if 2: close if 3: close close," line 1 col 18: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 while (1): if (2): if (3): if (4): break; close close close close,"line 1 col 41: ;
 Expected any: (, :, =, [",,
-try: x = [1][0]; fail: todo; always: try: todo; fail: close close,"line 1 col 10: [
-Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str_literal, true",,
 if x: y = ( (1+1) ); close,NO SYNTAX ERROR,,
-fn check(a): try: ret a[0]; fail: ret null; close close,"line 1 col 19: r
-Expected any: for, id, if, show, todo, try, while",,
 show 'Complete';,NO SYNTAX ERROR,,
 show x;,NO SYNTAX ERROR,,
 show 'hello';,NO SYNTAX ERROR,,
@@ -3913,15 +3395,15 @@ Expected any: (, :, =, [",,
 while false: continue; close,"line 1 col 22: ;
 Expected any: (, :, =, [",,
 while x: while y: close close,"line 1 col 19: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 while x: for i in range(5): close close,"line 1 col 29: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 for i in range(10): show i; close,NO SYNTAX ERROR,,
 "for i in range(1, 10): show i; close",NO SYNTAX ERROR,,
 "for i in range(1, 10, 2): show i; close",NO SYNTAX ERROR,,
 "for i in range( ~10, 0 ): show i; close",NO SYNTAX ERROR,,
 "for i in range( (1 + 1), (10 / 2) ): close","line 1 col 38: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "for item in [1, 2, 3]: show item; close"," line 1 col 13: [
 Expected any: range",,
 for i in range(len(arr)): show arr[i]; close,"line 1 col 35: [
@@ -3929,7 +3411,7 @@ Expected any: ;",,
 while x > 0: x = x - 1; if x == 5: break; close close,"line 1 col 41: ;
 Expected any: (, :, =, [",,
 while x < 10: x = x + 1;,"line 1 col 25: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 while x < 10 show x; close,"line 1 col 14: s
 Expected any: !=, %, *, **, +, -, /, //, :, <, <=, ==, >, >=, and, or",,
 for i in range 10: close,"line 1 col 16: 1
@@ -3948,8 +3430,6 @@ while true: if x: break; close close,"line 1 col 24: ;
 Expected any: (, :, =, [",,
 for i in range(5): for j in range(5): show i + j; close close,"line 1 col 46: +
 Expected any: ;",,
-while x: try: x = read; fail: break; close close,"line 1 col 36: ;
-Expected any: (, :, =, [",,
 for i in range(10): if i % 2 == 0: continue; close show i; close,"line 1 col 44: ;
 Expected any: (, :, =, [",,
 while not found: if x == goal: found = true; close close,"line 1 col 11: f
@@ -3960,16 +3440,16 @@ Expected any: (, :, =, [",,
 for i in range(10): if true: if true: break; close close close," line 1 col 44: ;
 Expected any: (, :, =, [",,
 while x: x = x - 1; always: show x; close,"line 1 col 21: a
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 for i in range(5): x = 1; else: x = 0; close,"line 1 col 27: e
-Expected any: close, for, id, if, show, todo, try, while",,
+Expected any: close, for, id, if, show, todo, while",,
 while x < 10: todo; close,NO SYNTAX ERROR,,
 for i in range(5): todo; close,NO SYNTAX ERROR,,
 while ~5 < ~10: show 'never'; close,NO SYNTAX ERROR,,
 "for x in range(1, 2, 3, 4): close","line 1 col 23: ,
 Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",,
 while (1 + 1): close,"line 1 col 16: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 for i in []: show i; close," line 1 col 10: [
 Expected any: range",,
 while x: x = (x - 1); if (x == 0): break; close close,"line 1 col 41: ;
@@ -3977,33 +3457,31 @@ Expected any: (, :, =, [",,
 for i in range(10): show ( ( (i) ) ); close,"line 1 col 26: (
 Expected any: id, str_literal",,
 while ( ( (x) ) == ( (y) ) ): close,"line 1 col 31: c
-Expected any: for, id, if, show, todo, try, while",,
-for i in range(10): try: break; fail: close close,"line 1 col 31: ;
-Expected any: (, :, =, [",,
+Expected any: for, id, if, show, todo, while",,
 while true: if true: if true: if true: break; close close close close,"line 1 col 45: ;
 Expected any: (, :, =, [",,
 for i in range(5): for j in range(5): for k in range(5): break; close close close," line 1 col 63: ;
 Expected any: (, :, =, [",,
 fn main(): show 'hello'; close,"line 1 col 31: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 "fn add(a, b): ret a + b; close","line 1 col 15: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "fn compute(x, y): z = (x + y) * (x - y); ret z; close","line 1 col 54: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn nested_expr(a): ret ( (a + 1) / ( (a * 2) - 1 ) ); close,"line 1 col 20: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn no_params(): ret true; close,"line 1 col 17: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "fn logic(a, b): ret (a and b) or (not a); close","line 1 col 17: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn check(val): if (val == 0): ret 'zero'; close ret 'not zero'; close,"line 1 col 31: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn array_fun(arr): ret arr[0] + arr[1]; close,"line 1 col 20: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "fn mixed(a, b, c): x = a + (b * c); ret x; close"," line 1 col 49: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn recursive(n): if n <= 1: ret 1; close ret n * recursive(n-1); close," line 1 col 29: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "fn (a, b): ret a; close","line 1 col 4: (
 Expected any: id",,
 fn test : show 1; close,"line 1 col 9: :
@@ -4011,69 +3489,65 @@ Expected any: (",,
 fn test(): show 1;,"line 1 col 17: 1
 Expected any: id, str_literal",,
 fn a(): close fn b(): close fn c(): close," line 1 col 9: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn call_other(x): ret other(x) + 1; close," line 1 col 19: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "fn complex_p( (a), b ): close","line 1 col 15: (
 Expected any: ), id",,
 fn negative_ret(): ret ~10; close,"line 1 col 20: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn deep_p(a): ret ( ( ( ( ( (a) ) ) ) ) ); close,"line 1 col 15: r
-Expected any: for, id, if, show, todo, try, while",,
-fn try_fn(): try: x = 1/0; fail: ret 0; close close," line 1 col 34: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn loop_fn(n): for i in range(n): if i == 5: ret i; close close ret 0; close,"line 1 col 46: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn double_ret(x): if x: ret 1; close ret 0; close,"line 1 col 25: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "fn trailing_comma(a, b, ): close","line 1 col 25: )
 Expected any: id",,
 fn show_in_fn(): show 'hi'; close,"line 1 col 34: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn math(a): ret a ** 2 + (10 % 3); close," line 1 col 13: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn bool_test(x): ret (x == true) == (not false); close,"line 1 col 18: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn cast_fn(s): ret int(s) + float(s); close,"line 1 col 16: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "fn list_ret(): ret [1, 2, 3]; close"," line 1 col 16: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn matrix(m): ret m[0][0]; close,"line 1 col 15: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn long_name_test_123(): ret 1; close,"line 1 col 26: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn outer(): fn inner(): close close,"line 1 col 13: f
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn read_fn(): ret read; close,"line 1 col 15: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn multi_line(x): y = x + 1; z = y * 2; ret z / x; close,"line 1 col 57: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 "fn space_test ( a , b ) : close","line 1 col 27: c
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn todo_fn(): todo; close," line 1 col 26: <EOL>
-Expected any: fn, for, id, if, show, todo, try, while",,
-fn always_fn(): try: todo; always: ret 1; close close,"Unexpected token at line 1 col 28: a
-Expected any: fail, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 fn param_expr(x = 10): close," line 1 col 17: =
 Expected any: ), ,",,
 fn underscore_name(_x): ret _x; close,"line 1 col 25: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn huge_expr(): ret (1+(2+(3+(4+(5))))); close,"line 1 col 17: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn if_else_fn(x): if x: ret 1; else: ret 0; close close,"line 1 col 25: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn while_fn(): while true: ret 1; close close," line 1 col 28: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "fn string_cat(a, b): ret a + ' ' + b; close","line 1 col 22: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "fn nested_logic(a, b, c): ret (a or b) and (c or (not a)); close","line 1 col 27: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "fn op_prec(a, b): ret a + b * c / d ** e; close","line 1 col 19: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "fn many_args(a,b,c,d,e,f,g): ret g; close","line 1 col 30: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn paren_ret(): ret ( (1) ); close," line 1 col 17: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 x = 10;,NO SYNTAX ERROR,,
 x = ~10;,NO SYNTAX ERROR,,
 x = 10.5;,NO SYNTAX ERROR,,
@@ -4092,7 +3566,7 @@ x = y;,NO SYNTAX ERROR,,
 x = y = 10;,"line 1 col 7: =
 Expected any: !=, %, (, *, **, +, -, /, //, ;, <, <=, ==, >, >=, [, and, or",,
 10 = x;," line 1 col 1: 1
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 x + y = 10;,"line 1 col 3: +
 Expected any: (, :, =, [",,
 _varName = 5;,NO SYNTAX ERROR,,
@@ -4128,105 +3602,39 @@ Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",,
 x = ~5.5;,NO SYNTAX ERROR,,
 x = ( ( ( ( ( ( (null) ) ) ) ) ) );,NO SYNTAX ERROR,,
 x = fn_call();,NO SYNTAX ERROR,,
-try: x = 10 / 0; fail: show 'err'; close,NO SYNTAX ERROR,,
-try: x = 10; fail: x = 5; always: x = 0; close,NO SYNTAX ERROR,,
-try: todo; fail: show 'fail'; close,NO SYNTAX ERROR,,
-try: x = read; always: show 'done'; close,"line 1 col 16: a
-Expected any: fail, for, id, if, show, todo, try, while",,
-try: fail: close," line 1 col 6: f
-Expected any: for, id, if, show, todo, try, while",,
-try fail close,"line 1 col 5: f
-Expected any: :",,
-try: x = 1; fail: y = 2; always: z = 3; close,NO SYNTAX ERROR,,
-try: try: x = 1; fail: x = 0; close fail: show 'outer'; close,NO SYNTAX ERROR,,
-if x: try: x = read; fail: x = null; close close,NO SYNTAX ERROR,,
-try: if x: break; close fail: continue; close," line 1 col 17: ;
-Expected any: (, :, =, [",,
-try: x = 1; always: show 'exit'; fail: show 'err'; close," line 1 col 13: a
-Expected any: fail, for, id, if, show, todo, try, while",,
 fail: show 'err'; close," line 1 col 1: f
-Expected any: fn, for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 always: show 'done'; close,"line 1 col 1: a
-Expected any: fn, for, id, if, show, todo, try, while",,
-try: x = ( (1 + 1) ); fail: show ( ( ( 'error' ) ) ); close,"line 1 col 34: (
-Expected any: id, str_literal",,
-"try: x = [1, 2][10]; fail: show 'index error'; close","line 1 col 10: [
-Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str_literal, true",,
-fn test(): try: ret 1; fail: ret 0; close close,"line 1 col 17: r
-Expected any: for, id, if, show, todo, try, while",,
-try: x = 1; fail: try: x = 2; fail: x = 3; close close,NO SYNTAX ERROR,,
-try: x = 1; fail: x = 2; always: try: x = 3; fail: x = 4; close close,NO SYNTAX ERROR,,
-try: x = 1 / 0; fail: always: close," line 1 col 23: a
-Expected any: for, id, if, show, todo, try, while",,
-while true: try: x = read; fail: break; close close,"line 1 col 39: ;
-Expected any: (, :, =, [",,
-try: x = int('abc'); fail: show 'cast error'; close,NO SYNTAX ERROR,,
-try: x = ~10; fail: x = 10; close,NO SYNTAX ERROR,,
-try: for i in range(5): x = 1 / i; close fail: show 'div zero'; close,NO SYNTAX ERROR,,
-try: ( (x = 1) ); fail: close," line 1 col 6: (
-Expected any: for, id, if, show, todo, try, while",,
-try: x = (1 + 2) * (3 / 0); fail: show 'math'; always: todo; close,NO SYNTAX ERROR,,
-try: x = read; fail: if x == 'err': show x; close close,NO SYNTAX ERROR,,
-try: try: try: x = 1; fail: x = 2; close fail: x = 3; close fail: x = 4; close,NO SYNTAX ERROR,,
-try: x = y; fail: show 'undefined'; always: close,"line 1 col 45: c
-Expected any: for, id, if, show, todo, try, while",,
-try: ret true; fail: ret false; close,"line 1 col 6: r
-Expected any: for, id, if, show, todo, try, while",,
-try: x = 1 fail: x = 2 close,"line 1 col 12: f
-Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
-try: x = 1; fail: x = 2; always: x = 3;,"line 1 col 40: <EOL>
-Expected any: close, for, id, if, show, todo, try, while",,
-"try: x = [ [1], [2] ][5]; fail: show '2d error'; close","line 1 col 10: [
-Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str_literal, true",,
-try: x = fn_call(); fail: show 'call error'; close,NO SYNTAX ERROR,,
-if ( (true) ): try: todo; fail: todo; close close,NO SYNTAX ERROR,,
-try: x = 1; fail: x = 2; always: show 'fin'; close,NO SYNTAX ERROR,,
-try: try: x = 1; always: show 'a'; close always: show 'b'; close," line 1 col 18: a
-Expected any: fail, for, id, if, show, todo, try, while",,
-try: x = 1; fail: x = 2; always: x = 3; show x; close,NO SYNTAX ERROR,,
-try: while x: break; close fail: todo; close,"line 1 col 20: ;
-Expected any: (, :, =, [",,
-try: x = read; fail: x = 'fail'; close show x;,NO SYNTAX ERROR,,
-try: x = 1; fail: x = 2; always: x = 3; always: x = 4; close,"line 1 col 41: a
-Expected any: close, for, id, if, show, todo, try, while",,
-try: x = 1; fail: x = 2; fail: x = 3; close,"line 1 col 26: f
-Expected any: always, close, for, id, if, show, todo, try, while",,
-try: x = 1; always: x = 2; fail: x = 3; close,"line 1 col 13: a
-Expected any: fail, for, id, if, show, todo, try, while",,
-try: x = 1; x = 2; x = 3; fail: todo; close,NO SYNTAX ERROR,,
-try: x = ( ( ( ( ( 1 / 0 ) ) ) ) ); fail: show 'deep'; close,NO SYNTAX ERROR,,
-try: if (true): if (false): todo; close close fail: todo; close,NO SYNTAX ERROR,,
-fn f(): try: ret 1; always: show 'ok'; close close,"line 1 col 14: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: fn, for, id, if, show, todo, while",,
 show 'Batch 9 Complete';,NO SYNTAX ERROR,,
 fn fact(n): if n <= 1: ret 1; close ret n * fact(n - 1); close,"line 1 col 24: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 fn fib(n): if n <= 1: ret n; close ret fib(n-1) + fib(n-2); close,"line 1 col 23: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "x = [[1, 2], [3, 4]][0][1];"," line 1 col 5: [
 Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str_literal, true",,
 "x = [ [[1]], [[2]] ][0][0][0];"," line 1 col 5: [
 Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str_literal, true",,
 x = (arr[0][1]) + (arr[1][0]);,NO SYNTAX ERROR,,
 fn deep(n): if n > 0: ret deep(n - 1); close ret 0; close," line 1 col 23: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 matrix[0][0] = ( (1 + 1) * (2 / 2) );,NO SYNTAX ERROR,,
 "x = [ [ (1+1), (2+2) ], [ (3+3), (4+4) ] ];","line 1 col 5: [
 Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str_literal, true",,
 "fn search(m, target, r, c): ret m[r][c] == target; close","line 1 col 29: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 x = ( ( ( matrix[ (1-1) ][ (0*1) ] ) ) );,NO SYNTAX ERROR,,
 x = matrix [0] [1] [2] [3];,"line 1 col 20: [
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 "x = [ [ [] ], [ [] ] ];","line 1 col 5: [
 Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str_literal, true",,
 "fn power(a, b): if b == 0: ret 1; close ret a * power(a, b - 1); close","line 1 col 28: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 x = ( ( ( ( fact(5) ) + ( fib(5) ) ) ) );,NO SYNTAX ERROR,,
 "x = [1, 2][ ( ( ( (0) ) ) ) ];"," line 1 col 5: [
 Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str_literal, true",,
 fn nested_call(x): ret fn_a(fn_b(fn_c(x))); close," line 1 col 20: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "x = [ [ ( (1) ) ], [ ( (2) ) ] ][0][0];"," line 1 col 5: [
 Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str_literal, true",,
 if ( (matrix[0][0]) > ( (10) ) ): todo; close,NO SYNTAX ERROR,,
@@ -4234,7 +3642,7 @@ x = matrix[0]; y = x[1];,NO SYNTAX ERROR,,
 "x = [1, 2, 3][ ( (1+1) ) ] * ~5;","line 1 col 5: [
 Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str_literal, true",,
 fn mutual_a(x): ret mutual_b(x); close fn mutual_b(x): ret mutual_a(x); close,"line 1 col 17: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 x = [ [ ( ( ( (1) ) ) ) ] ];,"line 1 col 5: [
 Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str_literal, true",,
 matrix[0][0] = matrix[1][1] = 0;,"line 1 col 29: =
@@ -4250,7 +3658,7 @@ Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str
 x = ( (1 + 1) ) [0];," line 1 col 17: [
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 fn crash(n): ret n + ( ( ( ( ( ( ( crash(n-1) ) ) ) ) ) ) ); close," line 1 col 14: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 x = matrix[ ( (1) ) ][ ( ( (2) ) ) ][ ( ( ( (3) ) ) ) ];,"line 1 col 37: [
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 show matrix[0][0] + ( (10 * 2) );,"line 1 col 12: [
@@ -4261,8 +3669,7 @@ Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str
 x = x[0][0][0][0][0][0];,"Unexpected token at line 1 col 12: [
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 fn complicated(x): ret ( (x[0][0]) * ( ( ( (x[1][1]) ) ) ) ); close," line 1 col 20: r
-Expected any: for, id, if, show, todo, try, while",,
-try: x = matrix[99][99]; fail: show 'out'; close,NO SYNTAX ERROR,,
+Expected any: for, id, if, show, todo, while",,
 x = ( ( ( ( ( ( ( ( ( ( ( 1 ) ) ) ) ) ) ) ) ) ) );,NO SYNTAX ERROR,,
 "fn_call(matrix[0][0], matrix[0][1]);",NO SYNTAX ERROR,,
 x = (1 + 1) * matrix[ ( (0) ) ][ ( (1) ) ];,NO SYNTAX ERROR,,
@@ -4270,14 +3677,12 @@ x = (1 + 1) * matrix[ ( (0) ) ][ ( (1) ) ];,NO SYNTAX ERROR,,
 Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str_literal, true",,
 x = matrix[ ( ( ( (1+1)*2 ) ) ) ][0];,NO SYNTAX ERROR,,
 fn r(x): if x: ret r(x-1); close close,"line 1 col 16: r
-Expected any: for, id, if, show, todo, try, while",,
+Expected any: for, id, if, show, todo, while",,
 "x = [ [1], [2] ] [ ( (1) ) ] [ ( (0) ) ];","line 1 col 5: [
 Expected any: !, (, false, float, float_literal, id, int, int_literal, read, str_literal, true",,
 show ( ( ( ( ( matrix[0][0] ) ) ) ) );," line 1 col 6: (
 Expected any: id, str_literal",,
 x = matrix[ ( ( ( ( ( ( ( ( ( ( 0 ) ) ) ) ) ) ) ) ) ) ];,NO SYNTAX ERROR,,
-try: ret fact(10); fail: ret ~1; close,"line 1 col 6: r
-Expected any: for, id, if, show, todo, try, while",,
 show 'ALL 600 TEST CASES COMPLETED';,NO SYNTAX ERROR,,
 "### Demo program that exercises (almost) every statement form in the grammar. ###
 
@@ -4287,21 +3692,6 @@ fn add_mul(a, b):
     prod = a * b;
     show 'inside add_mul';
     ret sum + prod;
-close
-
-fn safe_div(n, d):
-    # try / fail / always ... close
-    try:
-        q = n / d;
-        show 'try ok';
-    fail:
-        q = 0;
-        show 'fail ran';
-    always:
-        show 'always ran';
-    close
-
-    ret q;
 close
 
 #  Top-level general statements (program requires these) 
@@ -4367,3 +3757,60 @@ close
 
 # todo ;
 todo;",NO SYNTAX ERROR,,
+a:[1][2]=[[]];  ,NO SYNTAX ERROR ,,
+a:[2][2]=[[]];  ,NO SYNTAX ERROR ,,
+"a:[false][2]=[[]]; 
+ ",NO SYNTAX ERROR ,,
+a:[0][2]=[[]];  ,NO SYNTAX ERROR ,,
+a:[02][2]=[[]];  ,NO SYNTAX ERROR ,,
+a:[~02][2]=[[]]; ,NO SYNTAX ERROR ,,
+a:[~02.5][2]=[[]]; ,NO SYNTAX ERROR ,,
+"ARR:[2][4]=[
+[]
+[]
+]","Unexpected token in two_d_element_list at line 3 col 1: [
+Expected any: ,, ] ",,
+"ARR:[2][4]=[
+[],
+[]
+]","Unexpected token in general_statement at line 4 col 2: EOF
+Expected any: ;",,
+"ARR:[2][4]=[
+[],
+[]
+]; ",NO SYNTAX ERROR ,,
+"ARR:[2][4]=[
+[[]],
+[]
+]; ","Unexpected token in two_d_inner_element_list at line 2 col 2: [
+Expected any: !, (, ], false, float, float_literal, id, int, int_literal, str_literal, true ",,
+"ARR:[2][4]=[
+[A],
+[A]
+];",NO SYNTAX ERROR ,,
+"ARR:[2][4]=[
+[A],
+[A],[a-v]; 
+];","Unexpected token in two_d_element_list at line 3 col 10: ;
+Expected any: ,, ]",,
+"ARR:[2][4]=[
+[A],
+[A],[a-v]
+];",NO SYNTAX ERROR ,,
+ARR:[2][4]; ,"Unexpected token in two_d_array_init at line 1 col 11: ;
+Expected any: = ",,
+ARR:[2][4]=12; ,"Unexpected token in two_d_array_init at line 1 col 12: int_literal
+Expected any: [",,
+ARR:[2][4]=[12]; ,"Unexpected token in two_d_array_init at line 1 col 13: int_literal
+Expected any: [, ]",,
+ARR:[2][4]=[[12];,"Unexpected token in two_d_element_list at line 1 col 17: ;
+Expected any: ,, ]",,
+"ARR:[2][4]=[[12, ]; ","Unexpected token in array_element at line 1 col 18: ]
+Expected any: !, (, false, float, float_literal, id, int, int_literal, str_literal, true",,
+"ARR:[2][4]=[[12,! ];","Unexpected token in operand at line 1 col 19: ]
+Expected any: !, (, false, float, float_literal, id, int, int_literal, str_literal, true",,
+"ARR:[2][4]=[[12,!a]; ","Unexpected token in two_d_element_list at line 1 col 20: ;
+Expected any: ,, ]",,
+"ARR:[2][4]=[[12,!a]];",NO SYNTAX ERROR ,,
+"_ARR:[2][4]=[[12,!a]]; ",NO SYNTAX ERROR ,,
+"a':[2][4]=[[12,!a]]; ","Expected any: fn, for, id, if, show, todo, while",,

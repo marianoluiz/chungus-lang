@@ -146,7 +146,7 @@ BOOL_COERCIBLE = {TY_INT, TY_FLOAT, TY_BOOL, TY_STRING}
 ```
 
 ### Keywords and Operators
-**Keywords**: `fn`, `ret`, `if`, `elif`, `else`, `close`, `while`, `for`, `try`, `fail`, `always`, `read`, `show`, `todo`, `true`, `false`
+**Keywords**: `fn`, `ret`, `if`, `elif`, `else`, `close`, `while`, `for`, `read`, `show`, `todo`, `true`, `false`
 
 **Arithmetic**: `+`, `-`, `*`, `/`, `//`, `%`, `**` (power)
 **Comparison**: `<`, `>`, `<=`, `>=`, `==`, `!=`
@@ -163,8 +163,7 @@ BOOL_COERCIBLE = {TY_INT, TY_FLOAT, TY_BOOL, TY_STRING}
 5. **Function Call**: `result = foo(1, 2);`, `bar();`
 6. **Output**: `show id;` or `show 'str_literal';`
 7. **Control Flow**: `if`, `elif`, `else`, `while`, `for`
-8. **Error Handling**: `try`, `fail`, `always`
-9. **Todo**: `todo "implement feature";`
+8. **Todo**: `todo "implement feature";`
 
 ### Grammar Highlights (from cfg_lark)
 - Program starts with optional function definitions, followed by main statements

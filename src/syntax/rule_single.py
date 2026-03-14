@@ -54,7 +54,6 @@ class SingleStmtRules:
             -> id <id_statement_tail> ;
             -> <output_statement> ;
             -> <control_structure_block>
-            -> <error_handling_block>
             -> <todo_statement> ;
         ```
 
@@ -92,11 +91,6 @@ class SingleStmtRules:
         # looping (for / while ... close)
         elif self._match('for', 'while'):
             node = self._looping_block()
-            return ASTNode('general_statement', children=[node])
-
-        # error handling (try / fail / always ... close)
-        elif self._match('try'):
-            node = self._error_handling_statement()
             return ASTNode('general_statement', children=[node])
 
         # todo

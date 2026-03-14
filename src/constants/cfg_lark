@@ -31,7 +31,6 @@ local_statement_tail: general_statement local_statement_tail
 general_statement: ID id_statement_tail ";"
                  | output_statement ";"
                  | control_structure_statement
-                 | error_handling_statement
                  | todo_statement ";"
 
 general_statement_tail: general_statement general_statement_tail
@@ -172,18 +171,6 @@ range_tail_2: "," expr
 while_statement: WHILE condition ":" local_statement CLOSE
 
 
-// ─────────── ERROR HANDLING ───────────
-
-error_handling_statement: try_block fail_block error_handling_tail CLOSE
-
-try_block: TRY ":" local_statement
-fail_block: FAIL ":" local_statement
-
-error_handling_tail: always_block
-                   | 
-
-always_block: ALWAYS ":" local_statement
-
 // ─────────── TODO ───────────
 
 todo_statement: TODO
@@ -209,10 +196,6 @@ RANGE: /range(?![a-zA-Z0-9_])/
 FN: /fn(?![a-zA-Z0-9_])/
 RET: /ret(?![a-zA-Z0-9_])/
 
-TRY: /try(?![a-zA-Z0-9_])/
-FAIL: /fail(?![a-zA-Z0-9_])/
-ALWAYS: /always(?![a-zA-Z0-9_])/
-
 TODO: /todo(?![a-zA-Z0-9_])/
 
 INT: /int(?![a-zA-Z0-9_])/
@@ -232,7 +215,7 @@ LT: "<"
 GE: ">="
 LE: "<="
 
-ID: /(?!(and|or|true|false|read|show|if|elif|else|while|for|in|range|fn|ret|try|fail|always|todo|int|float|close)\b)[a-zA-Z_][a-zA-Z0-9_]*/
+ID: /(?!(and|or|true|false|read|show|if|elif|else|while|for|in|range|fn|ret|todo|int|float|close)\b)[a-zA-Z_][a-zA-Z0-9_]*/
 INT_LITERAL: /~?[0-9]+/
 FLOAT_LITERAL: /~?[0-9]+\.[0-9]+/
 STR_LITERAL: /'([^'\\]|\\.)*'/

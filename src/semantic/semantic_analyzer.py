@@ -876,8 +876,7 @@ class SemanticAnalyzer:
         
         # Don't recurse into control structures (while, if, for, etc.)
         # Those contain local variables which are declared in pass 2
-        elif node.kind in ["while", "for", "if", "elif", "else", "conditional_block", 
-                          "error_handling", "try", "fail", "always"]:
+        elif node.kind in ["while", "for", "if", "elif", "else", "conditional_block"]:
             return
         
         # Recurse for other node types to find nested functions/declarations
@@ -1033,23 +1032,6 @@ class SemanticAnalyzer:
             for child in node.children:
                 self._type_check(child)
             
-            self._symbol_table.exit_scope()
-            return None
-
-        elif node.kind == "error_handling":
-            # error_handling: children=[try_node, fail_node, always_node]
-            for child in node.children:
-                self._type_check(child)
-            return None
-
-        elif node.kind in ["try", "fail", "always"]:
-            # Enter block scope
-            self._symbol_table.enter_scope()
-
-            # Type check block body
-            for child in node.children:
-                self._type_check(child)
-
             self._symbol_table.exit_scope()
             return None
 
