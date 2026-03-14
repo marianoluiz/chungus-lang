@@ -1,0 +1,77 @@
+# memtest6_combined.chg
+#
+# TARGET LEAK: Combined stress test across all leak patterns in nested/loop contexts.
+#
+# Covers:
+#   A) String literals as binary op operands (leak per expression)
+#   B) String literals in if conditions inside loops (leak per iteration)
+#   C) Type-cast with string inside a loop (leak per iteration)
+#   D) Variable vs string-literal comparison in while loop (leak per iteration)
+#   E) Reassignment and scope cleanup (should NOT leak -- verifies correct cases)
+
+# --- A: Repeated string-operand arithmetic ---
+# Each expression leaks the string ChValues passed to ch_add/ch_eq
+p = 'foo' + 'bar';
+show p;
+
+q = 'one' == 'two';
+show q;
+
+r = 'x' != 'y';
+show r;
+
+# --- B: String literal in if condition inside a loop ---
+# 6 iterations x 1 ch_str("always") per if condition = 6 leaks
+hits = 0;
+for i in range(6):
+    if 'always':
+        hits = hits + 1;
+    close
+close
+show hits;
+
+# --- C: Type-cast with string literal inside a loop ---
+# 8 iterations x 1 ch_str("1") per int() call = 8 leaks
+acc = 0;
+for j in range(8):
+    acc = acc + int('1');
+close
+show acc;
+
+# --- D: Variable vs string-literal comparison in a while loop ---
+# Each iteration evaluates ch_str("go") for the ch_eq call = 5 leaks
+step = 0;
+mode = 'go';
+while mode == 'go':
+    step = step + 1;
+    if step >= 5:
+        mode = 'stop';
+    close
+close
+show step;
+
+# --- E: Correct cases (should be CLEAN -- no leaks) ---
+# Variable assignment and reassignment with proper scope cleanup
+s = 'hello';
+show s;
+s = 'world';
+show s;
+s = 'final';
+show s;
+
+# Array init and element access via assigned variable (safe)
+nums : [3] = [10, 20, 30];
+n0 = nums[0];
+show n0;
+n1 = nums[1];
+show n1;
+n2 = nums[2];
+show n2;
+
+# Function with string return assigned to variable (safe)
+fn make_label():
+    ret 'label';
+close
+
+lbl = make_label();
+show lbl;

@@ -1,0 +1,65 @@
+# memtest4_func_inline.chg
+#
+# TARGET LEAK: Function return values used *inline* (not assigned to a variable).
+#
+# How it leaks:
+#   Functions that return strings give the caller an owned copy (via ch_copy).
+#   When the return value is used inline in a condition or as an
+#   operand, the ChValue is passed by value to ch_to_bool() / ch_eq() / etc.
+#   Those runtime functions only read the value; they never free it.
+#   The heap-allocated char* inside the by-value copy is lost forever.
+#
+# Counter-examples:
+#   show get_tag();       -- SAFE (codegen wraps in temp + ch_free)
+#   v = get_tag();        -- SAFE (stored in owned variable)
+
+fn get_tag():
+    ret 'active';
+close
+
+fn get_greeting():
+    ret 'hello';
+close
+
+# --- SAFE: return value stored in owned variable, no leak ---
+tag = get_tag();
+show tag;
+
+# --- SAFE: show with function call, codegen creates temp + ch_free ---
+show get_tag();
+
+# --- LEAK: string return used inline as if condition ---
+# Generated: if (ch_to_bool(get_tag())) -- char* from returned copy leaked
+if get_tag():
+    show 'if branch ok';
+close
+
+# --- LEAK: string return used inline as elif condition ---
+y = 0;
+if y == 99:
+    show 'no';
+elif get_tag():
+    show 'elif branch ok';
+else:
+    show 'else';
+close
+
+# --- LEAK: string return used as operand in binary op ---
+# Generated: ch_add(get_tag(), ch_int(0)) -- string ChValue leaked in ch_add
+result = get_tag() + 0;
+show result;
+
+# --- LEAK: two string-returning calls as operands ---
+# Generated: ch_eq(get_tag(), get_greeting()) -- both string ChValues leaked
+eq = get_tag() == get_greeting();
+show eq;
+
+# --- LEAK: string return in loop body condition (3 leaks total) ---
+# for loop terminates; each body iteration leaks one string from get_tag()
+total = 0;
+for i in range(3):
+    if get_tag():
+        total = total + 1;
+    close
+close
+show total;

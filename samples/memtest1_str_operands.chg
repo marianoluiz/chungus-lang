@@ -1,0 +1,52 @@
+# memtest1_str_operands.chg
+#
+# TARGET LEAK: String literals passed as operands to arithmetic / comparison ops.
+#
+# How it leaks:
+#   ch_add(ch_str("hello"), ch_str("world"))
+#   Both ch_str() calls invoke strdup(). The ChValue structs are passed *by value*
+#   into ch_add(), which only calls ch_to_number() on them. The heap-allocated
+#   char* inside each by-value copy is never freed.
+#
+# Each line below with a string literal operand leaks one strdup per string literal.
+
+# --- arithmetic ops ---
+a = 'hello' + 'world';
+show a;
+
+b = 'abc' - 'xyz';
+show b;
+
+c = 'test' * 'other';
+show c;
+
+d = 'value' + 0;
+show d;
+
+# --- comparison ops (both sides coerce to number) ---
+e = 'non-empty' == 'non-empty';
+show e;
+
+f = 'alpha' != 'beta';
+show f;
+
+g = 'x' > 'y';
+show g;
+
+h = 'p' < 'q';
+show h;
+
+# --- logical ops with string operands ---
+i = 'truthy' and 'also-truthy';
+show i;
+
+j = 'val' or 'other';
+show j;
+
+k = ! 'something';
+show k;
+
+# --- chained ops: each string literal in the chain leaks ---
+m = 'a' + 'b' + 'c';
+show m;
+

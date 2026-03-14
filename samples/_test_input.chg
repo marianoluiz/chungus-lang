@@ -1,0 +1,1 @@
+x = 9; if x == 3: y = 1; show y; elif x == 4: y = 2; show y; else: y = 3; show y; close

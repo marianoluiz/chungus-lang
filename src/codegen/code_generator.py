@@ -282,6 +282,16 @@ class CodeGenerator:
         temp = f"_t{self._temp_counter}"
         self._temp_counter += 1
         return temp
+
+    def _owned_expr_code(self, node: Optional[ASTNode], expr_code: str) -> str:
+        """Return expression code that is safe to free by caller.
+
+        Plain identifiers borrow storage from variables. If we need an owned
+        temporary that will be freed, wrap ids with ch_copy(...).
+        """
+        if node is not None and node.kind == "id":
+            return f"ch_copy({expr_code})"
+        return expr_code
     
     # ==================== LITERAL VISITORS ====================
     
@@ -356,6 +366,7 @@ class CodeGenerator:
                 self._emit(f"ChValue {var_name} = ch_copy({rhs_code});")
             else:
                 self._emit(f"ChValue {var_name} = {rhs_code};")
+
             self._declare_scoped_var(var_name)
         else:
             # Reassignment: evaluate RHS first, then replace old value.
@@ -364,6 +375,7 @@ class CodeGenerator:
                 self._emit(f"ChValue {rhs_tmp} = ch_copy({rhs_code});")
             else:
                 self._emit(f"ChValue {rhs_tmp} = {rhs_code};")
+
             self._emit(f"ch_free(&{var_name});")
             self._emit(f"{var_name} = {rhs_tmp};")
 
@@ -619,11 +631,31 @@ class CodeGenerator:
     
     def _visit_binary_op(self, node: ASTNode, op: str, func: str) -> str:
         """Helper for binary operations."""
-        left_code = self._visit(node.children[0]) if node.children else "ch_int(0)"
-        right_code = self._visit(node.children[1]) if len(node.children) > 1 else "ch_int(0)"
+        left_node = node.children[0] if node.children else None
+        right_node = node.children[1] if len(node.children) > 1 else None
 
-        # it would be something like ch_add(_ , _)
-        return f"{func}({left_code}, {right_code})"
+        left_code = self._visit(left_node) if left_node else "ch_int(0)"
+        right_code = self._visit(right_node) if right_node else "ch_int(0)"
+
+        left_owned = self._owned_expr_code(left_node, left_code)
+        right_owned = self._owned_expr_code(right_node, right_code)
+
+        ltmp = self._gen_temp() + "_lhs"
+        rtmp = self._gen_temp() + "_rhs"
+        otmp = self._gen_temp() + "_op"
+
+        # Use statement-expression so this stays an expression visitor and
+        # does not inject standalone statements (important for while/else-if).
+        return (
+            "({ "
+            f"ChValue {ltmp} = {left_owned}; "
+            f"ChValue {rtmp} = {right_owned}; "
+            f"ChValue {otmp} = {func}({ltmp}, {rtmp}); "
+            f"ch_free(&{ltmp}); "
+            f"ch_free(&{rtmp}); "
+            f"{otmp}; "
+            "})"
+        )
     
     # Arithmetic operators
     def _visit_add(self, node: ASTNode) -> str:
@@ -690,8 +722,20 @@ class CodeGenerator:
     
     def _visit_not(self, node: ASTNode) -> str:
         """Generate code for logical NOT (!)."""
-        operand_code = self._visit(node.children[0]) if node.children else "ch_bool(false)"
-        return f"ch_not({operand_code})"
+        operand_node = node.children[0] if node.children else None
+        operand_code = self._visit(operand_node) if operand_node else "ch_bool(false)"
+        operand_owned = self._owned_expr_code(operand_node, operand_code)
+
+        otmp = self._gen_temp() + "_notv"
+        rtmp = self._gen_temp() + "_notr"
+        return (
+            "({ "
+            f"ChValue {otmp} = {operand_owned}; "
+            f"ChValue {rtmp} = ch_not({otmp}); "
+            f"ch_free(&{otmp}); "
+            f"{rtmp}; "
+            "})"
+        )
     
     # ==================== OUTPUT VISITOR ====================
 

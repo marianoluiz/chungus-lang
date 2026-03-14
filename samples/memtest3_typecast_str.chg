@@ -1,0 +1,42 @@
+# memtest3_typecast_str.chg
+#
+# TARGET LEAK: int() / float() type-cast with a string literal argument.
+#
+# How it leaks:
+#   int('42')  ->  ch_int((int64_t)ch_to_number(ch_str("42")))
+#   ch_str("42") allocates via strdup. The ChValue is passed inline to
+#   ch_to_number(), which reads the pointer and returns. The heap-allocated
+#   char* is never freed.
+#
+# Every cast-with-string-literal below leaks exactly one strdup.
+
+# --- basic int cast from string literal ---
+a = int('42');
+show a;
+
+# --- basic float cast from string literal ---
+b = float('3');
+show b;
+
+# --- cast used in arithmetic: two literals each leak ---
+c = int('10') + int('20');
+show c;
+
+d = float('5') + float('5');
+show d;
+
+# --- nested casts: each string literal leaks independently ---
+e = int(float('7'));
+show e;
+
+# --- cast result used in comparison ---
+f = int('100') > int('99');
+show f;
+
+# --- cast in loop: leaks once per iteration (5 leaks total) ---
+total = 0;
+for i in range(5):
+    total = total + int('1');
+close
+show total;
+

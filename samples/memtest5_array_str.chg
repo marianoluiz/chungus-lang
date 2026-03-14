@@ -1,0 +1,64 @@
+# memtest5_array_str.chg
+#
+# TARGET LEAK: Array elements that are strings, used in expressions.
+#
+# How it leaks:
+#   ch_array_get_1d / ch_array_get_2d return ch_copy() of the stored element.
+#   When that copy is passed *inline* as an operand to a runtime function
+#   (e.g. ch_add, ch_eq), the copy's char* is never freed:
+#
+#     ch_add(ch_array_get_1d(arr, 0), ch_array_get_1d(arr, 1))
+#          ^-- copy returned, leaked inside ch_add
+#
+# Contrast: show arr[0]; is SAFE because the codegen assigns it to a temp
+# and calls ch_free(&temp).
+
+# --- 1D array of string elements ---
+arr : [4] = ['alpha', 'beta', 'gamma', 'delta'];
+
+# SAFE: show array element via temp variable (assign first, then show)
+_t0 = arr[0];
+show _t0;
+_t1 = arr[1];
+show _t1;
+
+# SAFE: assign element to variable (codegen issues ch_copy into variable)
+first = arr[0];
+show first;
+
+# LEAK: two ch_array_get_1d calls passed inline to ch_add
+#   ch_add gets two copied string ChValues; both leaked inside ch_add
+sum_strs = arr[0] + arr[1];
+show sum_strs;
+
+# LEAK: element vs literal comparison
+#   ch_eq(ch_array_get_1d(arr, 2), ch_str("gamma")) -- both leaked in ch_eq
+found = arr[2] == 'gamma';
+show found;
+
+# LEAK: three elements in chained op -- two intermediate copies leaked
+chain = arr[0] + arr[1] + arr[2];
+show chain;
+
+# --- 2D array of string elements ---
+mat : [2][2] = [['r0c0', 'r0c1'], ['r1c0', 'r1c1']];
+
+# SAFE: assign then show 2D element
+_m00 = mat[0][0];
+show _m00;
+
+# LEAK: two ch_array_get_2d calls inline in comparison
+match_val = mat[0][0] == mat[1][1];
+show match_val;
+
+# LEAK: element in arithmetic op with another element
+combo = mat[0][1] + mat[1][0];
+show combo;
+
+# --- loop with per-iteration array element leak ---
+# Each iteration: ch_array_get_1d passed inline to ch_add -- copy leaked
+total = 0;
+for i in range(4):
+    total = total + arr[i];
+close
+show total;

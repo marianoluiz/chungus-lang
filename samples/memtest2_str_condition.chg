@@ -1,0 +1,51 @@
+# memtest2_str_condition.chg
+#
+# TARGET LEAK: String expressions in control-flow conditions.
+#
+# How it leaks:
+#   if (ch_to_bool(ch_str("non-empty"))) -- leaked once
+#   while (ch_to_bool(ch_eq(flag, ch_str("run")))) -- leaked per iteration
+#   ch_str() allocates via strdup; the ChValue is passed by value to ch_to_bool()
+#   or a comparison fn. The char* inside the by-value copy is never freed.
+
+# --- if with string literal condition (1 leak) ---
+cond_taken = 1;
+if 'non-empty':
+    show cond_taken;
+close
+
+# --- elif with string literal condition (1 leak) ---
+x = 0;
+if_no = 2;
+elif_yes = 3;
+if x == 99:
+    show if_no;
+elif 'still-truthy':
+    show elif_yes;
+else:
+    show if_no;
+close
+
+# --- while: string literal in condition leaks once per iteration ---
+# Loop runs 5 times; each pass evaluates ch_str("run") inside ch_eq
+count = 0;
+flag = 'run';
+while flag == 'run':
+    count = count + 1;
+    if count >= 5:
+        flag = 'stop';
+    close
+close
+show count;
+
+# --- while: different string literal per-iteration leak ---
+total = 0;
+marker = 'active';
+while marker == 'active':
+    total = total + 1;
+    if total >= 4:
+        marker = 'done';
+    close
+close
+show total;
+

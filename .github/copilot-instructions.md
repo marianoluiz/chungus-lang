@@ -171,7 +171,7 @@ BOOL_COERCIBLE = {TY_INT, TY_FLOAT, TY_BOOL, TY_STRING}
 - Return statements: `ret expr;`
 - Arrays: 1D `x:[size]` or 2D `x:[rows][cols]`
 - Expressions support precedence and associativity
-- Comments: `// single line` and `/* multi-line */`
+- Comments: `# single line` and `### multi-line ###`
 
 
 ## Coding Conventions
