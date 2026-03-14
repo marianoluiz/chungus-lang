@@ -65,7 +65,16 @@ This will:
   - `range(start, stop)`
   - `range(start, stop, step)`
 - `range(..., step=0)` is guarded at runtime with an error message.
-- GUI execution has a timeout for long-running programs and reports partial output on timeout.
+- Booleans print as lowercase `true` / `false`.
+- Functions and function calls are supported in codegen (including parameters and optional trailing `ret`).
+- Arrays are supported in codegen:
+  - 1D: `arr : [n] = [...]`
+  - 2D: `mat : [r][c] = [[...], [...]]`
+  - Missing initializer values default to `0`.
+- Runtime array validation:
+  - Array size and index conversion is fail-fast (invalid values terminate execution).
+  - Bounds violations in `get/set` print runtime errors; `get` returns safe `0`, `set` is ignored.
+- GUI execution has both timeout and output-size guards for long-running/noisy programs and reports partial output.
 
 ### Individual Phase CLIs
 

@@ -293,9 +293,8 @@ def codegen_adapter(source: str, stdin_data=None):
             return tokens, errors
 
         if proc.returncode != 0:
-            errors.append("Runtime Error:")
             if not stderr_text:
-                errors.append(f"Process exited with code {proc.returncode}")
+                errors.append(f"Runtime Error: Process exited with code {proc.returncode}")
             return tokens, errors
         
         # Clean up executable after running (keep C file)

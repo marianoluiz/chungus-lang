@@ -157,9 +157,12 @@ def main():
             cwd=exe_file.parent
         )
     except subprocess.CalledProcessError as e:
-        print("\n✗ RUNTIME ERROR:")
+        # Runtime already writes concrete errors to stderr/stdout live.
+        # Avoid printing another generic error header that looks duplicated.
         if e.stderr:
             print(e.stderr, file=sys.stderr)
+        else:
+            print(f"\n✗ Program exited with code {e.returncode}")
         # Clean up executable
         # exe_file.unlink(missing_ok=True)
         sys.exit(e.returncode)

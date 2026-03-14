@@ -62,8 +62,8 @@ The CHUNGUS C runtime library has been successfully implemented and tested. It p
 **Result**: Always returns bool after numeric promotion
 
 ### ✅ Logical Operations
-- [x] AND (`&`)
-- [x] OR (`|`)
+- [x] AND (`and`)
+- [x] OR (`or`)
 - [x] NOT (`!`)
 
 **Result**: Always returns bool after boolean promotion
@@ -128,9 +128,11 @@ ch_add(ch_int(5), ch_bool(true))  → [int] 6
 ch_add(ch_bool(true), ch_bool(true)) → [int] 2
 ```
 
-## Next Steps for Code Generation
+## Codegen Integration
 
-The runtime is ready! To generate C code from CHUNGUS AST:
+The runtime is integrated into the CHUNGUS codegen pipeline. C output is generated and compiled in the full pipeline.
+
+When generating/maintaining C code from CHUNGUS AST:
 
 1. **Include runtime header**:
    ```c
@@ -168,7 +170,9 @@ The runtime is ready! To generate C code from CHUNGUS AST:
 
 ## Memory Safety Features
 
-✅ All array accesses are bounds-checked
+✅ Array size/index validation helpers are runtime-checked (`ch_to_array_size_checked`, `ch_to_index_checked`)
+✅ Invalid array size/index conversion is fail-fast (runtime error + process exit)
+✅ Array accesses are bounds-checked
 ✅ Division by zero is detected and handled
 ✅ Null pointer checks on string operations
 ✅ Deep copying prevents aliasing issues
@@ -176,6 +180,4 @@ The runtime is ready! To generate C code from CHUNGUS AST:
 
 ---
 
-**Status**: Runtime library is production-ready! 🎉
-
-Ready to implement the code generator that uses this runtime.
+**Status**: Runtime library is integrated with the code generator and in active use. 🎉

@@ -448,6 +448,161 @@ class CodeGenerator:
             return
 
         self._visit(stmt)
+
+    # ==================== ARRAY VISITORS ====================
+
+    def _visit_array_1d_init(self, node: ASTNode) -> None:
+        """Generate code for 1D array initialization.
+
+        AST shape:
+          array_1d_init(value=arr_name, children=[size_node, elem1, elem2, ...])
+        """
+        arr_name = node.value
+        if not arr_name or not node.children:
+            return
+
+        size_node = node.children[0]
+        size_expr = size_node.children[0] if (size_node.kind == "size" and size_node.children) else None
+        if size_expr is None:
+            # fallback safety: create size 0 if malformed AST
+            size_code = "ch_int(0)"
+        else:
+            size_code = self._visit(size_expr)
+
+        size_tmp = self._gen_temp() + "_size"
+        self._emit(f"ChValue {size_tmp} = {size_code};")
+        self._emit(f"ChValue {arr_name} = ch_array_1d(ch_to_array_size_checked({size_tmp}, \"array size\"));")
+        self._emit(f"ch_free(&{size_tmp});")
+        self._declare_scoped_var(arr_name)
+
+        # Initialize provided elements; missing ones remain 0 by runtime constructor.
+        for i, elem_node in enumerate(node.children[1:]):
+            elem_code = self._visit(elem_node)
+            elem_tmp = self._gen_temp() + "_elem"
+
+            if elem_node.kind == "id":
+                self._emit(f"ChValue {elem_tmp} = ch_copy({elem_code});")
+            else:
+                self._emit(f"ChValue {elem_tmp} = {elem_code};")
+
+            self._emit(f"ch_array_set_1d(&{arr_name}, {i}, {elem_tmp});")
+            self._emit(f"ch_free(&{elem_tmp});")
+
+    def _visit_array_2d_init(self, node: ASTNode) -> None:
+        """Generate code for 2D array initialization.
+
+        AST shape:
+          array_2d_init(value=arr_name, children=[size_node, array_row, array_row, ...])
+        """
+        arr_name = node.value
+        if not arr_name or not node.children:
+            return
+
+        size_node = node.children[0]
+        row_expr = None
+        col_expr = None
+        if size_node.kind == "size" and len(size_node.children) >= 2:
+            row_expr = size_node.children[0]
+            col_expr = size_node.children[1]
+
+        row_code = self._visit(row_expr) if row_expr else "ch_int(0)"
+        col_code = self._visit(col_expr) if col_expr else "ch_int(0)"
+
+        row_tmp = self._gen_temp() + "_rows"
+        col_tmp = self._gen_temp() + "_cols"
+
+        self._emit(f"ChValue {row_tmp} = {row_code};")
+        self._emit(f"ChValue {col_tmp} = {col_code};")
+        self._emit(
+            f"ChValue {arr_name} = ch_array_2d(" 
+            f"ch_to_array_size_checked({row_tmp}, \"array row size\"), "
+            f"ch_to_array_size_checked({col_tmp}, \"array column size\"));"
+        )
+        self._emit(f"ch_free(&{row_tmp});")
+        self._emit(f"ch_free(&{col_tmp});")
+        self._declare_scoped_var(arr_name)
+
+        # Initialize provided rows/cols; missing cells remain 0 by constructor.
+        for r, row_node in enumerate(node.children[1:]):
+            if row_node.kind != "array_row":
+                continue
+            for c, elem_node in enumerate(row_node.children):
+                elem_code = self._visit(elem_node)
+                elem_tmp = self._gen_temp() + "_elem"
+
+                if elem_node.kind == "id":
+                    self._emit(f"ChValue {elem_tmp} = ch_copy({elem_code});")
+                else:
+                    self._emit(f"ChValue {elem_tmp} = {elem_code};")
+
+                self._emit(f"ch_array_set_2d(&{arr_name}, {r}, {c}, {elem_tmp});")
+                self._emit(f"ch_free(&{elem_tmp});")
+
+    def _visit_index(self, node: ASTNode) -> str:
+        """Generate code for array indexing expression."""
+        base_node = None
+        indices_node = None
+
+        for child in node.children:
+            if child.kind == "base":
+                base_node = child
+            elif child.kind == "indices":
+                indices_node = child
+
+        if not base_node or not base_node.children:
+            return "ch_int(0)"
+
+        base_code = self._visit(base_node.children[0])
+        index_codes = [self._visit(idx) for idx in (indices_node.children if indices_node else [])]
+
+        if len(index_codes) == 1:
+            return f"ch_array_get_1d({base_code}, ch_to_index_checked({index_codes[0]}, \"array index\"))"
+        if len(index_codes) == 2:
+            return (
+                f"ch_array_get_2d({base_code}, "
+                f"ch_to_index_checked({index_codes[0]}, \"array row index\"), "
+                f"ch_to_index_checked({index_codes[1]}, \"array column index\"))"
+            )
+
+        return "ch_int(0)"
+
+    def _visit_array_idx_assignment(self, node: ASTNode) -> None:
+        """Generate code for indexed array assignment.
+
+        AST shape:
+          array_idx_assignment(value=arr_name, children=[indices_node, rhs_expr])
+        """
+        arr_name = node.value
+        if not arr_name or len(node.children) < 2:
+            return
+
+        indices_node = node.children[0]
+        rhs_node = node.children[1]
+        rhs_code = self._visit(rhs_node)
+
+        idx_codes = [self._visit(idx) for idx in (indices_node.children if indices_node.kind == "indices" else [])]
+
+        rhs_tmp = self._gen_temp() + "_rhs"
+        if rhs_node.kind == "id":
+            self._emit(f"ChValue {rhs_tmp} = ch_copy({rhs_code});")
+        else:
+            self._emit(f"ChValue {rhs_tmp} = {rhs_code};")
+
+        if len(idx_codes) == 1:
+            self._emit(
+                f"ch_array_set_1d(&{arr_name}, ch_to_index_checked({idx_codes[0]}, \"array index\"), {rhs_tmp});"
+            )
+        elif len(idx_codes) == 2:
+            self._emit(
+                f"ch_array_set_2d(&{arr_name}, "
+                f"ch_to_index_checked({idx_codes[0]}, \"array row index\"), "
+                f"ch_to_index_checked({idx_codes[1]}, \"array column index\"), {rhs_tmp});"
+            )
+        else:
+            # malformed/unsupported dimensions; keep behavior safe
+            self._emit(f"/* Runtime Warning: invalid index dimension for array '{arr_name}' */")
+
+        self._emit(f"ch_free(&{rhs_tmp});")
     
     # ==================== EXPRESSION VISITORS ====================
     

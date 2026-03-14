@@ -86,6 +86,13 @@ bool ch_to_bool(ChValue v);
 // Check if value is integer after promotion
 bool ch_is_int_valued(ChValue v);
 
+// Runtime validators for array dimensions/indices
+// - ch_to_array_size_checked: must be positive whole number (>= 1)
+// - ch_to_index_checked: must be non-negative whole number (>= 0)
+// On invalid input, prints runtime error and terminates execution.
+size_t ch_to_array_size_checked(ChValue v, const char* context);
+int ch_to_index_checked(ChValue v, const char* context);
+
 
 // ============================================================================
 // ARITHMETIC OPERATIONS (CHUNGUS Coercion Rules)

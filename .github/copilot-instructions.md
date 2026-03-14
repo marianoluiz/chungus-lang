@@ -5,7 +5,7 @@ This is a compiler for CHUNGUS - a clean, minimal, general programming language.
 - **Lexer**: DFA-based tokenization (COMPLETE ✓)
 - **Syntax Analyzer**: Recursive descent parser with AST generation (COMPLETE ✓)
 - **Semantic Analyzer**: Type checking, symbol table management, and semantic validation (COMPLETE ✓)
-- **Code Generator**: Next phase - target code generation (PENDING)
+- **Code Generator**: C code generation using CHUNGUS runtime (IMPLEMENTED ✓)
 - **GUI**: User interface for compilation
 
 ## Compilation Pipeline Status
@@ -29,11 +29,11 @@ This is a compiler for CHUNGUS - a clean, minimal, general programming language.
 - Comprehensive error detection and reporting
 - Constant folding and propagation (optional optimization)
 
-### Phase 4: Code Generation - NEXT PHASE
-- Target: Python bytecode or intermediate representation
-- Register allocation and instruction selection
-- Runtime library integration
-- Output executable or interpretable code
+### Phase 4: Code Generation ✓ IMPLEMENTED
+- Generates C code that links against `src/runtime/chungus_runtime.c`
+- Supports: assignments, expressions, control flow, functions/calls, 1D/2D arrays
+- Handles runtime ownership via `ch_copy` / `ch_free` patterns
+- Output is compiled and executed via GCC in the full pipeline
 
 ## Project Structure
 
@@ -62,10 +62,10 @@ This is a compiler for CHUNGUS - a clean, minimal, general programming language.
     - Annotates AST nodes with inferred_type attribute
     - Validates: variable definitions, function signatures, array bounds, type compatibility
 
-- **`src/codegen/`**: Code generation (PENDING - NEXT PHASE)
-  - Target architecture and instruction set to be determined
-  - Will consume type-annotated AST
-  - Output format to be determined (bytecode, assembly, IR, etc.)
+- **`src/codegen/`**: Code generation (IMPLEMENTED)
+  - `code_generator.py`: AST → C lowering with runtime API calls
+  - Consumes type-annotated AST from semantic analyzer
+  - Emits executable C programs for runtime compilation
 
 - **`src/constants/`**: Shared constants and definitions
   - `token.py`: Token dataclass and token type constants
@@ -107,7 +107,7 @@ This is a compiler for CHUNGUS - a clean, minimal, general programming language.
 CHUNGUS has 5 primitive types:
 - **int**: Integer values (e.g., `42`, `-10`, `0`)
 - **float**: Floating-point values (e.g., `3.14`, `-0.5`, `2.0`)
-- **bool**: Boolean values (`TRUE`, `FALSE`)
+- **bool**: Boolean literals (`true`, `false`)
 - **string**: String literals (e.g., `"hello"`, `"world"`)
 - **array**: One or two-dimensional arrays (e.g., `x:[10]`, `matrix:[5][5]`)
 
@@ -115,7 +115,7 @@ CHUNGUS has 5 primitive types:
 CHUNGUS supports implicit type coercion:
 
 **Numeric Coercion**: int, float, bool, string → numeric
-- Used in arithmetic operations: `+`, `-`, `*`, `/`, `//`, `%`, `^`
+- Used in arithmetic operations: `+`, `-`, `*`, `/`, `//`, `%`, `**`
 - Result type:
   - `/` always returns float
   - If any operand is float → result is float
@@ -123,7 +123,7 @@ CHUNGUS supports implicit type coercion:
   - `//` (integer division) returns int unless float is involved
 
 **Boolean Coercion**: int, float, bool, string → boolean
-- Used in logical operations: `&`, `|`, `!`
+- Used in logical operations: `and`, `or`, `!`
 - Used in control flow conditions
 - Result type is always bool
 
@@ -146,11 +146,11 @@ BOOL_COERCIBLE = {TY_INT, TY_FLOAT, TY_BOOL, TY_STRING}
 ```
 
 ### Keywords and Operators
-**Keywords**: `fn`, `ret`, `if`, `elif`, `else`, `close`, `while`, `for`, `try`, `except`, `finally`, `read`, `show`, `todo`, `TRUE`, `FALSE`
+**Keywords**: `fn`, `ret`, `if`, `elif`, `else`, `close`, `while`, `for`, `try`, `fail`, `always`, `read`, `show`, `todo`, `true`, `false`
 
-**Arithmetic**: `+`, `-`, `*`, `/`, `//`, `%`, `^` (power)
+**Arithmetic**: `+`, `-`, `*`, `/`, `//`, `%`, `**` (power)
 **Comparison**: `<`, `>`, `<=`, `>=`, `==`, `!=`
-**Logical**: `&` (and), `|` (or), `!` (not)
+**Logical**: `and`, `or`, `!` (not)
 **Assignment**: `=`
 **Array/Function**: `[`, `]`, `(`, `)`, `,`
 **Delimiters**: `;`, `:`, `{`, `}`
@@ -161,9 +161,9 @@ BOOL_COERCIBLE = {TY_INT, TY_FLOAT, TY_BOOL, TY_STRING}
 3. **Array Assignment**: `arr[0] = 42;`, `matrix[i][j] = 99;`
 4. **Function Definition**: `fn name(param1, param2): ... ret value; close`
 5. **Function Call**: `result = foo(1, 2);`, `bar();`
-6. **Output**: `show expr;`
+6. **Output**: `show id;` or `show 'str_literal';`
 7. **Control Flow**: `if`, `elif`, `else`, `while`, `for`
-8. **Error Handling**: `try`, `except`, `finally`
+8. **Error Handling**: `try`, `fail`, `always`
 9. **Todo**: `todo "implement feature";`
 
 ### Grammar Highlights (from cfg_lark)
@@ -307,14 +307,14 @@ BOOL_COERCIBLE = {TY_INT, TY_FLOAT, TY_BOOL, TY_STRING}
   - `lookup_current_scope()` checks only current scope (for shadowing detection)
   
 - **Type checking**: CHUNGUS coercion rules
-  - **Arithmetic operations** (`+`, `-`, `*`, `/`, `//`, `%`, `^`):
+  - **Arithmetic operations** (`+`, `-`, `*`, `/`, `//`, `%`, `**`):
     - Both operands must be numeric-coercible (int, float, bool, string)
     - `/` always returns float
     - Other ops: if either is float → result is float; else int
   - **Comparison operations** (`<`, `>`, `<=`, `>=`, `==`, `!=`):
     - Both operands must be numeric-coercible
     - Result is always bool
-  - **Logical operations** (`&`, `|`, `!`):
+  - **Logical operations** (`and`, `or`, `!`):
     - Operands must be bool-coercible
     - Result is always bool
   - Arrays are NOT coercible - type errors for array operands in expressions

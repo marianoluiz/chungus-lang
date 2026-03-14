@@ -111,7 +111,14 @@ ChValue ch_array_get_2d(ChValue arr, int row, int col);
 void ch_array_set_2d(ChValue* arr, int row, int col, ChValue value);
 ```
 
-All array operations include bounds checking with runtime error messages.
+Array runtime behavior:
+- Size/index conversion helpers validate runtime values:
+   - `ch_to_array_size_checked(...)`: positive integer (`>= 1`)
+   - `ch_to_index_checked(...)`: non-negative integer (`>= 0`)
+   - Invalid conversion is **fail-fast** (runtime error + process exit)
+- `ch_array_get_*` / `ch_array_set_*` include bounds checks:
+   - Out-of-bounds `get` prints runtime error and returns `0`
+   - Out-of-bounds `set` prints runtime error and ignores the write
 
 ### I/O Operations
 ```c
@@ -247,7 +254,9 @@ The runtime provides:
 - 64-bit range validation on `ch_read()` integer input
 - Deep copying for assignment (no aliasing issues)
 
-Runtime errors print helpful messages to stderr and return safe default values (typically `0`, `0.0`, or `""`).
+Most runtime errors print helpful messages to stderr and return safe default values (typically `0`, `0.0`, or `""`).
+
+Note: Array size/index conversion validation (`ch_to_array_size_checked` / `ch_to_index_checked`) is fail-fast and terminates execution on invalid values.
 
 When codegen lowers `for ... in range(...)`, runtime behavior includes:
 - Support for 1/2/3 range arguments

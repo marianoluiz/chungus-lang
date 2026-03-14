@@ -222,6 +222,52 @@ bool ch_is_int_valued(ChValue v) {
     return false;
 }
 
+size_t ch_to_array_size_checked(ChValue v, const char* context) {
+    const char* label = (context && *context) ? context : "array size";
+    double x = ch_to_number(v);
+
+    if (!isfinite(x)) {
+        fprintf(stderr, "Runtime Error: %s must be a positive integer\n", label);
+        exit(EXIT_FAILURE);
+    }
+
+    if (x != floor(x)) {
+        fprintf(stderr, "Runtime Error: %s must be a positive integer\n", label);
+        exit(EXIT_FAILURE);
+    }
+
+    long double xl = (long double)x;
+    if (xl < 1.0L || xl > (long double)SIZE_MAX) {
+        fprintf(stderr, "Runtime Error: %s out of valid range\n", label);
+        exit(EXIT_FAILURE);
+    }
+
+    return (size_t)x;
+}
+
+int ch_to_index_checked(ChValue v, const char* context) {
+    const char* label = (context && *context) ? context : "array index";
+    double x = ch_to_number(v);
+
+    if (!isfinite(x)) {
+        fprintf(stderr, "Runtime Error: %s must be a non-negative integer\n", label);
+        exit(EXIT_FAILURE);
+    }
+
+    if (x != floor(x)) {
+        fprintf(stderr, "Runtime Error: %s must be a non-negative integer\n", label);
+        exit(EXIT_FAILURE);
+    }
+
+    long double xl = (long double)x;
+    if (xl < 0.0L || xl > (long double)INT_MAX) {
+        fprintf(stderr, "Runtime Error: %s out of valid range\n", label);
+        exit(EXIT_FAILURE);
+    }
+
+    return (int)x;
+}
+
 
 // ============================================================================
 // ARITHMETIC OPERATIONS (CHUNGUS Coercion Rules)

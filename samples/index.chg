@@ -1,0 +1,8 @@
+i = read;
+
+arr : [3 - i] = [1, 2,3,4];
+
+arr[0] = false;
+x = arr[0];
+
+show x;
