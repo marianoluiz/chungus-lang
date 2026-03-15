@@ -53,29 +53,6 @@ This will:
 4. Generate C code in `output/` (Codegen)
 5. Compile and execute (Runtime)
 
-### Current Language/Runtime Notes
-
-- `read` is assignment-only (e.g. `x = read;`) and is not parsed as a general expression.
-- Runtime `read` is dynamic:
-  - integer text (e.g. `42`) → `int`
-  - floating text (e.g. `3.14`) → `float`
-  - otherwise → `string`
-- `for ... in range(...)` supports:
-  - `range(stop)`
-  - `range(start, stop)`
-  - `range(start, stop, step)`
-- `range(..., step=0)` is guarded at runtime with an error message.
-- Booleans print as lowercase `true` / `false`.
-- Functions and function calls are supported in codegen (including parameters and optional trailing `ret`).
-- Arrays are supported in codegen:
-  - 1D: `arr : [n] = [...]`
-  - 2D: `mat : [r][c] = [[...], [...]]`
-  - Missing initializer values default to `0`.
-- Runtime array validation:
-  - Array size and index conversion is fail-fast (invalid values terminate execution).
-  - Bounds violations in `get/set` print runtime errors; `get` returns safe `0`, `set` is ignored.
-- GUI execution has both timeout and output-size guards for long-running/noisy programs and reports partial output.
-
 ### Individual Phase CLIs
 
 Run specific compilation phases for debugging or testing:
@@ -152,24 +129,7 @@ Run specific compilation phases for debugging or testing:
   ```
   Project config lives in [.flake8](.flake8).
 
-### C Runtime Build & Testing
-
-The CHUNGUS runtime library is in `src/runtime/`. Use the Makefile for testing:
-
-- Build runtime library
-  ```sh
-  cd src/runtime && make
-  ```
-
-- Build and test runtime
-  ```sh
-  cd src/runtime && make test
-  ```
-
-- Clean up compiled files
-  ```sh
-  cd src/runtime && make clean
-  ```
+### Memory Leaks Check
 
 - Check for memory leaks (requires valgrind)
   ```sh
