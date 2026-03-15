@@ -1217,3 +1217,86 @@ Range step must be integer type, got 'string'",,
 for i in range(int(x), 10, 1):
     show i;
 close",NO SEMANTIC ERROR/S,,
+x = 10; z = x + y;,Variable 'y' not defined,,
+"fn add(a, b): 
+todo;
+ret a + b; 
+close 
+
+x = add(5);","Function 'add' expects 2 args, got 1",,
+arr : [1] = [];,NO SEMANTIC ERROR/S,,
+arr : [1] = [1];,NO SEMANTIC ERROR/S,,
+arr : [1][1] = [];,NO SEMANTIC ERROR/S,,
+arr : [1][1] = [];,NO SEMANTIC ERROR/S,,
+arr : [1][1] = [[]];,NO SEMANTIC ERROR/S,,
+"fn test(): 
+todo;
+ret 1; 
+close
+x = 10; ",NO SEMANTIC ERROR/S,,
+"if true: 
+local_var = 100; 
+close 
+show local_var;",Variable 'local_var' not defined,,
+x = (~16) ** 0.25;,NO SEMANTIC ERROR/S,,
+x = 100 / 0;,Division by zero,,
+x = 9223372036854775807 + 1;,NO SEMANTIC ERROR/S,,
+"fn test(a):
+b = a + 1; 
+close
+x = test(true);",NO SEMANTIC ERROR/S,,
+"fn calculate(a): 
+b = a + c; 
+ret b; 
+close 
+x = calculate(5);",Variable 'c' not defined,,
+"x = 5; 
+if true: 
+x = 10; 
+close 
+show x;",NO SEMANTIC ERROR/S,,
+x = read; y = x / 2;,NO SEMANTIC ERROR/S,,
+"fn test(): 
+todo;
+show 'done'; 
+ret 10; 
+close
+
+test();",NO SEMANTIC ERROR/S,,
+x = ~2 ** 0.5;,NO SEMANTIC ERROR/S,,
+"fn multiply(a, b): 
+todo;
+ret a * b; 
+close
+x = multiply(10);","Function 'multiply' expects 2 args, got 1",,
+"fn multiply(a, b): 
+todo;
+ret a * b; 
+close
+x = multiply(10, 10);",NO SEMANTIC ERROR/S,,
+"fn multiply(a, b): 
+todo;
+ret a * b; 
+close
+x = multiply(10, 10, 10);","Function 'multiply' expects 2 args, got 3",,
+"fn multiply(a, b): 
+todo;
+ret a * b; 
+close
+x = multiply();","Function 'multiply' expects 2 args, got 0",,
+"fn multiply(): 
+todo;
+ret a * b; 
+close
+x = multiply();","Variable 'a' not defined
+Variable 'b' not defined",,
+"x = 10; x(1, 2);",Function 'x' not defined,,
+"a: [1] = [1, 2]; 
+if a <= 69: 
+show ''; 
+close","Too many array elements: declared [1], got 2 elements
+Invalid comparison '<=' between 'array' and 'int'",,
+show x; x = 5;,Variable 'x' not defined,,
+"arr: [1] = [1];
+
+show arr;",NO SEMANTIC ERROR/S,,

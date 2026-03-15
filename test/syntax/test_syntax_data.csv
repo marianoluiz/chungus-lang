@@ -3214,8 +3214,8 @@ while (read == 'yes'): show 'looping'; close," line 1 col 8: r
 Expected any: !, (, false, float, float_literal, id, int, int_literal, str_literal, true",,
 fn compute(x): if (x > 0): ret (x * 2); close ret 0; close," line 1 col 28: r
 Expected any: for, id, if, show, todo, while",,
-if x: show x; else: show y; always: show z; close,"line 1 col 29: a
-Expected any: close, for, id, if, show, todo, while",,
+if x: show x; else: show y; always: show z; close,"Unexpected token at line 1 col 37: s
+Expected any: [",,
 if ( (x) == (y) ): show 'equal'; close,NO SYNTAX ERROR,,
 "fn check(): if true: todo;close close
 ","line 1 col 38: <EOL>
@@ -3439,8 +3439,8 @@ while ( ( (true) or (false) ) ): break; close,"line 1 col 39: ;
 Expected any: (, :, =, [",,
 for i in range(10): if true: if true: break; close close close," line 1 col 44: ;
 Expected any: (, :, =, [",,
-while x: x = x - 1; always: show x; close,"line 1 col 21: a
-Expected any: close, for, id, if, show, todo, while",,
+while x: x = x - 1; always: show x; close,"Unexpected token at line 1 col 29: s
+Expected any: [",,
 for i in range(5): x = 1; else: x = 0; close,"line 1 col 27: e
 Expected any: close, for, id, if, show, todo, while",,
 while x < 10: todo; close,NO SYNTAX ERROR,,
@@ -3602,10 +3602,10 @@ Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",,
 x = ~5.5;,NO SYNTAX ERROR,,
 x = ( ( ( ( ( ( (null) ) ) ) ) ) );,NO SYNTAX ERROR,,
 x = fn_call();,NO SYNTAX ERROR,,
-fail: show 'err'; close," line 1 col 1: f
-Expected any: fn, for, id, if, show, todo, while",,
-always: show 'done'; close,"line 1 col 1: a
-Expected any: fn, for, id, if, show, todo, while",,
+fail: show 'err'; close,"Unexpected token at line 1 col 7: s
+Expected any: [",,
+always: show 'done'; close,"Unexpected token at line 1 col 9: s
+Expected any: [",,
 show 'Batch 9 Complete';,NO SYNTAX ERROR,,
 fn fact(n): if n <= 1: ret 1; close ret n * fact(n - 1); close,"line 1 col 24: r
 Expected any: for, id, if, show, todo, while",,

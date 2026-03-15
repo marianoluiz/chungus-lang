@@ -34,7 +34,7 @@ x = 1.0 / 3.0; show x;,,0.333333
 x = 1.5; show x;,,1.5
 x = 1.123456; show x;,,1.123456
 x = 0.1 + 0.2; show x;,,0.3
-x = 1.0; show x;,,1
+x = 1.0; show x;,,1.0
 x = 10; y = x / 2; show y;,,5.0
 x = 9223372036854775807; show x;,,9223372036854775807
 x = 1000000 * 1000000; show x;,,1000000000000
@@ -94,3 +94,2126 @@ if number % 2 == 0:
 else:
         show 'odd';
 close ",20,even
+"fn process(data, multiplier):
+    result = data * multiplier;
+    show result;
+    ret result;
+close
+
+x = 5;
+y = 10;
+answer = process(x, y);
+show answer;",,5050
+"x = 10;
+y = 20;
+result = x + y;
+show result;",,30
+"a = 50;
+b = 18;
+diff = a - b;
+show diff;",,32
+"p = 7;
+q = 8;
+product = p * q;
+show product;",,56
+"num = 20;
+denom = 4;
+quotient = num / denom;
+show quotient;",,5.0
+"dividend = 17;
+divisor = 5;
+remainder = dividend % divisor;
+show remainder;",,2
+"a = 17;
+b = 5;
+floor_result = a // b;
+show floor_result;",,3
+"base = 3;
+exp = 4;
+power = base ** exp;
+show power;",,81
+"x = 2;
+y = 3;
+z = 4;
+result = x + y * z;
+show result;",,20
+"a = 5;
+b = 3;
+c = 2;
+result = (a + b) * c;
+show result;",,16
+"a = 100;
+b = 25;
+c = 3;
+d = 7;
+result = a / b + c * d;
+show result;",,49.0
+"x = ~5;
+show x;",,~5
+"temp = ~3.14;
+show temp;",,~3.14
+"a = ~10;
+b = 4;
+result = a + b;
+show result;",,~6
+"x = ~6;
+y = ~7;
+result = x * y;
+show result;",,42
+"base = ~2;
+exp = 4;
+result = base ** exp;
+show result;",,16
+"z = ~0;
+show z;",,0
+"x = 3;
+y = 10;
+diff = x - y;
+show diff;",,~7
+"a = ~1.5;
+b = 2.5;
+result = a + b;
+show result;",,1.0
+"x = 15;
+y = 10;
+result = x > y;
+show result;",,true
+"a = 3;
+b = 7;
+result = a < b;
+show result;",,true
+"score = 75;
+passing = 75;
+result = score >= passing;
+show result;",,true
+"age = 17;
+limit = 18;
+result = age <= limit;
+show result;",,true
+"x = 5;
+y = 5;
+result = x == y;
+show result;",,true
+"a = 10;
+b = 20;
+result = a != b;
+show result;",,true
+"x = 4;
+y = 2;
+z = 10;
+result = x * y == z;
+show result;",,false
+"pi = 3.14;
+tau = 6.28;
+result = pi * 2.0 == tau;
+show result;",,true
+"a = true;
+b = true;
+result = a and b;
+show result;",,true
+"a = true;
+b = false;
+result = a and b;
+show result;
+ ",,false
+"x = false;
+y = true;
+result = x or y;
+show result;",,true
+"x = false;
+y = false;
+result = x or y;
+show result;",,false
+"flag = true;
+result = ! flag;
+show result;",,false
+"val = false;
+result = ! ! val;
+show result;",,false
+"a = 5;
+b = 10;
+c = 15;
+result = a < b and b < c;
+show result;",,true
+"x = 8;
+y = 3;
+z = 5;
+result = x > y or x < z;
+show result;",,true
+"score = 90;
+result = score >= 90;
+if result:
+    msg = 'Excellent';
+    show msg;
+close",,Excellent
+"age = 15;
+is_adult = age >= 18;
+if is_adult:
+    status = 'Adult';
+    show status;
+else:
+    status = 'Minor';
+    show status;
+close
+",,Minor
+"score = 82;
+if score >= 90:
+    grade = 'A';
+    show grade;
+elif score >= 80:
+    grade = 'B';
+    show grade;
+elif score >= 70:
+    grade = 'C';
+    show grade;
+else:
+    grade = 'F';
+    show grade;
+close",,B
+"x = 10;
+y = 5;
+check = x > 0;
+if check:
+    inner_check = y > 0;
+    if inner_check:
+        msg = 'Both positive';
+        show msg;
+    close
+close",,Both positive
+"a = 7;
+b = 3;
+if a % b == 1:
+    msg = 'Remainder is 1';
+    show msg;
+else:
+    msg = 'Different remainder';
+    show msg;
+close",,Remainder is 1
+"temp = 25;
+humid = 80;
+hot = temp > 30;
+muggy = humid > 70;
+if hot or muggy:
+    msg = 'Uncomfortable weather';
+    show msg;
+else:
+    msg = 'Fine weather';
+    show msg;
+close
+ ",,Uncomfortable weather
+"day = 3;
+if day == 1:
+    name = 'Monday';
+    show name;
+elif day == 2:
+    name = 'Tuesday';
+    show name;
+elif day == 3:
+    name = 'Wednesday';
+    show name;
+elif day == 4:
+    name = 'Thursday';
+    show name;
+else:
+    name = 'Other';
+    show name;
+close",,Wednesday
+"logged_in = false;
+check = ! logged_in;
+if check:
+    msg = 'Please log in';
+    show msg;
+else:
+    msg = 'Welcome back';
+    show msg;
+close",,Please log in
+"bmi = 22;
+healthy_low = 18;
+healthy_high = 25;
+in_range = bmi >= healthy_low and bmi <= healthy_high;
+if in_range:
+    msg = 'Healthy BMI';
+    show msg;
+else:
+    msg = 'Check your BMI';
+    show msg;
+close",,Healthy BMI
+"username = 'admin';
+check = username == 'admin';
+if check:
+    msg = 'Admin access granted';
+    show msg;
+else:
+    msg = 'Access denied';
+    show msg;
+close",,Admin access granted
+"for i in range(5):
+    show i;
+close
+ ",,01234
+"for i in range(1, 6):
+    show i;
+close",,12345
+"for i in range(0, 10, 2):
+    show i;
+close",,02468
+"counter = 5;
+while counter > 0:
+    show counter;
+    counter = counter - 1;
+close",,54321
+"total = 0;
+i = 1;
+while i <= 10:
+    total = total + i;
+    i = i + 1;
+close
+show total;",,55
+"fact = 1;
+for i in range(1, 6):
+    fact = fact * i;
+close
+show fact;",,120
+"n = 5;
+as_float = float(n);
+result = as_float / 2.0;
+show result;
+show '\n';",,2.5
+"fn square(n):
+    result = n * n;
+    ret result;
+close
+ 
+raw = '9';
+num = int(raw);
+ans = square(num);
+show 'Square of 9 = ';
+show ans;
+show '\n';",,Square of 9 = 1
+"fn add(a, b):
+    result = a + b;
+    ret result;
+close
+ 
+sum = add(10, 20);
+show sum;",,30
+"fn multiply(x, y):
+    product = x * y;
+    ret product;
+close
+ 
+ans = multiply(6, 7);
+show ans;",,42
+"fn is_even(n):
+    rem = n % 2;
+    result = rem == 0;
+    ret result;
+close
+ 
+check = is_even(14);
+show check;
+",,true
+"fn factorial(n):
+    result = 1;
+    i = 1;
+    while i <= n:
+        result = result * i;
+        i = i + 1;
+    close
+    ret result;
+close
+ 
+ans = factorial(5);
+show ans;",,120
+"fn sum_n(n):
+    total = 0;
+    for i in range(1, n + 1):
+        total = total + i;
+    close
+    ret total;
+close
+ 
+answer = sum_n(10);
+show answer;",,55
+"fn celsius_to_f(c):
+    f = c * 9 / 5 + 32;
+    ret f;
+close
+ 
+result = celsius_to_f(100);
+show result;",,212.0
+"fn is_positive(n):
+    check = n > 0;
+    ret check;
+close
+ 
+res = is_positive(~7);
+show res;",,false
+"fn power(base, exp):
+    result = 1;
+    for i in range(exp):
+        result = result * base;
+    close
+    ret result;
+close
+ 
+ans = power(2, 8);
+show ans;",,256
+"fn abs_val(n):
+    check = n < 0;
+    if check:
+        n = ~1 * n;
+    close
+    ret n;
+close
+ 
+result = abs_val(~25);
+show result;",,25
+"show 'Enter your name: ';
+name = read;
+show 'Hello, ';
+show name;
+show '!\n';",Lailey,"Enter your name: Hello, Lailey!"
+"fn area_square(side):
+    area = side * side;
+    ret area;
+close
+ 
+s = 7;
+ans = area_square(s);
+show 'Area of Square = ';
+show ans;
+show '\n';",,Area of Square = 49
+"secret = 42;
+show 'Guess the number (1-100): ';
+guess_str = read;
+guess = int(guess_str);
+ 
+correct = guess == secret;
+if correct:
+    msg = 'Correct! You got it!';
+    show msg;
+    show '\n';
+else:
+    msg = 'Wrong! The answer was 42.';
+    show msg;
+    show '\n';
+close",64,Guess the number (1-100): Wrong! The answer was 42.
+"fn c_to_f(c):
+    f = c * 9 / 5 + 32;
+    ret f;
+close
+ 
+show 'Enter temperature in Celsius: ';
+raw = read;
+celsius = float(raw);
+fahrenheit = c_to_f(celsius);
+show 'Fahrenheit: ';
+show fahrenheit;
+show '\n';",64,Enter temperature in Celsius: Fahrenheit: 147.2
+"fn perimeter_rect(l, w):
+    perimeter = 2 * (l + w);
+    ret perimeter;
+close
+ 
+len = 12;
+wid = 5;
+perim = perimeter_rect(len, wid);
+show 'Perimeter of Rectangle = ';
+show perim;
+show '\n';",,Perimeter of Rectangle = 34
+"fn check_even(n):
+    rem = n % 2;
+    result = rem == 0;
+    ret result;
+close
+ 
+show 'Enter a number: ';
+raw = read;
+num = int(raw);
+is_even = check_even(num);
+if is_even:
+    msg = 'Even number';
+    show msg;
+    show '\n';
+else:
+    msg = 'Odd number';
+    show msg;
+    show '\n';
+close",64,Enter a number: Even number
+"show 'Enter your score (0-100): ';
+raw = read;
+score = int(raw);
+ 
+if score >= 90:
+    grade = 'A - Excellent';
+    show grade;
+    show '\n';
+elif score >= 80:
+    grade = 'B - Good';
+    show grade;
+    show '\n';
+elif score >= 70:
+    grade = 'C - Average';
+    show grade;
+    show '\n';
+elif score >= 60:
+    grade = 'D - Below Average';
+    show grade;
+    show '\n';
+else:
+    grade = 'F - Failed';
+    show grade;
+    show '\n';
+close",64,Enter your score (0-100): D - Below Average
+"fn area_triangle(base, height):
+    area = base * height / 2;
+    ret area;
+close
+ 
+b = 10;
+h = 6;
+ans = area_triangle(b, h);
+show 'Area of Triangle = ';
+show ans;
+show '\n';",,Area of Triangle = 30.0
+"fn area_circle(r):
+    pi = 3.14159;
+    area = pi * r * r;
+    ret area;
+close
+ 
+radius = 5;
+ans = area_circle(radius);
+show 'Area of Circle = ';
+show ans;
+show '\n';",,Area of Circle = 78.53975
+"fn circumference(r):
+    pi = 3.14159;
+    c = 2 * pi * r;
+    ret c;
+close
+ 
+r = 7;
+ans = circumference(r);
+show 'Circumference = ';
+show ans;
+show '\n';",,Circumference = 43.98226
+"fn volume_box(l, w, h):
+    vol = l * w * h;
+    ret vol;
+close
+ 
+l = 4;
+w = 5;
+h = 6;
+ans = volume_box(l, w, h);
+show 'Volume of Box = ';
+show ans;
+show '\n';",,Volume of Box = 120
+"fn volume_cylinder(r, h):
+    pi = 3.14159;
+    vol = pi * r * r * h;
+    ret vol;
+close
+ 
+r = 3;
+h = 10;
+ans = volume_cylinder(r, h);
+show 'Volume of Cylinder = ';
+show ans;
+show '\n';",,Volume of Cylinder = 282.7431
+"fn surface_cube(s):
+    sa = 6 * s * s;
+    ret sa;
+close
+ 
+side = 4;
+ans = surface_cube(side);
+show 'Surface Area of Cube = ';
+show ans;
+show '\n';",,Surface Area of Cube = 96
+"fn hyp_squared(a, b):
+    c_sq = a ** 2 + b ** 2;
+    ret c_sq;
+close
+ 
+a = 3;
+b = 4;
+c_sq = hyp_squared(a, b);
+show 'c squared = ';
+show c_sq;
+show '\n';",,c squared = 169
+"fn area_trapezoid(a, b, h):
+    area = (a + b) / 2 * h;
+    ret area;
+close
+ 
+a = 6;
+b = 10;
+h = 4;
+ans = area_trapezoid(a, b, h);
+show 'Area of Trapezoid = ';
+show ans;
+show '\n';",,Area of Trapezoid = 32.0
+"nums:[5] = [10, 20, 30, 40, 50];
+first = nums[0];
+last = nums[4];
+show first;
+show '\n';
+show last;
+show '\n';",,"10
+50"
+"mixed:[4] = [1, 3.14, 'hello', true];
+item0 = mixed[0];
+item1 = mixed[1];
+item2 = mixed[2];
+item3 = mixed[3];
+show item0;
+show '\n';
+show item1;
+show '\n';
+show item2;
+show '\n';
+show item3;
+show '\n';",,"1
+3.14
+hello
+true"
+"arr:[3] = [1, 2, 3];
+arr[1] = 99;
+val = arr[1];
+show val;
+show '\n';",,99
+"scores:[5] = [80, 90, 75, 85, 95];
+total = 0;
+for i in range(5):
+    val = scores[i];
+    total = total + val;
+close
+show 'Total = ';
+show total;
+show '\n';",,Total = 425
+"data:[5] = [10, 20, 30, 40, 50];
+i = 4;
+while i >= 0:
+    val = data[i];
+    show val;
+    show ' ';
+    i = i - 1;
+close
+show '\n';",,50 40 30 20 10
+"flags:[5] = [true, false, true, true, false];
+true_count = 0;
+for i in range(5):
+    val = flags[i];
+    if val:
+        true_count = true_count + 1;
+    close
+close
+show 'True count = ';
+show true_count;
+show '\n';",,True count = 3
+"matrix:[2][3] = [
+    [1, 2, 3],
+    [4, 5, 6]
+];
+val = matrix[1][2];
+show 'matrix[1][2] = ';
+show val;
+show '\n';",,matrix[1][2] = 6
+"grid:[2][2] = [
+    [0, 0],
+    [0, 0]
+];
+grid[0][1] = 7;
+grid[1][0] = 3;
+a = grid[0][1];
+b = grid[1][0];
+show a;
+show '\n';
+show b;
+show '\n';",,"7
+3"
+"mat:[2][3] = [
+    [1, 2, 3],
+    [4, 5, 6]
+];
+total = 0;
+for r in range(2):
+    for c in range(3):
+        val = mat[r][c];
+        total = total + val;
+    close
+close
+show 'Total sum = ';
+show total;
+show '\n';",,Total sum = 21
+"mat:[3][3] = [
+    [3, 1, 4],
+    [9, 2, 6],
+    [5, 7, 8]
+];
+for r in range(3):
+    row_max = mat[r][0];
+    for c in range(1, 3):
+        cur = mat[r][c];
+        is_bigger = cur > row_max;
+        if is_bigger:
+            row_max = cur;
+        close
+    close
+    show 'Row max: ';
+    show row_max;
+    show '\n';
+close",,"Row max: 4
+Row max: 9
+Row max: 8"
+"mat:[3][3] = [
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1]
+];
+diagonal_sum = 0;
+for i in range(3):
+    d = mat[i][i];
+    diagonal_sum = diagonal_sum + d;
+close
+show 'Diagonal sum = ';
+show diagonal_sum;
+show '\n';",,Diagonal sum = 3
+"raw = '42';
+num = int(raw);
+doubled = num * 2;
+show doubled;
+show '\n';",,2
+"raw = '3.14';
+val = float(raw);
+result = val * 2.0;
+show result;
+show '\n';",,2.0
+"f = 9.87;
+truncated = int(f);
+show truncated;
+show '\n';",,9
+"n = 5;
+as_float = float(n);
+result = as_float / 2.0;
+show result;
+show '\n';",,2.5
+"fn square(n):
+    result = n * n;
+    ret result;
+close
+ 
+raw = '9';
+num = int(raw);
+ans = square(num);
+show 'Square of 9 = ';
+show ans;
+show '\n';",,Square of 9 = 1
+"for i in range(1, 21):
+    fizz = i % 3 == 0;
+    buzz = i % 5 == 0;
+    if fizz and buzz:
+        msg = 'FizzBuzz';
+        show msg;
+        show '\n';
+    elif fizz:
+        msg = 'Fizz';
+        show msg;
+        show '\n';
+    elif buzz:
+        msg = 'Buzz';
+        show msg;
+        show '\n';
+    else:
+        show i;
+        show '\n';
+    close
+close
+ ",,"1
+2
+Fizz
+4
+Buzz
+Fizz
+7
+8
+Fizz
+Buzz
+11
+Fizz
+13
+14
+FizzBuzz
+16
+17
+Fizz
+19
+Buzz"
+"show 'Enter a number for its multiplication table: ';
+raw = read;
+n = int(raw);
+for i in range(1, 11):
+    result = n * i;
+    show n;
+    show ' x ';
+    show i;
+    show ' = ';
+    show result;
+    show '\n';
+close",64,"Enter a number for its multiplication table: 64 x 1 = 64
+64 x 2 = 128
+64 x 3 = 192
+64 x 4 = 256
+64 x 5 = 320
+64 x 6 = 384
+64 x 7 = 448
+64 x 8 = 512
+64 x 9 = 576
+64 x 10 = 640"
+"show 'How many Fibonacci terms? ';
+raw = read;
+n = int(raw);
+ 
+a = 0;
+b = 1;
+i = 0;
+while i < n:
+    show a;
+    show ' ';
+    temp = a + b;
+    a = b;
+    b = temp;
+    i = i + 1;
+close
+show '\n';
+",64,How many Fibonacci terms? 0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181 6765 10946 17711 28657 46368 75025 121393 196418 317811 514229 832040 1346269 2178309 3524578 5702887 9227465 14930352 24157817 39088169 63245986 102334155 165580141 267914296 433494437 701408733 1134903170 1836311903 2971215073 4807526976 7778742049 12586269025 20365011074 32951280099 53316291173 86267571272 139583862445 225851433717 365435296162 591286729879 956722026041 1548008755920 2504730781961 4052739537881 6557470319842
+"fn digit_sum(n):
+    total = 0;
+    while n > 0:
+        digit = n % 10;
+        total = total + digit;
+        n = n // 10;
+    close
+    ret total;
+close
+ 
+show 'Enter a number: ';
+raw = read;
+num = int(raw);
+result = digit_sum(num);
+show 'Digit sum = ';
+show result;
+show '\n';",64,Enter a number: Digit sum = 10
+"show 'Count down from: ';
+raw = read;
+n = int(raw);
+while n > 0:
+    show n;
+    show '\n';
+    n = n - 1;
+close
+show 'Blast off!\n';",10,"Count down from: 10
+9
+8
+7
+6
+5
+4
+3
+2
+1
+Blast off!"
+"show 'Enter upper limit: ';
+raw = read;
+n = int(raw);
+for i in range(1, n + 1):
+    check = i % 3 == 0;
+    if check:
+        show i;
+        show '\n';
+    close
+close",64,"Enter upper limit: 3
+6
+9
+12
+15
+18
+21
+24
+27
+30
+33
+36
+39
+42
+45
+48
+51
+54
+57
+60
+63"
+"fn reverse_num(n):
+    rev = 0;
+    while n > 0:
+        digit = n % 10;
+        rev = rev * 10 + digit;
+        n = n // 10;
+    close
+    ret rev;
+close
+ 
+show 'Enter a number to reverse: ';
+raw = read;
+num = int(raw);
+reversed = reverse_num(num);
+show 'Reversed: ';
+show reversed;
+show '\n';",64,Enter a number to reverse: Reversed: 46
+"fn is_palindrome(n):
+    original = n;
+    rev = 0;
+    while n > 0:
+        digit = n % 10;
+        rev = rev * 10 + digit;
+        n = n // 10;
+    close
+    result = original == rev;
+    ret result;
+close
+ 
+show 'Enter a number: ';
+raw = read;
+num = int(raw);
+check = is_palindrome(num);
+if check:
+    msg = 'Palindrome';
+    show msg;
+    show '\n';
+else:
+    msg = 'Not a Palindrome';
+    show msg;
+    show '\n';
+close",64,Enter a number: Not a Palindrome
+"fn gcd(a, b):
+    while b != 0:
+        temp = b;
+        b = a % b;
+        a = temp;
+    close
+    ret a;
+close
+ 
+a = 48;
+b = 18;
+result = gcd(a, b);
+show 'GCD = ';
+show result;
+show '\n';",64,GCD = 6
+"show 'Enter upper limit: ';
+raw = read;
+n = int(raw);
+i = 1;
+while i * i <= n:
+    sq = i * i;
+    show sq;
+    show '\n';
+    i = i + 1;
+close
+ ",64,"Enter upper limit: 1
+4
+9
+16
+25
+36
+49
+64"
+"fn sum_evens(n):
+    total = 0;
+    for i in range(1, n + 1):
+        rem = i % 2;
+        is_even = rem == 0;
+        if is_even:
+            total = total + i;
+        close
+    close
+    ret total;
+close
+ 
+show 'Enter N: ';
+raw = read;
+n = int(raw);
+result = sum_evens(n);
+show 'Sum of evens = ';
+show result;
+show '\n';",64,Enter N: Sum of evens = 1056
+"fn sum_odds(n):
+    total = 0;
+    for i in range(1, n + 1):
+        rem = i % 2;
+        is_odd = rem != 0;
+        if is_odd:
+            total = total + i;
+        close
+    close
+    ret total;
+close
+ 
+show 'Enter N: ';
+raw = read;
+n = int(raw);
+result = sum_odds(n);
+show 'Sum of odds = ';
+show result;
+show '\n';",64,Enter N: Sum of odds = 1024
+"show 'Enter a number: ';
+raw = read;
+n = int(raw);
+by4 = n % 4 == 0;
+by6 = n % 6 == 0;
+both = by4 and by6;
+if both:
+    msg = 'Divisible by both 4 and 6';
+    show msg;
+    show '\n';
+else:
+    msg = 'Not divisible by both';
+    show msg;
+    show '\n';
+close",100,Enter a number: Not divisible by both
+"fn power(base, exp):
+    result = 1;
+    for i in range(exp):
+        result = result * base;
+    close
+    ret result;
+close
+ 
+for i in range(1, 11):
+    p = power(2, i);
+    show '2^';
+    show i;
+    show ' = ';
+    show p;
+    show '\n';
+close",,"2^1 = 2
+2^2 = 4
+2^3 = 8
+2^4 = 16
+2^5 = 32
+2^6 = 64
+2^7 = 128
+2^8 = 256
+2^9 = 512
+2^10 = 1024"
+"for r in range(1, 4):
+    for c in range(1, 4):
+        val = r * c;
+        show val;
+        show ' ';
+    close
+    show '\n';
+close",,"1 2 3 
+2 4 6 
+3 6 9"
+"for r in range(1, 6):
+    for c in range(1, r + 1):
+        show c;
+        show ' ';
+    close
+    show '\n';
+close",,"1 
+1 2 
+1 2 3 
+1 2 3 4 
+1 2 3 4 5"
+"show 'Enter N: ';
+raw = read;
+n = int(raw);
+total = 0;
+for i in range(1, n + 1):
+    sq = i * i;
+    total = total + sq;
+close
+show 'Sum of squares = ';
+show total;
+show '\n';",64,Enter N: Sum of squares = 89440
+"show 'Enter upper limit: ';
+raw = read;
+n = int(raw);
+for i in range(0, n + 1, 3):
+    show i;
+    show ' ';
+close
+show '\n';",64,Enter upper limit: 0 3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48 51 54 57 60 63
+"for i in range(10, ~1, ~2):
+    show i;
+    show ' ';
+close
+show '\n';",,10 8 6 4 2 0
+"a:[3] = [1, 2, 3];
+b:[3] = [4, 5, 6];
+dot = 0;
+for i in range(3):
+    av = a[i];
+    bv = b[i];
+    dot = dot + av * bv;
+close
+show 'Dot product = ';
+show dot;
+show '\n';",,Dot product = 198
+"show 'Enter N for factorial: ';
+raw = read;
+n = int(raw);
+fact = 1;
+for i in range(1, n + 1):
+    fact = fact * i;
+close
+show n;
+show '! = ';
+show fact;
+show '\n';",10,Enter N for factorial: 10! = 3628800
+"mat:[3][3] = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+];
+for r in range(3):
+    row_sum = 0;
+    for c in range(3):
+        val = mat[r][c];
+        row_sum = row_sum + val;
+    close
+    show 'Row ';
+    show r;
+    show ' sum = ';
+    show row_sum;
+    show '\n';
+close",,"Row 0 sum = 6
+Row 1 sum = 15
+Row 2 sum = 24"
+"data:[8] = [10, 21, 30, 43, 50, 67, 70, 89];
+for i in range(0, 8, 2):
+    val = data[i];
+    show val;
+    show ' ';
+close
+show '\n';",,10 30 50 70
+"show 'Enter upper bound: ';
+raw = read;
+n = int(raw);
+val = 1;
+while val < n:
+    show val;
+    show '\n';
+    val = val * 2;
+close",64,"Enter upper bound: 1
+2
+4
+8
+16
+32"
+"total = 0;
+step = 0;
+i = 1;
+while total <= 50:
+    total = total + i;
+    i = i + 1;
+    step = step + 1;
+close
+show 'Steps needed: ';
+show step;
+show '\n';
+show 'Total reached: ';
+show total;
+show '\n';",,"Steps needed: 10
+Total reached: 55"
+"show 'Enter a number: ';
+raw = read;
+n = int(raw);
+show 'Digits (right to left): ';
+while n > 0:
+    digit = n % 10;
+    show digit;
+    show ' ';
+    n = n // 10;
+close
+show '\n';",64,Enter a number: Digits (right to left): 4 6
+"fn count_digits(n):
+    count = 0;
+    while n > 0:
+        n = n // 10;
+        count = count + 1;
+    close
+    ret count;
+close
+ 
+show 'Enter a number: ';
+raw = read;
+num = int(raw);
+digits = count_digits(num);
+show 'Number of digits: ';
+show digits;
+show '\n';",64,Enter a number: Number of digits: 2
+"fn largest_digit(n):
+    max_d = 0;
+    while n > 0:
+        d = n % 10;
+        bigger = d > max_d;
+        if bigger:
+            max_d = d;
+        close
+        n = n // 10;
+    close
+    ret max_d;
+close
+ 
+num = 3947215;
+result = largest_digit(num);
+show 'Largest digit: ';
+show result;
+show '\n';",,Largest digit: 9
+"show 'How many times to repeat? ';
+raw = read;
+n = int(raw);
+i = 0;
+while i < n:
+    show 'CHUNGUS';
+    show '\n';
+    i = i + 1;
+close",10,"How many times to repeat? CHUNGUS
+CHUNGUS
+CHUNGUS
+CHUNGUS
+CHUNGUS
+CHUNGUS
+CHUNGUS
+CHUNGUS
+CHUNGUS
+CHUNGUS"
+"data:[7] = [5, 12, 8, 0, 3, 9, 1];
+total = 0;
+i = 0;
+val = data[0];
+while val != 0:
+    total = total + val;
+    i = i + 1;
+    val = data[i];
+close
+show 'Sum before sentinel: ';
+show total;
+show '\n';",,"data:[7] = [5, 12, 8, 0, 3, 9, 1];
+total = 0;
+i = 0;
+val = data[0];
+while val != 0:
+    total = total + val;
+    i = i + 1;
+    val = data[i];
+close
+show 'Sum before sentinel: ';
+show total;
+show '\n';"
+"show 'Enter target value: ';
+raw = read;
+target = int(raw);
+val = 1;
+steps = 0;
+while val <= target:
+    val = val * 2;
+    steps = steps + 1;
+close
+show 'Steps: ';
+show steps;
+show '\n';
+show 'Final value: ';
+show val;
+show '\n';",64,"Enter target value: Steps: 7
+Final value: 128"
+"target = 25;
+guess = float(target);
+epsilon = 0.0001;
+i = 0;
+while i < 20:
+    guess = (guess + target / guess) / 2.0;
+    i = i + 1;
+close
+show 'Sqrt approx of 25 ~ ';
+show guess;
+show '\n';
+ ",,Sqrt approx of 25 ~ 4.12374
+"fn is_leap(y):
+    by400 = y % 400 == 0;
+    by100 = y % 100 == 0;
+    by4 = y % 4 == 0;
+    check = by400 or (by4 and ! by100);
+    ret check;
+close
+ 
+show 'Enter a year: ';
+raw = read;
+year = int(raw);
+result = is_leap(year);
+if result:
+    msg = 'Leap Year';
+    show msg;
+    show '\n';
+else:
+    msg = 'Not a Leap Year';
+    show msg;
+    show '\n';
+close",64,Enter a year: Leap Year
+"fn compute_bmi(weight, height):
+    bmi = weight / (height * height);
+    ret bmi;
+close
+ 
+weight = 70;
+height = 1.75;
+bmi = compute_bmi(weight, height);
+ 
+if bmi < 18.5:
+    cat = 'Underweight';
+    show cat;
+    show '\n';
+elif bmi < 25.0:
+    cat = 'Normal weight';
+    show cat;
+    show '\n';
+elif bmi < 30.0:
+    cat = 'Overweight';
+    show cat;
+    show '\n';
+else:
+    cat = 'Obese';
+    show cat;
+    show '\n';
+close
+ 
+show 'BMI = ';
+show bmi;
+show '\n';",,"Normal weight
+BMI = 22.857143"
+"fn abs_diff(a, b):
+    diff = a - b;
+    is_neg = diff < 0;
+    if is_neg:
+        diff = ~1 * diff;
+    close
+    ret diff;
+close
+ 
+a = 15;
+b = 28;
+result = abs_diff(a, b);
+show 'Absolute difference: ';
+show result;
+show '\n';
+ ",,Absolute difference: 13
+"for i in range(1, 16):
+    check = i % 3 == 0;
+    if check:
+        show 'Fizz';
+        show '\n';
+    else:
+        show i;
+        show '\n';
+    close
+close",,"1
+2
+Fizz
+4
+5
+Fizz
+7
+8
+Fizz
+10
+11
+Fizz
+13
+14
+Fizz"
+"a:[2] = [false, true];
+b:[2] = [false, true];
+for i in range(2):
+    ai = a[i];
+    for j in range(2):
+        bj = b[j];
+        result = ai and bj;
+        show ai;
+        show ' AND ';
+        show bj;
+        show ' = ';
+        show result;
+        show '\n';
+    close
+close",,"false AND false = false
+false AND true = false
+true AND false = false
+true AND true = true"
+"arr:[6] = [5, 2, 8, 1, 9, 3];
+size = 6;
+ 
+i = 0;
+while i < size - 1:
+    j = 0;
+    while j < size - i - 1:
+        a = arr[j];
+        b = arr[j + 1];
+        need_swap = a > b;
+        if need_swap:
+            arr[j] = b;
+            arr[j + 1] = a;
+        close
+        j = j + 1;
+    close
+    i = i + 1;
+close
+ 
+show 'Sorted: ';
+for k in range(6):
+    val = arr[k];
+    show val;
+    show ' ';
+close
+show '\n';",,Sorted: 5 2 8 1 9 3
+"grid:[3][3] = [
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0]
+];
+ 
+for r in range(3):
+    for c in range(3):
+        val = r * c;
+        grid[r][c] = val;
+    close
+close
+ 
+for r in range(3):
+    for c in range(3):
+        v = grid[r][c];
+        show v;
+        show ' ';
+    close
+    show '\n';
+close",,"0 0 0 
+0 1 2 
+0 2 4"
+"original:[2][3] = [
+    [1, 2, 3],
+    [4, 5, 6]
+];
+transposed:[3][2] = [
+    [0, 0],
+    [0, 0],
+    [0, 0]
+];
+ 
+for r in range(2):
+    for c in range(3):
+        val = original[r][c];
+        transposed[c][r] = val;
+    close
+close
+ 
+show 'Transposed matrix:\n';
+for r in range(3):
+    for c in range(2):
+        v = transposed[r][c];
+        show v;
+        show ' ';
+    close
+    show '\n';
+close",,"Transposed matrix:
+1 4 
+2 5 
+3 6"
+"word = 'code';
+chars:[4] = ['c', 'o', 'd', 'e'];
+for i in range(4):
+    ch = chars[i];
+    show ch;
+    show '-';
+close
+show '\n';
+ ",,"c-o-d-e-
+"
+"fn factorial(n):
+    result = 1;
+    for i in range(1, n + 1):
+        result = result * i;
+    close
+    ret result;
+close
+ 
+ans = factorial(0);
+show '0! = ';
+show ans;
+show '\n';",,0! = 1
+"for i in range(5, 5):
+    show i;
+close
+show 'Done\n';",,Done
+"for i in range(1, 10, ~1):
+    show i;
+close
+show 'Done\n';",,Done
+"a = ~50;
+b = 50;
+result = a + b;
+show result;
+show '\n';",,0
+"x = 9999;
+result = x * 0;
+show result;
+show '\n';",,0
+"a = ~3;
+b = 2;
+result = a // b;
+show result;
+show '\n';",,~1
+"a = ~7;
+b = 3;
+result = a % b;
+show result;
+show '\n';",,~1
+"val = 0;
+check = ! val;
+if check:
+    msg = 'zero is falsy';
+    show msg;
+    show '\n';
+else:
+    msg = 'zero is truthy';
+    show msg;
+    show '\n';
+close
+ ",,zero is falsy
+"s = '';
+check = ! s;
+if check:
+    msg = 'empty string is falsy';
+    show msg;
+    show '\n';
+else:
+    msg = 'string is truthy';
+    show msg;
+    show '\n';
+close",,empty string is falsy
+"s = 'hello';
+if s:
+    msg = 'string is truthy';
+    show msg;
+    show '\n';
+else:
+    msg = 'string is falsy';
+    show msg;
+    show '\n';
+close",,string is truthy
+"fn square(n):
+    result = n * n;
+    ret result;
+close
+ 
+fn cube(n):
+    result = n * n * n;
+    ret result;
+close
+ 
+a = square(3);
+b = cube(2);
+total = a + b;
+show 'Result: ';
+show total;
+show '\n';",,Result: 17
+"src:[5] = [10, 20, 30, 40, 50];
+dst:[5] = [0, 0, 0, 0, 0];
+for i in range(5):
+    val = src[i];
+    dst[i] = val;
+close
+show 'Copied array: ';
+for i in range(5):
+    v = dst[i];
+    show v;
+    show ' ';
+close
+show '\n';",,Copied array: 10 20 30 40 50
+"arr:[5] = [1, 2, 3, 4, 5];
+scalar = 3;
+for i in range(5):
+    val = arr[i];
+    arr[i] = val * scalar;
+close
+for i in range(5):
+    v = arr[i];
+    show v;
+    show ' ';
+close
+show '\n';",,3 6 9 12 15
+"mat:[3][3] = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+];
+for c in range(3):
+    col_sum = 0;
+    for r in range(3):
+        val = mat[r][c];
+        col_sum = col_sum + val;
+    close
+    show 'Col ';
+    show c;
+    show ' sum = ';
+    show col_sum;
+    show '\n';
+close",,"Col 0 sum = 12
+Col 1 sum = 15
+Col 2 sum = 18"
+"data:[7] = [3, ~1, 5, ~9, 2, ~4, 8];
+for i in range(7):
+    val = data[i];
+    is_neg = val < 0;
+    if is_neg:
+        data[i] = 0;
+    close
+close
+show 'Cleaned array: ';
+for i in range(7):
+    v = data[i];
+    show v;
+    show ' ';
+close
+show '\n';",,Cleaned array: 3 0 5 0 2 0 8
+"mat:[4][4] = [
+    [1, 1, 1, 1],
+    [1, 1, 1, 1],
+    [1, 1, 1, 1],
+    [1, 1, 1, 1]
+];
+total = 0;
+for r in range(4):
+    for c in range(4):
+        v = mat[r][c];
+        total = total + v;
+    close
+close
+show 'Total sum of 4x4 ones: ';
+show total;
+show '\n';",,Total sum of 4x4 ones: 16
+"items:[5] = [10, 3, 7, 1, 6];
+ 
+show 'Low stock items at index:\n';
+for i in range(5):
+    qty = items[i];
+    low = qty < 5;
+    if low:
+        show 'Index ';
+        show i;
+        show ' -> qty: ';
+        show qty;
+        show '\n';
+    close
+close",,"Low stock items at index:
+Index 1 -> qty: 3
+Index 3 -> qty: 1"
+"data:[8] = [4, 7, 2, 9, 1, 5, 8, 3];
+running_max = data[0];
+show 'Running max: ';
+show running_max;
+show ' ';
+for i in range(1, 8):
+    v = data[i];
+    bigger = v > running_max;
+    if bigger:
+        running_max = v;
+    close
+    show running_max;
+    show ' ';
+close
+show '\n';",,Running max: 4 7 7 9 9 9 9 9
+"table:[4][4] = [
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0]
+];
+ 
+for r in range(4):
+    for c in range(4):
+        table[r][c] = (r + 1) * (c + 1);
+    close
+close
+ 
+for r in range(4):
+    for c in range(4):
+        v = table[r][c];
+        show v;
+        show '\t';
+    close
+    show '\n';
+close",,"1	2	3	4	
+2	4	6	8	
+3	6	9	12	
+4	8	12	16"
+"mat:[3][3] = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+];
+size = 3;
+anti_sum = 0;
+for i in range(size):
+    col = size - 1 - i;
+    v = mat[i][col];
+    anti_sum = anti_sum + v;
+close
+show 'Anti-diagonal sum: ';
+show anti_sum;
+show '\n';",,Anti-diagonal sum: 15
+"fn power(base, exp):
+    result = 1;
+    for i in range(exp):
+        result = result * base;
+    close
+    ret result;
+close
+ 
+fn compound_interest(p, r, n):
+    rate = 1.0 + r / 100.0;
+    factor = power(rate, n);
+    amount = p * factor;
+    ret amount;
+close
+ 
+principal = 1000;
+rate = 5;
+years = 3;
+amount = compound_interest(principal, rate, years);
+show 'Compound amount: ';
+show amount;
+show '\n';
+ ",,Compound amount: 0.216
+"mat:[3][3] = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+];
+size = 3;
+last = size - 1;
+border_sum = 0;
+ 
+for c in range(size):
+    v = mat[0][c];
+    border_sum = border_sum + v;
+close
+for c in range(size):
+    v = mat[last][c];
+    border_sum = border_sum + v;
+close
+for r in range(1, last):
+    v = mat[r][0];
+    border_sum = border_sum + v;
+close
+for r in range(1, last):
+    v = mat[r][last];
+    border_sum = border_sum + v;
+close
+ 
+show 'Border sum: ';
+show border_sum;
+show '\n';",,Border sum: 40
+"fn countdown(n):
+    i = n;
+    while i > 0:
+        show i;
+        show '\n';
+        i = i - 1;
+    close
+close
+ 
+countdown(5);",,"5
+4
+3
+2
+1"
+"fn is_teen(age):
+    low = age >= 13;
+    high = age <= 19;
+    ret low and high;
+close
+ 
+age = 17;
+result = is_teen(age);
+show 'Is teen: ';
+show result;
+show '\n';
+ ",,Is teen: true
+"fn is_perfect(n):
+    total = 0;
+    i = 1;
+    limit = n - 1;
+    while i <= limit:
+        rem = n % i;
+        if rem == 0:
+            total = total + i;
+        close
+        i = i + 1;
+    close
+    ret total == n;
+close
+ 
+check = is_perfect(6);
+show 'Is 6 perfect: ';
+show check;
+show '\n';",,Is 6 perfect: true
+"fn is_armstrong(n):
+    d1 = n // 100;
+    d2 = (n // 10) % 10;
+    d3 = n % 10;
+    sum_cubes = d1 ** 3 + d2 ** 3 + d3 ** 3;
+    ret sum_cubes == n;
+close
+ 
+check = is_armstrong(153);
+show '153 is Armstrong: ';
+show check;
+show '\n';",,153 is Armstrong: false
+"total = 0;
+for i in range(1, 50):
+    by3 = i % 3 == 0;
+    by5 = i % 5 == 0;
+    if by3 or by5:
+        total = total + i;
+    close
+close
+show 'Sum: ';
+show total;
+show '\n';",,Sum: 543
+"a = 0;
+b = 1;
+while a < 100:
+    show a;
+    show ' ';
+    temp = a + b;
+    a = b;
+    b = temp;
+close
+show '\n';",,0 1 1 2 3 5 8 13 21 34 55 89
+"count = 0;
+for i in range(11):
+    for j in range(11):
+        check = i + j == 10;
+        if check:
+            count = count + 1;
+        close
+    close
+close
+show 'Pairs where i+j=10: ';
+show count;
+show '\n';",,Pairs where i+j=10: 11
+"for i in range(1, 6):
+    sq = i * i;
+    cu = i * i * i;
+    show i;
+    show ' -> sq=';
+    show sq;
+    show ' cu=';
+    show cu;
+    show '\n';
+close",,"1 -> sq=1 cu=1
+2 -> sq=4 cu=8
+3 -> sq=9 cu=27
+4 -> sq=16 cu=64
+5 -> sq=25 cu=125"
+"data:[5] = [8, 3, 7, 1, 5];
+min_idx = 0;
+for i in range(1, 5):
+    v = data[i];
+    m = data[min_idx];
+    is_smaller = v < m;
+    if is_smaller:
+        min_idx = i;
+    close
+close
+show 'Min index: ';
+show min_idx;
+show '\n';",,Min index: 3
+"decade:[3] = [0, 0, 0];
+for i in range(1, 21):
+    in_first = i < 10;
+    in_second = i >= 10 and i < 20;
+    if in_first:
+        decade[0] = decade[0] + 1;
+    elif in_second:
+        decade[1] = decade[1] + 1;
+    else:
+        decade[2] = decade[2] + 1;
+    close
+close
+for i in range(3):
+    v = decade[i];
+    show 'Decade ';
+    show i;
+    show ': ';
+    show v;
+    show '\n';
+close",,"Decade 0: 9
+Decade 1: 11
+Decade 2: 0"
+"mat:[3][3] = [
+    [1, 2, 3],
+    [2, 5, 6],
+    [3, 6, 9]
+];
+is_sym = true;
+for i in range(3):
+    for j in range(3):
+        a = mat[i][j];
+        b = mat[j][i];
+        not_equal = a != b;
+        if not_equal:
+            is_sym = false;
+        close
+    close
+close
+show 'Is symmetric: ';
+show is_sym;
+show '\n';",,Is symmetric: true
+"for i in range(1, 21):
+    by2 = i % 2 == 0;
+    gt5 = i > 5;
+    if by2 and gt5:
+        show i;
+        show ' ';
+    close
+close
+show '\n';",,6 8 10 12 14 16 18 20
+"for r in range(4):
+    for c in range(4):
+        upper = c >= r;
+        if upper:
+            val = (r + 1) * (c + 1);
+            show val;
+            show ' ';
+        else:
+            show '0 ';
+        close
+    close
+    show '\n';
+close",,"1 2 3 4 
+0 4 6 8 
+0 0 9 12 
+0 0 0 16"
+"fn gcd(a, b):
+    while b != 0:
+        temp = b;
+        b = a % b;
+        a = temp;
+    close
+    ret a;
+close
+ 
+fn lcm(a, b):
+    g = gcd(a, b);
+    ret a * b / g;
+close
+ 
+result = lcm(12, 18);
+show 'LCM: ';
+show result;
+show '\n';",,LCM: 36.0
+"total = 0;
+i = 1;
+while total <= 500:
+    cube = i * i * i;
+    total = total + cube;
+    i = i + 1;
+close
+show 'Sum exceeded 500 at i=';
+show i;
+show '\n';
+show 'Total: ';
+show total;
+show '\n';",,"Sum exceeded 500 at i=8
+Total: 784"
+"val = 1;
+while val <= 1000:
+    show val;
+    show ' ';
+    val = val * 3;
+close
+show '\n';",,1 3 9 27 81 243 729
+"sums:[5] = [0, 0, 0, 0, 0];
+total = 0;
+i = 0;
+n = 1;
+while i < 5:
+    total = total + n;
+    sums[i] = total;
+    n = n + 1;
+    i = i + 1;
+close
+for k in range(5):
+    v = sums[k];
+    show v;
+    show ' ';
+close
+show '\n';",,1 3 6 10 15
+"fn count_divisors(n):
+    count = 0;
+    i = 1;
+    while i <= n:
+        rem = n % i;
+        if rem == 0:
+            count = count + 1;
+        close
+        i = i + 1;
+    close
+    ret count;
+close
+ 
+result = count_divisors(36);
+show 'Divisors of 36: ';
+show result;
+show '\n';",,Divisors of 36: 9
+"base = 2.5;
+exp = 3;
+result = 1.0;
+i = 0;
+while i < exp:
+    result = result * base;
+    i = i + 1;
+close
+show '2.5^3 = ';
+show result;
+show '\n';",,2.5^3 = 15.625
+"a = 10;
+b = 20;
+show 'Before: a=';
+show a;
+show ' b=';
+show b;
+show '\n';
+temp = a;
+a = b;
+b = temp;
+show 'After: a=';
+show a;
+show ' b=';
+show b;
+show '\n';",,"Before: a=10 b=20
+After: a=20 b=10"
+"n = 1;
+found = false;
+while ! found:
+    sq = n * n;
+    over = sq > 200;
+    if over:
+        found = true;
+    else:
+        n = n + 1;
+    close
+close
+show 'First n where n^2 > 200: ';
+show n;
+show '\n';",,First n where n^2 > 200: 15
+"data:[6] = [5, ~3, 8, ~1, 12, 7];
+total = 0;
+i = 0;
+while i < 6:
+    v = data[i];
+    is_pos = v > 0;
+    if is_pos:
+        total = total + v;
+    close
+    i = i + 1;
+close
+show 'Sum of positives: ';
+show total;
+show '\n';",,Sum of positives: 32
+"rows = 4;
+for r in range(1, rows + 1):
+    for c in range(1, r + 1):
+        show c;
+        show ' ';
+    close
+    show '\n';
+close",,"1 
+1 2 
+1 2 3 
+1 2 3 4"
+"freq:[10] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+num = 1234321;
+while num > 0:
+    d = num % 10;
+    old = freq[d];
+    freq[d] = old + 1;
+    num = num // 10;
+close
+for i in range(10):
+    v = freq[i];
+    show 'Digit ';
+    show i;
+    show ': ';
+    show v;
+    show ' times\n';
+close",,"Digit 0: 0 times
+Digit 1: 2 times
+Digit 2: 2 times
+Digit 3: 2 times
+Digit 4: 1 times
+Digit 5: 0 times
+Digit 6: 0 times
+Digit 7: 0 times
+Digit 8: 0 times
+Digit 9: 0 times"
+"
+fn sqrt_approx(n):
+    guess = float(n);
+    i = 0;
+    while i < 15:
+        guess = (guess + n / guess) / 2.0;
+        i = i + 1;
+    close
+    ret guess;
+close
+ 
+nums:[4] = [4, 9, 16, 25];
+for i in range(4):
+    v = nums[i];
+    s = sqrt_approx(v);
+    show 'sqrt(';
+    show v;
+    show ') ~ ';
+    show s;
+    show '\n';
+close
+ ",,"sqrt(4) ~ 1.679604
+sqrt(9) ~ 2.311079
+sqrt(16) ~ 2.823383
+sqrt(25) ~ 3.209058"
+"data:[10] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+evens = 0;
+odds = 0;
+for i in range(10):
+    v = data[i];
+    rem = v % 2;
+    if rem == 0:
+        evens = evens + 1;
+    else:
+        odds = odds + 1;
+    close
+close
+show 'Evens: ';
+show evens;
+show '\n';
+show 'Odds: ';
+show odds;
+show '\n';",,"Evens: 5
+Odds: 5"
