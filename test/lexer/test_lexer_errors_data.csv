@@ -327,9 +327,9 @@ try:,NO LEXICAL ERROR/S
 fail:,NO LEXICAL ERROR/S
 always:,NO LEXICAL ERROR/S
 else:,NO LEXICAL ERROR/S
-try;,Invalid Delimiter
-fail;,Invalid Delimiter
-always;,Invalid Delimiter
+try;,NO LEXICAL ERROR/S
+fail;,NO LEXICAL ERROR/S
+always;,NO LEXICAL ERROR/S
 else;,Invalid Delimiter
 1+id()-,NO LEXICAL ERROR/S
 1+fn()-,Invalid Delimiter
@@ -364,11 +364,6 @@ x = ~ ( matrix[0][0] + matrix[1][1] );,Invalid Character
 matrix[ (int(read)) ][ (int(read)) ] = 100;,"Invalid Delimiter
 Invalid Delimiter"
 fn wrong_symbol(): ret a $ b; close,Invalid Character
-try: x = read; fail: x = 0; always: ret; close,Invalid Delimiter
-"try: x = ~10 / 0; fail: show 'neg div'; close
-",NO LEXICAL ERROR/S
-"try: show 'hi'; close
-",NO LEXICAL ERROR/S
 x = 5;,NO LEXICAL ERROR/S
 x = 5;,NO LEXICAL ERROR/S
 "x = 'It';
@@ -390,13 +385,12 @@ fn wrong_symbol(): show '10'; close ,NO LEXICAL ERROR/S
 "fn test(a, b): if ( a + b): show id; close close
 ",NO LEXICAL ERROR/S
 x = 10;,NO LEXICAL ERROR/S
-fn fail(): todo; close,Invalid Delimiter
+fn fail(): todo; close,NO LEXICAL ERROR/S
 while x < 10: x = x + 1; close,NO LEXICAL ERROR/S
 "while int(rAad) < 10: show 'loop'; close
 ",NO LEXICAL ERROR/S
 for i in range(2): show i; close,NO LEXICAL ERROR/S
 while x == 10: show x; close,NO LEXICAL ERROR/S
-try: fn fail3(): todo; close fail: todo; close,NO LEXICAL ERROR/S
 "fn test(): while true: if false: todo ; close close close
 ",NO LEXICAL ERROR/S
 while x == 10: if y == 5: show id; close close,NO LEXICAL ERROR/S

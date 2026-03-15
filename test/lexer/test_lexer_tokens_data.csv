@@ -19,13 +19,6 @@ elif score >= 75:
 else:
     show 'Grade: C';
 close","[""id"",""="",""int_literal"", "";"", ""if"",""id"","">="",""int_literal"", "":"", ""show"",""str_literal"",   "";""   , ""elif"",""id"","">="",""int_literal"",    "":"" ,    ""show"",""str_literal"", "";"", ""else"", "":"",  ""show"",""str_literal"", "";""  ,   ""close""]",conditional.chg
-"try:
-    x = 10 / 0;
-fail:
-    show 'Err... zero!';
-always:
-    show 'This always executes.';
-close","[""try"",    "":"",   ""id"",""="",""int_literal"",""/"",""int_literal"",   "";"", ""fail"",    "":"",   ""show"",""str_literal"",    "";"",    ""always"",   "":"",   ""show"",""str_literal"", "";"",  ""close""]",error_handling.chg
 "for i in range(5):
     show '$(i)';
 close","[""for"",""id"",""in"",""range"",""("",""int_literal"","")"",  "":"",   ""show"",""str_literal"",  "";"", ""close""]",for_loop.chg
