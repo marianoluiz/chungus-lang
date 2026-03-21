@@ -1,0 +1,10 @@
+n = read;
+n = int(n);
+n = n + 1;
+sum = 0;
+for i in range(1, n):
+    cu = i * i * i;
+    sum = sum + cu;
+close
+show 'Sum of cubes ';
+show sum;

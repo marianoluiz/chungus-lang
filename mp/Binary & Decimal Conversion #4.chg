@@ -1,0 +1,229 @@
+###
+  PROGRAM 4: NUMBER CONVERSION
+  a) Binary to Octal, Decimal, Hexadecimal
+  b) Decimal to Binary, Octal, Hexadecimal
+  Uses functions with parameter passing and return values.
+
+  NOTE on Chungus show limitations:
+  - show only accepts a variable or a str_literal
+  - No expressions or concatenation inside show
+  - Strings use single quotes only
+  - Negative numbers use tilde (~) not minus
+###
+
+### ============================================================
+    BINARY TO DECIMAL
+    Takes a binary number (as integer digits, e.g. 1010) and
+    returns its decimal equivalent.
+   ============================================================ ###
+fn bin_to_dec(b):
+    dec = 0;
+    power = 1;
+    temp = b;
+    while temp > 0:
+        digit = temp % 10;
+        dec = dec + digit * power;
+        power = power * 2;
+        temp = temp // 10;
+    close
+    ret dec;
+close
+
+### ============================================================
+    DECIMAL TO BINARY
+    Returns the binary representation as an integer
+    (e.g. 10 -> 1010).
+   ============================================================ ###
+fn dec_to_bin(n):
+    result = 0;
+    power = 1;
+    temp = n;
+    while temp > 0:
+        rem = temp % 2;
+        result = result + rem * power;
+        power = power * 10;
+        temp = temp // 2;
+    close
+    ret result;
+close
+
+### ============================================================
+    DECIMAL TO OCTAL
+    Returns the octal representation as an integer
+    (e.g. 8 -> 10).
+   ============================================================ ###
+fn dec_to_oct(n):
+    result = 0;
+    power = 1;
+    temp = n;
+    while temp > 0:
+        rem = temp % 8;
+        result = result + rem * power;
+        power = power * 10;
+        temp = temp // 8;
+    close
+    ret result;
+close
+
+### ============================================================
+    DECIMAL TO HEX DIGIT CHARACTER
+    Returns the single hex character for values 0-15.
+   ============================================================ ###
+fn hex_digit(d):
+    ch = '?';
+    if d == 0:
+        ch = '0';
+    elif d == 1:
+        ch = '1';
+    elif d == 2:
+        ch = '2';
+    elif d == 3:
+        ch = '3';
+    elif d == 4:
+        ch = '4';
+    elif d == 5:
+        ch = '5';
+    elif d == 6:
+        ch = '6';
+    elif d == 7:
+        ch = '7';
+    elif d == 8:
+        ch = '8';
+    elif d == 9:
+        ch = '9';
+    elif d == 10:
+        ch = 'A';
+    elif d == 11:
+        ch = 'B';
+    elif d == 12:
+        ch = 'C';
+    elif d == 13:
+        ch = 'D';
+    elif d == 14:
+        ch = 'E';
+    elif d == 15:
+        ch = 'F';
+    close
+    ret ch;
+close
+
+### ============================================================
+    BUILD HEX STRING FROM DECIMAL
+    Builds the hex string digit by digit (up to 8 hex digits).
+    Returns the hex string result.
+   ============================================================ ###
+fn dec_to_hex(n):
+    ### We build up to 8 hex digits and store them in an array ###
+    digits : [8] = [];
+    count = 0;
+    temp = n;
+    if temp == 0:
+        digits[0] = '0';
+        count = 1;
+    close
+    while temp > 0:
+        rem = temp % 16;
+        d = hex_digit(rem);
+        digits[count] = d;
+        count = count + 1;
+        temp = temp // 16;
+    close
+    ### Build string by reversing (reading from count-1 down to 0) ###
+    hex_str = '';
+    idx = count - 1;
+    while idx >= 0:
+        hex_str = hex_str + digits[idx];
+        idx = idx - 1;
+    close
+    ret hex_str;
+close
+
+### ============================================================
+    BINARY TO OCTAL  (via decimal)
+   ============================================================ ###
+fn bin_to_oct(b):
+    dec = bin_to_dec(b);
+    oct_val = dec_to_oct(dec);
+    ret oct_val;
+close
+
+### ============================================================
+    BINARY TO HEX  (via decimal)
+   ============================================================ ###
+fn bin_to_hex(b):
+    dec = bin_to_dec(b);
+    hex_val = dec_to_hex(dec);
+    ret hex_val;
+close
+
+### ============================================================
+    OCTAL TO DECIMAL
+   ============================================================ ###
+fn oct_to_dec(o):
+    dec = 0;
+    power = 1;
+    temp = o;
+    while temp > 0:
+        digit = temp % 10;
+        dec = dec + digit * power;
+        power = power * 8;
+        temp = temp // 10;
+    close
+    ret dec;
+close
+
+### ============================================================
+   MAIN PROGRAM
+   ============================================================ ###
+
+# ---- BINARY CONVERSION SECTION ----
+show '\n=== BINARY CONVERSION ===\n';
+show 'Enter a binary number (digits 0 and 1 only): ';
+bin_input = read;
+bin_num = int(bin_input);
+
+dec_result = bin_to_dec(bin_num);
+oct_result = bin_to_oct(bin_num);
+hex_result = bin_to_hex(bin_num);
+
+show 'Binary entered : ';
+show bin_input;
+show '\n';
+
+show 'Decimal        : ';
+show dec_result;
+show '\n';
+
+show 'Octal          : ';
+show oct_result;
+show '\n';
+
+show 'Hexadecimal    : ';
+show hex_result;
+show '\n';
+
+# ---- DECIMAL CONVERSION SECTION ----
+show '\n=== DECIMAL CONVERSION ===\n';
+show 'Enter a decimal number: ';
+dec_input = read;
+dec_num = int(dec_input);
+
+bin_res  = dec_to_bin(dec_num);
+oct_res  = dec_to_oct(dec_num);
+hex_res  = dec_to_hex(dec_num);
+
+show 'Decimal entered: ';
+show dec_input;
+show '\n';
+
+show 'Binary         : ';
+show bin_res;
+show '\n';
+
+show 'Octal          : ';
+show oct_res;
+show '\n';
+
+show 'Hexadecimal    : ';
+show hex_res;
+show '\n';

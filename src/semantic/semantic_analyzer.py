@@ -35,6 +35,10 @@ class ArgumentCountMismatchError(SemanticError):
     """Function called with wrong number of arguments."""
     pass
 
+class SymbolAlreadyDefinedError(SemanticError):
+    """Symbol (variable/function) already defined in this scope."""
+    pass
+
 
 @dataclass
 class Symbol:
@@ -107,13 +111,18 @@ class SymbolTable:
         return None
 
 
-    def lookup_current_scope(self, name: str) -> Optional[Symbol]:
+    def lookup_function(self, name: str) -> Optional[Symbol]:
         """
-        Look up a symbol ONLY in the current (innermost) scope.
-        Used to distinguish shadowing from reassignment.
+        Look up a function symbol, searching from innermost to outermost scope.
+        Only returns symbols with kind == "function".
         """
-        current_scope = self.scopes[-1]
-        return current_scope.get(name, None)
+        # Search from innermost (end) to outermost (start)
+        for scope in reversed(self.scopes):
+            if name in scope:
+                symbol = scope[name]
+                if symbol.kind == "function":
+                    return symbol
+        return None
 
 
 
@@ -849,6 +858,11 @@ class SemanticAnalyzer:
                 for param_id_node in params_node.children:
                     if param_id_node.kind == "id":
                         param_name = param_id_node.value
+                        # Check if parameter conflicts with function name
+                        if param_name == func_name:
+                            self._error(param_id_node,
+                                f"Parameter '{param_name}' cannot have same name as function",
+                                SemanticError)
                         params.append((param_name, TY_UNKNOWN))
 
             # Infer return type from function body
@@ -866,7 +880,8 @@ class SemanticAnalyzer:
                 return_type=return_type
             )
 
-            self._symbol_table.declare(func_symbol)
+            if not self._symbol_table.declare(func_symbol):
+                self._error(node, f"Function '{func_name}' already defined", SymbolAlreadyDefinedError)
             # Don't enter function scope - local vars declared in pass 2
             return
 
@@ -901,6 +916,12 @@ class SemanticAnalyzer:
             return None
 
         elif node.kind == "function":
+            # Check if this function was redeclared (symbol exists but at different location)
+            func_symbol = self._symbol_table.lookup(node.value)
+            if func_symbol and (func_symbol.line != node.line or func_symbol.col != node.col):
+                # This is a redeclared function - skip analyzing its body to avoid cascading errors
+                return None
+            
             # Enter function scope for type checking the body
             self._symbol_table.enter_scope()
 
@@ -910,7 +931,6 @@ class SemanticAnalyzer:
             if node.children and node.children[0].kind == "params":
                 params_node = node.children[0]
                 start_idx = 1
-                func_symbol = self._symbol_table.lookup(node.value)
 
                 if func_symbol and func_symbol.params:
                     for param_name, param_type in func_symbol.params:
@@ -1115,13 +1135,20 @@ class SemanticAnalyzer:
             # Validate and type check indices (skip base, already checked)
             if indices_node:
                 for idx_node in indices_node.children:
+                    # Type check the index expression first
+                    idx_type = self._type_check(idx_node)
+                    
+                    # Reject functions in array indices
+                    if idx_type == "function":
+                        self._error(idx_node,
+                            f"Cannot use function as array index",
+                            TypeMismatchError)
+                    
                     # Validate index expression type
                     if not self._is_valid_array_index_expr(idx_node):
                         self._error(idx_node,
                             f"Invalid array index: expression must be 0 or non-negative integer",
                             TypeMismatchError)
-                    # Type check the index expression
-                    self._type_check(idx_node)
             
             # Return unknown type for now (would need element type tracking)
             return TY_UNKNOWN
@@ -1202,14 +1229,9 @@ class SemanticAnalyzer:
         
         elif node.kind == "indices":
             # indices node: children=[index expressions]
+            # Note: Individual index expressions are type-checked in the index handler
             for child in node.children:
-                idx_type = self._type_check(child)
-                # TODO: For now, allow all data types in array indices
-                # Uncomment below to restrict to int type only:
-                # if idx_type and idx_type not in {TY_INT, TY_UNKNOWN}:
-                #     self._error(child,
-                #         f"Array index must be int, got '{idx_type}'",
-                #         TypeMismatchError)
+                self._type_check(child)
             return None
         
         elif node.kind == "id":
@@ -1255,6 +1277,12 @@ class SemanticAnalyzer:
             # Type check the expression being cast
             if node.children:
                 expr_type = self._type_check(node.children[0])
+                # Cannot cast functions
+                if expr_type == "function":
+                    self._error(node.children[0],
+                        f"Cannot cast function to {cast_type}",
+                        TypeMismatchError)
+                    return TY_UNKNOWN
             
             # Return the target cast type
             result_type = TY_INT if cast_type == "int" else TY_FLOAT
@@ -1271,12 +1299,21 @@ class SemanticAnalyzer:
                     self._error(node.children[0],
                         f"Cannot return array from function",
                         TypeMismatchError)
+                # Cannot return function names
+                elif return_type == "function":
+                    self._error(node.children[0],
+                        f"Cannot return function",
+                        TypeMismatchError)
             return None
         
         elif node.kind == "output_statement":
             # Output/show statement: children=[expr]
             if node.children:
-                self._type_check(node.children[0])
+                expr_type = self._type_check(node.children[0])
+                if expr_type == "function":
+                    self._error(node.children[0],
+                        f"Cannot show function",
+                        TypeMismatchError)
             return None
         
         elif node.kind == "todo":
@@ -1316,6 +1353,12 @@ class SemanticAnalyzer:
                         # Check if size expression type is valid (must be int or int expression)
                         # Reject bool/string variables or literals (even if they have constant values)
                         size_type = self._type_check(size_expr)
+                        
+                        # Reject function types in array size
+                        if size_type == "function":
+                            self._error(size_expr,
+                                "Cannot use function as array size",
+                                TypeMismatchError)
 
                         # Try constant folding first
                         const_val = self._evaluate_constant_expr(size_expr)
@@ -1367,6 +1410,16 @@ class SemanticAnalyzer:
                         # Check types
                         row_type = self._type_check(row_expr)
                         col_type = self._type_check(col_expr)
+                        
+                        # Reject function types in 2D array dimensions
+                        if row_type == "function":
+                            self._error(row_expr,
+                                "Cannot use function as array row dimension",
+                                TypeMismatchError)
+                        if col_type == "function":
+                            self._error(col_expr,
+                                "Cannot use function as array column dimension",
+                                TypeMismatchError)
                         
                         # Try constant folding
                         row_const = self._evaluate_constant_expr(row_expr)
@@ -1439,7 +1492,12 @@ class SemanticAnalyzer:
             for i, child in enumerate(node.children):
                 if i == 0:  # Skip size node (already type-checked above)
                     continue
-                self._type_check(child)
+                elem_type = self._type_check(child)
+                # Check if element is a function
+                if elem_type == "function":
+                    self._error(child,
+                        f"Cannot use function as array element",
+                        TypeMismatchError)
             return TY_ARRAY
         
         elif node.kind in ["size", "array_row"]:
@@ -1472,6 +1530,14 @@ class SemanticAnalyzer:
             left_type = self._type_check(node.children[0]) if node.children else TY_UNKNOWN
             right_type = self._type_check(node.children[1]) if len(node.children) > 1 else TY_UNKNOWN
 
+            # Reject function types in comparisons
+            if left_type == "function":
+                self._error(node.children[0], f"Cannot use function in comparison", TypeMismatchError)
+                return TY_UNKNOWN
+            if right_type == "function":
+                self._error(node.children[1], f"Cannot use function in comparison", TypeMismatchError)
+                return TY_UNKNOWN
+
             # Skip if either operand is already TY_UNKNOWN
             if left_type == TY_UNKNOWN or right_type == TY_UNKNOWN:
                 node.inferred_type = TY_UNKNOWN
@@ -1499,7 +1565,17 @@ class SemanticAnalyzer:
             # Logical operators
             op = node.kind
             left_type = self._type_check(node.children[0]) if node.children else TY_UNKNOWN
+            
+            # Reject function types in logical operations
+            if left_type == "function":
+                self._error(node.children[0], f"Cannot use function in logical operation", TypeMismatchError)
+                return TY_UNKNOWN
             right_type = self._type_check(node.children[1]) if len(node.children) > 1 else TY_UNKNOWN
+            
+            # Reject function types in right operand
+            if right_type == "function":
+                self._error(node.children[1], f"Cannot use function in logical operation", TypeMismatchError)
+                return TY_UNKNOWN
             
             # Skip if either operand is already TY_UNKNOWN
             if left_type == TY_UNKNOWN or right_type == TY_UNKNOWN:
@@ -1527,6 +1603,11 @@ class SemanticAnalyzer:
         elif node.kind == "!":
             # Logical NOT (unary)
             operand_type = self._type_check(node.children[0]) if node.children else TY_UNKNOWN
+            
+            # Reject function types in logical NOT
+            if operand_type == "function":
+                self._error(node.children[0], f"Cannot use function with logical NOT", TypeMismatchError)
+                return TY_UNKNOWN
             
             # Skip if operand is already TY_UNKNOWN
             if operand_type == TY_UNKNOWN:
@@ -1556,6 +1637,14 @@ class SemanticAnalyzer:
             op = node.kind
             left_type = self._type_check(node.children[0]) if node.children else TY_UNKNOWN
             right_type = self._type_check(node.children[1]) if len(node.children) > 1 else TY_UNKNOWN
+
+            # Reject function types in arithmetic operations
+            if left_type == "function":
+                self._error(node.children[0], f"Cannot use function in arithmetic operation", TypeMismatchError)
+                return TY_UNKNOWN
+            if right_type == "function":
+                self._error(node.children[1], f"Cannot use function in arithmetic operation", TypeMismatchError)
+                return TY_UNKNOWN
 
             # Check for division by zero (compile-time check)
             if op in ["/", "//", "%"] and len(node.children) > 1:
@@ -1606,9 +1695,21 @@ class SemanticAnalyzer:
 
             var_name = node.value
             symbol = self._symbol_table.lookup(var_name)
+
+            # Check if trying to assign to a function
+            if symbol and symbol.kind == "function":
+                self._error(node, f"Cannot assign to function '{var_name}'", TypeMismatchError)
+                return TY_UNKNOWN
             
             # Type check the RHS expression
             expr_type = self._type_check(node.children[0]) if node.children else TY_UNKNOWN
+            
+            # Check if trying to assign a function value
+            if expr_type == "function":
+                self._error(node.children[0] if node.children else node,
+                    f"Cannot assign function to variable",
+                    TypeMismatchError)
+                return TY_UNKNOWN
 
             # Try to evaluate as compile-time constant
             const_val = None
@@ -1641,9 +1742,9 @@ class SemanticAnalyzer:
         elif node.kind == "function_call":
             # function_call: func_name, children=[args]
             func_name = node.value
-            symbol = self._symbol_table.lookup(func_name)
+            symbol = self._symbol_table.lookup_function(func_name)
 
-            if symbol is None or symbol.kind != "function":
+            if symbol is None:
                 self._error(node,
                     f"Function '{func_name}' not defined",
                     FunctionNotDefinedError)
@@ -1672,6 +1773,11 @@ class SemanticAnalyzer:
                 if arg_type == TY_ARRAY:
                     self._error(arg,
                         f"Cannot pass array as function argument (use array elements instead)",
+                        TypeMismatchError)
+                # Disallow passing functions as arguments
+                if arg_type == "function":
+                    self._error(arg,
+                        f"Cannot pass function as argument",
                         TypeMismatchError)
 
             result_type = symbol.return_type if symbol.return_type else TY_UNKNOWN

@@ -1,0 +1,5 @@
+num = read;
+num = float(num);
+result = num ** 0.5;
+show 'Square root: ';
+show result;

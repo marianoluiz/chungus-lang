@@ -148,13 +148,14 @@ class Lexer:
             curr_char = self.get_curr_char()
             start_pos = self._index
 
-            if curr_char == ' ':
-                self._lexemes.append(' ')
+            if curr_char == '\n':
+                self._lexemes.append(r'\n')
                 lexeme_positions.append(start_pos)
                 self.advance_cursor()
                 continue
-            if curr_char == '\n':
-                self._lexemes.append(r'\n')
+            if curr_char.isspace():
+                # Normalize all whitespace (except newline) to space for lexeme storage
+                self._lexemes.append(' ')
                 lexeme_positions.append(start_pos)
                 self.advance_cursor()
                 continue

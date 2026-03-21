@@ -1,0 +1,36 @@
+#triangle
+for i in range(1, 6):
+  for j in range(i):
+    show '*';
+  close 
+  show '\n';
+close 
+
+#inverted triangle
+for i in range(6, 1, ~1):
+  for j in range(i):
+    show '*';
+  close 
+  show '\n';
+close 
+
+#rectangle
+width = 10;
+height = 5;
+
+for i in range(height):
+  for j in range(width):
+    show '*';
+  close
+  show '\n';
+close 
+
+#square
+size = 5;
+
+for i in range(size):
+  for j in range(size):
+    show '*';
+  close 
+  show '\n';
+close 

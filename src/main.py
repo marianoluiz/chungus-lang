@@ -190,6 +190,7 @@ def codegen_adapter(source: str, stdin_data=None):
         TIMEOUT_SECONDS = 5.0
         MAX_OUTPUT_CHARS = 50000
 
+        # Start another program from Python (like ./program)
         proc = subprocess.Popen(
             [str(exe_path)],
             stdin=subprocess.PIPE,

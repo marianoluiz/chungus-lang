@@ -512,7 +512,8 @@ area('five');",NO SEMANTIC ERROR/S,,
 
 
 x: [1] = [1]; 
-show add;",NO SEMANTIC ERROR/S,,
+show add;","Cannot show function
+",,
 "a: [2] = [1, 2];
 
 
@@ -1300,3 +1301,201 @@ show x; x = 5;,Variable 'x' not defined,,
 "arr: [1] = [1];
 
 show arr;",NO SEMANTIC ERROR/S,,
+"fn add(a):
+   todo;
+    ret a;
+close
+
+fn add(b):
+   todo;
+    ret b;
+close
+
+
+todo;",Function 'add' already defined,,
+"fn x():
+todo;
+close
+
+fn x():
+todo;
+close
+
+x = 2;",Function 'x' already defined,,
+"
+fn x():
+todo;
+close
+
+
+x = 2;",Cannot assign to function 'x',,
+"fn x(x, y,z):
+        todo;
+close
+
+
+fn y():
+todo;
+ret x;
+close
+
+
+garbage(x, 1, 2);","Parameter 'x' cannot have same name as function
+
+Cannot return function
+Function 'garbage' not defined
+",,
+"fn x(x, y,z):
+       show x;
+close
+
+
+show x;","Cannot show function
+",,
+"fn x(x, y,z):
+        x(1, 2, 3);
+       show x;
+close
+
+
+x(1 , 2, 3);
+",Parameter 'x' cannot have same name as function,,
+"fn add(a, b):
+ todo;
+    ret a + b;
+close
+
+fn add(x, y):
+ todo;
+    ret x * y;
+close
+
+ todo;",Function 'add' already defined,,
+"fn foo():
+    todo;
+    ret 1;
+close
+
+foo = 5;",Cannot assign to function 'foo',,
+"
+fn bar():
+bar = 10;
+    ret bar;
+close
+
+todo;
+","Cannot assign to function 'bar'
+Cannot return function
+
+",,
+"fn foo(foo, bar):
+        todo;
+    ret foo + bar;
+close 
+
+
+todo;",Parameter 'foo' cannot have same name as function,,
+"fn foo():
+   todo;
+    ret 5;
+close
+
+fn bar():
+   todo;
+    ret foo;
+close
+
+todo;",Cannot return function,,
+"fn foo():
+todo;
+    ret 10;
+close
+
+x = foo;",Cannot assign function to variable,,
+"fn foo():
+todo;
+    ret 5;
+close
+
+arr : [3] =  [1, foo, 3];
+",Cannot use function as array element,,
+"fn foo():
+todo;
+    ret 2;
+close
+
+x = foo + 5;","Cannot use function in arithmetic operation
+",,
+"fn foo():
+todo;
+    ret 2;
+close
+
+x = foo and 5;
+",Cannot use function in logical operation,,
+"fn foo():
+todo;
+    ret 1;
+close
+
+if foo == 2:
+    show 'equal';
+close
+",Cannot use function in comparison,,
+"fn foo():
+todo;
+    ret 42;
+close
+
+show foo;
+",Cannot show function,,
+"fn fact(n):
+    if n <= 1:
+        x = 1;
+    else:
+        x= n * fact(n - 1);
+    close
+close
+
+fact(5);",NO SEMANTIC ERROR/S,,
+"fn fact(fact):
+    if fact <= 1:
+        x= 1;
+    else:
+        x =  fact * fact(fact - 1);  # Error: trying to call parameter 'fact'
+    close
+close
+
+todo;",Parameter 'fact' cannot have same name as function,,
+"fn add(a, b):
+todo;
+    ret a + b;
+close
+
+fn add(x):
+todo;
+    ret x;
+close
+
+result = add(5, 3);
+sum = add;
+
+show sum;","Function 'add' already defined
+Cannot assign function to variable
+Variable 'sum' not defined
+",,
+"x = 5;
+x = 10;
+y = x + 2;",NO SEMANTIC ERROR/S,,
+"fn get_index():
+todo;
+    ret 2;
+close
+
+
+arr : [get_index] = [10, 20, 30, 40]; # Using function name as size (not calling it)
+
+value = arr[get_index];  # Using function name as index (not calling it)
+","Cannot use function as array size
+Cannot use function as array index
+",,
