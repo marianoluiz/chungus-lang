@@ -1499,3 +1499,61 @@ value = arr[get_index];  # Using function name as index (not calling it)
 ","Cannot use function as array size
 Cannot use function as array index
 ",,
+"fn scale(n):
+    result = n * multiplier;
+    ret result;
+close
+ 
+multiplier = 3;
+ans = scale(10);
+show ans;
+show '\n';",Variable 'multiplier' not defined,,"/Users/user/Documents/chungus-lang/output/gui_output_20260317_144947.c:22:14: error: passing 'ChValue (ChValue, ChValue)' (aka 'struct ChValue (struct ChValue, struct ChValue)') to parameter of incompatible type 'ChValue' (aka 'struct ChValue')
+   22 |     ch_print(scale);
+      |              ^~~~~
+/Users/user/Documents/chungus-lang/src/runtime/chungus_runtime.h:165:23: note: passing argument to parameter 'v' here
+  165 | void ch_print(ChValue v);
+      |                       ^
+1 error generated."
+"fn add(a, b):
+    add = a+b;
+    ret add;
+close
+ 
+fn subtract(a, b):
+    sub = a-b;
+    ret sub;
+close
+
+a = 12;
+b = ' '; 
+
+show add;
+show '\n';
+show subtract;
+","Cannot assign to function 'add'
+Cannot return function
+Cannot show function
+Cannot show function",,
+"fn compute(x):
+todo;
+    ret x * 2;
+close
+ 
+fn compute(x):
+todo;
+    ret x * 3;
+close
+ 
+x = 3;
+result = compute(5);
+show result;
+show '\n';",Function 'compute' already defined,,
+"fn compute():
+    local_val = 42;
+close
+ 
+compute();
+show local_val;
+show '\n';
+","Variable 'local_val' not defined
+",,

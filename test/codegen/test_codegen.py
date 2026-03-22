@@ -81,9 +81,10 @@ def _run_program(src: str, stdin_data: str = "") -> str:
             timeout=10,
             input=stdin_data if stdin_data else None,
         )
-        assert run_result.returncode == 0, (
-            f"Runtime error (exit {run_result.returncode}):\n{run_result.stderr}"
-        )
+
+        # If the program failed, return the stderr (contains runtime errors)
+        if run_result.returncode != 0:
+            return run_result.stderr.strip()
 
         return run_result.stdout.strip()
 

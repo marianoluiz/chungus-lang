@@ -1,14 +1,13 @@
-fn var():
-
-todo;
-
-close 
-
-fn var():
+fn triple(n):
     todo;
+    ret n * 3;
 close
-
-
-x = var();
-
-show x;
+ 
+fn double(n):
+    todo;
+    ret n * 2;
+close
+ 
+result = double(triple(2));
+show result;
+show '\n';
