@@ -238,8 +238,8 @@ class SemanticAnalyzer:
     Analyzes an AST for semantic correctness.
     
     Two-pass approach:
-    1. First pass: Build symbol table (declarations)
-    2. Second pass: Type check (usage)
+    1. First pass: Build symbol table (function declarations)
+    2. Second pass: Type check and declare variables
     """
 
     def __init__(self, tree: ASTNode, source: str, debug: bool = False):
@@ -958,6 +958,11 @@ class SemanticAnalyzer:
         elif node.kind == "for":
             # for loop: value=loop_var, children=[start, end, step, ...body statements]
             loop_var = node.value
+
+            # Check if loop variable conflicts with a function name
+            func_symbol = self._symbol_table.lookup_function(loop_var)
+            if func_symbol:
+                self._error(node, f"Cannot use function '{loop_var}' as loop variable", TypeMismatchError)
 
             # Enter loop scope
             self._symbol_table.enter_scope()

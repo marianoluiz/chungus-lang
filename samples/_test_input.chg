@@ -1,13 +1,10 @@
-fn triple(n):
-    todo;
-    ret n * 3;
+fn name():
+todo;
 close
- 
-fn double(n):
-    todo;
-    ret n * 2;
+
+for name in range(20):
+  show name;
 close
- 
-result = double(triple(2));
-show result;
-show '\n';
+
+x = name();  
+show x;

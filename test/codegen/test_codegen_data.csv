@@ -2311,47 +2311,7 @@ close
  
 result = double(triple(2));
 show result;
-show '\n';",,"Compilation Error:
-/Users/user/Documents/chungus-lang/output/gui_output_20260317_150739.c:7:9: error: cannot combine with previous 'type-name' declaration specifier
-    7 | ChValue double(ChValue n);  // Forward declaration
-      |         ^
-/Users/user/Documents/chungus-lang/output/gui_output_20260317_150739.c:7:24: error: expected ')'
-    7 | ChValue double(ChValue n);  // Forward declaration
-      |                        ^
-/Users/user/Documents/chungus-lang/output/gui_output_20260317_150739.c:7:15: note: to match this '('
-    7 | ChValue double(ChValue n);  // Forward declaration
-      |               ^
-/Users/user/Documents/chungus-lang/output/gui_output_20260317_150739.c:7:16: error: redefinition of 'ChValue' as different kind of symbol
-    7 | ChValue double(ChValue n);  // Forward declaration
-      |                ^
-/Users/user/Documents/chungus-lang/src/runtime/chungus_runtime.h:48:3: note: previous definition is here
-   48 | } ChValue;
-      |   ^
-/Users/user/Documents/chungus-lang/output/gui_output_20260317_150739.c:17:9: error: cannot combine with previous 'type-name' declaration specifier
-   17 | ChValue double(ChValue n) {
-      |         ^
-/Users/user/Documents/chungus-lang/output/gui_output_20260317_150739.c:17:24: error: expected ')'
-   17 | ChValue double(ChValue n) {
-      |                        ^
-/Users/user/Documents/chungus-lang/output/gui_output_20260317_150739.c:17:15: note: to match this '('
-   17 | ChValue double(ChValue n) {
-      |               ^
-/Users/user/Documents/chungus-lang/output/gui_output_20260317_150739.c:17:16: error: redefinition of 'ChValue' as different kind of symbol
-   17 | ChValue double(ChValue n) {
-      |                ^
-/Users/user/Documents/chungus-lang/src/runtime/chungus_runtime.h:48:3: note: previous definition is here
-   48 | } ChValue;
-      |   ^
-/Users/user/Documents/chungus-lang/output/gui_output_20260317_150739.c:17:26: error: expected ';' after top level declarator
-   17 | ChValue double(ChValue n) {
-      |                          ^
-      |                          ;
-/Users/user/Documents/chungus-lang/output/gui_output_20260317_150739.c:26:22: error: expected expression
-   26 |     ChValue result = double(triple(ch_int(2)));
-      |                      ^
-8 errors generated.
-
-"
+show '\n';",,12
 "fn no_ret():
     x = 1;
 close
@@ -3095,3 +3055,8 @@ while i < 5:
 close
 
 show count;",,3
+"
+double = 12;
+
+show double;
+",,12

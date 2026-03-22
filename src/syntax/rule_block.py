@@ -262,7 +262,7 @@ class BlockStmtRules():
             self._advance()
 
             self._expect_type(ID_T, 'for_block')
-            loop_var = self._advance().lexeme   # advance and get variable name
+            for_tok = self._advance()
 
             self._expect_type('in', 'for_block')
             self._advance()
@@ -334,9 +334,9 @@ class BlockStmtRules():
                 self._expect(predict_keywords | self.PRED_GENERAL_STMT, 'for_body')
 
             # close consumed
-            for_tok = self._advance()
+            self._advance()
 
-            return self._ast_node('for', for_tok, value=loop_var, children=indices + body)
+            return self._ast_node('for', for_tok, value=for_tok.lexeme, children=indices + body)
 
 
         # while loop

@@ -1557,3 +1557,13 @@ show local_val;
 show '\n';
 ","Variable 'local_val' not defined
 ",,
+"fn name():
+todo;
+close
+
+for name in range(20):
+  show name;
+close
+
+x = name();  
+show x;",Cannot use function 'name' as loop variable,,

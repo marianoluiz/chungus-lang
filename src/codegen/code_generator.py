@@ -49,6 +49,20 @@ class CodeGenerator:
         self._temp_counter = 0  # For generating temporary variables
         self._scope_stack: List[List[str]] = []  # ChValue vars to free per scope
 
+    def _mangle_function_name(self, name: str) -> str:
+        """
+        Apply name mangling to avoid C reserved words and conflicts.
+        Prefix with 'ch_fn_' to namespace function names.
+        """
+        return f"ch_fn_{name}"
+
+    def _mangle_variable_name(self, name: str) -> str:
+        """
+        Apply name mangling to avoid C reserved words and conflicts.
+        Prefix with 'ch_var_' to namespace variable names.
+        """
+        return f"ch_var_{name}"
+
     def generate(self) -> CodeGenResult:
         """
         Generate executable code from the AST.
@@ -209,14 +223,16 @@ class CodeGenerator:
     def _build_function_signature(self, fn_node: ASTNode) -> str:
         """Build a C function signature for a CHUNGUS function node."""
         fn_name = fn_node.value or "_anonymous_fn"
+        mangled_name = self._mangle_function_name(fn_name)
         param_names = self._extract_function_params(fn_node)
 
         if param_names:
-            param_sig = ", ".join([f"ChValue {p}" for p in param_names])
+            mangled_params = [self._mangle_variable_name(p) for p in param_names]
+            param_sig = ", ".join([f"ChValue {p}" for p in mangled_params])
         else:
             param_sig = "void"
 
-        return f"ChValue {fn_name}({param_sig})"
+        return f"ChValue {mangled_name}({param_sig})"
     
     def _emit(self, code: str = "") -> None:
         """
@@ -334,7 +350,7 @@ class CodeGenerator:
     
     def _visit_id(self, node: ASTNode) -> str:
         """Generate code for identifier."""
-        return node.value
+        return self._mangle_variable_name(node.value)
     
     def _visit_read(self, node: ASTNode) -> str:
         """Generate code for read statement."""
@@ -356,6 +372,7 @@ class CodeGenerator:
     def _visit_assignment_statement(self, node: ASTNode) -> None:
         """Generate code for assignment statement."""
         var_name = node.value
+        mangled_var = self._mangle_variable_name(var_name)
         rhs_node = node.children[0] if node.children else None
         rhs_code = self._visit(node.children[0]) if node.children else "ch_int(0)"
         
@@ -363,11 +380,11 @@ class CodeGenerator:
         if hasattr(node, 'is_declaration') and node.is_declaration:
             # First assignment - declare variable
             if rhs_node and rhs_node.kind == "id":
-                self._emit(f"ChValue {var_name} = ch_copy({rhs_code});")
+                self._emit(f"ChValue {mangled_var} = ch_copy({rhs_code});")
             else:
-                self._emit(f"ChValue {var_name} = {rhs_code};")
+                self._emit(f"ChValue {mangled_var} = {rhs_code};")
 
-            self._declare_scoped_var(var_name)
+            self._declare_scoped_var(mangled_var)
         else:
             # Reassignment: evaluate RHS first, then replace old value.
             rhs_tmp = self._gen_temp() + "_rhs"
@@ -376,8 +393,8 @@ class CodeGenerator:
             else:
                 self._emit(f"ChValue {rhs_tmp} = {rhs_code};")
 
-            self._emit(f"ch_free(&{var_name});")
-            self._emit(f"{var_name} = {rhs_tmp};")
+            self._emit(f"ch_free(&{mangled_var});")
+            self._emit(f"{mangled_var} = {rhs_tmp};")
 
     # ==================== FUNCTION VISITORS ====================
 
@@ -397,8 +414,9 @@ class CodeGenerator:
 
             # Copy parameters into function-owned values.
             for param_name in self._extract_function_params(node):
-                self._emit(f"{param_name} = ch_copy({param_name});")
-                self._declare_scoped_var(param_name)
+                mangled_param = self._mangle_variable_name(param_name)
+                self._emit(f"{mangled_param} = ch_copy({mangled_param});")
+                self._declare_scoped_var(mangled_param)
 
         ret_node: Optional[ASTNode] = None
         if node.children and node.children[-1].kind == "return_statement":
@@ -442,6 +460,7 @@ class CodeGenerator:
     def _visit_function_call(self, node: ASTNode) -> str:
         """Generate code for function call expression."""
         func_name = node.value or "_unknown_fn"
+        mangled_name = self._mangle_function_name(func_name)
 
         # Two parser shapes are supported:
         # 1) function_call(children=[args...])
@@ -452,7 +471,7 @@ class CodeGenerator:
             args = node.children
 
         arg_codes = [self._visit(arg) for arg in args]
-        return f"{func_name}({', '.join(arg_codes)})"
+        return f"{mangled_name}({', '.join(arg_codes)})"
 
     def _visit_general_statement(self, node: ASTNode) -> None:
         """Generate code for top-level/local general statement wrapper."""
@@ -481,6 +500,7 @@ class CodeGenerator:
           array_1d_init(value=arr_name, children=[size_node, elem1, elem2, ...])
         """
         arr_name = node.value
+        mangled_arr = self._mangle_variable_name(arr_name)
         if not arr_name or not node.children:
             return
 
@@ -494,9 +514,9 @@ class CodeGenerator:
 
         size_tmp = self._gen_temp() + "_size"
         self._emit(f"ChValue {size_tmp} = {size_code};")
-        self._emit(f"ChValue {arr_name} = ch_array_1d(ch_to_array_size_checked({size_tmp}, \"array size\"));")
+        self._emit(f"ChValue {mangled_arr} = ch_array_1d(ch_to_array_size_checked({size_tmp}, \"array size\"));")
         self._emit(f"ch_free(&{size_tmp});")
-        self._declare_scoped_var(arr_name)
+        self._declare_scoped_var(mangled_arr)
 
         # Initialize provided elements; missing ones remain 0 by runtime constructor.
         for i, elem_node in enumerate(node.children[1:]):
@@ -508,7 +528,7 @@ class CodeGenerator:
             else:
                 self._emit(f"ChValue {elem_tmp} = {elem_code};")
 
-            self._emit(f"ch_array_set_1d(&{arr_name}, {i}, {elem_tmp});")
+            self._emit(f"ch_array_set_1d(&{mangled_arr}, {i}, {elem_tmp});")
             self._emit(f"ch_free(&{elem_tmp});")
 
     def _visit_array_2d_init(self, node: ASTNode) -> None:
@@ -518,6 +538,7 @@ class CodeGenerator:
           array_2d_init(value=arr_name, children=[size_node, array_row, array_row, ...])
         """
         arr_name = node.value
+        mangled_arr = self._mangle_variable_name(arr_name)
         if not arr_name or not node.children:
             return
 
@@ -537,13 +558,13 @@ class CodeGenerator:
         self._emit(f"ChValue {row_tmp} = {row_code};")
         self._emit(f"ChValue {col_tmp} = {col_code};")
         self._emit(
-            f"ChValue {arr_name} = ch_array_2d(" 
+            f"ChValue {mangled_arr} = ch_array_2d(" 
             f"ch_to_array_size_checked({row_tmp}, \"array row size\"), "
             f"ch_to_array_size_checked({col_tmp}, \"array column size\"));"
         )
         self._emit(f"ch_free(&{row_tmp});")
         self._emit(f"ch_free(&{col_tmp});")
-        self._declare_scoped_var(arr_name)
+        self._declare_scoped_var(mangled_arr)
 
         # Initialize provided rows/cols; missing cells remain 0 by constructor.
         for r, row_node in enumerate(node.children[1:]):
@@ -558,7 +579,7 @@ class CodeGenerator:
                 else:
                     self._emit(f"ChValue {elem_tmp} = {elem_code};")
 
-                self._emit(f"ch_array_set_2d(&{arr_name}, {r}, {c}, {elem_tmp});")
+                self._emit(f"ch_array_set_2d(&{mangled_arr}, {r}, {c}, {elem_tmp});")
                 self._emit(f"ch_free(&{elem_tmp});")
 
     def _visit_index(self, node: ASTNode) -> str:
@@ -596,6 +617,7 @@ class CodeGenerator:
           array_idx_assignment(value=arr_name, children=[indices_node, rhs_expr])
         """
         arr_name = node.value
+        mangled_arr = self._mangle_variable_name(arr_name)
         if not arr_name or len(node.children) < 2:
             return
 
@@ -613,11 +635,11 @@ class CodeGenerator:
 
         if len(idx_codes) == 1:
             self._emit(
-                f"ch_array_set_1d(&{arr_name}, ch_to_index_checked({idx_codes[0]}, \"array index\"), {rhs_tmp});"
+                f"ch_array_set_1d(&{mangled_arr}, ch_to_index_checked({idx_codes[0]}, \"array index\"), {rhs_tmp});"
             )
         elif len(idx_codes) == 2:
             self._emit(
-                f"ch_array_set_2d(&{arr_name}, "
+                f"ch_array_set_2d(&{mangled_arr}, "
                 f"ch_to_index_checked({idx_codes[0]}, \"array row index\"), "
                 f"ch_to_index_checked({idx_codes[1]}, \"array column index\"), {rhs_tmp});"
             )
@@ -835,6 +857,7 @@ class CodeGenerator:
             range(start, stop, step)
         """
         loop_var = node.value or "_i"
+        mangled_loop_var = self._mangle_variable_name(loop_var)
 
         # Body statements are wrapped as `general_statement` nodes. while range expr are not.
         body_start = len(node.children)
@@ -884,13 +907,13 @@ class CodeGenerator:
         self._emit("} else {")
         self._indent()
         # initialize loop variable
-        self._emit(f"ChValue {loop_var} = ch_int({t_start});")
-        self._declare_scoped_var(loop_var)
+        self._emit(f"ChValue {mangled_loop_var} = ch_int({t_start});")
+        self._declare_scoped_var(mangled_loop_var)
 
         # step > 0 → continue while loop_var < stop
         # step < 0 → continue while loop_var > stop
         self._emit(
-            f"while (({t_step} > 0) ? ((int)ch_to_number({loop_var}) < {t_stop}) : ((int)ch_to_number({loop_var}) > {t_stop})) {{"
+            f"while (({t_step} > 0) ? ((int)ch_to_number({mangled_loop_var}) < {t_stop}) : ((int)ch_to_number({mangled_loop_var}) > {t_stop})) {{"
         )
         self._indent()
         self._enter_scope()
@@ -899,7 +922,7 @@ class CodeGenerator:
             self._visit(stmt)
 
         self._exit_scope()
-        self._emit(f"{loop_var} = ch_int((int)ch_to_number({loop_var}) + {t_step});")
+        self._emit(f"{mangled_loop_var} = ch_int((int)ch_to_number({mangled_loop_var}) + {t_step});")
         self._dedent()
         self._emit("}")
         self._exit_scope()
