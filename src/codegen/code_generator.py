@@ -460,8 +460,7 @@ class CodeGenerator:
     def _visit_function_call(self, node: ASTNode) -> str:
         """Generate code for function call expression."""
         func_name = node.value or "_unknown_fn"
-        mangled_name = self._mangle_function_name(func_name)
-
+        
         # Two parser shapes are supported:
         # 1) function_call(children=[args...])
         # 2) function_call(children=[ASTNode('args', children=[...])])
@@ -470,6 +469,23 @@ class CodeGenerator:
         else:
             args = node.children
 
+        # Handle built-in functions
+        if func_name == "str_to_arr":
+            # str_to_arr(str) converts a string to an array of characters
+            if len(args) != 1:
+                raise ValueError(f"str_to_arr expects 1 argument, got {len(args)}")
+            arg_code = self._visit(args[0])
+            return f"ch_str_to_arr({arg_code})"
+        
+        elif func_name == "arr_to_str":
+            # arr_to_str(arr) converts an array to a string
+            if len(args) != 1:
+                raise ValueError(f"arr_to_str expects 1 argument, got {len(args)}")
+            arg_code = self._visit(args[0])
+            return f"ch_arr_to_str({arg_code})"
+        
+        # User-defined function call
+        mangled_name = self._mangle_function_name(func_name)
         arg_codes = [self._visit(arg) for arg in args]
         return f"{mangled_name}({', '.join(arg_codes)})"
 

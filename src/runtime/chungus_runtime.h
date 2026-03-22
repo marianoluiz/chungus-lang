@@ -156,6 +156,12 @@ ChValue ch_array_get_2d(ChValue arr, int row, int col);
 // Set element in 2D array
 void ch_array_set_2d(ChValue* arr, int row, int col, ChValue value);
 
+// Convert string to array of characters
+ChValue ch_str_to_arr(ChValue str);
+
+// Convert array to string (join elements)
+ChValue ch_arr_to_str(ChValue arr);
+
 
 // ============================================================================
 // I/O OPERATIONS

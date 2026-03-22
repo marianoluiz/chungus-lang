@@ -544,6 +544,130 @@ void ch_array_set_2d(ChValue* arr, int row, int col, ChValue value) {
 
 
 // ============================================================================
+// BUILTIN STRING/ARRAY CONVERSION FUNCTIONS
+// ============================================================================
+
+ChValue ch_str_to_arr(ChValue str) {
+    /**
+     * Convert a string to an array of single-character strings.
+     * str_to_arr("hello") -> ["h", "e", "l", "l", "o"]
+     */
+    if (str.type != TY_STRING) {
+        fprintf(stderr, "Runtime Error: string_to_array expects string argument\n");
+        exit(EXIT_FAILURE);
+    }
+    
+    const char* s = str.s;
+    if (!s) s = "";
+    
+    // Count characters
+    size_t len = strlen(s);
+    
+    // Create array to hold characters
+    ChValue result = ch_array_1d(len);
+    
+    // Copy each character as a string into the array
+    for (size_t i = 0; i < len; i++) {
+        char char_str[2];
+        char_str[0] = s[i];
+        char_str[1] = '\0';
+        
+        ChValue char_val = ch_str(char_str);
+        result.arr.items[i] = char_val;
+    }
+    
+    return result;
+}
+
+ChValue ch_arr_to_str(ChValue arr) {
+    /**
+     * Convert an array to a string by joining all elements.
+     * ["h", "e", "l", "l", "o"] -> "hello"
+     * Works by converting each element to string and concatenating.
+     */
+    if (arr.type != TY_ARRAY) {
+        fprintf(stderr, "Runtime Error: array_to_string expects array argument\n");
+        exit(EXIT_FAILURE);
+    }
+    
+    // Estimate size needed
+    size_t buffer_size = 256;
+    char* buffer = malloc(buffer_size);
+    if (!buffer) {
+        fprintf(stderr, "Runtime Error: Memory allocation failed in array_to_string\n");
+        exit(EXIT_FAILURE);
+    }
+    buffer[0] = '\0';
+    size_t current_pos = 0;
+    
+    // Iterate through array elements
+    for (size_t i = 0; i < arr.arr.len; i++) {
+        ChValue elem = arr.arr.items[i];
+        
+        // Convert element to string
+        const char* elem_str = NULL;
+        char temp_str[128];
+        
+        switch (elem.type) {
+            case TY_INT:
+                snprintf(temp_str, sizeof(temp_str), "%ld", elem.i);
+                elem_str = temp_str;
+                break;
+            case TY_FLOAT: {
+                snprintf(temp_str, sizeof(temp_str), "%.6g", elem.f);
+                // Remove trailing zeros after decimal point
+                char* dot = strchr(temp_str, '.');
+                if (dot) {
+                    char* end = temp_str + strlen(temp_str) - 1;
+                    while (end > dot && *end == '0') {
+                        *end = '\0';
+                        end--;
+                    }
+                    if (end == dot) *end = '\0';
+                }
+                elem_str = temp_str;
+                break;
+            }
+            case TY_STRING:
+                elem_str = elem.s ? elem.s : "";
+                break;
+            case TY_BOOL:
+                elem_str = elem.b ? "true" : "false";
+                break;
+            case TY_ARRAY:
+                elem_str = "[array]";
+                break;
+        }
+        
+        if (!elem_str) elem_str = "";
+        
+        // Expand buffer if needed
+        size_t needed = current_pos + strlen(elem_str) + 1;
+        if (needed > buffer_size) {
+            buffer_size = needed * 2;
+            char* new_buffer = realloc(buffer, buffer_size);
+            if (!new_buffer) {
+                fprintf(stderr, "Runtime Error: Memory reallocation failed in array_to_string\n");
+                free(buffer);
+                exit(EXIT_FAILURE);
+            }
+            buffer = new_buffer;
+        }
+        
+        // Append to buffer
+        strcpy(buffer + current_pos, elem_str);
+        current_pos += strlen(elem_str);
+    }
+    
+    // Create result value
+    ChValue result = ch_str(buffer);
+    free(buffer);  // ch_str makes a copy
+    
+    return result;
+}
+
+
+// ============================================================================
 // I/O OPERATIONS
 // ============================================================================
 

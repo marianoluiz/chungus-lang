@@ -248,6 +248,33 @@ class SemanticAnalyzer:
         self._debug = debug
         self._symbol_table = SymbolTable()
         self._errors: List[SemanticError] = []
+        self._init_builtins()
+
+    def _init_builtins(self):
+        """Register built-in functions in the symbol table."""
+        # str_to_arr(s) -> array
+        self._symbol_table.declare(Symbol(
+            name="str_to_arr",
+            kind="function",
+            type_="function",
+            line=0,
+            col=0,
+            scope_level=0,
+            params=[("string", "s")],
+            return_type="array",
+        ))
+        
+        # arr_to_str(arr) -> string
+        self._symbol_table.declare(Symbol(
+            name="arr_to_str",
+            kind="function",
+            type_="function",
+            line=0,
+            col=0,
+            scope_level=0,
+            params=[("array", "arr")],
+            return_type="string",
+        ))
 
 
     def analyze(self) -> "SemanticResult":
@@ -1771,11 +1798,13 @@ class SemanticAnalyzer:
                     f"Function '{func_name}' expects {expected_count} args, got {actual_count}",
                     ArgumentCountMismatchError)
 
-            # Type-check each argument and prevent array passing
+            # Type-check each argument and prevent array passing (except for built-in functions)
+            builtin_array_accepting_funcs = {"arr_to_str"}
+            
             for arg in args:
                 arg_type = self._type_check(arg)
-                # Disallow passing whole arrays to functions
-                if arg_type == TY_ARRAY:
+                # Disallow passing whole arrays to user-defined functions
+                if arg_type == TY_ARRAY and func_name not in builtin_array_accepting_funcs:
                     self._error(arg,
                         f"Cannot pass array as function argument (use array elements instead)",
                         TypeMismatchError)
