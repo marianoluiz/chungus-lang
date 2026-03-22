@@ -3060,3 +3060,105 @@ double = 12;
 
 show double;
 ",,12
+"# Original C reserved words used as variable names
+switch = 1;      
+return = 3;   
+void = 4;     
+struct = 5;
+# Access them with no problem
+show switch;
+show return;
+show void;
+show struct;",,1345
+"fn switch():       
+    todo;
+close
+
+fn return():     
+    todo;
+close
+
+fn void():        
+    todo;
+close
+
+fn struct():      
+    todo;
+close
+
+todo;
+out = struct();
+
+show out;",,0
+"fn simpleLoop():
+    data:[5] = []; 
+
+        for i in range (0,5):  
+        show 'Enter a number: ' ; 
+        data[i] = read; 
+        close 
+        
+        for j in range(0,5):  
+        value = data[j]; 
+        show value; 
+        show '\n';
+        close
+sampleLoop();  
+close 
+
+fn sampleLoop():
+    data:[5] = []; 
+
+        for i in range (0,5):  
+        show 'Enter a number: ' ; 
+        data[i] = read; 
+        close 
+        
+        for j in range(0,5):  
+        value = data[j]; 
+        show value; 
+        show '\n';
+        close 
+close 
+        
+simpleLoop();","1
+2
+3
+4
+5
+1
+2
+3
+4
+5","Enter a number: Enter a number: Enter a number: Enter a number: Enter a number: 1
+2
+3
+4
+5
+Enter a number: Enter a number: Enter a number: Enter a number: Enter a number: 1
+2
+3
+4
+5"
+"x = 2;
+
+input = 1;
+
+if x == 1:
+        input = read;
+elif x == 2:
+        input = 0;
+close 
+
+show input;",,0
+"x = 1;
+
+input = 1;
+
+if x == 1:
+        input = read;
+elif x == 2:
+        input = 0;
+close 
+
+show input;",testing,testing

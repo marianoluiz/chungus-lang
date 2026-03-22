@@ -1,10 +1,33 @@
-fn name():
-todo;
-close
+fn simpleLoop():
+    data:[5] = []; 
 
-for name in range(20):
-  show name;
-close
+        for i in range (0,5):  
+        show 'Enter a number: ' ; 
+        data[i] = read; 
+        close 
+        
+        for j in range(0,5):  
+        value = data[j]; 
+        show value; 
+        show '\n';
+        close
+sampleLoop();  
+close 
 
-x = name();  
-show x;
+fn sampleLoop():
+    data:[5] = []; 
+
+        for i in range (0,5):  
+        show 'Enter a number: ' ; 
+        data[i] = read; 
+        close 
+        
+        for j in range(0,5):  
+        value = data[j]; 
+        show value; 
+        show '\n';
+        close 
+simpleLoop(); 
+close 
+        
+simpleLoop();
