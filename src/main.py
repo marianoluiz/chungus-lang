@@ -12,7 +12,7 @@ from src.syntax.rd_parser import RDParser
 from src.semantic.semantic_analyzer import SemanticAnalyzer
 from src.codegen import analyze_codegen
 
-def lexer_only_adapter(source: str):
+def lexer_adapter(source: str):
     """
     Adapter that runs only the Lexer and converts its output into a list of dicts:
       { "type": <token_type>, "lexeme": <lexeme>, "line": <1-based>, "col": <1-based> }
@@ -101,6 +101,7 @@ def semantic_adapter(source: str):
 
     return tokens, errors
 
+
 def codegen_adapter(source: str):
     """
     Runs the full compilation pipeline.
@@ -187,15 +188,15 @@ def codegen_adapter(source: str):
         bufsize=0,          # unbuffered — important for interactive input
     )
  
-    # Return the live process to the GUI; it will stream I/O itself.
+    # Return the live process to the GUI; it will stream I/O itself. Error is empty since we didn't encounter any
     return tokens, [], proc
- 
+
  
 if __name__ == "__main__":
     root = tk.Tk()
     app = ChungusLexerGUI(
         root,
-        lexer_callback=lexer_only_adapter,
+        lexer_callback=lexer_adapter,
         syntax_callback=syntax_adapter,
         semantic_callback=semantic_adapter,
         codegen_callback=codegen_adapter,

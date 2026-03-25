@@ -586,7 +586,7 @@ ChValue ch_arr_to_str(ChValue arr) {
      * Works by converting each element to string and concatenating.
      */
     if (arr.type != TY_ARRAY) {
-        fprintf(stderr, "Runtime Error: array_to_string expects array argument\n");
+        fprintf(stderr, "Runtime Error: arr_to_str expects array argument\n");
         exit(EXIT_FAILURE);
     }
     
@@ -594,7 +594,7 @@ ChValue ch_arr_to_str(ChValue arr) {
     size_t buffer_size = 256;
     char* buffer = malloc(buffer_size);
     if (!buffer) {
-        fprintf(stderr, "Runtime Error: Memory allocation failed in array_to_string\n");
+        fprintf(stderr, "Runtime Error: Memory allocation failed in arr_to_str\n");
         exit(EXIT_FAILURE);
     }
     buffer[0] = '\0';

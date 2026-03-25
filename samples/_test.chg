@@ -1,0 +1,9 @@
+fn greet(x,y):
+    z = x + y;
+    show z;
+    greet(1,2);
+    ret 0;
+close 
+
+todo;
+greet (1,2);
