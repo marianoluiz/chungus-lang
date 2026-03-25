@@ -484,6 +484,21 @@ class CodeGenerator:
             arg_code = self._visit(args[0])
             return f"ch_arr_to_str({arg_code})"
         
+        elif func_name == "length":
+            # length(str|arr) returns the length
+            if len(args) != 1:
+                raise ValueError(f"length expects 1 argument, got {len(args)}")
+            arg_code = self._visit(args[0])
+            return f"ch_length({arg_code})"
+        
+        elif func_name == "compare":
+            # compare(a, b) compares two strings or arrays
+            if len(args) != 2:
+                raise ValueError(f"compare expects 2 arguments, got {len(args)}")
+            arg1_code = self._visit(args[0])
+            arg2_code = self._visit(args[1])
+            return f"ch_compare({arg1_code}, {arg2_code})"
+        
         # User-defined function call
         mangled_name = self._mangle_function_name(func_name)
         arg_codes = [self._visit(arg) for arg in args]

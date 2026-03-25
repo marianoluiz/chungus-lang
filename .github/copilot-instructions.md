@@ -165,6 +165,34 @@ BOOL_COERCIBLE = {TY_INT, TY_FLOAT, TY_BOOL, TY_STRING}
 7. **Control Flow**: `if`, `elif`, `else`, `while`, `for`
 8. **Todo**: `todo "implement feature";`
 
+### Built-in Functions
+CHUNGUS provides 4 built-in functions:
+
+1. **`str_to_arr(string) -> array`**
+   - Converts a string to an array of single-character strings
+   - Example: `str_to_arr("hello")` → `["h", "e", "l", "l", "o"]`
+   - Semantic validation: Argument must be `string` type
+   - Runtime: Allocates array and copies each character as a string
+
+2. **`arr_to_str(array) -> string`**
+   - Joins all array elements into a single string
+   - Converts elements to strings based on type (int, float, bool, string)
+   - Example: `arr_to_str([1, 2, 3])` → `"123"`
+   - Semantic validation: Argument must be `array` type
+   - Runtime: Concatenates stringified elements
+
+3. **`length(string | array) -> int`**
+   - Returns character count for strings or total element count for arrays
+   - Example: `length("hello")` → `5`, `length([1, 2, 3])` → `3`
+   - Semantic validation: Argument must be `string` or `array` type
+   - Runtime: Uses `strlen()` for strings, returns `arr.len` for arrays
+
+4. **`compare(string, string) -> bool`**
+   - Compares two strings for equality
+   - Example: `compare("hello", "hello")` → `true`, `compare("hi", "bye")` → `false`
+   - Semantic validation: Both arguments must be `string` type
+   - Runtime: Uses `strcmp()` with null-pointer safety
+
 ### Grammar Highlights (from cfg_lark)
 - Program starts with optional function definitions, followed by main statements
 - Functions must end with `close`

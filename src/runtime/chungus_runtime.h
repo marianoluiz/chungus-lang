@@ -162,6 +162,12 @@ ChValue ch_str_to_arr(ChValue str);
 // Convert array to string (join elements)
 ChValue ch_arr_to_str(ChValue arr);
 
+// Get length of string or array
+ChValue ch_length(ChValue x);
+
+// Compare two strings or arrays
+ChValue ch_compare(ChValue a, ChValue b);
+
 
 // ============================================================================
 // I/O OPERATIONS

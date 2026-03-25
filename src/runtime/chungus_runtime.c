@@ -544,8 +544,16 @@ void ch_array_set_2d(ChValue* arr, int row, int col, ChValue value) {
 
 
 // ============================================================================
-// BUILTIN STRING/ARRAY CONVERSION FUNCTIONS
+// BUILTIN STRING/ARRAY CONVERSION AND UTILITY FUNCTIONS
 // ============================================================================
+
+/**
+ * Built-in function implementations for CHUNGUS:
+ * - str_to_arr(string) -> array: Convert string to array of single-character strings
+ * - arr_to_str(array) -> string: Join array elements into a single string
+ * - length(string|array) -> int: Return length of string or total elements in array
+ * - compare(string, string) -> bool: Compare two strings for equality
+ */
 
 ChValue ch_str_to_arr(ChValue str) {
     /**
@@ -664,6 +672,42 @@ ChValue ch_arr_to_str(ChValue arr) {
     free(buffer);  // ch_str makes a copy
     
     return result;
+}
+
+ChValue ch_length(ChValue x) {
+    /**
+     * Get the length of a string or array.
+     * For strings: returns the number of characters
+     * For arrays: returns the total number of elements
+     */
+    if (x.type == TY_STRING) {
+        // String length
+        const char* s = x.s ? x.s : "";
+        return ch_int((int64_t)strlen(s));
+    }
+    else if (x.type == TY_ARRAY) {
+        // Array length
+        return ch_int((int64_t)x.arr.len);
+    }
+    else {
+        fprintf(stderr, "Runtime Error: length() expects string or array argument\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
+ChValue ch_compare(ChValue a, ChValue b) {
+    /**
+     * Compare two strings for equality.
+     * Returns true if they are equal, false otherwise.
+     */
+    if (a.type != TY_STRING || b.type != TY_STRING) {
+        fprintf(stderr, "Runtime Error: compare() expects two strings\n");
+        exit(EXIT_FAILURE);
+    }
+    
+    const char* str_a = a.s ? a.s : "";
+    const char* str_b = b.s ? b.s : "";
+    return ch_bool(strcmp(str_a, str_b) == 0);
 }
 
 

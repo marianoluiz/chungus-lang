@@ -3162,3 +3162,85 @@ elif x == 2:
 close 
 
 show input;",testing,testing
+"str = 'john pork';
+arr = str_to_arr(str);
+arrNew : [9] =  [];
+
+
+i = 0;
+y = 8;
+
+while i < 9:
+	arrNew[i] = arr[y];
+	i = i + 1;
+	y = y - 1;
+close 
+
+newStr = arr_to_str(arrNew);
+show newStr;",,krop nhoj
+"result = str_to_arr('hello');
+for i in range(length(result)):
+    out =  result[i];
+        show out;
+        show '\n';
+close
+",,"h
+e
+l
+l
+o"
+"result = str_to_arr('abc123');
+for i in range(length(result)):
+    out = result[i];
+    show out;
+    show '\n';
+close",,"a
+b
+c
+1
+2
+3"
+"arr : [5] = [1,2,3];
+
+result = arr_to_str(arr);
+show result;
+",,12300
+"arr : [3] = ['a', 'b', true];
+
+result = arr_to_str(arr);
+show result;
+",,abtrue
+"arr : [3] = ['a', 'b', 1];
+
+result = arr_to_str(arr);
+show result;",,ab1
+"arr : [3] = ['a', 'b', false];
+
+result = arr_to_str(arr);
+show result;",,abfalse
+"arr : [1] = [];
+
+result = arr_to_str(arr);
+show result;",,0
+"result = length('hello');
+show result;",,5
+"arr : [3] = ['a', 'b', true];
+
+result = length(arr);
+show result;",,3
+"result = length('');
+show result;",,0
+"arr : [1] = [];
+
+result = length(arr);
+show result;",,1
+"result = compare('hello', 'hello');
+show result;",,true
+"result = compare('hello', 'world');
+show result;",,false
+"result = compare('abc', 'abc');
+show result;",,true
+"result = compare('', '');
+show result;",,true
+"result = compare('abc', 'abd');
+show result;",,false

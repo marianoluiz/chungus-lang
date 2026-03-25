@@ -260,8 +260,8 @@ class SemanticAnalyzer:
             line=0,
             col=0,
             scope_level=0,
-            params=[("string", "s")],
-            return_type="array",
+            params=[(TY_STRING, "s")],
+            return_type=TY_ARRAY,
         ))
         
         # arr_to_str(arr) -> string
@@ -272,8 +272,32 @@ class SemanticAnalyzer:
             line=0,
             col=0,
             scope_level=0,
-            params=[("array", "arr")],
-            return_type="string",
+            params=[(TY_ARRAY, "arr")],
+            return_type=TY_STRING,
+        ))
+        
+        # length(str|arr) -> int
+        self._symbol_table.declare(Symbol(
+            name="length",
+            kind="function",
+            type_="function",
+            line=0,
+            col=0,
+            scope_level=0,
+            params=[("string|array", "x")],
+            return_type=TY_INT,
+        ))
+        
+        # compare(str, str) -> bool
+        self._symbol_table.declare(Symbol(
+            name="compare",
+            kind="function",
+            type_="function",
+            line=0,
+            col=0,
+            scope_level=0,
+            params=[(TY_STRING, "a"), (TY_STRING, "b")],
+            return_type=TY_BOOL,
         ))
 
 
@@ -1799,12 +1823,17 @@ class SemanticAnalyzer:
                     ArgumentCountMismatchError)
 
             # Type-check each argument and prevent array passing (except for built-in functions)
-            builtin_array_accepting_funcs = {"arr_to_str"}
+            builtin_array_accepting_funcs = {"arr_to_str", "length"}
+            builtin_with_type_checking = {"str_to_arr", "arr_to_str", "length", "compare"}
             
-            for arg in args:
+            arg_types = []
+            for i, arg in enumerate(args):
                 arg_type = self._type_check(arg)
+                arg_types.append(arg_type)
+                
                 # Disallow passing whole arrays to user-defined functions
-                if arg_type == TY_ARRAY and func_name not in builtin_array_accepting_funcs:
+                # Skip this check for built-ins with explicit type validation (let their validation handle it)
+                if arg_type == TY_ARRAY and func_name not in builtin_array_accepting_funcs and func_name not in builtin_with_type_checking:
                     self._error(arg,
                         f"Cannot pass array as function argument (use array elements instead)",
                         TypeMismatchError)
@@ -1813,6 +1842,50 @@ class SemanticAnalyzer:
                     self._error(arg,
                         f"Cannot pass function as argument",
                         TypeMismatchError)
+            
+            # Semantic validation for built-in functions with type restrictions
+            if func_name == "str_to_arr":
+                # str_to_arr(s) requires s to be string
+                if len(arg_types) > 0:
+                    arg_type = arg_types[0]
+                    if arg_type != TY_STRING:
+                        self._error(args[0],
+                            f"str_to_arr() expects string, got {arg_type}",
+                            TypeMismatchError)
+            
+            elif func_name == "arr_to_str":
+                # arr_to_str(arr) requires arr to be array
+                if len(arg_types) > 0:
+                    arg_type = arg_types[0]
+                    if arg_type != TY_ARRAY:
+                        self._error(args[0],
+                            f"arr_to_str() expects array, got {arg_type}",
+                            TypeMismatchError)
+            
+            elif func_name == "length":
+                # length(x) requires x to be string or array
+                if len(arg_types) > 0:
+                    arg_type = arg_types[0]
+                    if arg_type not in (TY_STRING, TY_ARRAY):
+                        self._error(args[0],
+                            f"length() expects string or array, got {arg_type}",
+                            TypeMismatchError)
+            
+            elif func_name == "compare":
+                # compare(a, b) requires both to be string
+                if len(arg_types) >= 2:
+                    type_a = arg_types[0]
+                    type_b = arg_types[1]
+                    
+                    # Both must be string
+                    if type_a != TY_STRING:
+                        self._error(args[0],
+                            f"compare() expects string, got {type_a}",
+                            TypeMismatchError)
+                    if type_b != TY_STRING:
+                        self._error(args[1],
+                            f"compare() expects string, got {type_b}",
+                            TypeMismatchError)
 
             result_type = symbol.return_type if symbol.return_type else TY_UNKNOWN
             node.inferred_type = result_type

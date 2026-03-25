@@ -1567,3 +1567,162 @@ close
 
 x = name();  
 show x;",Cannot use function 'name' as loop variable,,
+"# length()
+arr : [1] = [];
+
+length('hello');           # string argument
+length('');                # empty string
+length(arr);               # array variable
+
+# Invalid cases
+length(42);                #  integer not allowed
+length(3.14);              #  float not allowed
+length(true);              #  boolean not allowed
+","length() expects string or array, got int
+length() expects string or array, got float
+length() expects string or array, got bool
+",,
+"### str to arr ###
+arr : [1] = [];
+str_var = 'hello';
+# Valid cases
+str_to_arr('hello');       # string argument
+str_to_arr('') ;           # empty string
+str_to_arr(str_var)  ;     # string variable
+
+# Invalid cases
+str_to_arr(42)   ;        #  integer not allowed
+str_to_arr(3.14) ;         #  float not allowed
+str_to_arr(true)  ;        #  boolean not allowed","str_to_arr() expects string, got int
+str_to_arr() expects string, got float
+str_to_arr() expects string, got bool
+
+
+",,
+"### arr to str ###
+arr : [1] = [];
+arr_var : [3] = [1, 2, 3];
+
+# Valid cases
+arr_to_str(arr_var);        # array variable
+arr_to_str(arr);            # array variable from previous
+
+# Invalid cases
+arr_to_str('hello');        # string not allowed
+arr_to_str('');             #  empty string not allowed
+arr_to_str(42);             # integer not allowed
+arr_to_str(3.14);           #  float not allowed
+arr_to_str(true);           #  boolean not allowed
+arr_to_str(str_var);        #  string variable not allowed","arr_to_str() expects array, got string
+arr_to_str() expects array, got string
+arr_to_str() expects array, got int
+arr_to_str() expects array, got float
+arr_to_str() expects array, got bool
+Variable 'str_var' not defined
+arr_to_str() expects array, got unknown
+
+",,
+"### arr to str ###
+y = 'hello';
+x =  5 + 92 + y;
+
+
+# Invalid cases
+arr_to_str(x);        # int not allowed
+
+
+","arr_to_str() expects array, got int",,
+"### compare ###
+str1 = 'hello';
+str2 = 'world';
+arr1 : [3] = [1, 2, 3];
+arr2 : [3] = [4, 5, 6];
+
+# Valid cases - both strings
+compare('abc', 'def');       # both string literals
+compare('', 'hello');        # empty string vs literal
+compare(str1, str2);         # both string variables
+compare('hello', str2);      # literal vs variable
+compare(str1, 'world');      # variable vs literal
+
+
+",NO SEMANTIC ERROR/S,,
+"### compare ###
+str1 = 'hello';
+str2 = 'world';
+arr1 : [3] = [1, 2, 3];
+arr2 : [3] = [4, 5, 6];
+
+# Invalid cases - mixed types
+compare('hello', arr1);    #  string vs array
+compare(arr2, 'hello');    #  array vs string
+compare(str1, arr1);         #  string variable vs array variable
+compare(arr1, str1);         #  array variable vs string variable
+compare('hello', arr1);      #  string literal vs array variable
+compare(arr1, 'hello');      #  array variable vs string literal
+
+","compare() expects string, got array
+compare() expects string, got array
+compare() expects string, got array
+compare() expects string, got array
+compare() expects string, got array
+compare() expects string, got array
+",,
+"### compare ###
+str1 = 'hello';
+str2 = 'world';
+arr1 : [3] = [1, 2, 3];
+arr2 : [3] = [4, 5, 6];
+
+# Invalid cases - wrong types (non-string)
+compare(42, 43);             #  integers not allowed
+compare(42, 'hello');        #  int vs string
+compare('hello', 42);        #  string vs int
+compare(3.14, 2.71);         #  floats not allowed
+compare(true, false);        #  booleans not allowed
+compare(42, 3.14);           #  int vs float
+compare(true, 'hello');      #  boolean vs string
+
+","compare() expects string, got int
+compare() expects string, got int
+compare() expects string, got int
+compare() expects string, got int
+compare() expects string, got float
+compare() expects string, got float
+compare() expects string, got bool
+compare() expects string, got bool
+compare() expects string, got int
+compare() expects string, got float
+compare() expects string, got bool
+
+
+",,
+"### compare ###
+str1 = 'hello';
+str2 = 'world';
+arr1 : [3] = [1, 2, 3];
+arr2 : [3] = [4, 5, 6];
+
+# Invalid cases - same type but not string
+compare(42, 100);            #  both ints but not allowed
+compare(3.14, 2.71);         #  both floats but not allowed
+compare(true, false);        # both booleans but not allowed","compare() expects string, got int
+compare() expects string, got int
+compare() expects string, got float
+compare() expects string, got float
+compare() expects string, got bool
+compare() expects string, got bool
+",,
+"### compare ###
+str1 = 'hello';
+str2 = 'world';
+arr1 : [3] = [1, 2, 3];
+arr2 : [3] = [4, 5, 6];
+
+expr1 = 'str' and 2.2;
+expr2 = 1 + expr1 and expr1 + 8;
+
+compare(expr1, expr2);","compare() expects string, got bool
+compare() expects string, got int
+
+",,
