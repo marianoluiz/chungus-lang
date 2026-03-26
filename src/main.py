@@ -4,16 +4,16 @@ import subprocess
 from pathlib import Path
 import os
 import time
-import threading
-import queue
+import selectors
 from src.gui import ChungusLexerGUI
 from src.lexer.dfa_lexer import Lexer
 from src.syntax.rd_parser import RDParser
 # from src.constants.syntax_test import Parser
 from src.semantic.semantic_analyzer import SemanticAnalyzer
 from src.codegen import analyze_codegen
+import platform 
 
-def lexer_only_adapter(source: str):
+def lexer_adapter(source: str):
     """
     Adapter that runs only the Lexer and converts its output into a list of dicts:
       { "type": <token_type>, "lexeme": <lexeme>, "line": <1-based>, "col": <1-based> }
@@ -102,6 +102,7 @@ def semantic_adapter(source: str):
 
     return tokens, errors
 
+
 def codegen_adapter(source: str):
     """
     Runs the full compilation pipeline.
@@ -158,66 +159,65 @@ def codegen_adapter(source: str):
     c_path = output_dir / f"gui_output_{timestamp}.c"
     c_path.write_text(codegen_result.code)
  
-    # ── Compile with gcc ─────────────────────────────────────────────────────
-    exe_path = c_path.with_suffix('')
-    # ── Compile with gcc ─────────────────────────────────────────────────────
-    exe_extension = '.exe' if os.name == 'nt' else ''
-    exe_path = c_path.with_suffix(exe_extension)
+    # ── Detect OS and choose compiler ────────────────────────────────────────
+    system = platform.system()
+    
+    if system == "Windows":
+        # On Windows, look for gcc (MinGW) or clang
+        compiler = "gcc"  # or "clang" if you have it installed
+        exe_path = c_path.with_suffix('.exe')  # Add .exe extension
+    else:
+        # macOS/Linux
+        compiler = "gcc"
+        exe_path = c_path.with_suffix('')  # No extension on Unix
+
     runtime_c   = Path(__file__).parent / "runtime" / "chungus_runtime.c"
     runtime_h_dir = Path(__file__).parent / "runtime"
- 
+
+    # ── Compile with gcc ─────────────────────────────────────────────────────
+    compile_cmd = [
+        compiler, "-Wall", "-Wextra",
+        f"-I{str(runtime_h_dir)}",
+        "-o", str(exe_path),
+        str(c_path),
+        str(runtime_c),
+        "-lm"
+    ]
+
+    # On Windows, add -lm might not be needed (math is in libc)
+    if system == "Windows":
+        # Remove -lm on Windows (or keep if MinGW handles it)
+        compile_cmd = [c for c in compile_cmd if c != "-lm"]
+
     compile_result = subprocess.run(
-        ["gcc", "-Wall", "-Wextra",
-         f"-I{runtime_h_dir}",
-         "-o", str(exe_path),
-         str(c_path),
-         str(runtime_c),
-         "-lm"],
-        capture_output=True, text=True,
- 
-    compile_result = subprocess.run(
-        ["gcc", "-Wall", "-Wextra",
-         f"-I{runtime_h_dir}",
-         "-o", str(exe_path),
-         str(c_path),
-         str(runtime_c),
-         "-lm"],
-        capture_output=True, text=True,
+        compile_cmd,
+        capture_output=True,
+        text=True,
     )
- 
- 
     if compile_result.returncode != 0:
         errors.append("Compilation Error:")
         errors.append(compile_result.stderr)
         return tokens, errors, None
  
     # ── Launch executable — keep stdin/stdout/stderr open for live I/O ───────
-    kwargs = {}
-    if os.name == 'nt':
-        # Hide the console window on Windows when launching the compiled exe
-        startupinfo = subprocess.STARTUPINFO()
-        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        kwargs['startupinfo'] = startupinfo
-
     proc = subprocess.Popen(
         [str(exe_path)],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
-        bufsize=1,          # line buffered
-        **kwargs
+        bufsize=0,          # unbuffered — important for interactive input
     )
  
-    # Return the live process to the GUI; it will stream I/O itself.
+    # Return the live process to the GUI; it will stream I/O itself. Error is empty since we didn't encounter any
     return tokens, [], proc
- 
+
  
 if __name__ == "__main__":
     root = tk.Tk()
     app = ChungusLexerGUI(
         root,
-        lexer_callback=lexer_only_adapter,
+        lexer_callback=lexer_adapter,
         syntax_callback=syntax_adapter,
         semantic_callback=semantic_adapter,
         codegen_callback=codegen_adapter,
