@@ -87,32 +87,17 @@ class TextLineNumbers(tk.Canvas):
         self.textwidget = text_widget
 
     def redraw(self, *args):
-        """Redraw line numbers - called on any text change"""
         self.delete("all")
-        if not self.textwidget:
-            return
-            
         self.config(bg=self.bg_color)
-        
-        # Get total number of lines in the text widget
-        end_index = self.textwidget.index("end")
-        total_lines = int(end_index.split(".")[0])
-        
-        # Iterate through all lines and draw visible ones
-        for line_num in range(1, total_lines + 1):
-            line_index = f"{line_num}.0"
-            dline = self.textwidget.dlineinfo(line_index)
-            if dline is None:
-                continue  # Line not visible, skip it
+        i = self.textwidget.index("@0,0")
+        while True:
+            dline = self.textwidget.dlineinfo(i)
+            if dline is None: break
             y = dline[1]
-            self.create_text(
-                35, 
-                y, 
-                anchor="ne", 
-                text=str(line_num),
-                fill=self.fg_color, 
-                font=self.textwidget.cget("font")
-            )
+            linenum = str(i).split(".")[0]
+            self.create_text(35, y, anchor="ne", text=linenum,
+                             fill=self.fg_color, font=self.textwidget.cget("font"))
+            i = self.textwidget.index("%s+1line" % i)
 
 
 # ==============================================================================
@@ -138,7 +123,7 @@ class ChungusLexerGUI:
 
         # Interactive terminal state
         self._running_proc = None          # subprocess.Popen when a program is live
-        self._proc_lock = threading.Lock() # guard _running_proc | thread lock - prevents racing conditions
+        self._proc_lock = threading.Lock() # guard _running_proc
 
         self.themes = {
             "Light (macOS)": {
@@ -308,7 +293,7 @@ class ChungusLexerGUI:
         btn_container.pack(side=tk.LEFT, padx=15, pady=8)
 
         self.btn_lexer = tk.Button(btn_container, text="▶ RUN LEXER",
-                                   command=self.run_lexer, font=self.fonts['subheader'],
+                                   command=self.run_lexer_only, font=self.fonts['subheader'],
                                    relief="raised", borderwidth=0, padx=20, pady=8, cursor="hand2")
         self.btn_lexer.pack(side=tk.LEFT, padx=(0, 10))
 
@@ -365,7 +350,6 @@ class ChungusLexerGUI:
         self.paned_main.add(self.right_pane, minsize=350, stretch="never")
         self.build_analysis_area()
 
-
     def build_editor_area(self):
         lbl_frame = tk.Frame(self.editor_frame)
         lbl_frame.pack(fill=tk.X, side=tk.TOP, pady=(0, 2))
@@ -392,8 +376,6 @@ class ChungusLexerGUI:
         self.code_input = tk.Text(self.text_container, font=self.fonts['code'], undo=True,
                                   wrap=tk.NONE, yscrollcommand=self.v_scroll.set,
                                   padx=10, pady=10, borderwidth=0, highlightthickness=0)
-        self.code_input.config(tabs='1c')  # Set tab stops to 4 spaces visually
-
         self.v_scroll.config(command=self.code_input.yview)
 
         self.line_numbers = TextLineNumbers(self.text_container, width=40)
@@ -406,14 +388,6 @@ class ChungusLexerGUI:
         self.code_input.bind("<MouseWheel>", self.on_code_change)
         self.code_input.bind("<Button-1>", self.update_cursor_info)
 
-        # new bindings to trigger line number updates
-        self.code_input.bind("<Key>", self.on_code_change)
-        self.code_input.bind("<Return>", lambda e: self.root.after(10, self.on_code_change))
-        self.code_input.bind("<BackSpace>", lambda e: self.root.after(10, self.on_code_change))
-        self.code_input.bind("<Delete>", lambda e: self.root.after(10, self.on_code_change))
-        self.code_input.bind("<Control-v>", lambda e: self.root.after(50, self.on_code_change))
-        self.code_input.bind("<Control-V>", lambda e: self.root.after(50, self.on_code_change))
-
         self.autocomplete_listbox = tk.Listbox(self.text_container, height=5, bd=1,
                                                relief="solid", font=self.fonts['ui_reg'],
                                                exportselection=False)
@@ -423,7 +397,6 @@ class ChungusLexerGUI:
         self.code_input.bind("<Up>", self.nav_autocomplete_up)
         self.code_input.bind("<Down>", self.nav_autocomplete_down)
         self.code_input.bind("<FocusOut>", self.hide_autocomplete)
-
 
     def build_console_area(self):
         # ── Header row ──────────────────────────────────────────────────────
@@ -468,7 +441,7 @@ class ChungusLexerGUI:
                                    borderwidth=0, highlightthickness=1,
                                    relief="flat")
         self.term_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 6), pady=4)
-        self.term_entry.bind("<Return>", self._on_term_enter) # Key binding for input field
+        self.term_entry.bind("<Return>", self._on_term_enter)
         self.term_entry.bind("<KP_Enter>", self._on_term_enter)
 
     def build_analysis_area(self):
@@ -536,8 +509,6 @@ class ChungusLexerGUI:
 
         self.term_status_lbl.config(text="● RUNNING", fg=self.colors["ACCENT_GREEN"],
                                     bg=self.colors["BG_COLOR"])
-        
-        # enable kill btn
         self.btn_kill.config(state=tk.NORMAL)
 
     def _hide_input_bar(self):
@@ -545,7 +516,6 @@ class ChungusLexerGUI:
         self.input_bar.pack_forget()
         self.term_status_lbl.config(text="")
         self.btn_kill.config(state=tk.DISABLED)
-
 
     def _on_term_enter(self, event=None):
         """Called when user presses Enter in the terminal input bar."""
@@ -653,16 +623,13 @@ class ChungusLexerGUI:
                 current_pos = self.code_input.index(tk.INSERT)
                 line, col = current_pos.split('.')
                 text_line = self.code_input.get(f"{line}.0", current_pos)
-                
-                # Calculate how many characters from the end are part of the word
+                partial_len = sum(1 for _ in iter(lambda: next(
+                    (c for c in reversed(text_line) if not (c.isalnum() or c == '_')), None), None))
                 partial_len = 0
                 for char in reversed(text_line):
-                    if char.isalnum() or char == '_':
-                        partial_len += 1
-                    else:
-                        break
-                
-                start_del = f"{line}.{int(col) - partial_len}"
+                    if char.isalnum() or char == '_': partial_len += 1
+                    else: break
+                start_del = f"{line}.{int(col)-partial_len}"
                 self.code_input.delete(start_del, current_pos)
                 self.code_input.insert(start_del, word + " ")
                 self.hide_autocomplete()
@@ -876,7 +843,7 @@ class ChungusLexerGUI:
             self.code_input.insert("1.0", content)
             self.on_code_change()
             self.status_msg.config(text=f"Opened: {filepath}")
-            self.run_lexer()
+            self.run_lexer_only()
         except Exception as e:
             messagebox.showerror("Error Opening File", f"Could not read file:\n{e}")
 
@@ -911,8 +878,7 @@ class ChungusLexerGUI:
         self.error_output.delete("1.0", tk.END)
         self.error_output.config(state=tk.DISABLED)
 
-
-    def run_lexer(self):
+    def run_lexer_only(self):
         self.status_msg.config(text="Running Lexer...")
         self._clear_terminal()
         for item in self.token_tree.get_children(): self.token_tree.delete(item)
@@ -935,7 +901,6 @@ class ChungusLexerGUI:
             self.error_output.insert(tk.END, ">>> Lexical analysis complete. No errors found.", "success")
             self.status_msg.config(text="Lexer finished successfully.")
         self.error_output.config(state=tk.DISABLED)
-
 
     def run_syntax(self):
         self.status_msg.config(text="Running Parser...")
@@ -960,7 +925,6 @@ class ChungusLexerGUI:
             self.error_output.insert(tk.END, ">>> Syntax analysis complete. No errors found.", "success")
             self.status_msg.config(text="Syntax analysis finished successfully.")
         self.error_output.config(state=tk.DISABLED)
-
 
     def run_semantic(self):
         self.status_msg.config(text="Running Semantic Analyzer...")
@@ -988,21 +952,17 @@ class ChungusLexerGUI:
             self.status_msg.config(text="Semantic analysis finished successfully.")
         self.error_output.config(state=tk.DISABLED)
 
-
     def run_codegen(self):
         if not callable(self.codegen_callback):
             messagebox.showinfo("Code Generator", "No code generator callback provided.")
             self.status_msg.config(text="Code generator not configured."); return
 
         self._clear_terminal()
-
-        # delete table of tokens
         for item in self.token_tree.get_children(): self.token_tree.delete(item)
 
         self.btn_codegen.config(state=tk.DISABLED)
         self.status_msg.config(text="Compiling...")
-
-        # self._term_write("Compiling...\n", tag="info")
+        self._term_write("Compiling...\n", tag="info")
 
         source_code = self.code_input.get("1.0", "end-1c").expandtabs(4)
 
@@ -1017,11 +977,9 @@ class ChungusLexerGUI:
                     proc = None
             except Exception as exc:
                 tokens, errors, proc = [], [f"Code Generator Internal Error: {exc}"], None
-        
-            # returns to main thread
+
             self.root.after(0, lambda: self._finish_codegen(tokens, errors, proc))
 
-        # Create a new thread that runs _worker in the background
         threading.Thread(target=_worker, daemon=True).start()
 
     def _finish_codegen(self, tokens, errors, proc=None):
@@ -1050,67 +1008,53 @@ class ChungusLexerGUI:
 
         # ── Live process: wire up streaming I/O ─────────────────────────────
         with self._proc_lock:
-            self._running_proc = proc   # Store for kill button
+            self._running_proc = proc
 
-        self._show_input_bar()          # Show the input bar at bottom
+        self._show_input_bar()
         self.status_msg.config(text="Program running...")
-
-        # self._term_write("=== Program started ===\n", tag="info")
+        self._term_write("=== Program started ===\n", tag="info")
 
         def _stream_output():
             """Read stdout/stderr line-by-line and push to terminal."""
-
-            # Setting Up Non-Blocking Reading
-            # selectors lets us check "is there data to read?" without waiting
-            import selectors, os, time
-
-            # watches multiple streams at once
-            sel = selectors.DefaultSelector()
-            for stream in [proc.stdout, proc.stderr]:
-                if stream:
-                    try: os.set_blocking(stream.fileno(), False) # makes reads return immediately (not wait)
-                    except Exception: pass
-
-                    # Watch this stream and notify me when it has data ready to be read.
-                    sel.register(stream, selectors.EVENT_READ)
+            import time
+            import threading
 
             start = time.monotonic()
             TIMEOUT = 30.0   # generous — user is interacting
 
-            while True:
+            def read_stream(stream, tag):
+                try:
+                    while True:
+                        chunk = stream.read(1)
+                        if not chunk:
+                            break
+                        self._term_write(chunk, tag=tag)
+                except Exception:
+                    pass
+
+            t_out = threading.Thread(target=read_stream, args=(proc.stdout, None), daemon=True)
+            t_err = threading.Thread(target=read_stream, args=(proc.stderr, "term_error"), daemon=True)
+            
+            if proc.stdout: t_out.start()
+            if proc.stderr: t_err.start()
+
+            while proc.poll() is None:
                 if time.monotonic() - start > TIMEOUT:
                     self._term_write("\n[Execution Timeout: 30s]\n", tag="term_error")
                     try: proc.kill()
                     except Exception: pass
                     break
+                time.sleep(0.05)
 
-                events = sel.select(timeout=0.05)  # Wait up to 0.05 seconds for data
-                for key, _ in events:
-                    stream = key.fileobj
-                    try: chunk = stream.read()     # Read available data
-                    except Exception: chunk = ""
+            if proc.stdout: t_out.join(timeout=0.1)
+            if proc.stderr: t_err.join(timeout=0.1)
 
-                    if chunk == "":
-                        # means the stream has been closed, so we unregister
-                        try: sel.unregister(stream)
-                        except Exception: pass
-                        continue
-
-                    tag = "term_error" if stream is proc.stderr else None
-                    self._term_write(chunk, tag=tag)
-
-                if proc.poll() is not None and not sel.get_map():
-                    break
-
-            rc = proc.wait() # wait then returns the exit code. (0 = success, other = error); 
-
-            # with statement is a context manager that handles cleanup for ANY resource that needs cleanup
-            # thread lock - prevents racing conditions
+            rc = proc.wait()
             with self._proc_lock:
-                self._running_proc = None # No longer runnin
+                self._running_proc = None
 
             def _done():
-                self._hide_input_bar()  # Hide input bar
+                self._hide_input_bar()
                 self.btn_codegen.config(state=tk.NORMAL)
                 if rc == 0:
                     self._term_write("\n=== Program finished (exit 0) ===\n", tag="success")
@@ -1119,13 +1063,11 @@ class ChungusLexerGUI:
                     self._term_write(f"\n=== Program exited with code {rc} ===\n", tag="term_error")
                     self.status_msg.config(text=f"Program exited with code {rc}.")
 
-            # tkinter switching from a background thread to the main GUI thread
             self.root.after(0, _done)
 
         threading.Thread(target=_stream_output, daemon=True).start()
 
     def _populate_tokens(self, tokens):
-        """ populate table from lexical """
         for i, token in enumerate(tokens):
             token_type_name = getattr(token, "type", token.get("type") if isinstance(token, dict) else "")
             if hasattr(token_type_name, "name"): token_type_name = token_type_name.name
@@ -1155,3 +1097,25 @@ class ChungusLexerGUI:
             "Where tokens is a list of objects/dicts with fields: type, lexeme, line, col.\n\n",
             "error")
         self.error_output.config(state=tk.DISABLED)
+
+
+# ==============================================================================
+# 11. ENTRY POINT
+# ==============================================================================
+
+if __name__ == "__main__":
+    root = tk.Tk()
+
+    class MockToken:
+        def __init__(self, t, l, ln, c):
+            self.type = t; self.lexeme = l; self.line = ln; self.col = c
+
+    def mock_lexer(src):
+        return [
+            MockToken("fn", "fn", 1, 1), MockToken("identifier", "main", 1, 4),
+            MockToken("delimiter", "(", 1, 8), MockToken("delimiter", ")", 1, 9),
+            MockToken("show", "show", 2, 5), MockToken("str_literal", '"Hello"', 2, 10),
+        ], []
+
+    app = ChungusLexerGUI(root, lexer_callback=mock_lexer, syntax_callback=mock_lexer)
+    root.mainloop()
