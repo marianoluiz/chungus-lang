@@ -159,6 +159,8 @@ def codegen_adapter(source: str):
     c_path.write_text(codegen_result.code)
  
     # ── Compile with gcc ─────────────────────────────────────────────────────
+    exe_path = c_path.with_suffix('')
+    # ── Compile with gcc ─────────────────────────────────────────────────────
     exe_extension = '.exe' if os.name == 'nt' else ''
     exe_path = c_path.with_suffix(exe_extension)
     runtime_c   = Path(__file__).parent / "runtime" / "chungus_runtime.c"
@@ -172,7 +174,17 @@ def codegen_adapter(source: str):
          str(runtime_c),
          "-lm"],
         capture_output=True, text=True,
+ 
+    compile_result = subprocess.run(
+        ["gcc", "-Wall", "-Wextra",
+         f"-I{runtime_h_dir}",
+         "-o", str(exe_path),
+         str(c_path),
+         str(runtime_c),
+         "-lm"],
+        capture_output=True, text=True,
     )
+ 
  
     if compile_result.returncode != 0:
         errors.append("Compilation Error:")
