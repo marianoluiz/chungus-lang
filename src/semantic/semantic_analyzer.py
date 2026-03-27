@@ -1848,7 +1848,7 @@ class SemanticAnalyzer:
                 # str_to_arr(s) requires s to be string
                 if len(arg_types) > 0:
                     arg_type = arg_types[0]
-                    if arg_type != TY_STRING:
+                    if arg_type != TY_STRING and arg_type != TY_UNKNOWN:
                         self._error(args[0],
                             f"str_to_arr() expects string, got {arg_type}",
                             TypeMismatchError)
@@ -1857,7 +1857,7 @@ class SemanticAnalyzer:
                 # arr_to_str(arr) requires arr to be array
                 if len(arg_types) > 0:
                     arg_type = arg_types[0]
-                    if arg_type != TY_ARRAY:
+                    if arg_type != TY_ARRAY and arg_type != TY_UNKNOWN:
                         self._error(args[0],
                             f"arr_to_str() expects array, got {arg_type}",
                             TypeMismatchError)
@@ -1866,7 +1866,7 @@ class SemanticAnalyzer:
                 # length(x) requires x to be string or array
                 if len(arg_types) > 0:
                     arg_type = arg_types[0]
-                    if arg_type not in (TY_STRING, TY_ARRAY):
+                    if arg_type not in (TY_STRING, TY_ARRAY, TY_UNKNOWN):
                         self._error(args[0],
                             f"length() expects string or array, got {arg_type}",
                             TypeMismatchError)
@@ -1877,12 +1877,12 @@ class SemanticAnalyzer:
                     type_a = arg_types[0]
                     type_b = arg_types[1]
                     
-                    # Both must be string
-                    if type_a != TY_STRING:
+                    # Both must be string (or unknown)
+                    if type_a != TY_STRING and type_a != TY_UNKNOWN:
                         self._error(args[0],
                             f"compare() expects string, got {type_a}",
                             TypeMismatchError)
-                    if type_b != TY_STRING:
+                    if type_b != TY_STRING and type_b != TY_UNKNOWN:
                         self._error(args[1],
                             f"compare() expects string, got {type_b}",
                             TypeMismatchError)
