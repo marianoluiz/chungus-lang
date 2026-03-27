@@ -1058,44 +1058,59 @@ class ChungusLexerGUI:
         # self._term_write("=== Program started ===\n", tag="info")
 
         def _stream_output():
-            import threading
-            import time
+            """Read stdout/stderr line-by-line and push to terminal."""
 
-            def read_stream(stream, tag):
-                try:
-                    while True:
-                        chunk = stream.read(1)
-                        if not chunk:
-                            break
-                        self._term_write(chunk, tag=tag)
-                except Exception:
-                    pass
+            # Setting Up Non-Blocking Reading
+            # selectors lets us check "is there data to read?" without waiting
+            import selectors, os, time
 
-            t_out = threading.Thread(target=read_stream, args=(proc.stdout, None), daemon=True)
-            t_err = threading.Thread(target=read_stream, args=(proc.stderr, "term_error"), daemon=True)
-            if proc.stdout: t_out.start()
-            if proc.stderr: t_err.start()
+            # watches multiple streams at once
+            sel = selectors.DefaultSelector()
+            for stream in [proc.stdout, proc.stderr]:
+                if stream:
+                    try: os.set_blocking(stream.fileno(), False) # makes reads return immediately (not wait)
+                    except Exception: pass
+
+                    # Watch this stream and notify me when it has data ready to be read.
+                    sel.register(stream, selectors.EVENT_READ)
 
             start = time.monotonic()
-            TIMEOUT = 30.0
+            TIMEOUT = 30.0   # generous — user is interacting
 
-            while proc.poll() is None:
+            while True:
                 if time.monotonic() - start > TIMEOUT:
                     self._term_write("\n[Execution Timeout: 30s]\n", tag="term_error")
                     try: proc.kill()
                     except Exception: pass
                     break
-                time.sleep(0.05)
 
-            if proc.stdout: t_out.join(timeout=0.1)
-            if proc.stderr: t_err.join(timeout=0.1)
+                events = sel.select(timeout=0.05)  # Wait up to 0.05 seconds for data
+                for key, _ in events:
+                    stream = key.fileobj
+                    try: chunk = stream.read()     # Read available data
+                    except Exception: chunk = ""
 
-            rc = proc.wait()
+                    if chunk == "":
+                        # means the stream has been closed, so we unregister
+                        try: sel.unregister(stream)
+                        except Exception: pass
+                        continue
+
+                    tag = "term_error" if stream is proc.stderr else None
+                    self._term_write(chunk, tag=tag)
+
+                if proc.poll() is not None and not sel.get_map():
+                    break
+
+            rc = proc.wait() # wait then returns the exit code. (0 = success, other = error); 
+
+            # with statement is a context manager that handles cleanup for ANY resource that needs cleanup
+            # thread lock - prevents racing conditions
             with self._proc_lock:
-                self._running_proc = None
+                self._running_proc = None # No longer runnin
 
             def _done():
-                self._hide_input_bar()
+                self._hide_input_bar()  # Hide input bar
                 self.btn_codegen.config(state=tk.NORMAL)
                 if rc == 0:
                     self._term_write("\n=== Program finished (exit 0) ===\n", tag="success")
@@ -1104,6 +1119,7 @@ class ChungusLexerGUI:
                     self._term_write(f"\n=== Program exited with code {rc} ===\n", tag="term_error")
                     self.status_msg.config(text=f"Program exited with code {rc}.")
 
+            # tkinter switching from a background thread to the main GUI thread
             self.root.after(0, _done)
 
         threading.Thread(target=_stream_output, daemon=True).start()
