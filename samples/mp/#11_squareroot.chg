@@ -1,0 +1,11 @@
+show 'Enter a number to find its square root: ';
+num = read;
+num = float(num);
+
+if num < 0:
+    show 'Error: Cannot compute square root of a negative number.';
+else:
+    result = num ** 0.5;
+    show 'Square root: ';
+    show result;
+close 

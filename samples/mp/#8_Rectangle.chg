@@ -1,0 +1,18 @@
+show 'Enter width:';
+w_input = read;
+width = int(w_input);
+
+show 'Enter height:';
+h_input = read;
+height = int(h_input);
+
+if width > 0 and height > 0:
+  for i in range(height):
+    for j in range(width):
+      show '**';
+    close
+    show '\n';
+  close
+else:
+  show 'Invalid input';
+close

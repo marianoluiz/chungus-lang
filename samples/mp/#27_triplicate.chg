@@ -1,0 +1,30 @@
+numbers:[100] = []; 
+count = 0;
+triple_duplicate_found = false;
+
+while !triple_duplicate_found:
+    show 'Enter a number: ';
+    current_input = read;
+    val = int(current_input);
+    
+    occurrence_count = 0;
+    i = 0;
+    while i < count:
+        existing_val = numbers[i];
+        if val == existing_val:
+            occurrence_count = occurrence_count + 1;
+        close
+        i = i + 1;
+    close
+    
+    if occurrence_count >= 2:
+        triple_duplicate_found = true;
+    close
+
+    if !triple_duplicate_found:
+        numbers[count] = val;
+        count = count + 1;
+    close
+close
+
+show 'Triple duplicate detected! Program stopped.';

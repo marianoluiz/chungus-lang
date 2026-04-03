@@ -1,0 +1,63 @@
+show 'enter number of elements: ';
+n = read;
+
+userArray:[n] = [];
+
+i = 0;
+while (i < n):
+    show 'element ';
+    show i;
+    show ': ';
+    userArray[i] = read;
+    i = i + 1;
+close
+
+show '\nChoose sorting order:\n1. Ascending\n2. Descending\nChoice: ';
+choice = read;
+
+i = 0;
+while (i < n):
+    j = 0;
+    limit = n - i;
+    limit = limit - 1;
+    
+    while (j < limit):
+        left = userArray[j];
+        nextIdx = j + 1;
+        right = userArray[nextIdx];
+        
+        doSwap = 0;
+        
+        if (choice == 1):
+            if (left > right):
+                doSwap = 1;
+            close
+        close
+        
+        if (choice == 2):
+            if (left < right):
+                doSwap = 1;
+            close
+        close
+
+        if (doSwap == 1):
+            userArray[j] = right;
+            userArray[nextIdx] = left;
+        close
+        
+        j = j + 1;
+    close
+    i = i + 1;
+close
+
+show '\nThe sorted elements are: ';
+
+k = 0;
+while (k < n):
+	result = userArray[k]; 
+    show result; 
+    show ' ';
+    k = k + 1;
+close
+
+show '\n';
