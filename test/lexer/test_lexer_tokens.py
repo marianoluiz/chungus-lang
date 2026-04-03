@@ -22,7 +22,7 @@ def _rows():
         reader = csv.reader(f)
         next(reader)  # skip header
 
-        for row in reader:
+        for rownum, row in enumerate(reader, start=2):  # header is row 1
             # row:  ['abc123 = 10', 'NO LEXICAL ERROR/S'] ...
             src = row[0]                # The source code, col 1
             expected = row[1].strip()   # Expected Tokens, col 2
@@ -33,7 +33,10 @@ def _rows():
             # optional: normalize fullwidth semicolon to ASCII
             src = src.replace("；", ";")
 
-            yield src, expected, test_details   # return one at a time
+            if not src.strip():
+                continue
+
+            yield pytest.param(rownum, src, expected, test_details, id=f"row{rownum}")
 
 
 def _get_types_in_order(lex_token_stream):
@@ -44,11 +47,12 @@ def _get_types_in_order(lex_token_stream):
         if (tok.type not in ("whitespace", "newline"))
     ]
 
-@pytest.mark.parametrize("src, expected, test_details", _rows())
-def test_lexer_tokens(src, expected, test_details):
+@pytest.mark.parametrize("rownum,src,expected,test_details", _rows())
+def test_lexer_tokens(rownum, src, expected, test_details):
     # pytest.mark.parametrize is LIKE a loop that runs testcase per testcase
     # _rows() returns a generator, which pytest automatically does the next()
 
+    print(f"=== CSV row: {rownum} ===")
     print("SRC INPUT:")
     print(src)
     print("EXPECTED:")

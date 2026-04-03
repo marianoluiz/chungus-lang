@@ -151,7 +151,7 @@ def codegen_adapter(source: str):
         errors.append("Code Generation Error/s:")
         errors.extend(codegen_result.errors)
         return tokens, errors, None
- 
+
     # ── Write generated C source ─────────────────────────────────────────────
     output_dir = Path(__file__).parent.parent / "output"
     output_dir.mkdir(exist_ok=True)

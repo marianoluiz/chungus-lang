@@ -20,7 +20,7 @@ def _rows():
         reader = csv.reader(f)
         next(reader)  # skip header
 
-        for row in reader:
+        for rownum, row in enumerate(reader, start=2):  # header is row 1
             # row:  ['abc123 = 10', 'NO LEXICAL ERROR/S'] ...
             src = row[0]                # The source code, col 1
             expected = row[1].strip()   # Expected Error, col 2
@@ -30,15 +30,19 @@ def _rows():
             # optional: normalize fullwidth semicolon to ASCII
             src = src.replace("；", ";")
 
-            yield src, expected         # return one at a time
+            if not src.strip():
+                continue
+
+            yield pytest.param(rownum, src, expected, id=f"row{rownum}")
 
 
-@pytest.mark.parametrize("src,expected", _rows())
-def test_lexer_logs(src, expected):
+@pytest.mark.parametrize("rownum,src,expected", _rows())
+def test_lexer_logs(rownum, src, expected):
     """ the src, expected will be extracted from the _rows() at this parametrizing test """
     # pytest.mark.parametrize is LIKE a loop that runs testcase per testcase
     # _rows() returns a generator, which pytest automatically does the next()
 
+    print(f"=== CSV row: {rownum} ===")
     print("SRC INPUT:")
     print(src)
     print("EXPECTED:")

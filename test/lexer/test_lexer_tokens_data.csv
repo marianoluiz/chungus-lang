@@ -66,3 +66,7 @@ close","[""id"",""="",""int_literal"",       "";""  ,  ""while"",""id"","">"",""
 ~~1,"[""int_literal""]",int literal test
 ;,"["";""]",terminator test
 :,"["":""]",header seperator test
+str_to_arr();,"[""str_to_arr"", ""("", "")"", "";""]",
+"arr_to_str();
+","[""arr_to_str"", ""("", "")"", "";""]",
+compare();,"[""compare"", ""("", "")"", "";""]",

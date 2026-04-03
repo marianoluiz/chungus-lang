@@ -1586,14 +1586,14 @@ length() expects string or array, got bool
 arr : [1] = [];
 str_var = 'hello';
 # Valid cases
-str_to_arr('hello');       # string argument
-str_to_arr('') ;           # empty string
-str_to_arr(str_var)  ;     # string variable
+x = str_to_arr('hello');       # string argument
+x = str_to_arr('') ;           # empty string
+x = str_to_arr(str_var)  ;     # string variable
 
 # Invalid cases
-str_to_arr(42)   ;        #  integer not allowed
-str_to_arr(3.14) ;         #  float not allowed
-str_to_arr(true)  ;        #  boolean not allowed","str_to_arr() expects string, got int
+x = str_to_arr(42)   ;        #  integer not allowed
+x = str_to_arr(3.14) ;         #  float not allowed
+x = str_to_arr(true)  ;        #  boolean not allowed","str_to_arr() expects string, got int
 str_to_arr() expects string, got float
 str_to_arr() expects string, got bool
 
@@ -1604,31 +1604,36 @@ arr : [1] = [];
 arr_var : [3] = [1, 2, 3];
 
 # Valid cases
-arr_to_str(arr_var);        # array variable
-arr_to_str(arr);            # array variable from previous
+x =arr_to_str(arr_var);        # array variable
+x = arr_to_str(arr);            # array variable from previous
 
 # Invalid cases
-arr_to_str('hello');        # string not allowed
-arr_to_str('');             #  empty string not allowed
-arr_to_str(42);             # integer not allowed
-arr_to_str(3.14);           #  float not allowed
-arr_to_str(true);           #  boolean not allowed
-arr_to_str(str_var);        #  string variable not allowed","arr_to_str() expects array, got string
+x = arr_to_str('hello');        # string not allowed
+x = arr_to_str('');             #  empty string not allowed
+x = arr_to_str(42);             # integer not allowed
+x = arr_to_str(3.14);           #  float not allowed
+x = arr_to_str(true);           #  boolean not allowed
+x = arr_to_str(str_var);        #  string variable not allowed","arr_to_str() expects array, got string
 arr_to_str() expects array, got string
 arr_to_str() expects array, got int
 arr_to_str() expects array, got float
 arr_to_str() expects array, got bool
 Variable 'str_var' not defined
-arr_to_str() expects array, got unknown
+
 
 ",,
+"
+str_var = read;
+x = arr_to_str(str_var);      # should pass",NO SEMANTIC ERROR/S,,
+"str_var = 'ching';
+x = arr_to_str(str_var);      # should  error","arr_to_str() expects array, got string",,
 "### arr to str ###
 y = 'hello';
 x =  5 + 92 + y;
 
 
 # Invalid cases
-arr_to_str(x);        # int not allowed
+x = arr_to_str(x);        # int not allowed
 
 
 ","arr_to_str() expects array, got int",,
@@ -1639,11 +1644,11 @@ arr1 : [3] = [1, 2, 3];
 arr2 : [3] = [4, 5, 6];
 
 # Valid cases - both strings
-compare('abc', 'def');       # both string literals
-compare('', 'hello');        # empty string vs literal
-compare(str1, str2);         # both string variables
-compare('hello', str2);      # literal vs variable
-compare(str1, 'world');      # variable vs literal
+x = compare('abc', 'def');       # both string literals
+x = compare('', 'hello');        # empty string vs literal
+x = compare(str1, str2);         # both string variables
+x = compare('hello', str2);      # literal vs variable
+x = compare(str1, 'world');      # variable vs literal
 
 
 ",NO SEMANTIC ERROR/S,,
@@ -1654,12 +1659,12 @@ arr1 : [3] = [1, 2, 3];
 arr2 : [3] = [4, 5, 6];
 
 # Invalid cases - mixed types
-compare('hello', arr1);    #  string vs array
-compare(arr2, 'hello');    #  array vs string
-compare(str1, arr1);         #  string variable vs array variable
-compare(arr1, str1);         #  array variable vs string variable
-compare('hello', arr1);      #  string literal vs array variable
-compare(arr1, 'hello');      #  array variable vs string literal
+x = compare('hello', arr1);    #  string vs array
+x = compare(arr2, 'hello');    #  array vs string
+x = compare(str1, arr1);         #  string variable vs array variable
+x = compare(arr1, str1);         #  array variable vs string variable
+x = compare('hello', arr1);      #  string literal vs array variable
+x = compare(arr1, 'hello');      #  array variable vs string literal
 
 ","compare() expects string, got array
 compare() expects string, got array
@@ -1675,13 +1680,13 @@ arr1 : [3] = [1, 2, 3];
 arr2 : [3] = [4, 5, 6];
 
 # Invalid cases - wrong types (non-string)
-compare(42, 43);             #  integers not allowed
-compare(42, 'hello');        #  int vs string
-compare('hello', 42);        #  string vs int
-compare(3.14, 2.71);         #  floats not allowed
-compare(true, false);        #  booleans not allowed
-compare(42, 3.14);           #  int vs float
-compare(true, 'hello');      #  boolean vs string
+x = compare(42, 43);             #  integers not allowed
+x = compare(42, 'hello');        #  int vs string
+x = compare('hello', 42);        #  string vs int
+x = compare(3.14, 2.71);         #  floats not allowed
+x = compare(true, false);        #  booleans not allowed
+x = compare(42, 3.14);           #  int vs float
+x = compare(true, 'hello');      #  boolean vs string
 
 ","compare() expects string, got int
 compare() expects string, got int
@@ -1704,9 +1709,9 @@ arr1 : [3] = [1, 2, 3];
 arr2 : [3] = [4, 5, 6];
 
 # Invalid cases - same type but not string
-compare(42, 100);            #  both ints but not allowed
-compare(3.14, 2.71);         #  both floats but not allowed
-compare(true, false);        # both booleans but not allowed","compare() expects string, got int
+x = compare(42, 100);            #  both ints but not allowed
+x = compare(3.14, 2.71);         #  both floats but not allowed
+x = compare(true, false);        # both booleans but not allowed","compare() expects string, got int
 compare() expects string, got int
 compare() expects string, got float
 compare() expects string, got float
@@ -1722,7 +1727,7 @@ arr2 : [3] = [4, 5, 6];
 expr1 = 'str' and 2.2;
 expr2 = 1 + expr1 and expr1 + 8;
 
-compare(expr1, expr2);","compare() expects string, got bool
+x = compare(expr1, expr2);","compare() expects string, got bool
 compare() expects string, got int
 
 ",,

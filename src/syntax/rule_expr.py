@@ -84,6 +84,11 @@ class ExprRules:
         <type_casting>
             -> int ( <expr> )
             -> float ( <expr> )
+
+        <builtin_call>
+            -> str_to_arr ( <expr> )
+            -> arr_to_str ( <expr> )
+            -> compare ( <expr> , <expr> )
         ```
 
         Returns:
@@ -122,6 +127,55 @@ class ExprRules:
             self._advance()
 
             return self._ast_node('type_cast', cast_tok, value=cast_type, children=[expr])
+
+        # Reserved built-in function calls (operand-only grammar)
+        if self._match('str_to_arr'):
+            fn_tok = self._advance()
+
+            self._expect_type('(', 'str_to_arr')
+            self._advance()
+
+            arg = self._expr()
+
+            self._expect_after_expr({')'}, arg, 'str_to_arr')
+            self._expect_type(')', 'str_to_arr')
+            self._advance()
+
+            return self._ast_node('function_call', fn_tok, value=fn_tok.lexeme, children=[arg])
+
+        if self._match('arr_to_str'):
+            fn_tok = self._advance()
+
+            self._expect_type('(', 'arr_to_str')
+            self._advance()
+
+            arg = self._expr()
+
+            self._expect_after_expr({')'}, arg, 'arr_to_str')
+            self._expect_type(')', 'arr_to_str')
+            self._advance()
+
+            return self._ast_node('function_call', fn_tok, value=fn_tok.lexeme, children=[arg])
+
+        if self._match('compare'):
+            fn_tok = self._advance()
+
+            self._expect_type('(', 'compare')
+            self._advance()
+
+            left = self._expr()
+
+            self._expect_after_expr({','}, left, 'compare')
+            self._expect_type(',', 'compare')
+            self._advance()
+
+            right = self._expr()
+
+            self._expect_after_expr({')'}, right, 'compare')
+            self._expect_type(')', 'compare')
+            self._advance()
+
+            return self._ast_node('function_call', fn_tok, value=fn_tok.lexeme, children=[left, right])
 
         # Literals: int, float, str, bool
         if self._match(INT_LIT_T):
