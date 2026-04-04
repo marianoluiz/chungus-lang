@@ -86,6 +86,7 @@ class ExprRules:
             -> float ( <expr> )
 
         <builtin_call>
+            -> length ( <expr> )
             -> str_to_arr ( <expr> )
             -> arr_to_str ( <expr> )
             -> compare ( <expr> , <expr> )
@@ -127,6 +128,20 @@ class ExprRules:
             self._advance()
 
             return self._ast_node('type_cast', cast_tok, value=cast_type, children=[expr])
+
+        if self._match('length'):
+            fn_tok = self._advance()
+
+            self._expect_type('(', 'length')
+            self._advance()
+
+            arg = self._expr()
+
+            self._expect_after_expr({')'}, arg, 'length')
+            self._expect_type(')', 'length')
+            self._advance()
+
+            return self._ast_node('function_call', fn_tok, value=fn_tok.lexeme, children=[arg])
 
         # Reserved built-in function calls (operand-only grammar)
         if self._match('str_to_arr'):

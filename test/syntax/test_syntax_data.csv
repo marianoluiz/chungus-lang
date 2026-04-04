@@ -4,7 +4,7 @@ Expected any: (, :, =, [",Manguni - Array,
 id: ,"Unexpected token at line 1 col 5: <EOL>
 Expected any: [",,
 id:[ ,"Unexpected token at line 1 col 6: <EOL>
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 id:[12.1,"Unexpected token at line 1 col 9: <EOL>
 Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, ], and, or",,
 id:[12.1],"Unexpected token at line 1 col 10: <EOL>
@@ -12,15 +12,15 @@ Expected any: =, [",,
 id:[12.1]=,"Unexpected token at line 1 col 11: <EOL>
 Expected any: [",,
 id:[12.1]=[,"Unexpected token at line 1 col 12: <EOL>
-Expected any: !, (, ], arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, ], arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 id:[12.1]=[] ,"Unexpected token at line 1 col 14: <EOL>
 Expected any: ;",,
 id:[12.1]=[];  ,NO SYNTAX ERROR ,,
 id:[12.1]=[1];  ,NO SYNTAX ERROR ,,
 "id:[12.1]=[1, ];  ","Unexpected token at line 1 col 15: ]
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "id:[12.1]=[1, ( ]; ","Unexpected token at line 1 col 17: ]
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "id:[12.1]=[1, (false ]; ","Unexpected token at line 1 col 22: ]
 Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",,
 "id:[12.1]=[1, (false, ]; ","Unexpected token at line 1 col 21: ,
@@ -60,24 +60,24 @@ Expected any: ;",,
 Expected any: for, id, if, show, todo, while",,
 "id:[12.1]=[1, (false+1-3>true+12-1) !=12] ;   ",NO SYNTAX ERROR,,
 "id:[]=[1, (false+1-3>true+12-1)!=12];   ","Unexpected token at line 1 col 5: ]
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "id:[ ! ]=[1, (false+1-3>true+12-1)!=12]; ","Unexpected token at line 1 col 8: ]
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "id:[ !( ]=[1, (false+1-3>true+12-1)!=12];   ","Unexpected token at line 1 col 9: ]
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "id:[ !(A ]=[1, (false+1-3>true+12-1)!=12];   ","Unexpected token at line 1 col 10: ]
 Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",,
 "id:[ !(A[ ]=[1, (false+1-3>true+12-1)!=12]; ","Unexpected token at line 1 col 11: ]
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "id:[ !(A[1 ]=[1, (false+1-3>true+12-1)!=12];","Unexpected token at line 1 col 13: =
 Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",,
 "id:[ !(A[1 ])=[1, (false+1-3>true+12-1)!=12];   ","line 1 col 14: =
 Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, ], and, or",,
 "id:[ !(A[1 ])]=[1, (false+1-3>true+12-1)!=12]; ",NO SYNTAX ERROR ,,
 "id:[ !(A[1 ])]= [1, () (12,12) [1, (false+1-3>true+12-1)!=12];   ","Unexpected token at line 1 col 22: )
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "id:[ !(A[1 ])]= [1, ( () (12,12) [1, (false+1-3>true+12-1)!=12];","line 1 col 24: )
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "id:[ !(A[1 ])]= [1, ( (true) (12,12) [1, (false+1-3>true+12-1)!=12];   ","Unexpected token at line 1 col 30: (
 Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",,
 "id:[ !(A[1 ])]= [1, ( (true) ) (12,12) [1, (false+1-3>true+12-1)!=12];  ","Unexpected token at line 1 col 32: (
@@ -87,18 +87,18 @@ Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",,
 "id:[ !(A[1 ])]= [1, ( (true) ) , (12) ,12) [1, (false+1-3>true+12-1)!=12];   ","Unexpected token at line 1 col 42: )
 Expected any: !=, %, *, **, +, ,, -, /, //, <, <=, ==, >, >=, ], and, or",,
 "id:[ !(A[1 ])]= [1, ( (true) ) , (12) ,12** [1, (false+1-3>true+12-1)!=12];   ","Unexpected token at line 1 col 45: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "id:[ !(A[1 ])]= [1, ( (true) ) , (12) ,12** 1, (false+1-3>true+12-1)!=12]; ",NO SYNTAX ERROR ,,
 id:[ !(A[1 ])][ = ,"Unexpected token at line 1 col 17: =
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "id[12.1]=[1, (false+1-3>true+12-1) !=12] ; ","Unexpected token at line 1 col 10: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 id:[ !(A[1 ])][ ( = ,"Unexpected token at line 1 col 19: =
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 id:[ !(A[1 ])][ (false = ,"Unexpected token at line 1 col 24: =
 Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",,
 id:[ !(A[1 ])][ (false+ = ,"Unexpected token at line 1 col 25: =
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 id:[ !(A[1 ])][ (false+true = ,"Unexpected token at line 1 col 29: =
 Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",,
 id:[ !(A[1 ])][ (false+true] = ,"Unexpected token at line 1 col 28: ]
@@ -116,15 +116,15 @@ Expected any: [",,
 id:[ !(A[1 ])][ (false+true) ]= [,"Unexpected token at line 1 col 34: <EOL>
 Expected any: [, ]",,
 id:[ !(A[1 ])][ (false+true) ]= [[,"Unexpected token at line 1 col 35: <EOL>
-Expected any: !, (, ], arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, ], arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "id:[ !(A[1 ])][ (false+true) ]= [[ ,","Unexpected token at line 1 col 36: ,
-Expected any: !, (, ], arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, ], arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 id:[ !(A[1 ])][ (false+true) ]= [[],"Unexpected token at line 1 col 36: <EOL>
 Expected any: ,, ]",,
 "id:[ !(A[1 ])][ (false+true) ]= [[],","Unexpected token at line 1 col 37: <EOL>
 Expected any: [",,
 "id:[ !(A[1 ])][ (false+true) ]= [[],[","Unexpected token at line 1 col 38: <EOL>
-Expected any: !, (, ], arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true
+Expected any: !, (, ], arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true
 ",,
 "id:[ !(A[1 ])][ (false+true) ]= [[],[]","Unexpected token at line 1 col 39: <EOL>
 Expected any: ,, ]",,
@@ -149,12 +149,12 @@ Expected any: [, ]",,
 "id:[ !(A[1 ])][ (false+true) ]= [[1],1];  ","Unexpected token at line 1 col 38: 1
 Expected any: [",,
 "id:[ !(A[1 ])][ (false+true) ]= [[1,[1]],1]; ","Unexpected token at line 1 col 37: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 id:[ !(A[1 ])][ (false+true) ]= [[a[a]]]; ,NO SYNTAX ERROR,,
 id:[ !(A[1 ])][ (false+true) ]= [[a:[a]]];  ,"Unexpected token at line 1 col 36: :
 Expected any: !=, %, (, *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, ], and, or",,
 id:[ !(A[1 ])][ (false+true) ]= [[a!= [a]]]; ,"Unexpected token at line 1 col 39: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 id:[ !(A[1 ])][ (false+true) ]= [[a!= false [a]]]; ,"line 1 col 45: [
 Expected any: !=, %, *, **, +, ,, -, /, //, <, <=, ==, >, >=, ], and, or",,
 id:[1][2]= 12; ,"Unexpected token at line 1 col 12: 1
@@ -170,11 +170,11 @@ Expected any: range",,
 if id: for a in range [1][2]= 12; ,"Unexpected token at line 1 col 23: [
 Expected any: (",,
 if id: for a in range ( [1][2]= 12;  ,"Unexpected token at line 1 col 25: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "apple (!true == id **78,10.1 or 100 < 19 //21, false!= fall () +190 > 23 >= IDE [banana]","Unexpected token at line 1 col 89: <EOL>
 Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",,
 "apple (!true == id **78,10.1 or 100 < 19 //21, false!= fall () +190 > 23 >= IDE [banana]-","Unexpected token at line 1 col 90: <EOL>
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "apple (!true == id **78,10.1 or 100 < 19 //21, false!= fall () +190 > 23 >= IDE [banana]-10","line 1 col 92: <EOL>
 Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",,
 "apple (!true == id **78,10.1 or 100 < 19 //21, false!= fall () +190 > 23 >= IDE [banana]-10)","line 1 col 93: <EOL>
@@ -209,7 +209,7 @@ stats = b >= a;,NO SYNTAX ERROR,,
 comp = x > y and y < z; ,NO SYNTAX ERROR,,
 ter = count != 0;,NO SYNTAX ERROR,,
 boolean = <= a b;,"Unexpected token at line 1 col 11: <
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 comp = 10 > 5 and 20 < 30;,NO SYNTAX ERROR,,
 flag = !true or 5 >= 5;,NO SYNTAX ERROR,,
 flagger = ! 2 + 2 == 5;,NO SYNTAX ERROR,,
@@ -261,7 +261,7 @@ Expected any: for, id, if, show, todo, while",,
 fn f(): ret 1; todo; close,"line 1 col 9: r
 Expected any: for, id, if, show, todo, while",,
 fn f(): x = todo; close,"Unexpected token at line 1 col 13: t
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 fn f(): todo = 1; close,"line 1 col 14: =
 Expected any: ;",,
 if x: todo close,"line 1 col 12: c
@@ -294,7 +294,7 @@ Expected any: ;",,
 while x: todo show x; close,"line 1 col 15: s
 Expected any: ;",,
 while x: x = todo; close,"line 1 col 14: t
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 while x: todo; x = x + 1; close,NO SYNTAX ERROR,,
 while x: x = x + 1; todo close,"line 1 col 26: c
 Expected any: ;",,
@@ -500,7 +500,7 @@ Expected any: ;",,
 x = read * y;,"Unexpected token at line 1 col 10: *
 Expected any: ;",,
 x = (read;,"Unexpected token at line 1 col 6: r
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 _var = read;,NO SYNTAX ERROR,,
 x1 = read;,NO SYNTAX ERROR,,
 my_variable_name = read;,NO SYNTAX ERROR,,
@@ -797,7 +797,7 @@ Expected any: fn, for, id, if, show, todo, while",,
 fn a(ditto): ret x; close,"line 1 col 14: r
 Expected any: for, id, if, show, todo, while",,
 fn a(): x = [1]; ret x; close,"Unexpected token at line 1 col 13: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 fn a(): ret x arr x : close,"line 1 col 9: r
 Expected any: for, id, if, show, todo, while",,
 fn a(): ret read = x; close,"line 1 col 9: r
@@ -843,7 +843,7 @@ a(x > 0);,NO SYNTAX ERROR,,
 a(x == true);,NO SYNTAX ERROR,,
 a(int(x));,NO SYNTAX ERROR,,
 a(float(read;,"line 1 col 9: r
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 a(x + y);,NO SYNTAX ERROR,,
 "a(x, y + z);",NO SYNTAX ERROR,,
 a = 1 + 1));,"line 1 col 10: )
@@ -877,7 +877,8 @@ Expected any: ), id",,
 a(b() == c());,NO SYNTAX ERROR,,
 a(b() and c());,NO SYNTAX ERROR,,
 a(b(read,"line 1 col 5: r
-Expected any: !, (, ), arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, ), arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true
+",,
 x = a(b() c());,"line 1 col 11: c
 Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",,
 "x = a(b(), c(), d());",NO SYNTAX ERROR,,
@@ -1531,7 +1532,7 @@ show 'X';
 close
 
 ","Unexpected token at line 1 col 22: o
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "if x == 1:
  show 'X'; 
 elif x == 2: 
@@ -2029,7 +2030,7 @@ close
 show i; 
 close
 ","line 1 col 23: -
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "for i in range(0, 10, 0): 
 show i; 
 close
@@ -2056,7 +2057,7 @@ Expected any: !=, %, *, **, +, -, /, //, :, <, <=, ==, >, >=, and, or",,
 todo;
  close
 ","line 1 col 7: :
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "for i in range(5): 
 show 
 'hello'; 
@@ -2448,7 +2449,7 @@ Expected any: !=, %, *, **, +, -, /, //, :, <, <=, ==, >, >=, and, or",,
 while x < 5:,"line 1 col 13: <EOL>
 Expected any: for, id, if, show, todo, while",,
 while x < 5: x =,"line 1 col 17: <EOL>
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 while x < 5: x = x,"line 1 col 19: <EOL>
 Expected any: !=, %, (, *, **, +, -, /, //, ;, <, <=, ==, >, >=, [, and, or",,
 while x < 5: x = x + 1,"line 1 col 23: <EOL>
@@ -2643,12 +2644,12 @@ x = (true);,NO SYNTAX ERROR,,
 x = ('str');,NO SYNTAX ERROR,,
 x = (y);,NO SYNTAX ERROR,,
 x = ();,"line 1 col 6: )
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true
 ",,
 "x = (1,2);","line 1 col 7: ,
 Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",,
 x = ;,"line 1 col 5: ;
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = 1,"line 1 col 6
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 x 1;,"line 1 col 3: 1
@@ -2668,11 +2669,11 @@ Expected any: ;",,
 todo,"line 1 col 5
 Expected any: ;",,
 x = int();,"line 1 col 9: )
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = float();,"line 1 col 11: )
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = int( );,"line 1 col 10: )
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = int(1;,"line 1 col 10
 Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",,
 x = float(1;,"line 1 col 12
@@ -2682,61 +2683,62 @@ Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 x = float(1));,"line 1 col 13: )
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 x = int(1+ );,"line 1 col 12: )
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = float(1+ );,"line 1 col 14: )
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = int(! );,"line 1 col 11: )
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = float(! );,"Unexpected token at line 1 col 13: )
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = int(!x);,NO SYNTAX ERROR,,
 x = float(!x);,NO SYNTAX ERROR,,
 x = 1 + ;,"Unexpected token at line 1 col 9: ;
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = 1 * ;,"line 1 col 9: ;
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = 1 // ;,"Unexpected token at line 1 col 10: ;
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = 1 % ;,"Unexpected token at line 1 col 9: ;
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = 1 ** ;,"
 Unexpected token at line 1 col 10: ;
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = == 1;,"Unexpected token at line 1 col 5: =
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = > 1;,"Unexpected token at line 1 col 5: >
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = < 1;,"Unexpected token at line 1 col 5: <
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = >= 1;,"Unexpected token at line 1 col 5: >
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = <= 1;,"line 1 col 5: <
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = and y;,"Unexpected token at line 1 col 5: a
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = or y;,"Unexpected token at line 1 col 5: o
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = y and ;,"Unexpected token at line 1 col 11: ;
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = y or ;,"Unexpected token at line 1 col 10: ;
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = ! ;,"Unexpected token at line 1 col 7: ;
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = ! !y;,NO SYNTAX ERROR,,
 x = y ** ** z;," line 1 col 10: *
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = y // // z;,"Unexpected token at line 1 col 10: /
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = y + + z;,"Unexpected token at line 1 col 9: +
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = y - - z;,"Unexpected token at line 1 col 9: -
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = y * / z;,"Unexpected token at line 1 col 9: /
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = y ( );,NO SYNTAX ERROR,,
 x();,NO SYNTAX ERROR,,
 x(,"Unexpected token at line 1 col 3: <EOL>
-Expected any: !, (, ), arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, ), arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true
+",,
 x(),"line 1 col 4
 Expected any: ;",,
 x(1);,NO SYNTAX ERROR,,
@@ -2745,9 +2747,10 @@ x(false);,NO SYNTAX ERROR,,
 x('str');,NO SYNTAX ERROR,,
 x(y);,NO SYNTAX ERROR,,
 "x(y,  );","Unexpected token at line 1 col 7: )
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "x( ,y);","line 1 col 4: ,
-Expected any: !, (, ), arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, ), arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true
+",,
 "x(1,2);",NO SYNTAX ERROR,,
 "x(1,2,3);",NO SYNTAX ERROR,,
 "x(1,true,'s',y);",NO SYNTAX ERROR,,
@@ -2758,10 +2761,10 @@ Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",,
 x(y 'b');,"line 1 col 5
 Expected any: !=, %, (, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, [, and, or",,
 "x(1, );","line 1 col 6: )
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true
 ",,
 "x(1, ,2);"," line 1 col 6: ,
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x( (1));,NO SYNTAX ERROR,"function call within range (), fn() so ) is a valid delim of )",
 x(int(1));,NO SYNTAX ERROR,,
 x(float(1.0));,NO SYNTAX ERROR,,
@@ -2784,7 +2787,8 @@ x = y(1);,NO SYNTAX ERROR,,
 "x = y(1,2,3);",NO SYNTAX ERROR,,
 "x = y(1, true, 's', z);",NO SYNTAX ERROR,,
 x = y( ;,"Unexpected token at line 1 col 8: ;
-Expected any: !, (, ), arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, ), arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true
+",,
 x = y(1;,"line 1 col 8: ;
 Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",,
 "x = y(1,2;","line 1 col 10: ;
@@ -2792,10 +2796,11 @@ Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",,
 "x = y(1,2));","line 1 col 11: )
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 "x = y( , );","Unexpected token at line 1 col 8: ,
-Expected any: !, (, ), arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true
+Expected any: !, (, ), arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true
+
 ",,
 "x = y(1, ,2);","Unexpected token at line 1 col 10: ,
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = y(1 2);,"line 1 col 9: 2
 Expected any: !=, %, ), *, **, +, ,, -, /, //, <, <=, ==, >, >=, and, or",,
 x[1] = 2;,NO SYNTAX ERROR,,
@@ -2817,7 +2822,7 @@ x[1] = 's';,NO SYNTAX ERROR,,
 x[1] = true;,NO SYNTAX ERROR,,
 x[1] = false;,NO SYNTAX ERROR,,
 x[] = 1;,"Unexpected token at line 1 col 3: ]
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x[1 = 1;,"Unexpected token at line 1 col 5: =
 Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, ], and, or",,
 x[1] 1;,"line 1 col 6: 1
@@ -2825,11 +2830,11 @@ Expected any: =, [",,
 x[1][2][3] = 1;,"line 1 col 8: [
 Expected any: =",,
 x[1][] = 1;,"Unexpected token at line 1 col 6: ]
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x[][2] = 1;,"line 1 col 3: ]
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x[1][2] = [1];,"Unexpected token at line 1 col 11: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x: [1] = [1];,NO SYNTAX ERROR,,
 x : [1][2] = [ [1] ];,NO SYNTAX ERROR,,
 x = y[1];,NO SYNTAX ERROR,,
@@ -2845,7 +2850,7 @@ x = y[1][2] < 3;,NO SYNTAX ERROR,,
 x = y[1][2] and true;,NO SYNTAX ERROR,,
 x = y[1][2] or false;,NO SYNTAX ERROR,,
 x = y[];,"line 1 col 7: ]
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = y[1;,"Unexpected token at line 1 col 8: ;
 Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, ], and, or",,
 x = y[1];,NO SYNTAX ERROR,,
@@ -2853,10 +2858,10 @@ x = y[1][2];,NO SYNTAX ERROR,,
 x = y[1][2][3];,"line 1 col 12: [
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 x = y[1][];,"Unexpected token at line 1 col 10: ]
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true
 ",,
 x = y[][2];,"Unexpected token at line 1 col 7: ]
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "# IF minimal valid
 if true: show 'ok'; close",NO SYNTAX ERROR,,
 if true: show 'ok'; close,NO SYNTAX ERROR,,
@@ -2880,7 +2885,7 @@ Expected any: ;",,
 if true: close,"line 1 col 10: c
 Expected any: for, id, if, show, todo, while",,
 if : show 'ok'; close,"line 1 col 4: :
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 if true: ; close,"line 1 col 10: ;
 Expected any: for, id, if, show, todo, while",,
 if true: x=1 close,"line 1 col 14: c
@@ -2894,7 +2899,7 @@ if x: show 'a'; else: show 'b'; close,NO SYNTAX ERROR,,
 if x: show 'a'; elif y: show 'b'; else: show 'c';,"Unexpected token at line 1 col 50: <EOL>
 Expected any: close, for, id, if, show, todo, while",,
 if x: show 'a'; elif : show 'b'; close,"line 1 col 22: :
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 if x: show 'a'; elif y show 'b'; close,"line 1 col 24: s
 Expected any: !=, %, (, *, **, +, -, /, //, :, <, <=, ==, >, >=, [, and, or",,
 if x: show 'a'; else show 'b'; close,"
@@ -2918,7 +2923,7 @@ Expected any: for, id, if, show, todo, while",,
 while true show 'x'; close,"Unexpected token at line 1 col 12: s
 Expected any: !=, %, *, **, +, -, /, //, :, <, <=, ==, >, >=, and, or",,
 while : show 'x'; close,"line 1 col 7: :
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true
 ",,
 while true: show 'x';,"line 1 col 22: <EOL>
 Expected any: close, for, id, if, show, todo, while",,
@@ -2933,15 +2938,15 @@ for i in range(10): x=i; show x; close,NO SYNTAX ERROR,,
 for i in range(10): if true: show i; close close,NO SYNTAX ERROR,,
 for i in range(10): while true: todo; close close,NO SYNTAX ERROR,,
 for i in range(): show i; close,"Unexpected token at line 1 col 16: )
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "for i in range( , ): show i; close","Unexpected token at line 1 col 17: ,
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "for i in range(1, ): show i; close"," line 1 col 19: )
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "for i in range(1, ,2): show i; close","Unexpected token at line 1 col 19: ,
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "for i in range(1,2, ): show i; close","line 1 col 21: )
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "for i in range(1,2,3,4): show i; close","Unexpected token at line 1 col 21: ,
 Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",,
 for in range(10): show i; close,"
@@ -3032,17 +3037,17 @@ Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 id,"line 1 col 3: <EOL>
 Expected any: (, :, =, [",,
 id[," line 1 col 4: <EOL>
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 id[12.1,"line 1 col 8: <EOL>
 Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, ], and, or",,
 id[12.1]," line 1 col 9: <EOL>
 Expected any: =, [",,
 id[12.1]=,"line 1 col 10: <EOL>
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 id[12.1]=id,"line 1 col 12: <EOL>
 Expected any: !=, %, (, *, **, +, -, /, //, ;, <, <=, ==, >, >=, [, and, or",,
 id[12.1]=id[,"line 1 col 13: <EOL>
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 id[12.1]=id[12.1,"line 1 col 17: <EOL>
 Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, ], and, or",,
 id[12.1]=id[12.1],"line 1 col 18: <EOL>
@@ -3052,12 +3057,12 @@ Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, [, and, or",,
 id[12.1]=id[12.1]=[]," line 1 col 18: =
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, [, and, or",,
 id[12.1]=[];," line 1 col 10: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 id:[12.1]=[1];,NO SYNTAX ERROR,,
 "id:[12.1]=[1, ];"," line 1 col 15: ]
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "id:[12.1]=[1, ( ];"," line 1 col 17: ]
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "id:[12.1]=[1, (false ];","line 1 col 22: ]
 Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",,
 "id:[12.1]=[1, (false, ];","line 1 col 21: ,
@@ -3077,7 +3082,7 @@ Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",,
 Expected any: !=, %, *, **, +, ,, -, /, //, <, <=, ==, >, >=, ], and, or",,
 "id:[12.1]=[1, (false+1-3>true+12-1) != 
 "," line 1 col 40: <EOL>
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "id:[12.1]=[1, (false+1-3>true+12-1) != 3;
 "," line 1 col 41: ;
 Expected any: !=, %, *, **, +, ,, -, /, //, <, <=, ==, >, >=, ], and, or",,
@@ -3093,9 +3098,9 @@ x = (1 + (2 * (3 / (4))));,NO SYNTAX ERROR,,
 x = (1 + (2 * (3 / (4)));,"line 1 col 25: ;
 Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",,
 "x = [ [1,2], [3,4] ];","line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 "x = [ [1,2], [3,4] ] [0];"," line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 "x =  1 and 2, [3,4] ] [0][1];"," line 1 col 13: ,
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 "x = (1 + 1)  1;
@@ -3114,7 +3119,7 @@ Expected any: id, str_literal",,
 show x + (y * z);,"line 1 col 8: +
 Expected any: ;",,
 "x = [1, 2, 3] + [4, 5];","line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = (x == y) == (a != b);,NO SYNTAX ERROR,,
 "x =  (~1);
 ",NO SYNTAX ERROR,,
@@ -3126,10 +3131,10 @@ Expected any: =",,
 id[ (1+1) ] = 20;,NO SYNTAX ERROR,,
 id[ id[0] ] = 10;,NO SYNTAX ERROR,,
 "x = [1, 2, 3][0];","line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 "x = );
 ","line 1 col 5: )
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = ( (a > b) and (c < d) ) or ( (e == f) );,NO SYNTAX ERROR,,
 x = (a + b) (c + d);,"Unexpected token at line 1 col 13: (
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
@@ -3138,16 +3143,16 @@ Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 x = 10 + ~5;,NO SYNTAX ERROR,,
 x = 10 + - 5;,"line 1 col 10: -
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "x = [ ( (1+1) * 2 ), [ (3/3) ] ];","line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = ( ( ( ( true ) ) ) ) == true;,NO SYNTAX ERROR,,
 "x = [1, 2, 3, ];"," line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 "x = [ , 1, 2];"," line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 "x = [1, , 2];","line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = (1 + 2) + (3 + 4);,NO SYNTAX ERROR,,
 x = (a == b)  c : d;,"line 1 col 15: c
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
@@ -3158,11 +3163,11 @@ Expected any: id, str_literal",,
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 x = ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( 1 ) ) ) ) ) ) ) ) ) ) ) ) ) ) );,NO SYNTAX ERROR,,
 x = 1 + ( );,"line 1 col 11: )
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 x = [ ];," line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = [ [ ] ];,"line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 if ( ( (x == 1) ) ): todo; close,NO SYNTAX ERROR,,
 while ( (count < 10) and (flag) ): close,"line 1 col 36: c
 Expected any: for, id, if, show, todo, while",,
@@ -3173,7 +3178,7 @@ x = ( ( ( ( (10) ) ) ) );,NO SYNTAX ERROR,,
 x = ( ( ( ( (~10) ) ) ) );,NO SYNTAX ERROR,,
 x = ( (1 + 2) + (3 + 4) + (5 + 6) );,NO SYNTAX ERROR,,
 "x = [1, 2, 3] [ (1) ];"," line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = id [ id [ id [ 0 ] ] ];,NO SYNTAX ERROR,,
 x = ( (true) and ( (false) or ( (true) ) ) );,NO SYNTAX ERROR,,
 id = (1 + 1); id = (2 + 2);,NO SYNTAX ERROR,,
@@ -3184,16 +3189,16 @@ Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 x = ( ( ( 1 + 2 ) ) ),"line 1 col 22: <EOL>
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 "x = [ (1), (2), (3) ];","line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 "x = [ [ (1), (2) ], [ (3), (4) ] ];","line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = ( 10 % 3 ) % 2;,NO SYNTAX ERROR,,
 x = ( ( ( ( ( ( ( ( ( ( ( ( ( ~1 ) ) ) ) ) ) ) ) ) ) ) ) ;," line 1 col 58: ;
 Expected any: !=, %, ), *, **, +, -, /, //, <, <=, ==, >, >=, and, or",,
 x = ( ( ( 1 + 1 ) ) ) + ( ( ( 2 + 2 ) ) );,NO SYNTAX ERROR,,
 x = ( ( 1 + 1 ) > ( 2 + 2 ) ) == ( ( 3 < 4 ) );,NO SYNTAX ERROR,,
 x = [ ( ( ( ( 1 ) ) ) ) ];,"line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = id [ ( ( ( ( 0 ) ) ) ) ];,NO SYNTAX ERROR,,
 x = ( ( true or false ) and ( not ( true ) ) );,NO SYNTAX ERROR,,
 if (x + 1) > (y - 1): show 'test'; close,NO SYNTAX ERROR,,
@@ -3211,10 +3216,10 @@ if x: close else: show x; close," line 1 col 7: c
 Expected any: for, id, if, show, todo, while",,
 while ( ( (true) and (x < 10) ) ): x = x + 1; close,NO SYNTAX ERROR,,
 "for i in range(len( ( [1,2,3] ) )): show i; close"," line 1 col 23: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 if x > 0: x = 1; else: x = ~1; close,NO SYNTAX ERROR,,
 while (read == 'yes'): show 'looping'; close," line 1 col 8: r
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 fn compute(x): if (x > 0): ret (x * 2); close ret 0; close," line 1 col 28: r
 Expected any: for, id, if, show, todo, while",,
 if x: show x; else: show y; always: show z; close,"Unexpected token at line 1 col 37: s
@@ -3254,7 +3259,7 @@ if x: while y: for z in range(10): todo; close close close,NO SYNTAX ERROR,,
 while true: if x == 1: break; else: continue; close close,"line 1 col 29: ;
 Expected any: (, :, =, [",,
 while (read == 'loop'): if true: show 'ok'; close close,"line 1 col 8: r
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 for i in range(5): if i == 0: todo; else: show i; close close,NO SYNTAX ERROR,,
 if x: close," line 1 col 7: c
 Expected any: for, id, if, show, todo, while",,
@@ -3558,13 +3563,13 @@ x = 'hello';,NO SYNTAX ERROR,,
 x = true;,NO SYNTAX ERROR,,
 x = false;,NO SYNTAX ERROR,,
 "x = [1, 2, 3];"," line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = [];,"line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 "x = [1, 'hi', true, ~5.5];","line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 "x = [[1, 2], [3, 4]];","line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = y;,NO SYNTAX ERROR,,
 x = y = 10;,"line 1 col 7: =
 Expected any: !=, %, (, *, **, +, -, /, //, ;, <, <=, ==, >, >=, [, and, or",,
@@ -3577,7 +3582,7 @@ var123 = 5;,NO SYNTAX ERROR,,
 x = (1 + 1);,NO SYNTAX ERROR,,
 x = ( ( ( (10) ) ) );,NO SYNTAX ERROR,,
 "x = [ (1), (2+2), (true) ];","line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = null;,NO SYNTAX ERROR,,
 x = read;,NO SYNTAX ERROR,,
 x = int(rad);,NO SYNTAX ERROR,,
@@ -3589,17 +3594,17 @@ id[ (1+1) ] = 30;,NO SYNTAX ERROR,,
 "x = 10,000;","line 1 col 7: ,
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 x = -10;,"line 1 col 5: -
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = y + (z = 5);,"line 1 col 12: =
 Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",,
 "x = [1, 2, ];"," line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 "x = [ , 1];"," line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = ( (1 + 1) ); y = ( (2 + 2) );,NO SYNTAX ERROR,,
 x = y[0] + y[1];,NO SYNTAX ERROR,,
 "x = [ [1], [ (2) ], [~3] ];","line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = (true and false) or (not true);,"line 1 col 30: t
 Expected any: !=, %, (, ), *, **, +, -, /, //, <, <=, ==, >, >=, [, and, or",,
 x = ~5.5;,NO SYNTAX ERROR,,
@@ -3615,49 +3620,49 @@ Expected any: for, id, if, show, todo, while",,
 fn fib(n): if n <= 1: ret n; close ret fib(n-1) + fib(n-2); close,"line 1 col 23: r
 Expected any: for, id, if, show, todo, while",,
 "x = [[1, 2], [3, 4]][0][1];"," line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 "x = [ [[1]], [[2]] ][0][0][0];"," line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = (arr[0][1]) + (arr[1][0]);,NO SYNTAX ERROR,,
 fn deep(n): if n > 0: ret deep(n - 1); close ret 0; close," line 1 col 23: r
 Expected any: for, id, if, show, todo, while",,
 matrix[0][0] = ( (1 + 1) * (2 / 2) );,NO SYNTAX ERROR,,
 "x = [ [ (1+1), (2+2) ], [ (3+3), (4+4) ] ];","line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 "fn search(m, target, r, c): ret m[r][c] == target; close","line 1 col 29: r
 Expected any: for, id, if, show, todo, while",,
 x = ( ( ( matrix[ (1-1) ][ (0*1) ] ) ) );,NO SYNTAX ERROR,,
 x = matrix [0] [1] [2] [3];,"line 1 col 20: [
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 "x = [ [ [] ], [ [] ] ];","line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 "fn power(a, b): if b == 0: ret 1; close ret a * power(a, b - 1); close","line 1 col 28: r
 Expected any: for, id, if, show, todo, while",,
 x = ( ( ( ( fact(5) ) + ( fib(5) ) ) ) );,NO SYNTAX ERROR,,
 "x = [1, 2][ ( ( ( (0) ) ) ) ];"," line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 fn nested_call(x): ret fn_a(fn_b(fn_c(x))); close," line 1 col 20: r
 Expected any: for, id, if, show, todo, while",,
 "x = [ [ ( (1) ) ], [ ( (2) ) ] ][0][0];"," line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 if ( (matrix[0][0]) > ( (10) ) ): todo; close,NO SYNTAX ERROR,,
 x = matrix[0]; y = x[1];,NO SYNTAX ERROR,,
 "x = [1, 2, 3][ ( (1+1) ) ] * ~5;","line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 fn mutual_a(x): ret mutual_b(x); close fn mutual_b(x): ret mutual_a(x); close,"line 1 col 17: r
 Expected any: for, id, if, show, todo, while",,
 x = [ [ ( ( ( (1) ) ) ) ] ];,"line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 matrix[0][0] = matrix[1][1] = 0;,"line 1 col 29: =
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 "x = matrix[0, 1];","line 1 col 13: ,
 Expected any: !=, %, *, **, +, -, /, //, <, <=, ==, >, >=, ], and, or",,
 x = matrix[][];,"line 1 col 12: ]
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "fn traverse(arr, i): if i < len(arr): show arr[i]; traverse(arr, i + 1); close close"," line 1 col 47: [
 Expected any: ;",,
 "x = [ fact(1), fact(2), fact(3) ];","line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = ( (1 + 1) ) [0];," line 1 col 17: [
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 fn crash(n): ret n + ( ( ( ( ( ( ( crash(n-1) ) ) ) ) ) ) ); close," line 1 col 14: r
@@ -3668,7 +3673,7 @@ show matrix[0][0] + ( (10 * 2) );,"line 1 col 12: [
 Expected any: ;",,
 while ( (matrix[i][j]) < 100 ): matrix[i][j] = matrix[i][j] + 1; close,NO SYNTAX ERROR,,
 x = [ [ [ [ [ [ 1 ] ] ] ] ] ];,"line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true",,
 x = x[0][0][0][0][0][0];,"Unexpected token at line 1 col 12: [
 Expected any: !=, %, *, **, +, -, /, //, ;, <, <=, ==, >, >=, and, or",,
 fn complicated(x): ret ( (x[0][0]) * ( ( ( (x[1][1]) ) ) ) ); close," line 1 col 20: r
@@ -3677,13 +3682,13 @@ x = ( ( ( ( ( ( ( ( ( ( ( 1 ) ) ) ) ) ) ) ) ) ) );,NO SYNTAX ERROR,,
 "fn_call(matrix[0][0], matrix[0][1]);",NO SYNTAX ERROR,,
 x = (1 + 1) * matrix[ ( (0) ) ][ ( (1) ) ];,NO SYNTAX ERROR,,
 "x = [ (true), (false) ][ ( (0) ) ];","line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true
 ",,
 x = matrix[ ( ( ( (1+1)*2 ) ) ) ][0];,NO SYNTAX ERROR,,
 fn r(x): if x: ret r(x-1); close close,"line 1 col 16: r
 Expected any: for, id, if, show, todo, while",,
 "x = [ [1], [2] ] [ ( (1) ) ] [ ( (0) ) ];","line 1 col 5: [
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, read, str_literal, str_to_arr, true
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, read, str_literal, str_to_arr, true
 ",,
 show ( ( ( ( ( matrix[0][0] ) ) ) ) );," line 1 col 6: (
 Expected any: id, str_literal",,
@@ -3788,7 +3793,7 @@ Expected any: ;",,
 [[]],
 []
 ]; ","Unexpected token in two_d_inner_element_list at line 2 col 2: [
-Expected any: !, (, ], arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true
+Expected any: !, (, ], arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true
 ",,
 "ARR:[2][4]=[
 [A],
@@ -3812,9 +3817,9 @@ Expected any: [, ]",,
 ARR:[2][4]=[[12];,"Unexpected token in two_d_element_list at line 1 col 17: ;
 Expected any: ,, ]",,
 "ARR:[2][4]=[[12, ]; ","Unexpected token in array_element at line 1 col 18: ]
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "ARR:[2][4]=[[12,! ];","Unexpected token in operand at line 1 col 19: ]
-Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, str_literal, str_to_arr, true",,
+Expected any: !, (, arr_to_str, compare, false, float, float_literal, id, int, int_literal, length, str_literal, str_to_arr, true",,
 "ARR:[2][4]=[[12,!a]; ","Unexpected token in two_d_element_list at line 1 col 20: ;
 Expected any: ,, ]",,
 "ARR:[2][4]=[[12,!a]];",NO SYNTAX ERROR ,,

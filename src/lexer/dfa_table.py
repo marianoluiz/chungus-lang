@@ -147,13 +147,13 @@ TRANSITION_TABLE = {
     57: TransitionState("t", [58]),
     58: TransitionState(DELIMS["method_delim"], is_terminal=True),
 
-    # lenght
+    # length
     59: TransitionState("l", [60]),
     60: TransitionState("e", [61]),
     61: TransitionState("n", [62]),
     62: TransitionState("g", [63]),
-    63: TransitionState("h", [64]),
-    64: TransitionState("t", [65]),
+    63: TransitionState("t", [64]),
+    64: TransitionState("h", [65]),
     65: TransitionState(DELIMS["method_delim"], is_terminal=True),
 
     # or

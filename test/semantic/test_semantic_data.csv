@@ -1570,14 +1570,14 @@ show x;",Cannot use function 'name' as loop variable,,
 "# length()
 arr : [1] = [];
 
-length('hello');           # string argument
-length('');                # empty string
-length(arr);               # array variable
+x=length('hello');           # string argument
+x=length('');                # empty string
+x=length(arr);               # array variable
 
 # Invalid cases
-length(42);                #  integer not allowed
-length(3.14);              #  float not allowed
-length(true);              #  boolean not allowed
+x=length(42);                #  integer not allowed
+x=length(3.14);              #  float not allowed
+x=length(true);              #  boolean not allowed
 ","length() expects string or array, got int
 length() expects string or array, got float
 length() expects string or array, got bool

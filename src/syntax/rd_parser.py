@@ -34,7 +34,7 @@ class RDParser(ParserCore, ExprRules, SingleStmtRules, BlockStmtRules):
     PRED_PROGRAM      = PRED_GENERAL_STMT | {'fn'}
     PRED_EXPR = {
         '!', '(', 'false', 'float', FLOAT_LIT_T, ID_T, 'int', INT_LIT_T, STR_LIT_T, 'true',
-        'str_to_arr', 'arr_to_str', 'compare'
+        'length', 'str_to_arr', 'arr_to_str', 'compare'
     }
 
 
