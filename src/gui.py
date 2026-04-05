@@ -4,6 +4,7 @@ import platform
 import datetime
 import threading
 import re
+import time
 
 # ==============================================================================
 # 1. LANGUAGE CONFIGURATION
@@ -14,6 +15,7 @@ KEYWORDS = sorted([
     'if', 'elif', 'else', 'while', 'for', 'in', 'range',
     'try', 'fail', 'always', 
     'int', 'float', 'and', 'or', 
+    'length', 'str_to_arr', 'arr_to_str', 'compare',
     'fn', 'ret', 'todo', 'close'
 ])
 
@@ -139,6 +141,8 @@ class ChungusLexerGUI:
         # Interactive terminal state
         self._running_proc = None          # subprocess.Popen when a program is live
         self._proc_lock = threading.Lock() # guard _running_proc | thread lock - prevents racing conditions
+        self._last_term_activity = 0.0     # monotonic timestamp; updated on output/user input
+        self._output_char_count = 0        # output flood guard for runaway loops
 
         self.themes = {
             "Light (macOS)": {
@@ -468,6 +472,7 @@ class ChungusLexerGUI:
                                    borderwidth=0, highlightthickness=1,
                                    relief="flat")
         self.term_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 6), pady=4)
+        self.term_entry.bind("<KeyPress>", self._on_term_keypress)
         self.term_entry.bind("<Return>", self._on_term_enter) # Key binding for input field
         self.term_entry.bind("<KP_Enter>", self._on_term_enter)
 
@@ -533,6 +538,8 @@ class ChungusLexerGUI:
         self.input_bar.config(bg=c["TERM_INPUT_BG"])
         self.term_input_var.set("")
         self.term_entry.focus_set()
+        self._last_term_activity = time.monotonic()
+        self._output_char_count = 0
 
         self.term_status_lbl.config(text="● RUNNING", fg=self.colors["ACCENT_GREEN"],
                                     bg=self.colors["BG_COLOR"])
@@ -551,6 +558,7 @@ class ChungusLexerGUI:
         """Called when user presses Enter in the terminal input bar."""
         text = self.term_input_var.get()
         self.term_input_var.set("")
+        self._last_term_activity = time.monotonic()
 
         with self._proc_lock:
             proc = self._running_proc
@@ -567,6 +575,10 @@ class ChungusLexerGUI:
             proc.stdin.flush()
         except (BrokenPipeError, OSError):
             pass  # process may have already ended
+
+    def _on_term_keypress(self, event=None):
+        """Track user keyboard activity so input wait time does not trigger watchdog."""
+        self._last_term_activity = time.monotonic()
 
     def kill_process(self):
         """Force-kill the running process."""
@@ -1075,13 +1087,20 @@ class ChungusLexerGUI:
                     sel.register(stream, selectors.EVENT_READ)
 
             start = time.monotonic()
-            TIMEOUT = 30.0   # generous — user is interacting
+            self._last_term_activity = start
+            SILENT_TIMEOUT = 300.0      # 5 min inactivity guard (output and keyboard)
+            MAX_OUTPUT_CHARS = 1_000_000  # runaway print-loop protection
+            stop_requested = False
 
             while True:
-                if time.monotonic() - start > TIMEOUT:
-                    self._term_write("\n[Execution Timeout: 30s]\n", tag="term_error")
+                now = time.monotonic()
+
+                # If there is no output and no user typing for too long, assume hang/infinite loop.
+                if now - self._last_term_activity > SILENT_TIMEOUT:
+                    self._term_write("\n[Execution Timeout: no terminal activity for 300s]\n", tag="term_error")
                     try: proc.kill()
                     except Exception: pass
+                    stop_requested = True
                     break
 
                 events = sel.select(timeout=0.05)  # Wait up to 0.05 seconds for data
@@ -1097,7 +1116,20 @@ class ChungusLexerGUI:
                         continue
 
                     tag = "term_error" if stream is proc.stderr else None
+                    self._last_term_activity = time.monotonic()
+                    self._output_char_count += len(chunk)
+
+                    if self._output_char_count > MAX_OUTPUT_CHARS:
+                        self._term_write("\n[Execution Stopped: excessive output detected]\n", tag="term_error")
+                        try: proc.kill()
+                        except Exception: pass
+                        stop_requested = True
+                        break
+
                     self._term_write(chunk, tag=tag)
+
+                if stop_requested:
+                    break
 
                 if proc.poll() is not None and not sel.get_map():
                     break
