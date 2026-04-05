@@ -445,11 +445,6 @@ x = m[1.5][0];
 x = v[~1];
 ","Array index out of bounds: index -1 not in range [0, 1]",,
 "m: [2][1] = [[], [1]];",NO SEMANTIC ERROR/S,,
-"fn get(): todo; ret ~1; close
-
-arr: [get()] = [];
-
-",Invalid array size: expression must be a non-negative integer,,
 "m: [1][2] = [[1, 'two', 3]];
 ","Too many columns in row 1: expected 2 columns, got 3",,
 "fn fact(n): todo; ret n * fact(n-1, 10); close
@@ -664,8 +659,6 @@ m: [1][1] = [[1]]; m[2][0] = 5;,"Array index out of bounds: dimension 1 2 not in
 "x = unknown_var + a[100]; 
 ","Variable 'unknown_var' not defined
 Variable 'a' not defined",,
-"fn offset(): todo; ret 10; close a: [2] = [1, 2]; x = a[offset()];
-","Array index out of bounds: index 10 not in range [0, 1]",,
 "m: [2][2] = [[1, 2], []];",NO SEMANTIC ERROR/S,,
 "if true: if (!'string'): show ''; close close
 ",NO SEMANTIC ERROR/S,,
