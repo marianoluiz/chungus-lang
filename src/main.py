@@ -4,7 +4,6 @@ import subprocess
 from pathlib import Path
 import os
 import time
-import selectors
 from src.gui import ChungusLexerGUI
 from src.lexer.dfa_lexer import Lexer
 from src.syntax.rd_parser import RDParser
@@ -205,7 +204,7 @@ def codegen_adapter(source: str):
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        text=True,
+        text=False,
         bufsize=0,          # unbuffered — important for interactive input
     )
  

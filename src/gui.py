@@ -3,6 +3,7 @@ from tkinter import ttk, font, messagebox, filedialog
 import platform
 import datetime
 import threading
+import queue
 import re
 import time
 
@@ -143,6 +144,8 @@ class ChungusLexerGUI:
         self._proc_lock = threading.Lock() # guard _running_proc | thread lock - prevents racing conditions
         self._last_term_activity = 0.0     # monotonic timestamp; updated on output/user input
         self._output_char_count = 0        # output flood guard for runaway loops
+        self._io_events = queue.Queue(maxsize=4000)  # bounded to prevent UI freeze on output floods
+        self._io_pump_active = False
 
         self.themes = {
             "Light (macOS)": {
@@ -571,7 +574,7 @@ class ChungusLexerGUI:
 
         # Send to the process stdin
         try:
-            proc.stdin.write(text + "\n")
+            proc.stdin.write((text + "\n").encode("utf-8", errors="replace"))
             proc.stdin.flush()
         except (BrokenPipeError, OSError):
             pass  # process may have already ended
@@ -602,6 +605,61 @@ class ChungusLexerGUI:
             self.error_output.see(tk.END)
             self.error_output.config(state=tk.DISABLED)
         self.root.after(0, _do)
+
+    def _start_io_pump(self):
+        """Start periodic draining of queued terminal events on the Tk thread."""
+        if self._io_pump_active:
+            return
+        self._io_pump_active = True
+        self.root.after(30, self._drain_io_events)
+
+    def _drain_io_events(self):
+        """Apply background process events to UI safely on the Tk thread."""
+        processed = 0
+        pending_output = []
+        finish_rc = None
+
+        while processed < 300:
+            try:
+                event = self._io_events.get_nowait()
+            except queue.Empty:
+                break
+
+            processed += 1
+            kind = event[0]
+
+            if kind == "output":
+                _, text, tag = event
+                self._output_char_count += len(text)
+                pending_output.append((text, tag))
+            elif kind == "finish":
+                _, rc = event
+                finish_rc = rc
+                self._io_pump_active = False
+                break
+
+        if pending_output:
+            self.error_output.config(state=tk.NORMAL)
+            for text, tag in pending_output:
+                if tag:
+                    self.error_output.insert(tk.END, text, tag)
+                else:
+                    self.error_output.insert(tk.END, text)
+            self.error_output.see(tk.END)
+            self.error_output.config(state=tk.DISABLED)
+
+        if finish_rc is not None:
+            self._hide_input_bar()
+            self.btn_codegen.config(state=tk.NORMAL)
+            if finish_rc == 0:
+                self._term_write("\n=== Program finished (exit 0) ===\n", tag="success")
+                self.status_msg.config(text="Program finished successfully.")
+            else:
+                self._term_write(f"\n=== Program exited with code {finish_rc} ===\n", tag="term_error")
+                self.status_msg.config(text=f"Program exited with code {finish_rc}.")
+
+        if self._io_pump_active:
+            self.root.after(30, self._drain_io_events)
 
     # ==========================================================================
     # 6. AUTOCOMPLETE LOGIC
@@ -1066,93 +1124,107 @@ class ChungusLexerGUI:
 
         self._show_input_bar()          # Show the input bar at bottom
         self.status_msg.config(text="Program running...")
+        self._start_io_pump()
 
         # self._term_write("=== Program started ===\n", tag="info")
 
         def _stream_output():
-            """Read stdout/stderr line-by-line and push to terminal."""
-
-            # Setting Up Non-Blocking Reading
-            # selectors lets us check "is there data to read?" without waiting
-            import selectors, os, time
-
-            # watches multiple streams at once
-            sel = selectors.DefaultSelector()
-            for stream in [proc.stdout, proc.stderr]:
-                if stream:
-                    try: os.set_blocking(stream.fileno(), False) # makes reads return immediately (not wait)
-                    except Exception: pass
-
-                    # Watch this stream and notify me when it has data ready to be read.
-                    sel.register(stream, selectors.EVENT_READ)
-
+            """Cross-platform stream reader using blocking reads + queue events."""
             start = time.monotonic()
             self._last_term_activity = start
+            HARD_TIMEOUT = 300.0        # hard cap: total runtime no more than 5 minutes
             SILENT_TIMEOUT = 300.0      # 5 min inactivity guard (output and keyboard)
             MAX_OUTPUT_CHARS = 1_000_000  # runaway print-loop protection
-            stop_requested = False
+            stop_requested = threading.Event()
+            output_count = 0
+            count_lock = threading.Lock()
+
+            def _reader(stream, tag):
+                nonlocal output_count
+                while not stop_requested.is_set():
+                    try:
+                        chunk = stream.read(4096)
+                    except Exception:
+                        break
+                    if chunk in (b"", ""):
+                        break
+
+                    if isinstance(chunk, bytes):
+                        chunk = chunk.decode("utf-8", errors="replace")
+
+                    self._last_term_activity = time.monotonic()
+                    with count_lock:
+                        output_count += len(chunk)
+                        too_much_output = output_count > MAX_OUTPUT_CHARS
+
+                    if too_much_output:
+                        try:
+                            self._io_events.put_nowait(("output", "\n[Execution Stopped: excessive output detected]\n", "term_error"))
+                        except queue.Full:
+                            pass
+                        try:
+                            proc.kill()
+                        except Exception:
+                            pass
+                        stop_requested.set()
+                        break
+
+                    try:
+                        self._io_events.put(("output", chunk, tag), timeout=0.2)
+                    except queue.Full:
+                        try:
+                            self._io_events.put_nowait(("output", "\n[Execution Stopped: terminal queue overflow]\n", "term_error"))
+                        except queue.Full:
+                            pass
+                        try:
+                            proc.kill()
+                        except Exception:
+                            pass
+                        stop_requested.set()
+                        break
+
+            readers = []
+            if proc.stdout:
+                readers.append(threading.Thread(target=_reader, args=(proc.stdout, None), daemon=True))
+            if proc.stderr:
+                readers.append(threading.Thread(target=_reader, args=(proc.stderr, "term_error"), daemon=True))
+            for t in readers:
+                t.start()
 
             while True:
                 now = time.monotonic()
 
-                # If there is no output and no user typing for too long, assume hang/infinite loop.
-                if now - self._last_term_activity > SILENT_TIMEOUT:
-                    self._term_write("\n[Execution Timeout: no terminal activity for 300s]\n", tag="term_error")
+                # Hard runtime cutoff for non-terminating loops (even if there is output activity)
+                if now - start > HARD_TIMEOUT:
+                    self._io_events.put(("output", "\n[Execution Timeout: exceeded 300s runtime]\n", "term_error"))
                     try: proc.kill()
                     except Exception: pass
-                    stop_requested = True
+                    stop_requested.set()
                     break
 
-                events = sel.select(timeout=0.05)  # Wait up to 0.05 seconds for data
-                for key, _ in events:
-                    stream = key.fileobj
-                    try: chunk = stream.read()     # Read available data
-                    except Exception: chunk = ""
-
-                    if chunk == "":
-                        # means the stream has been closed, so we unregister
-                        try: sel.unregister(stream)
-                        except Exception: pass
-                        continue
-
-                    tag = "term_error" if stream is proc.stderr else None
-                    self._last_term_activity = time.monotonic()
-                    self._output_char_count += len(chunk)
-
-                    if self._output_char_count > MAX_OUTPUT_CHARS:
-                        self._term_write("\n[Execution Stopped: excessive output detected]\n", tag="term_error")
-                        try: proc.kill()
-                        except Exception: pass
-                        stop_requested = True
-                        break
-
-                    self._term_write(chunk, tag=tag)
-
-                if stop_requested:
+                # If there is no output and no user typing for too long, assume hang/infinite loop.
+                if now - self._last_term_activity > SILENT_TIMEOUT:
+                    self._io_events.put(("output", "\n[Execution Timeout: no terminal activity for 300s]\n", "term_error"))
+                    try: proc.kill()
+                    except Exception: pass
+                    stop_requested.set()
                     break
 
-                if proc.poll() is not None and not sel.get_map():
+                if proc.poll() is not None:
                     break
+
+                time.sleep(0.05)
 
             rc = proc.wait() # wait then returns the exit code. (0 = success, other = error); 
+
+            for t in readers:
+                t.join(timeout=0.2)
 
             # with statement is a context manager that handles cleanup for ANY resource that needs cleanup
             # thread lock - prevents racing conditions
             with self._proc_lock:
                 self._running_proc = None # No longer runnin
-
-            def _done():
-                self._hide_input_bar()  # Hide input bar
-                self.btn_codegen.config(state=tk.NORMAL)
-                if rc == 0:
-                    self._term_write("\n=== Program finished (exit 0) ===\n", tag="success")
-                    self.status_msg.config(text="Program finished successfully.")
-                else:
-                    self._term_write(f"\n=== Program exited with code {rc} ===\n", tag="term_error")
-                    self.status_msg.config(text=f"Program exited with code {rc}.")
-
-            # tkinter switching from a background thread to the main GUI thread
-            self.root.after(0, _done)
+            self._io_events.put(("finish", rc))
 
         threading.Thread(target=_stream_output, daemon=True).start()
 
