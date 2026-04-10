@@ -1,9 +1,0 @@
-# Test string_to_array function
-arr = string_to_array("hello");
-show arr[0];
-show arr[1];
-show arr[2];
-
-# Test array_to_string function
-str = array_to_string(arr);
-show str;

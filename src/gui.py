@@ -1080,6 +1080,8 @@ class ChungusLexerGUI:
             try:
                 # codegen_callback now returns (tokens, errors, proc_or_None)
                 result = self.codegen_callback(source_code)
+
+                # codegen callback must return 3 vars
                 if len(result) == 3:
                     tokens, errors, proc = result
                 else:
@@ -1130,8 +1132,8 @@ class ChungusLexerGUI:
 
         def _stream_output():
             """Cross-platform stream reader using blocking reads + queue events."""
-            start = time.monotonic()
-            self._last_term_activity = start
+            start = time.monotonic()            # absolute runtime start
+            self._last_term_activity = start    # last time anything happened
             HARD_TIMEOUT = 300.0        # hard cap: total runtime no more than 5 minutes
             SILENT_TIMEOUT = 300.0      # 5 min inactivity guard (output and keyboard)
             MAX_OUTPUT_CHARS = 1_000_000  # runaway print-loop protection
@@ -1141,18 +1143,23 @@ class ChungusLexerGUI:
 
             def _reader(stream, tag):
                 nonlocal output_count
+
                 while not stop_requested.is_set():
                     try:
-                        chunk = stream.read(4096)
+                        chunk = stream.read(4096) # chunk size
                     except Exception:
                         break
+
+                    # end-of-stream detection
                     if chunk in (b"", ""):
                         break
-
+                    
+                    # decoding bytes → string
                     if isinstance(chunk, bytes):
                         chunk = chunk.decode("utf-8", errors="replace")
 
                     self._last_term_activity = time.monotonic()
+
                     with count_lock:
                         output_count += len(chunk)
                         too_much_output = output_count > MAX_OUTPUT_CHARS
@@ -1184,13 +1191,18 @@ class ChungusLexerGUI:
                         break
 
             readers = []
+            
+            # spawning reader threads. stdout - output | stderr - errors
             if proc.stdout:
                 readers.append(threading.Thread(target=_reader, args=(proc.stdout, None), daemon=True))
             if proc.stderr:
                 readers.append(threading.Thread(target=_reader, args=(proc.stderr, "term_error"), daemon=True))
+            
+            # loops through all the reader threads you created (one for stdout, one for stderr) and tells each one to start running
             for t in readers:
                 t.start()
 
+            # Main watchdog loop
             while True:
                 now = time.monotonic()
 

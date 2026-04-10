@@ -204,7 +204,7 @@ def codegen_adapter(source: str):
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        text=False,
+        text=False,         # data is handled as raw bytes not py string
         bufsize=0,          # unbuffered — important for interactive input
     )
  
