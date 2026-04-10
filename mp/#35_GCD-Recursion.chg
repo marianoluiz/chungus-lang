@@ -1,0 +1,50 @@
+fn gcd(a, b, depth):
+  result = 0;
+  if depth > 100:
+    result = ~1;
+  elif b == 0:
+    result = a;
+  else:
+    result = gcd(b, a % b, depth + 1);
+  close
+  ret result;
+close
+
+fn abs_val(n):
+  res = n;
+  if n < 0:
+    res = 0 - n;
+  close
+  ret res;
+close
+
+show 'Enter first number: ';
+n1 = read;
+show 'Enter second number: ';
+n2 = read;
+
+a = abs_val(int(n1));
+b = abs_val(int(n2));
+
+# Avoid compound 'and' - use nested if instead
+isZero = 0;
+if a == 0:
+  if b == 0:
+    isZero = 1;
+  close
+close
+
+if isZero == 1:
+  show 'Error: GCD is undefined for (0, 0).';
+  show '\n';
+else:
+  g = gcd(a, b, 0);
+  if g == ~1:
+    show 'Error: Recursion limit exceeded.';
+    show '\n';
+  else:
+    show 'GCD: ';
+    show g;
+    show '\n';
+  close
+close

@@ -1,0 +1,8 @@
+show 'Enter first number: ';
+a = read;
+show 'Enter second number: ';
+b = read;
+
+quo = a / b;
+show 'The quotient is: ';
+show quo;

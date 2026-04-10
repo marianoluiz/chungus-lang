@@ -1,0 +1,33 @@
+
+show 'Enter a positive integer for Hailstone Sequence: ';
+
+n = 0; 
+is_valid = false;
+
+while is_valid == false:
+    n_input = read;
+    n = int(n_input);
+    
+    if n <= 0:
+        show 'Invalid input: Only Positive integers are allowed.\n';
+        show 'Please re-type a positive integer: ';
+    else:
+        is_valid = true;
+    close
+close
+
+show 'Hailstone Sequence: ';
+while n != 1:
+    show n;
+    show ' ';
+    
+    if n % 2 == 0:
+        n = n / 2;
+    else:
+        n = (n * 3) + 1;
+    close
+close
+
+final_val = 1;
+show final_val;
+show '\n';

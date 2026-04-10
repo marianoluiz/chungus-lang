@@ -1,0 +1,73 @@
+fn is_prime(n):
+    is_p = 1;
+    
+    if n < 2:
+        is_p = 0;
+    else:
+        i = 2;
+        limit = int(n / 2);
+        
+        while i <= limit:
+            if n % i == 0:
+                is_p = 0;
+                # CHUNGUS has no break keyword, so we force the condition to fail
+                limit = 0; 
+            close
+            i = i + 1;
+        close
+    close
+    
+    # The single, strictly placed return statement at the end
+    ret is_p;
+close
+
+fn reverse_number(n):
+    rev = 0;
+    temp = n;
+    
+    while temp > 0:
+        digit = temp % 10;
+        rev = (rev * 10) + digit;
+        temp = int(temp / 10);
+    close
+    
+    ret rev;
+close
+
+show '--- Emirp Number Checker ---\n';
+show 'Enter a positive integer: ';
+
+input_val = read;
+num = int(input_val);
+
+if num <= 0:
+    show 'Error: Please enter a valid positive integer greater than 0.\n';
+else:
+    check_prime = is_prime(num);
+    
+    if check_prime == 0:
+        show num;
+        show ' is NOT an Emirp. The number itself is not prime.\n';
+    else:
+        rev_num = reverse_number(num);
+        
+        if num == rev_num:
+            show num;
+            show ' is NOT an Emirp. It is a palindromic prime.\n';
+        else:
+            check_rev_prime = is_prime(rev_num);
+            
+            if check_rev_prime == 1:
+                show num;
+                show ' IS an Emirp! Its reverse is ';
+                show rev_num;
+                show ' which is also a prime number.\n';
+            else:
+                show num;
+                show ' is NOT an Emirp. Its reverse (';
+                show rev_num;
+                show ') is not a prime number.\n';
+            close
+        close
+    close
+close

@@ -1,0 +1,43 @@
+show 'Enter a number: ';
+num_input = read;
+num = int(num_input);
+
+if num <= 0:
+    show 'Please enter a positive integer';
+    show '\n';
+else:
+    square = num * num;
+
+    temp_num = num;
+    temp_square = square;
+    is_auto = true;
+
+    while temp_num > 0:
+        digit_num = temp_num % 10;
+        digit_square = temp_square % 10;
+
+        if digit_num != digit_square:
+            is_auto = false;
+            temp_num = 0;
+        else:
+            temp_num = temp_num // 10;
+            temp_square = temp_square // 10;
+        close
+    close
+
+    show 'Number: ';
+    show num;
+    show '\n';
+
+    show 'Square: ';
+    show square;
+    show '\n';
+
+    if is_auto == true:
+        show 'Automorphic Number';
+        show '\n';
+    else:
+        show 'Not an Automorphic Number';
+        show '\n';
+    close
+close

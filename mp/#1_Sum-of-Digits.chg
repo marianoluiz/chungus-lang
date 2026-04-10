@@ -1,0 +1,9 @@
+show 'Enter first number: ';
+a = read;
+show 'Enter second number: ';
+b = read;
+
+sum = a + b;
+show 'The sum is: ';
+show sum;
+show '\n';

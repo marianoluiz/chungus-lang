@@ -1,0 +1,40 @@
+
+
+show 'Enter a number to check: ';
+user_in = read;
+
+num_val = int(user_in);
+
+if num_val < 0:
+    show 'Error: Negative numbers are not allowed.';
+else:
+    temp = num_val;
+    count = 0;
+    
+    while temp > 0:
+        count = count + 1;
+        temp = temp // 10;
+    close
+
+    temp2 = num_val;
+    total_sum = 0;
+    
+    while temp2 > 0:
+        digit = temp2 % 10;
+        
+        power_res = digit ** count;
+        total_sum = total_sum + power_res;
+        
+        count = count - 1;
+        
+        temp2 = temp2 // 10;
+    close
+    
+    if total_sum == num_val:
+        show num_val;
+        show ' is a Disarium Number.';
+    else:
+        show num_val;
+        show ' is NOT a Disarium Number.';
+    close
+close

@@ -1,0 +1,28 @@
+fn count_digits(n):
+    res = 0;
+    
+    if n < 10:
+        res = 1;
+    else:
+        res = 1 + count_digits(n // 10);
+    close
+    
+    ret res;
+close
+
+show 'Input a number: ';
+val = read;
+
+if val < 0:
+show 'Invalid Input'; 
+else:
+
+num = int(val);
+
+ans = count_digits(num);
+
+show 'The number of digits in the number is : ';
+show ans;
+show '\n';
+
+close

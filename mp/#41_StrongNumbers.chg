@@ -1,0 +1,57 @@
+fn getFactorial(num):
+    res = 1;
+    if (num > 0):
+        i = 1;
+        while (i <= num):
+            res = res * i;
+            i = i + 1;
+        close
+    close
+    ret res;
+close
+
+keepRunning = true;
+
+while (keepRunning == true):
+    show 'Enter a number: ';
+    originalNum = read;
+    
+    if (originalNum < 0):
+        show 'ERROR: Please enter a positive integer.\n';
+    else:
+        temp = originalNum;
+        sumOfFactorials = 0;
+        
+        while (temp > 0):
+            digit = temp % 10;
+            sumOfFactorials = sumOfFactorials + getFactorial(digit);
+            temp = temp // 10; # Using integer division
+        close
+        
+        show 'Sum of factorials of digits: ';
+        show sumOfFactorials;
+        show '\n';
+        
+        if (sumOfFactorials == originalNum):
+            show originalNum;
+            show ' is a STRONG NUMBER!\n';
+        else:
+            show originalNum;
+            show ' is NOT a strong number.\n';
+        close
+    close
+
+    isValidChoice = false;
+    while (isValidChoice == false):
+        show '\nCheck another number? (yes/no): ';
+        choice = read;
+        if (compare(choice, 'yes')): isValidChoice = true; close
+        if (compare(choice, 'no')): 
+            isValidChoice = true; 
+            keepRunning = false; 
+        close
+        if (isValidChoice == false): show 'Please type "yes" or "no".\n'; close
+    close
+close
+
+show 'END PROGRAM\n';

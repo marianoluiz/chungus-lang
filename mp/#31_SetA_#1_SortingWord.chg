@@ -1,0 +1,180 @@
+keepRunning = true; 
+arr = str_to_arr(''); 
+n = 0;
+
+while (keepRunning == true): 
+isValidWord = false;
+word = '';
+
+while (isValidWord == false):
+    show 'Enter a word: ';
+    word = read;
+    
+    arr = str_to_arr(word);
+    n = length(arr);
+    
+    if (n == 0):
+        show 'ERROR: Word cannot be empty!\n';
+    else:
+        wordContainsError = false;
+        k = 0;
+        while k < n:
+            char_rank = 0;
+            if compare(arr[k], 'a'): char_rank = 1; close
+            if compare(arr[k], 'b'): char_rank = 2; close
+            if compare(arr[k], 'c'): char_rank = 3; close
+            if compare(arr[k], 'd'): char_rank = 4; close
+            if compare(arr[k], 'e'): char_rank = 5; close
+            if compare(arr[k], 'f'): char_rank = 6; close
+            if compare(arr[k], 'g'): char_rank = 7; close
+            if compare(arr[k], 'h'): char_rank = 8; close
+            if compare(arr[k], 'i'): char_rank = 9; close
+            if compare(arr[k], 'j'): char_rank = 10; close
+            if compare(arr[k], 'k'): char_rank = 11; close
+            if compare(arr[k], 'l'): char_rank = 12; close
+            if compare(arr[k], 'm'): char_rank = 13; close
+            if compare(arr[k], 'n'): char_rank = 14; close
+            if compare(arr[k], 'o'): char_rank = 15; close
+            if compare(arr[k], 'p'): char_rank = 16; close
+            if compare(arr[k], 'q'): char_rank = 17; close
+            if compare(arr[k], 'r'): char_rank = 18; close
+            if compare(arr[k], 's'): char_rank = 19; close
+            if compare(arr[k], 't'): char_rank = 20; close
+            if compare(arr[k], 'u'): char_rank = 21; close
+            if compare(arr[k], 'v'): char_rank = 22; close
+            if compare(arr[k], 'w'): char_rank = 23; close
+            if compare(arr[k], 'x'): char_rank = 24; close
+            if compare(arr[k], 'y'): char_rank = 25; close
+            if compare(arr[k], 'z'): char_rank = 26; close
+            
+            if (char_rank == 0):
+                wordContainsError = true;
+            close
+            k = k + 1;
+        close
+
+        if (wordContainsError == true):
+            show 'ERROR: Please use lowercase a-z only (no numbers/symbols).\n';
+        else:
+            isValidWord = true;
+        close
+    close
+close
+
+isValidOrder = false;
+order = '';
+
+while (isValidOrder == false):
+    show 'Type "asc" for ascending or "desc" for descending: ';
+    order = read;
+    
+    if (compare(order, 'asc')):
+        isValidOrder = true;
+    close
+    if (compare(order, 'desc')):
+        isValidOrder = true;
+    close
+    
+    if (isValidOrder == false):
+        show 'ERROR: Invalid Input! Type exactly "asc" or "desc".\n';
+    close
+close
+
+n = length(arr);
+i = 0;
+while i < (n - 1):
+    j = 0;
+    while j < ((n - 1) - i):
+        rank_j = 0;
+        rank_j1 = 0;
+
+        if compare(arr[j], 'a'): rank_j = 1; close
+        if compare(arr[j], 'b'): rank_j = 2; close
+        if compare(arr[j], 'c'): rank_j = 3; close
+        if compare(arr[j], 'd'): rank_j = 4; close
+        if compare(arr[j], 'e'): rank_j = 5; close
+        if compare(arr[j], 'f'): rank_j = 6; close
+        if compare(arr[j], 'g'): rank_j = 7; close
+        if compare(arr[j], 'h'): rank_j = 8; close
+        if compare(arr[j], 'i'): rank_j = 9; close
+        if compare(arr[j], 'j'): rank_j = 10; close
+        if compare(arr[j], 'k'): rank_j = 11; close
+        if compare(arr[j], 'l'): rank_j = 12; close
+        if compare(arr[j], 'm'): rank_j = 13; close
+        if compare(arr[j], 'n'): rank_j = 14; close
+        if compare(arr[j], 'o'): rank_j = 15; close
+        if compare(arr[j], 'p'): rank_j = 16; close
+        if compare(arr[j], 'q'): rank_j = 17; close
+        if compare(arr[j], 'r'): rank_j = 18; close
+        if compare(arr[j], 's'): rank_j = 19; close
+        if compare(arr[j], 't'): rank_j = 20; close
+        if compare(arr[j], 'u'): rank_j = 21; close
+        if compare(arr[j], 'v'): rank_j = 22; close
+        if compare(arr[j], 'w'): rank_j = 23; close
+        if compare(arr[j], 'x'): rank_j = 24; close
+        if compare(arr[j], 'y'): rank_j = 25; close
+        if compare(arr[j], 'z'): rank_j = 26; close
+
+        if compare(arr[j + 1], 'a'): rank_j1 = 1; close
+        if compare(arr[j + 1], 'b'): rank_j1 = 2; close
+        if compare(arr[j + 1], 'c'): rank_j1 = 3; close
+        if compare(arr[j + 1], 'd'): rank_j1 = 4; close
+        if compare(arr[j + 1], 'e'): rank_j1 = 5; close
+        if compare(arr[j + 1], 'f'): rank_j1 = 6; close
+        if compare(arr[j + 1], 'g'): rank_j1 = 7; close
+        if compare(arr[j + 1], 'h'): rank_j1 = 8; close
+        if compare(arr[j + 1], 'i'): rank_j1 = 9; close
+        if compare(arr[j + 1], 'j'): rank_j1 = 10; close
+        if compare(arr[j + 1], 'k'): rank_j1 = 11; close
+        if compare(arr[j + 1], 'l'): rank_j1 = 12; close
+        if compare(arr[j + 1], 'm'): rank_j1 = 13; close
+        if compare(arr[j + 1], 'n'): rank_j1 = 14; close
+        if compare(arr[j + 1], 'o'): rank_j1 = 15; close
+        if compare(arr[j + 1], 'p'): rank_j1 = 16; close
+        if compare(arr[j + 1], 'q'): rank_j1 = 17; close
+        if compare(arr[j + 1], 'r'): rank_j1 = 18; close
+        if compare(arr[j + 1], 's'): rank_j1 = 19; close
+        if compare(arr[j + 1], 't'): rank_j1 = 20; close
+        if compare(arr[j + 1], 'u'): rank_j1 = 21; close
+        if compare(arr[j + 1], 'v'): rank_j1 = 22; close
+        if compare(arr[j + 1], 'w'): rank_j1 = 23; close
+        if compare(arr[j + 1], 'x'): rank_j1 = 24; close
+        if compare(arr[j + 1], 'y'): rank_j1 = 25; close
+        if compare(arr[j + 1], 'z'): rank_j1 = 26; close
+
+        if ( (compare(order, 'asc')) and (rank_j > rank_j1) ) or ( (compare(order, 'desc')) and (rank_j < rank_j1) ):
+            temp = arr[j];
+            arr[j] = arr[j + 1];
+            arr[j + 1] = temp;
+        close
+
+        j = j + 1;
+    close
+    i = i + 1;
+close
+
+sortedWord = arr_to_str(arr);
+show 'Sorted word: ';
+show sortedWord;
+
+isValidChoice = false; 
+while (isValidChoice == false): 
+	show '\nDo you want to sort another word? (yes/no): ';
+        choice = read;
+        
+        if (compare(choice, 'yes')):
+            isValidChoice = true;
+            # keepRunning stays true
+        close
+        if (compare(choice, 'no')):
+            isValidChoice = true;
+            keepRunning = false;
+        close
+        
+        if (isValidChoice == false):
+            show 'Please type "yes" or "no".\n';
+        close
+    close
+close
+
+show 'ENDING PROGRAM\n';

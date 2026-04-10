@@ -1,0 +1,60 @@
+fn getSumOfDigits(num):
+    sum = 0;
+    temp = num;
+    while (temp > 0):
+        digit = temp % 10;
+        sum = sum + digit;
+        temp = temp // 10;
+    close
+    ret sum;
+close
+
+keepRunning = true;
+
+while (keepRunning == true):
+    show 'Enter a number: ';
+    n = read;
+    
+    if (n < 0):
+        show 'ERROR: Please enter a positive integer.\n';
+    else:
+        square = n * n;
+        
+        digitSum = getSumOfDigits(square);
+        
+        show 'Square: ';
+        show square;
+        show '\nSum of digits of square: ';
+        show digitSum;
+        show '\n';
+        
+        if (digitSum == n):
+            show n;
+            show ' is a NEON NUMBER!\n';
+        else:
+            show n;
+            show ' is NOT a neon number.\n';
+        close
+    close
+
+    isValidChoice = false;
+    while (isValidChoice == false):
+        show '\nDo you want to check another? (yes/no): ';
+        choice = read;
+        
+        if (compare(choice, 'yes')):
+            isValidChoice = true;
+            keepRunning = true;
+        close
+        if (compare(choice, 'no')):
+            isValidChoice = true;
+            keepRunning = false;
+        close
+        
+        if (isValidChoice == false):
+            show 'ERROR: Please type "yes" or "no".\n';
+        close
+    close
+close
+
+show 'END OF PROGRAM';

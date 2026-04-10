@@ -1,0 +1,66 @@
+fn is_upper_1(ch):
+  res = compare(ch, 'A') or compare(ch, 'B') or compare(ch, 'C') or compare(ch, 'D') or compare(ch, 'E') or compare(ch, 'F') or compare(ch, 'G') or compare(ch, 'H') or compare(ch, 'I') or compare(ch, 'J') or compare(ch, 'K') or compare(ch, 'L') or compare(ch, 'M');
+  ret res;
+close
+
+fn is_upper_2(ch):
+  res = compare(ch, 'N') or compare(ch, 'O') or compare(ch, 'P') or compare(ch, 'Q') or compare(ch, 'R') or compare(ch, 'S') or compare(ch, 'T') or compare(ch, 'U') or compare(ch, 'V') or compare(ch, 'W') or compare(ch, 'X') or compare(ch, 'Y') or compare(ch, 'Z');
+  ret res;
+close
+
+fn is_upper(ch):
+  res = is_upper_1(ch) or is_upper_2(ch);
+  ret res;
+close
+
+fn find_cap(word, i, n, depth):
+  result = ~1;
+  if depth > 500:
+    result = ~2;
+  elif i >= n:
+    result = ~1;
+  else:
+    tmp = str_to_arr(word);
+    ch = tmp[i];
+    isUp = is_upper(ch);
+    if isUp == true:
+      result = i;
+    else:
+      result = find_cap(word, i + 1, n, depth + 1);
+    close
+  close
+  ret result;
+close
+
+show 'Enter a string: ';
+word = read;
+n = length(word);
+
+if n == 0:
+  show 'Error: No input entered.';
+  show '\n';
+else:
+  vArr = str_to_arr(word);
+  first = vArr[0];
+  isSpace = compare(first, ' ');
+
+  if isSpace:
+    show 'Error: Input cannot start with a space.';
+    show '\n';
+  else:
+    idx = find_cap(word, 0, n, 0);
+    if idx == ~2:
+      show 'Error: Recursion limit exceeded.';
+      show '\n';
+    elif idx == ~1:
+      show 'No capital letter found.';
+      show '\n';
+    else:
+      arr = str_to_arr(word);
+      cap = arr[idx];
+      show 'First capital letter: ';
+      show cap;
+      show '\n';
+    close
+  close
+close

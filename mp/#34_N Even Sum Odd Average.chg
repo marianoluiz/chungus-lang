@@ -1,0 +1,41 @@
+validInput = 0;
+n = 0;
+
+while (validInput == 0):
+    show 'Enter N: ';
+    n = read;
+    if (n > 0):
+        validInput = 1;
+    else:
+        show 'Invalid input!';
+        show '\n';
+    close
+close
+
+i = 1;
+evenSum = 0;
+oddSum = 0;
+oddCount = 0;
+
+while (i <= n):
+    if (i % 2 == 0):
+        evenSum = evenSum + i;
+    close
+
+    if (i % 2 != 0):
+        oddSum = oddSum + i;
+        oddCount = oddCount + 1;
+    close
+
+    i = i + 1;
+close
+
+avgOdd = oddSum / oddCount;
+
+show 'Sum of even numbers: ';
+show evenSum;
+show '\n';
+
+show 'Average of odd numbers: ';
+show avgOdd;
+show '\n';

@@ -1,0 +1,29 @@
+show 'enter number of elements: ';
+n = read;
+
+userArray:[n] = [];
+
+i = 0;
+while (i < n):
+    show 'element ';
+    show i;
+    show ': ';
+    
+    userArray[i] = read;
+    
+    i = i + 1;
+close
+
+show '\nThe elements are: ';
+
+j = 0;
+while (j < n):
+	result = userArray[j]; 
+    show result;
+    
+    show ' ';
+    
+    j = j + 1;
+close
+
+show '\n';

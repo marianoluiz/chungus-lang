@@ -1,0 +1,81 @@
+fn is_prime(n, divisor, depth):
+  result = 0;
+  if depth > 1000:
+    result = ~2;
+  elif n < 2:
+    result = 0;
+  elif divisor * divisor > n:
+    result = 1;
+  elif n % divisor == 0:
+    result = 0;
+  else:
+    result = is_prime(n, divisor + 1, depth + 1);
+  close
+  ret result;
+close
+
+fn print_primes(current, end, found, depth):
+  result = found;
+  if depth > 5000:
+    result = ~1;
+  elif current > end:
+    result = found;
+  else:
+    p = is_prime(current, 2, 0);
+    if p == ~2:
+      show 'Error: is_prime limit hit at: ';
+      show current;
+      show '\n';
+      result = ~1;
+    elif p == 1:
+      show current;
+      show '\n';
+      result = print_primes(current + 1, end, found + 1, depth + 1);
+    else:
+      result = print_primes(current + 1, end, found, depth + 1);
+    close
+  close
+  ret result;
+close
+
+show 'Enter start number: ';
+s = read;
+start = int(s);
+
+if start < 1:
+  show 'Error: Start must be at least 1.';
+  show '\n';
+else:
+  show 'Enter end number: ';
+  e = read;
+  end = int(e);
+
+  if end < 1:
+    show 'Error: End must be at least 1.';
+    show '\n';
+  elif start > end:
+    show 'Error: Start must not exceed end.';
+    show '\n';
+  else:
+    show 'Prime numbers from ';
+    show start;
+    show ' to ';
+    show end;
+    show ':';
+    show '\n';
+
+    total = print_primes(start, end, 0, 0);
+
+    if total == ~1:
+      show 'Error: Recursion limit exceeded.';
+      show '\n';
+    elif total == 0:
+      show 'No prime numbers found in the given range.';
+      show '\n';
+    else:
+      show 'Total primes found: ';
+      show total;
+      show '\n';
+    close
+  close
+close

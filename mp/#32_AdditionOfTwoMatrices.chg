@@ -1,0 +1,39 @@
+show '--- Array Addition ---\n';
+
+# Declaring 1D arrays of size 5 and initializing them as empty
+A:[5] = [];
+B:[5] = [];
+C:[5] = [];
+
+show 'Input 5 elements for Array A:\n';
+for i in range(5):
+    in_A = read;
+
+    if in_A == '':
+        show 'Error: Empty input detected. Assigned 0.\n';
+        A[i] = 0;
+    else:
+        A[i] = int(in_A);
+    close
+close
+
+show 'Input 5 elements for Array B:\n';
+for i in range(5):
+    in_B = read;
+
+    if in_B == '':
+        show 'Error: Empty input detected. Assigned 0.\n';
+        B[i] = 0;
+    else:
+        B[i] = int(in_B);
+    close
+close
+
+show 'Resulting Array C (A + B):\n';
+for i in range(5):
+    C[i] = A[i] + B[i];
+
+    out_C = C[i];
+    show out_C;
+    show '\n';
+close

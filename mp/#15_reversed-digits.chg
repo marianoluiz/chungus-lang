@@ -1,0 +1,109 @@
+fn sum_of_digits(n):
+    sum = 0;
+
+	# make positive if negative
+    if n < 0:
+        n = n * ~1;
+    close
+
+    while n > 0:
+        digit = n % 10;
+        digit = int(digit);
+        sum = sum + digit;
+        n = n // 10;
+        n = int(n);
+    close
+    ret sum;
+close
+
+fn count_trailing_zeros(n):
+    count = 0;
+
+    # Make positive first 
+    if n < 0:
+        n = n * ~1;  # Make positive
+    close 
+
+    r = n % 10;
+    r = int(r);
+    while r == 0:
+        count = count + 1;
+        n = n // 10;
+        n = int(n);
+        r = n % 10;
+        r = int(r);
+    close
+    ret count;
+close
+
+fn reverse_digits(n):
+    rev = 0;
+    
+    if n != 0:
+        is_negative = false;
+        if n < 0:
+            is_negative = true;
+            n = n * ~1;  # Make positive using ~
+        close
+
+        # Remove trailing zeros
+        r = n % 10;
+        while r == 0:
+            n = n // 10;
+            r = n % 10;
+        close
+        
+        # Reverse digits
+        while n > 0:
+            rev = rev * 10 + (n % 10);
+            n = n // 10;
+        close
+        
+        # Add negative sign back
+        if is_negative == true:
+            rev = rev * ~1;  # Use ~ for negation
+        close
+    close
+    
+    ret rev;
+close
+
+fn print_zeros(count):
+    i = 0;
+    while i < count:
+        show '0';
+        i = i + 1;
+    close
+    ret 0;
+close
+
+
+show 'REVERSE OF DIGITS\n';
+show 'a) Sum of digits  (ex: 156 = 12)\n';
+show 'b) Reverse digits (ex: 156 = 651)\n';
+show '\nEnter a positive integer: ';
+num = read;
+num = int(num);
+
+sum = sum_of_digits(num);
+zeros = count_trailing_zeros(num);
+rev = reverse_digits(num);
+
+show '\nInput Number  :';
+show num;
+show '\nSum of Digits :';
+show sum;
+show '\nReversed      :';
+
+# Print negative sign first if needed
+if rev < 0:
+    show '~';
+    rev = rev * ~1;  # Make positive for printing
+close
+
+# Then print zeros
+print_zeros(zeros);
+
+# Then print the reversed digits
+show rev;
+show '\n';
