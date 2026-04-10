@@ -7,27 +7,34 @@ A clean, minimal, general programming language.
 
 ## Quick start
 1. Create and activate a venv
-   - macOS / Linux:
-     ```sh
-     python3 -m venv .venv
-     source .venv/bin/activate
+   - Bash:
+    ```sh
+    python3 -m venv .venv
+    source .venv/bin/activate
+    ```
+   - PowerShell:
+    ```ps
+    python -m venv .venv
+    .venv\Scripts\Activate.ps1
      ```
-   - Windows (PowerShell):
-     ```ps
-     python -m venv .venv
-     .venv\Scripts\Activate.ps1
-     ```
+   - CMD:
+    ```cmd
+    python -m venv .venv
+    .venv\Scripts\activate.bat
+    ```
+
 2. Install dependencies
-   - Windows (PowerShell):
-     ```sh
-      python -m pip install pip-tools
-      python -m piptools sync requirements-dev.txt
-     ```
-   - macOS / Linux:
+   - Bash:
      ```sh
       python3 -m pip install pip-tools
       python3 -m piptools sync requirements-dev.txt
      ```
+   - PowerShell / CMD:
+     ```sh
+      python -m pip install pip-tools
+      python -m piptools sync requirements-dev.txt
+     ```
+
 
 ## Running the project
 
@@ -35,15 +42,14 @@ A clean, minimal, general programming language.
 
 **Recommended for most users** - runs all compilation phases and executes the program:
 
-- macOS / Linux: 
+- **GUI** (All phases with visual interface)
   ```sh
-  python3 -m src <file.chg>
-  python3 -m src samples/program1.chg      # Example
+  python -m src.main
   ```
-- Windows
+- **CLI**: 
   ```sh
   python -m src <file.chg>
-  python -m src samples\program1.chg
+  python -m src samples/program1.chg      # Example
   ```
 
 This will:
@@ -56,10 +62,6 @@ This will:
 ### Individual Phase CLIs
 
 Run specific compilation phases for debugging or testing:
-
-- **GUI** (All phases with visual interface)
-  - macOS / Linux: `python3 -m src.main`
-  - Windows: `python -m src.main`
 
 - **Lexer** (Tokenization only)
   - macOS / Linux: `python3 -m src.lexer [file.chg]`
