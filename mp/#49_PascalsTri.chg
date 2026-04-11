@@ -1,0 +1,55 @@
+show 'Enter the number of rows for Pascals Triangle:\n';
+rows_input = read;
+
+rows = rows_input - 0;
+
+for line in range(rows):
+    spaces = rows - line - 1;
+    leading_spaces = spaces * 2;
+    
+    for s in range(leading_spaces):
+        show ' ';
+    close
+    
+    val = 1;
+    num_elements = line + 1;
+    
+    for i in range(num_elements):
+
+        show val;
+
+        pad = 3;
+        
+        if val >= 10:
+            pad = 2;
+        close
+        
+        if val >= 100:
+            pad = 1;
+        close
+        
+        if val >= 1000:
+            pad = 0;
+        close
+ 
+        for p in range(pad):
+            show ' ';
+        close
+     
+        num = line - i;
+        den = i + 1;
+        
+        numerator = val * num;
+        quotient = 0;
+        
+        while numerator >= den:
+            numerator = numerator - den;
+            quotient = quotient + 1;
+        close
+        
+        val = quotient;
+        
+    close
+
+    show '\n';
+close

@@ -1,0 +1,30 @@
+show 'Enter a positive integer to find the frequency of its digits:\n';
+num = read;
+
+freq:[10] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+if num == 0:
+    freq[0] = 1;
+close
+
+while num > 0:
+    digit = num % 10;
+    
+    freq[digit] = freq[digit] + 1;
+    
+    num = (num - digit) / 10;
+close
+
+show '\nDigit Frequencies\n';
+
+for j in range(10):
+    count = freq[j];
+    
+    if count > 0:
+        show 'Digit ';
+        show j;
+        show ': ';
+        show count;
+        show '\n';
+    close
+close
