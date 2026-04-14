@@ -553,6 +553,7 @@ void ch_array_set_2d(ChValue* arr, int row, int col, ChValue value) {
  * - arr_to_str(array) -> string: Join array elements into a single string
  * - length(string|array) -> int: Return length of string or total elements in array
  * - compare(string, string) -> bool: Compare two strings for equality
+ * - type(expr) -> string: Return runtime type name of expression
  */
 
 ChValue ch_str_to_arr(ChValue str) {
@@ -708,6 +709,14 @@ ChValue ch_compare(ChValue a, ChValue b) {
     const char* str_a = a.s ? a.s : "";
     const char* str_b = b.s ? b.s : "";
     return ch_bool(strcmp(str_a, str_b) == 0);
+}
+
+ChValue ch_typeof(ChValue x) {
+    /**
+     * Return runtime type name as a CHUNGUS string value.
+     * Examples: "int", "float", "bool", "str", "array"
+     */
+    return ch_str(ch_type_name(x.type));
 }
 
 
@@ -928,7 +937,7 @@ const char* ch_type_name(ChType type) {
         case TY_INT:    return "int";
         case TY_FLOAT:  return "float";
         case TY_BOOL:   return "bool";
-        case TY_STRING: return "string";
+        case TY_STRING: return "str";
         case TY_ARRAY:  return "array";
     }
     return "unknown";

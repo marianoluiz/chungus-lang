@@ -1,4 +1,8 @@
 Source Code,Stdin,Expected Output
+x = type(1); show x;,,int
+x = type(1.5); show x;,,float
+x = type('hello'); show x;,,str
+"arr:[2]=[1,2]; x = type(arr); show x;",,array
 x = 1 + 2; show x;,,3
 x = 10 - 3; show x;,,7
 x = 2 * 6; show x;,,12

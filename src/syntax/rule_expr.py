@@ -90,6 +90,7 @@ class ExprRules:
             -> str_to_arr ( <expr> )
             -> arr_to_str ( <expr> )
             -> compare ( <expr> , <expr> )
+            -> type ( <expr> )
         ```
 
         Returns:
@@ -191,6 +192,20 @@ class ExprRules:
             self._advance()
 
             return self._ast_node('function_call', fn_tok, value=fn_tok.lexeme, children=[left, right])
+
+        if self._match('type'):
+            fn_tok = self._advance()
+
+            self._expect_type('(', 'type')
+            self._advance()
+
+            arg = self._expr()
+
+            self._expect_after_expr({')'}, arg, 'type')
+            self._expect_type(')', 'type')
+            self._advance()
+
+            return self._ast_node('function_call', fn_tok, value=fn_tok.lexeme, children=[arg])
 
         # Literals: int, float, str, bool
         if self._match(INT_LIT_T):

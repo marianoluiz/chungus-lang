@@ -168,6 +168,9 @@ ChValue ch_length(ChValue x);
 // Compare two strings or arrays
 ChValue ch_compare(ChValue a, ChValue b);
 
+// Get runtime type name as str (e.g., "int", "float", "bool", "str", "array")
+ChValue ch_typeof(ChValue x);
+
 
 // ============================================================================
 // I/O OPERATIONS

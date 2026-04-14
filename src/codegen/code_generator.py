@@ -498,6 +498,25 @@ class CodeGenerator:
             arg1_code = self._visit(args[0])
             arg2_code = self._visit(args[1])
             return f"ch_compare({arg1_code}, {arg2_code})"
+
+        elif func_name == "type":
+            # type(expr) returns a string with the runtime type name
+            if len(args) != 1:
+                raise ValueError(f"type expects 1 argument, got {len(args)}")
+            arg_node = args[0]
+            arg_code = self._visit(arg_node)
+            arg_owned = self._owned_expr_code(arg_node, arg_code)
+
+            atmp = self._gen_temp() + "_typearg"
+            rtmp = self._gen_temp() + "_typeres"
+            return (
+                "({ "
+                f"ChValue {atmp} = {arg_owned}; "
+                f"ChValue {rtmp} = ch_typeof({atmp}); "
+                f"ch_free(&{atmp}); "
+                f"{rtmp}; "
+                "})"
+            )
         
         # User-defined function call
         mangled_name = self._mangle_function_name(func_name)

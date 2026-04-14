@@ -300,6 +300,18 @@ class SemanticAnalyzer:
             return_type=TY_BOOL,
         ))
 
+        # type(x) -> string
+        self._symbol_table.declare(Symbol(
+            name="type",
+            kind="function",
+            type_="function",
+            line=0,
+            col=0,
+            scope_level=0,
+            params=[(TY_UNKNOWN, "x")],
+            return_type=TY_STRING,
+        ))
+
 
     def analyze(self) -> "SemanticResult":
         """Run semantic analysis and return results."""
@@ -1824,7 +1836,7 @@ class SemanticAnalyzer:
 
             # Type-check each argument and prevent array passing (except for built-in functions)
             builtin_array_accepting_funcs = {"arr_to_str", "length"}
-            builtin_with_type_checking = {"str_to_arr", "arr_to_str", "length", "compare"}
+            builtin_with_type_checking = {"str_to_arr", "arr_to_str", "length", "compare", "type"}
             
             arg_types = []
             for i, arg in enumerate(args):
@@ -1886,6 +1898,10 @@ class SemanticAnalyzer:
                         self._error(args[1],
                             f"compare() expects string, got {type_b}",
                             TypeMismatchError)
+
+            elif func_name == "type":
+                # type(x) accepts any expression type and returns the type name as a string.
+                pass
 
             result_type = symbol.return_type if symbol.return_type else TY_UNKNOWN
             node.inferred_type = result_type

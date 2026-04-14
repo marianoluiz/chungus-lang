@@ -100,6 +100,8 @@ arr_to_str: ARR_TO_STR "(" expr ")"
 
 compare: COMPARE "(" expr "," expr ")"
 
+type_call: TYPE "(" expr ")"
+
 // ─────────── ARRAY ELEMENTS ───────────
 
 array_element: expr
@@ -126,10 +128,11 @@ operand: int_float_str_bool_lit
        | NOT operand
        | "(" expr ")"
        | type_casting
-      | length
+       | length
        | str_to_arr
        | arr_to_str
        | compare
+       | type_call
        | ID postfix_tail
 
 postfix_tail: "(" arg_list_opt ")"
@@ -216,6 +219,7 @@ LENGTH: /length(?![a-zA-Z0-9_])/
 STR_TO_ARR: /str_to_arr(?![a-zA-Z0-9_])/
 ARR_TO_STR: /arr_to_str(?![a-zA-Z0-9_])/
 COMPARE: /compare(?![a-zA-Z0-9_])/
+TYPE: /type(?![a-zA-Z0-9_])/
 
 CLOSE: /close(?![a-zA-Z0-9_])/
 
@@ -231,7 +235,7 @@ LT: "<"
 GE: ">="
 LE: "<="
 
-ID: /(?!(and|or|true|false|read|show|if|elif|else|while|for|in|range|fn|ret|todo|int|float|length|str_to_arr|arr_to_str|compare|close)\b)[a-zA-Z_][a-zA-Z0-9_]*/
+ID: /(?!(and|or|true|false|read|show|if|elif|else|while|for|in|range|fn|ret|todo|int|float|length|str_to_arr|arr_to_str|compare|type|close)\b)[a-zA-Z_][a-zA-Z0-9_]*/
 INT_LITERAL: /~?[0-9]+/
 FLOAT_LITERAL: /~?[0-9]+\.[0-9]+/
 STR_LITERAL: /'([^'\\]|\\.)*'/
