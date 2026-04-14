@@ -7,10 +7,15 @@ A clean, minimal, general programming language.
 
 ## Quick start
 1. Create and activate a venv
-   - Bash:
+   - Bash (Linux):
     ```sh
     python3 -m venv .venv
     source .venv/bin/activate
+    ```
+   - Bash (Windows):
+    ```sh
+    python3 -m venv .venv
+    source .venv/Scripts/activate
     ```
    - PowerShell:
     ```ps
