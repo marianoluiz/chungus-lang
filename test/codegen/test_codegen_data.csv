@@ -1,8 +1,4 @@
 Source Code,Stdin,Expected Output
-x = type(1); show x;,,int
-x = type(1.5); show x;,,float
-x = type('hello'); show x;,,str
-"arr:[2]=[1,2]; x = type(arr); show x;",,array
 x = 1 + 2; show x;,,3
 x = 10 - 3; show x;,,7
 x = 2 * 6; show x;,,12
@@ -3248,3 +3244,44 @@ show result;",,true
 show result;",,true
 "result = compare('abc', 'abd');
 show result;",,false
+"type_val = type(42);
+show type_val;      # int
+show '\n';
+
+type_val = type(1.0);
+show type_val ;     # float
+show '\n';
+
+type_val = type('hello');
+show type_val;      # str
+show '\n';
+
+
+a = 100;
+type_val = type(a);
+show type_val;      # int
+show '\n';
+
+
+b = 3.14;
+type_val = type(b);
+show type_val;      # float
+show '\n';
+
+
+c = 'world';
+type_val = type(c);
+show type_val;      # str
+show '\n';
+
+
+x : [3] = [1, 2, 3];
+type_val = type(x);
+show type_val ;     # arr
+show '\n';",,"int
+float
+str
+int
+float
+str
+array"
