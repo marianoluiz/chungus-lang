@@ -379,7 +379,7 @@ class CodeGenerator:
             decoded
             .replace('\\', '\\\\')
             .replace('"', '\\"')
-            .replace('\n', '\\n')
+            .replace('\n', '\\n')   # '\\n' in Python is a string containing TWO characters: backslash + n
             .replace('\t', '\\t')
             .replace('\r', '\\r')
         )
