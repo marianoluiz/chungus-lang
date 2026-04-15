@@ -839,6 +839,17 @@ ChValue ch_read(void) {
             return ch_str("");
         }
 
+        // In CHUNGUS input, negative numeric values must use '~', not '-'.
+        // Reject only numeric-looking '-' inputs; keep other '-' prefixed text as string.
+        int sign_frac_digits = 0;
+        if (start[0] == '-' &&
+            (ch_is_integer_text(start) || ch_is_decimal_text(start, &sign_frac_digits))) {
+            fprintf(stderr,
+                    "Runtime Error: Negative numeric input must use '~' instead of '-': '%s'\n",
+                    start);
+            exit(EXIT_FAILURE);
+        }
+
         // CHUNGUS negative style support for input parsing:
         // ~123 and ~1.25 are treated as -123 and -1.25 for numeric reads.
         const char* parse_text = start;
