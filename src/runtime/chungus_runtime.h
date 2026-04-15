@@ -69,7 +69,7 @@ ChValue ch_array_2d(size_t rows, size_t cols);
 //   - int: integer value
 //   - float: float value
 //   - bool: true→1, false→0 (integer values)
-//   - string: non-empty→1, empty→0 (integer values)
+//   - str: non-empty→1, empty→0 (integer values)
 //   - array: error (returns 0)
 // Returns: double (for computation convenience)
 double ch_to_number(ChValue v);

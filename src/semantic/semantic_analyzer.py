@@ -2,6 +2,7 @@
 
 from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
+from decimal import Decimal, InvalidOperation
 from src.constants.ast import ASTNode, ParseResult
 
 
@@ -1319,10 +1320,55 @@ class SemanticAnalyzer:
             return symbol.type_
 
         elif node.kind == "int_literal":
+            # CHUNGUS int range: [-9223372036854775808, 9223372036854775807]
+            try:
+                raw = node.value or "0"
+                if raw.startswith('~'):
+                    parsed = -int(raw[1:])
+                else:
+                    parsed = int(raw)
+
+                if parsed < -9223372036854775808 or parsed > 9223372036854775807:
+                    self._error(node,
+                        "Integer literal out of signed 64-bit range [-9223372036854775808, 9223372036854775807]",
+                        SemanticError)
+                    node.inferred_type = TY_UNKNOWN
+                    return TY_UNKNOWN
+            except (ValueError, TypeError):
+                # if parsed as int_literal but no
+                self._error(node,
+                    "Invalid integer literal",
+                    SemanticError)
+                node.inferred_type = TY_UNKNOWN
+                return TY_UNKNOWN
+
             node.inferred_type = TY_INT
             return TY_INT
         
         elif node.kind == "float_literal":
+            # CHUNGUS float literal range:
+            # [~9223372036854775808.999999, 9223372036854775807.999999]
+            try:
+                raw = node.value or "0.0"
+                normalized = f"-{raw[1:]}" if raw.startswith('~') else raw
+                parsed = Decimal(normalized)
+
+                float_min = Decimal("-9223372036854775808.999999")
+                float_max = Decimal("9223372036854775807.999999")
+
+                if parsed < float_min or parsed > float_max:
+                    self._error(node,
+                        "Float literal out of supported range [~9223372036854775808.999999, 9223372036854775807.999999]",
+                        SemanticError)
+                    node.inferred_type = TY_UNKNOWN
+                    return TY_UNKNOWN
+            except (InvalidOperation, ValueError, TypeError):
+                self._error(node,
+                    "Invalid float literal",
+                    SemanticError)
+                node.inferred_type = TY_UNKNOWN
+                return TY_UNKNOWN
+
             node.inferred_type = TY_FLOAT
             return TY_FLOAT
         

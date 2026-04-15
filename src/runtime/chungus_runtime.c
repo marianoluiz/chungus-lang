@@ -86,7 +86,9 @@ static bool ch_double_to_int64_checked(double x, int64_t* out) {
         exit(EXIT_FAILURE);
     }
 
-    *out = (int64_t)x;
+    *out = (int64_t)x;      //  *out means "what out points to"
+                            //   This writes to ires back in the caller
+
     return true;
 }
 
@@ -283,9 +285,7 @@ ChValue ch_add(ChValue left, ChValue right) {
     }
 
     int64_t ires = 0;
-    if (!ch_double_to_int64_checked(result, &ires)) {
-        return ch_int(0);
-    }
+    ch_double_to_int64_checked(result, &ires); // will exit on error
     return ch_int(ires);
 }
 

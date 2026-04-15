@@ -1739,3 +1739,43 @@ compare() expects string, got int
 
 ",,
 type_val = type(42);,NO SEMANTIC ERROR/S,,
+"type_val = type(42);
+show type_val;      # int
+show '\n';
+
+type_val = type(1.0);
+show type_val ;     # float
+show '\n';
+
+type_val = type('hello');
+show type_val;      # str
+show '\n';
+
+
+a = 100;
+type_val = type(a);
+show type_val;      # int
+show '\n';
+
+
+b = 3.14;
+type_val = type(b);
+show type_val;      # float
+show '\n';
+
+
+c = 'world';
+type_val = type(c);
+show type_val;      # str
+show '\n';
+
+
+x : [3] = [1, 2, 3];
+type_val = type(x);
+show type_val ;     # arr
+show '\n';",NO SEMANTIC ERROR/S,,
+x = 9223372036854775808;,"Integer literal out of signed 64-bit range [-9223372036854775808, 9223372036854775807]",,
+x = 9223372036854775808.000000;,"Float literal out of supported range [~9223372036854775808.999999, 9223372036854775807.999999]",,
+x = ~9223372036854775809.999999;,"Float literal out of supported range [~9223372036854775808.999999, 9223372036854775807.999999]",,
+x = 9223372036854775807.000000;,NO SEMANTIC ERROR/S,,
+x = ~9223372036854775808.999999;,NO SEMANTIC ERROR/S,,
