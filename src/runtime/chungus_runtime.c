@@ -10,6 +10,10 @@
 #include <errno.h>
 #include <limits.h>
 
+// CHUNGUS supported float storage range (6dp scale)
+static const long double CH_FLOAT_MIN = -9223372036854775808.999999L;
+static const long double CH_FLOAT_MAX =  9223372036854775807.999999L;
+
 // ============================================================================
 // INPUT VALIDATION HELPERS
 // ============================================================================
@@ -70,6 +74,7 @@ static bool ch_is_decimal_text(const char* s, int* frac_digits_out) {
 }
 
 static double ch_round_to_6dp(double x) {
+    // round to 6 decimal places cause chungus has up to 6dp only
     return round(x * 1000000.0) / 1000000.0;
 }
 
@@ -111,9 +116,25 @@ ChValue ch_float(double x) {
     if (!isfinite(x)) {
         fprintf(stderr, "Runtime Error: Float value is not finite\n");
         exit(EXIT_FAILURE);
-    } 
+    }
+
+    long double xl = (long double)x;
+    if (xl < CH_FLOAT_MIN || xl > CH_FLOAT_MAX) {
+        fprintf(stderr,
+                "Runtime Error: Float value out of supported range [~9223372036854775808.999999, 9223372036854775807.999999]\n");
+        exit(EXIT_FAILURE);
+    }
 
     v.f = ch_round_to_6dp(x);
+
+    // Re-check after 6dp normalization to prevent boundary rounding overflow.
+    long double rl = (long double)v.f;
+    if (rl < CH_FLOAT_MIN || rl > CH_FLOAT_MAX) {
+        fprintf(stderr,
+                "Runtime Error: Float value out of supported range [~9223372036854775808.999999, 9223372036854775807.999999]\n");
+        exit(EXIT_FAILURE);
+    }
+
     return v;
 }
 

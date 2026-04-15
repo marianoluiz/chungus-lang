@@ -337,16 +337,53 @@ class CodeGenerator:
     
     def _visit_str_literal(self, node: ASTNode) -> str:
         """Generate code for string literal."""
-        # CHUNGUS uses 'string' but C needs "string"
-        # Remove the CHUNGUS quotes and add C quotes
-        chungus_str = node.value
-        if chungus_str.startswith("'") and chungus_str.endswith("'"):
-            # Remove single quotes and add double quotes for C
-            c_str = chungus_str[1:-1]  # Remove surrounding quotes
-            # Escape any double quotes in the string
-            c_str = c_str.replace('"', '\\"')
-            return f'ch_str("{c_str}")'
-        return f"ch_str({chungus_str})"
+        # CHUNGUS uses single-quoted literals with backslash escapes.
+        # Convert CHUNGUS escapes to real characters first, then emit a safe C string.
+        chungus_str = node.value or "''"
+
+        if not (chungus_str.startswith("'") and chungus_str.endswith("'")):
+            return f'ch_str("")'
+
+        raw = chungus_str[1:-1]  # content between single quotes
+
+        # Decode only CHUNGUS escapes we support (\n and \t).
+        # Everything else after backslash is treated literally as typed.
+        decoded_chars: List[str] = []
+        i = 0
+        while i < len(raw):
+            ch = raw[i]
+            if ch == '\\' and i + 1 < len(raw):
+                nxt = raw[i + 1]
+                if nxt == 'n':
+                    decoded_chars.append('\n')
+                    i += 2
+                    continue
+                if nxt == 't':
+                    decoded_chars.append('\t')
+                    i += 2
+                    continue
+
+                # Unknown escape: keep literally as backslash + char.
+                decoded_chars.append('\\')
+                decoded_chars.append(nxt)
+                i += 2
+                continue
+
+            decoded_chars.append(ch)
+            i += 1
+
+        decoded = ''.join(decoded_chars)
+
+        # Re-escape for safe C double-quoted literal.
+        c_str = (
+            decoded
+            .replace('\\', '\\\\')
+            .replace('"', '\\"')
+            .replace('\n', '\\n')
+            .replace('\t', '\\t')
+            .replace('\r', '\\r')
+        )
+        return f'ch_str("{c_str}")'
     
     def _visit_id(self, node: ASTNode) -> str:
         """Generate code for identifier."""

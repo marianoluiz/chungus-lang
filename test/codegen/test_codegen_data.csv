@@ -3171,9 +3171,9 @@ i = 0;
 y = 8;
 
 while i < 9:
-	arrNew[i] = arr[y];
-	i = i + 1;
-	y = y - 1;
+        arrNew[i] = arr[y];
+        i = i + 1;
+        y = y - 1;
 close 
 
 newStr = arr_to_str(arrNew);
@@ -3285,3 +3285,11 @@ int
 float
 str
 array"
+"res =  ~9223372036854775808.999999 - 9223372036854775807;
+
+
+show res;",,"Runtime Error: Float value out of supported range [~9223372036854775808.999999, 9223372036854775807.999999]"
+show '\n';,,"
+"
+show '\t\ttest';,,                test
+"show '\""';",,"\"""
