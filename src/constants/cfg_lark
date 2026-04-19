@@ -119,21 +119,55 @@ int_float_lit: INT_LITERAL
 
 // ─────────── EXPRESSIONS ───────────
 
-expr: operand expr_tail
+expr: or_expr
 
-expr_tail: operator operand expr_tail
-         |
+or_expr: and_expr or_tail
 
-operand: int_float_str_bool_lit
-       | NOT operand
+or_tail: "or" and_expr or_tail
+       | 
+
+and_expr: eq_expr and_tail
+
+and_tail: "and" eq_expr and_tail
+        | 
+
+eq_expr: rel_expr eq_tail
+
+eq_tail: (EQ_EQ | NOT_EQ) rel_expr eq_tail
+       | 
+
+rel_expr: add_expr rel_tail
+
+rel_tail: (GT | LT | GE | LE) add_expr rel_tail
+        | 
+
+add_expr: mul_expr add_tail
+
+add_tail: ("+" | "-") mul_expr add_tail
+        | 
+
+mul_expr: pow_expr mul_tail
+
+mul_tail: ("*" | "/" | FLOORDIV | "%") pow_expr mul_tail
+        | 
+
+pow_expr: unary_expr pow_tail
+
+pow_tail: POW pow_expr
+        | 
+
+unary_expr: "!" unary_expr
+          | primary
+
+primary: int_float_str_bool_lit
        | "(" expr ")"
        | type_casting
        | length
        | str_to_arr
        | arr_to_str
        | compare
-       | type_call
        | ID postfix_tail
+       | type_call
 
 postfix_tail: "(" arg_list_opt ")"
             | "[" expr "]" index_loop

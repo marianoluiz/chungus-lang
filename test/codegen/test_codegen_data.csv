@@ -1,68 +1,68 @@
-Source Code,Stdin,Expected Output
-x = 1 + 2; show x;,,3
-x = 10 - 3; show x;,,7
-x = 2 * 6; show x;,,12
-x = 10 / 4; show x;,,2.5
-x = 10 // 3; show x;,,3
-x = 10 % 3; show x;,,1
-x = 2 ** 8; show x;,,256
-x = 2 * 3 + 1; show x;,,7
-x = (1 + 2) * 3; show x;,,9
-x = 5 > 3; show x;,,true
-x = 5 < 3; show x;,,false
-x = 5 == 5; show x;,,true
-x = 5 != 3; show x;,,true
-x = 5 >= 5; show x;,,true
-x = 3 <= 5; show x;,,true
-x = true and true; show x;,,true
-x = true and false; show x;,,false
-x = false or true; show x;,,true
-x = !true; show x;,,false
-x = !false; show x;,,true
-x = 10; show x;,,10
-x = 3.14; show x;,,3.14
-x = true; show x;,,true
-x = false; show x;,,false
-x = 5; y = x + 3; show y;,,8
-x = 10; x = x + 1; show x;,,11
-x = ~5; show x;,,~5
-x = ~7; show x;,,~7
-x = ~7; y = x + 3; show y;,,~4
-x = ~3.14; show x;,,~3.14
-x = 1.5 + 0.5; show x;,,2.0
-x = 1.0 / 3.0; show x;,,0.333333
-x = 1.5; show x;,,1.5
-x = 1.123456; show x;,,1.123456
-x = 0.1 + 0.2; show x;,,0.3
-x = 1.0; show x;,,1.0
-x = 10; y = x / 2; show y;,,5.0
-x = 9223372036854775807; show x;,,9223372036854775807
-x = 1000000 * 1000000; show x;,,1000000000000
-if 1 > 0: x = 1; show x; close,,1
-if 1 < 0: x = 1; show x; else: x = 2; show x; close,,2
-x = 3; if x == 3: y = 1; show y; elif x == 4: y = 2; show y; else: y = 3; show y; close,,1
-x = 4; if x == 3: y = 1; show y; elif x == 4: y = 2; show y; else: y = 3; show y; close,,2
-x = 9; if x == 3: y = 1; show y; elif x == 4: y = 2; show y; else: y = 3; show y; close,,3
-i = 0; while i < 3: show i; i = i + 1; close,,012
-i = 0; while i < 5: i = i + 1; close show i;,,5
-for i in range(3): show i; close,,012
-"for i in range(1, 4): show i; close",,123
-"for i in range(0, 6, 2): show i; close",,024
-"for i in range(5, 0, ~1): show i; close",,54321
-fn greet(): x = 1; show x; close greet();,,1
-"fn add(a, b): r = a + b; ret r; close r = add(3, 4); show r;",,7
-fn square(n): r = n ** 2; ret r; close r = square(5); show r;,,25
-x = read; show x;,42,42
-x = read; show x;,3.14,3.14
+Source Code,Stdin,Expected Output,
+x = 1 + 2; show x;,,3,
+x = 10 - 3; show x;,,7,
+x = 2 * 6; show x;,,12,
+x = 10 / 4; show x;,,2.5,
+x = 10 // 3; show x;,,3,
+x = 10 % 3; show x;,,1,
+x = 2 ** 8; show x;,,256,
+x = 2 * 3 + 1; show x;,,7,
+x = (1 + 2) * 3; show x;,,9,
+x = 5 > 3; show x;,,true,
+x = 5 < 3; show x;,,false,
+x = 5 == 5; show x;,,true,
+x = 5 != 3; show x;,,true,
+x = 5 >= 5; show x;,,true,
+x = 3 <= 5; show x;,,true,
+x = true and true; show x;,,true,
+x = true and false; show x;,,false,
+x = false or true; show x;,,true,
+x = !true; show x;,,false,
+x = !false; show x;,,true,
+x = 10; show x;,,10,
+x = 3.14; show x;,,3.14,
+x = true; show x;,,true,
+x = false; show x;,,false,
+x = 5; y = x + 3; show y;,,8,
+x = 10; x = x + 1; show x;,,11,
+x = ~5; show x;,,~5,
+x = ~7; show x;,,~7,
+x = ~7; y = x + 3; show y;,,~4,
+x = ~3.14; show x;,,~3.14,
+x = 1.5 + 0.5; show x;,,2.0,
+x = 1.0 / 3.0; show x;,,0.333333,
+x = 1.5; show x;,,1.5,
+x = 1.123456; show x;,,1.123456,
+x = 0.1 + 0.2; show x;,,0.3,
+x = 1.0; show x;,,1.0,
+x = 10; y = x / 2; show y;,,5.0,
+x = 9223372036854775807; show x;,,9223372036854775807,
+x = 1000000 * 1000000; show x;,,1000000000000,
+if 1 > 0: x = 1; show x; close,,1,
+if 1 < 0: x = 1; show x; else: x = 2; show x; close,,2,
+x = 3; if x == 3: y = 1; show y; elif x == 4: y = 2; show y; else: y = 3; show y; close,,1,
+x = 4; if x == 3: y = 1; show y; elif x == 4: y = 2; show y; else: y = 3; show y; close,,2,
+x = 9; if x == 3: y = 1; show y; elif x == 4: y = 2; show y; else: y = 3; show y; close,,3,
+i = 0; while i < 3: show i; i = i + 1; close,,012,
+i = 0; while i < 5: i = i + 1; close show i;,,5,
+for i in range(3): show i; close,,012,
+"for i in range(1, 4): show i; close",,123,
+"for i in range(0, 6, 2): show i; close",,024,
+"for i in range(5, 0, ~1): show i; close",,54321,
+fn greet(): x = 1; show x; close greet();,,1,
+"fn add(a, b): r = a + b; ret r; close r = add(3, 4); show r;",,7,
+fn square(n): r = n ** 2; ret r; close r = square(5); show r;,,25,
+x = read; show x;,42,42,
+x = read; show x;,3.14,3.14,
 a = read; b = read; r = a + b; show r;,"3
-7",10
-x = read; r = x * 2; show r;,6,12
-x = read; show x;,5,5
-i = 1; s = 0; while i <= 100: s = s + i; i = i + 1; close show s;,,5050
-a = 10; b = 20; c = a; a = b; b = c; show a; show b;,,2010
-x = 5 > 3 and 5 < 10; show x;,,true
-x = true or false; show x;,,true
-x = false and false; show x;,,false
+7",10,
+x = read; r = x * 2; show r;,6,12,
+x = read; show x;,5,5,
+i = 1; s = 0; while i <= 100: s = s + i; i = i + 1; close show s;,,5050,
+a = 10; b = 20; c = a; a = b; b = c; show a; show b;,,2010,
+x = 5 > 3 and 5 < 10; show x;,,true,
+x = true or false; show x;,,true,
+x = false and false; show x;,,false,
 "grade = read;
 
 if grade > 75:
@@ -71,7 +71,7 @@ if grade > 75:
 else:
         show 'The Student Failed wtih a grade of ';
         show grade;
-close",80,The Student Passed with a grade of 80
+close",80,The Student Passed with a grade of 80,
 "number = read;
 
 if number % 2 == 0:
@@ -79,21 +79,21 @@ if number % 2 == 0:
 else:
         show 'odd';
 close 
-",63,odd
+",63,odd,
 "number = read;
 
 if number % 2 == 0:
         show 'even';
 else:
         show 'odd';
-close",100,even
+close",100,even,
 "number = read;
 
 if number % 2 == 0:
         show 'even';
 else:
         show 'odd';
-close ",20,even
+close ",20,even,
 "fn process(data, multiplier):
     result = data * multiplier;
     show result;
@@ -103,149 +103,149 @@ close
 x = 5;
 y = 10;
 answer = process(x, y);
-show answer;",,5050
+show answer;",,5050,
 "x = 10;
 y = 20;
 result = x + y;
-show result;",,30
+show result;",,30,
 "a = 50;
 b = 18;
 diff = a - b;
-show diff;",,32
+show diff;",,32,
 "p = 7;
 q = 8;
 product = p * q;
-show product;",,56
+show product;",,56,
 "num = 20;
 denom = 4;
 quotient = num / denom;
-show quotient;",,5.0
+show quotient;",,5.0,
 "dividend = 17;
 divisor = 5;
 remainder = dividend % divisor;
-show remainder;",,2
+show remainder;",,2,
 "a = 17;
 b = 5;
 floor_result = a // b;
-show floor_result;",,3
+show floor_result;",,3,
 "base = 3;
 exp = 4;
 power = base ** exp;
-show power;",,81
+show power;",,81,
 "x = 2;
 y = 3;
 z = 4;
 result = x + y * z;
-show result;",,20
+show result;",,14,
 "a = 5;
 b = 3;
 c = 2;
 result = (a + b) * c;
-show result;",,16
+show result;",,16,
 "a = 100;
 b = 25;
 c = 3;
 d = 7;
 result = a / b + c * d;
-show result;",,49.0
+show result;",,25.0,
 "x = ~5;
-show x;",,~5
+show x;",,~5,
 "temp = ~3.14;
-show temp;",,~3.14
+show temp;",,~3.14,
 "a = ~10;
 b = 4;
 result = a + b;
-show result;",,~6
+show result;",,~6,
 "x = ~6;
 y = ~7;
 result = x * y;
-show result;",,42
+show result;",,42,
 "base = ~2;
 exp = 4;
 result = base ** exp;
-show result;",,16
+show result;",,16,
 "z = ~0;
-show z;",,0
+show z;",,0,
 "x = 3;
 y = 10;
 diff = x - y;
-show diff;",,~7
+show diff;",,~7,
 "a = ~1.5;
 b = 2.5;
 result = a + b;
-show result;",,1.0
+show result;",,1.0,
 "x = 15;
 y = 10;
 result = x > y;
-show result;",,true
+show result;",,true,
 "a = 3;
 b = 7;
 result = a < b;
-show result;",,true
+show result;",,true,
 "score = 75;
 passing = 75;
 result = score >= passing;
-show result;",,true
+show result;",,true,
 "age = 17;
 limit = 18;
 result = age <= limit;
-show result;",,true
+show result;",,true,
 "x = 5;
 y = 5;
 result = x == y;
-show result;",,true
+show result;",,true,
 "a = 10;
 b = 20;
 result = a != b;
-show result;",,true
+show result;",,true,
 "x = 4;
 y = 2;
 z = 10;
 result = x * y == z;
-show result;",,false
+show result;",,false,
 "pi = 3.14;
 tau = 6.28;
 result = pi * 2.0 == tau;
-show result;",,true
+show result;",,true,
 "a = true;
 b = true;
 result = a and b;
-show result;",,true
+show result;",,true,
 "a = true;
 b = false;
 result = a and b;
 show result;
- ",,false
+ ",,false,
 "x = false;
 y = true;
 result = x or y;
-show result;",,true
+show result;",,true,
 "x = false;
 y = false;
 result = x or y;
-show result;",,false
+show result;",,false,
 "flag = true;
 result = ! flag;
-show result;",,false
+show result;",,false,
 "val = false;
 result = ! ! val;
-show result;",,false
+show result;",,false,
 "a = 5;
 b = 10;
 c = 15;
 result = a < b and b < c;
-show result;",,true
+show result;",,true,
 "x = 8;
 y = 3;
 z = 5;
 result = x > y or x < z;
-show result;",,true
+show result;",,true,
 "score = 90;
 result = score >= 90;
 if result:
     msg = 'Excellent';
     show msg;
-close",,Excellent
+close",,Excellent,
 "age = 15;
 is_adult = age >= 18;
 if is_adult:
@@ -255,7 +255,7 @@ else:
     status = 'Minor';
     show status;
 close
-",,Minor
+",,Minor,
 "score = 82;
 if score >= 90:
     grade = 'A';
@@ -269,7 +269,7 @@ elif score >= 70:
 else:
     grade = 'F';
     show grade;
-close",,B
+close",,B,
 "x = 10;
 y = 5;
 check = x > 0;
@@ -279,7 +279,7 @@ if check:
         msg = 'Both positive';
         show msg;
     close
-close",,Both positive
+close",,Both positive,
 "a = 7;
 b = 3;
 if a % b == 1:
@@ -288,7 +288,7 @@ if a % b == 1:
 else:
     msg = 'Different remainder';
     show msg;
-close",,Remainder is 1
+close",,Remainder is 1,
 "temp = 25;
 humid = 80;
 hot = temp > 30;
@@ -300,7 +300,7 @@ else:
     msg = 'Fine weather';
     show msg;
 close
- ",,Uncomfortable weather
+ ",,Uncomfortable weather,
 "day = 3;
 if day == 1:
     name = 'Monday';
@@ -317,7 +317,7 @@ elif day == 4:
 else:
     name = 'Other';
     show name;
-close",,Wednesday
+close",,Wednesday,
 "logged_in = false;
 check = ! logged_in;
 if check:
@@ -326,7 +326,7 @@ if check:
 else:
     msg = 'Welcome back';
     show msg;
-close",,Please log in
+close",,Please log in,
 "bmi = 22;
 healthy_low = 18;
 healthy_high = 25;
@@ -337,7 +337,7 @@ if in_range:
 else:
     msg = 'Check your BMI';
     show msg;
-close",,Healthy BMI
+close",,Healthy BMI,
 "username = 'admin';
 check = username == 'admin';
 if check:
@@ -346,39 +346,39 @@ if check:
 else:
     msg = 'Access denied';
     show msg;
-close",,Admin access granted
+close",,Admin access granted,
 "for i in range(5):
     show i;
 close
- ",,01234
+ ",,01234,
 "for i in range(1, 6):
     show i;
-close",,12345
+close",,12345,
 "for i in range(0, 10, 2):
     show i;
-close",,02468
+close",,02468,
 "counter = 5;
 while counter > 0:
     show counter;
     counter = counter - 1;
-close",,54321
+close",,54321,
 "total = 0;
 i = 1;
 while i <= 10:
     total = total + i;
     i = i + 1;
 close
-show total;",,55
+show total;",,55,
 "fact = 1;
 for i in range(1, 6):
     fact = fact * i;
 close
-show fact;",,120
+show fact;",,120,
 "n = 5;
 as_float = float(n);
 result = as_float / 2.0;
 show result;
-show '\n';",,2.5
+show '\n';",,2.5,
 "fn square(n):
     result = n * n;
     ret result;
@@ -389,21 +389,21 @@ num = int(raw);
 ans = square(num);
 show 'Square of 9 = ';
 show ans;
-show '\n';",,Square of 9 = 1
+show '\n';",,Square of 9 = 1,
 "fn add(a, b):
     result = a + b;
     ret result;
 close
  
 sum = add(10, 20);
-show sum;",,30
+show sum;",,30,
 "fn multiply(x, y):
     product = x * y;
     ret product;
 close
  
 ans = multiply(6, 7);
-show ans;",,42
+show ans;",,42,
 "fn is_even(n):
     rem = n % 2;
     result = rem == 0;
@@ -412,7 +412,7 @@ close
  
 check = is_even(14);
 show check;
-",,true
+",,true,
 "fn factorial(n):
     result = 1;
     i = 1;
@@ -424,7 +424,7 @@ show check;
 close
  
 ans = factorial(5);
-show ans;",,120
+show ans;",,120,
 "fn sum_n(n):
     total = 0;
     for i in range(1, n + 1):
@@ -434,21 +434,21 @@ show ans;",,120
 close
  
 answer = sum_n(10);
-show answer;",,55
+show answer;",,55,
 "fn celsius_to_f(c):
     f = c * 9 / 5 + 32;
     ret f;
 close
  
 result = celsius_to_f(100);
-show result;",,212.0
+show result;",,212.0,
 "fn is_positive(n):
     check = n > 0;
     ret check;
 close
  
 res = is_positive(~7);
-show res;",,false
+show res;",,false,
 "fn power(base, exp):
     result = 1;
     for i in range(exp):
@@ -458,7 +458,7 @@ show res;",,false
 close
  
 ans = power(2, 8);
-show ans;",,256
+show ans;",,256,
 "fn abs_val(n):
     check = n < 0;
     if check:
@@ -468,12 +468,12 @@ show ans;",,256
 close
  
 result = abs_val(~25);
-show result;",,25
+show result;",,25,
 "show 'Enter your name: ';
 name = read;
 show 'Hello, ';
 show name;
-show '!\n';",Lailey,"Enter your name: Hello, Lailey!"
+show '!\n';",Lailey,"Enter your name: Hello, Lailey!",
 "fn area_square(side):
     area = side * side;
     ret area;
@@ -483,7 +483,7 @@ s = 7;
 ans = area_square(s);
 show 'Area of Square = ';
 show ans;
-show '\n';",,Area of Square = 49
+show '\n';",,Area of Square = 49,
 "secret = 42;
 show 'Guess the number (1-100): ';
 guess_str = read;
@@ -498,7 +498,7 @@ else:
     msg = 'Wrong! The answer was 42.';
     show msg;
     show '\n';
-close",64,Guess the number (1-100): Wrong! The answer was 42.
+close",64,Guess the number (1-100): Wrong! The answer was 42.,
 "fn c_to_f(c):
     f = c * 9 / 5 + 32;
     ret f;
@@ -510,7 +510,7 @@ celsius = float(raw);
 fahrenheit = c_to_f(celsius);
 show 'Fahrenheit: ';
 show fahrenheit;
-show '\n';",64,Enter temperature in Celsius: Fahrenheit: 147.2
+show '\n';",64,Enter temperature in Celsius: Fahrenheit: 147.2,
 "fn perimeter_rect(l, w):
     perimeter = 2 * (l + w);
     ret perimeter;
@@ -521,7 +521,7 @@ wid = 5;
 perim = perimeter_rect(len, wid);
 show 'Perimeter of Rectangle = ';
 show perim;
-show '\n';",,Perimeter of Rectangle = 34
+show '\n';",,Perimeter of Rectangle = 34,
 "fn check_even(n):
     rem = n % 2;
     result = rem == 0;
@@ -540,7 +540,7 @@ else:
     msg = 'Odd number';
     show msg;
     show '\n';
-close",64,Enter a number: Even number
+close",64,Enter a number: Even number,
 "show 'Enter your score (0-100): ';
 raw = read;
 score = int(raw);
@@ -565,7 +565,7 @@ else:
     grade = 'F - Failed';
     show grade;
     show '\n';
-close",64,Enter your score (0-100): D - Below Average
+close",64,Enter your score (0-100): D - Below Average,
 "fn area_triangle(base, height):
     area = base * height / 2;
     ret area;
@@ -576,7 +576,7 @@ h = 6;
 ans = area_triangle(b, h);
 show 'Area of Triangle = ';
 show ans;
-show '\n';",,Area of Triangle = 30.0
+show '\n';",,Area of Triangle = 30.0,
 "fn area_circle(r):
     pi = 3.14159;
     area = pi * r * r;
@@ -587,7 +587,7 @@ radius = 5;
 ans = area_circle(radius);
 show 'Area of Circle = ';
 show ans;
-show '\n';",,Area of Circle = 78.53975
+show '\n';",,Area of Circle = 78.53975,
 "fn circumference(r):
     pi = 3.14159;
     c = 2 * pi * r;
@@ -598,7 +598,7 @@ r = 7;
 ans = circumference(r);
 show 'Circumference = ';
 show ans;
-show '\n';",,Circumference = 43.98226
+show '\n';",,Circumference = 43.98226,
 "fn volume_box(l, w, h):
     vol = l * w * h;
     ret vol;
@@ -610,7 +610,7 @@ h = 6;
 ans = volume_box(l, w, h);
 show 'Volume of Box = ';
 show ans;
-show '\n';",,Volume of Box = 120
+show '\n';",,Volume of Box = 120,
 "fn volume_cylinder(r, h):
     pi = 3.14159;
     vol = pi * r * r * h;
@@ -622,7 +622,7 @@ h = 10;
 ans = volume_cylinder(r, h);
 show 'Volume of Cylinder = ';
 show ans;
-show '\n';",,Volume of Cylinder = 282.7431
+show '\n';",,Volume of Cylinder = 282.7431,
 "fn surface_cube(s):
     sa = 6 * s * s;
     ret sa;
@@ -632,7 +632,7 @@ side = 4;
 ans = surface_cube(side);
 show 'Surface Area of Cube = ';
 show ans;
-show '\n';",,Surface Area of Cube = 96
+show '\n';",,Surface Area of Cube = 96,
 "fn hyp_squared(a, b):
     c_sq = a ** 2 + b ** 2;
     ret c_sq;
@@ -643,7 +643,7 @@ b = 4;
 c_sq = hyp_squared(a, b);
 show 'c squared = ';
 show c_sq;
-show '\n';",,c squared = 169
+show '\n';",,c squared = 25,
 "fn area_trapezoid(a, b, h):
     area = (a + b) / 2 * h;
     ret area;
@@ -655,7 +655,7 @@ h = 4;
 ans = area_trapezoid(a, b, h);
 show 'Area of Trapezoid = ';
 show ans;
-show '\n';",,Area of Trapezoid = 32.0
+show '\n';",,Area of Trapezoid = 32.0,
 "nums:[5] = [10, 20, 30, 40, 50];
 first = nums[0];
 last = nums[4];
@@ -663,7 +663,7 @@ show first;
 show '\n';
 show last;
 show '\n';",,"10
-50"
+50",
 "mixed:[4] = [1, 3.14, 'hello', true];
 item0 = mixed[0];
 item1 = mixed[1];
@@ -679,12 +679,12 @@ show item3;
 show '\n';",,"1
 3.14
 hello
-true"
+true",
 "arr:[3] = [1, 2, 3];
 arr[1] = 99;
 val = arr[1];
 show val;
-show '\n';",,99
+show '\n';",,99,
 "scores:[5] = [80, 90, 75, 85, 95];
 total = 0;
 for i in range(5):
@@ -693,7 +693,7 @@ for i in range(5):
 close
 show 'Total = ';
 show total;
-show '\n';",,Total = 425
+show '\n';",,Total = 425,
 "data:[5] = [10, 20, 30, 40, 50];
 i = 4;
 while i >= 0:
@@ -702,7 +702,7 @@ while i >= 0:
     show ' ';
     i = i - 1;
 close
-show '\n';",,50 40 30 20 10
+show '\n';",,50 40 30 20 10,
 "flags:[5] = [true, false, true, true, false];
 true_count = 0;
 for i in range(5):
@@ -713,7 +713,7 @@ for i in range(5):
 close
 show 'True count = ';
 show true_count;
-show '\n';",,True count = 3
+show '\n';",,True count = 3,
 "matrix:[2][3] = [
     [1, 2, 3],
     [4, 5, 6]
@@ -721,7 +721,7 @@ show '\n';",,True count = 3
 val = matrix[1][2];
 show 'matrix[1][2] = ';
 show val;
-show '\n';",,matrix[1][2] = 6
+show '\n';",,matrix[1][2] = 6,
 "grid:[2][2] = [
     [0, 0],
     [0, 0]
@@ -734,7 +734,7 @@ show a;
 show '\n';
 show b;
 show '\n';",,"7
-3"
+3",
 "mat:[2][3] = [
     [1, 2, 3],
     [4, 5, 6]
@@ -748,7 +748,7 @@ for r in range(2):
 close
 show 'Total sum = ';
 show total;
-show '\n';",,Total sum = 21
+show '\n';",,Total sum = 21,
 "mat:[3][3] = [
     [3, 1, 4],
     [9, 2, 6],
@@ -768,7 +768,7 @@ for r in range(3):
     show '\n';
 close",,"Row max: 4
 Row max: 9
-Row max: 8"
+Row max: 8",
 "mat:[3][3] = [
     [1, 0, 0],
     [0, 1, 0],
@@ -781,26 +781,26 @@ for i in range(3):
 close
 show 'Diagonal sum = ';
 show diagonal_sum;
-show '\n';",,Diagonal sum = 3
+show '\n';",,Diagonal sum = 3,
 "raw = '42';
 num = int(raw);
 doubled = num * 2;
 show doubled;
-show '\n';",,2
+show '\n';",,2,
 "raw = '3.14';
 val = float(raw);
 result = val * 2.0;
 show result;
-show '\n';",,2.0
+show '\n';",,2.0,
 "f = 9.87;
 truncated = int(f);
 show truncated;
-show '\n';",,9
+show '\n';",,9,
 "n = 5;
 as_float = float(n);
 result = as_float / 2.0;
 show result;
-show '\n';",,2.5
+show '\n';",,2.5,
 "fn square(n):
     result = n * n;
     ret result;
@@ -811,7 +811,7 @@ num = int(raw);
 ans = square(num);
 show 'Square of 9 = ';
 show ans;
-show '\n';",,Square of 9 = 1
+show '\n';",,Square of 9 = 1,
 "for i in range(1, 21):
     fizz = i % 3 == 0;
     buzz = i % 5 == 0;
@@ -851,7 +851,7 @@ FizzBuzz
 17
 Fizz
 19
-Buzz"
+Buzz",
 "show 'Enter a number for its multiplication table: ';
 raw = read;
 n = int(raw);
@@ -872,7 +872,7 @@ close",64,"Enter a number for its multiplication table: 64 x 1 = 64
 64 x 7 = 448
 64 x 8 = 512
 64 x 9 = 576
-64 x 10 = 640"
+64 x 10 = 640",
 "show 'How many Fibonacci terms? ';
 raw = read;
 n = int(raw);
@@ -889,7 +889,7 @@ while i < n:
     i = i + 1;
 close
 show '\n';
-",64,How many Fibonacci terms? 0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181 6765 10946 17711 28657 46368 75025 121393 196418 317811 514229 832040 1346269 2178309 3524578 5702887 9227465 14930352 24157817 39088169 63245986 102334155 165580141 267914296 433494437 701408733 1134903170 1836311903 2971215073 4807526976 7778742049 12586269025 20365011074 32951280099 53316291173 86267571272 139583862445 225851433717 365435296162 591286729879 956722026041 1548008755920 2504730781961 4052739537881 6557470319842
+",64,How many Fibonacci terms? 0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181 6765 10946 17711 28657 46368 75025 121393 196418 317811 514229 832040 1346269 2178309 3524578 5702887 9227465 14930352 24157817 39088169 63245986 102334155 165580141 267914296 433494437 701408733 1134903170 1836311903 2971215073 4807526976 7778742049 12586269025 20365011074 32951280099 53316291173 86267571272 139583862445 225851433717 365435296162 591286729879 956722026041 1548008755920 2504730781961 4052739537881 6557470319842,
 "fn digit_sum(n):
     total = 0;
     while n > 0:
@@ -906,7 +906,7 @@ num = int(raw);
 result = digit_sum(num);
 show 'Digit sum = ';
 show result;
-show '\n';",64,Enter a number: Digit sum = 10
+show '\n';",64,Enter a number: Digit sum = 10,
 "show 'Count down from: ';
 raw = read;
 n = int(raw);
@@ -925,7 +925,7 @@ show 'Blast off!\n';",10,"Count down from: 10
 3
 2
 1
-Blast off!"
+Blast off!",
 "show 'Enter upper limit: ';
 raw = read;
 n = int(raw);
@@ -955,7 +955,7 @@ close",64,"Enter upper limit: 3
 54
 57
 60
-63"
+63",
 "fn reverse_num(n):
     rev = 0;
     while n > 0:
@@ -972,7 +972,7 @@ num = int(raw);
 reversed = reverse_num(num);
 show 'Reversed: ';
 show reversed;
-show '\n';",64,Enter a number to reverse: Reversed: 46
+show '\n';",64,Enter a number to reverse: Reversed: 46,
 "fn is_palindrome(n):
     original = n;
     rev = 0;
@@ -997,7 +997,7 @@ else:
     msg = 'Not a Palindrome';
     show msg;
     show '\n';
-close",64,Enter a number: Not a Palindrome
+close",64,Enter a number: Not a Palindrome,
 "fn gcd(a, b):
     while b != 0:
         temp = b;
@@ -1012,7 +1012,7 @@ b = 18;
 result = gcd(a, b);
 show 'GCD = ';
 show result;
-show '\n';",64,GCD = 6
+show '\n';",64,GCD = 6,
 "show 'Enter upper limit: ';
 raw = read;
 n = int(raw);
@@ -1030,7 +1030,7 @@ close
 25
 36
 49
-64"
+64",
 "fn sum_evens(n):
     total = 0;
     for i in range(1, n + 1):
@@ -1049,7 +1049,7 @@ n = int(raw);
 result = sum_evens(n);
 show 'Sum of evens = ';
 show result;
-show '\n';",64,Enter N: Sum of evens = 1056
+show '\n';",64,Enter N: Sum of evens = 1056,
 "fn sum_odds(n):
     total = 0;
     for i in range(1, n + 1):
@@ -1068,7 +1068,7 @@ n = int(raw);
 result = sum_odds(n);
 show 'Sum of odds = ';
 show result;
-show '\n';",64,Enter N: Sum of odds = 1024
+show '\n';",64,Enter N: Sum of odds = 1024,
 "show 'Enter a number: ';
 raw = read;
 n = int(raw);
@@ -1083,7 +1083,7 @@ else:
     msg = 'Not divisible by both';
     show msg;
     show '\n';
-close",100,Enter a number: Not divisible by both
+close",100,Enter a number: Not divisible by both,
 "fn power(base, exp):
     result = 1;
     for i in range(exp):
@@ -1108,7 +1108,7 @@ close",,"2^1 = 2
 2^7 = 128
 2^8 = 256
 2^9 = 512
-2^10 = 1024"
+2^10 = 1024",
 "for r in range(1, 4):
     for c in range(1, 4):
         val = r * c;
@@ -1118,7 +1118,7 @@ close",,"2^1 = 2
     show '\n';
 close",,"1 2 3 
 2 4 6 
-3 6 9"
+3 6 9",
 "for r in range(1, 6):
     for c in range(1, r + 1):
         show c;
@@ -1129,7 +1129,7 @@ close",,"1
 1 2 
 1 2 3 
 1 2 3 4 
-1 2 3 4 5"
+1 2 3 4 5",
 "show 'Enter N: ';
 raw = read;
 n = int(raw);
@@ -1140,7 +1140,7 @@ for i in range(1, n + 1):
 close
 show 'Sum of squares = ';
 show total;
-show '\n';",64,Enter N: Sum of squares = 89440
+show '\n';",64,Enter N: Sum of squares = 89440,
 "show 'Enter upper limit: ';
 raw = read;
 n = int(raw);
@@ -1148,12 +1148,12 @@ for i in range(0, n + 1, 3):
     show i;
     show ' ';
 close
-show '\n';",64,Enter upper limit: 0 3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48 51 54 57 60 63
+show '\n';",64,Enter upper limit: 0 3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48 51 54 57 60 63,
 "for i in range(10, ~1, ~2):
     show i;
     show ' ';
 close
-show '\n';",,10 8 6 4 2 0
+show '\n';",,10 8 6 4 2 0,
 "a:[3] = [1, 2, 3];
 b:[3] = [4, 5, 6];
 dot = 0;
@@ -1164,7 +1164,7 @@ for i in range(3):
 close
 show 'Dot product = ';
 show dot;
-show '\n';",,Dot product = 198
+show '\n';",,Dot product = 32,
 "show 'Enter N for factorial: ';
 raw = read;
 n = int(raw);
@@ -1175,7 +1175,7 @@ close
 show n;
 show '! = ';
 show fact;
-show '\n';",10,Enter N for factorial: 10! = 3628800
+show '\n';",10,Enter N for factorial: 10! = 3628800,
 "mat:[3][3] = [
     [1, 2, 3],
     [4, 5, 6],
@@ -1194,14 +1194,14 @@ for r in range(3):
     show '\n';
 close",,"Row 0 sum = 6
 Row 1 sum = 15
-Row 2 sum = 24"
+Row 2 sum = 24",
 "data:[8] = [10, 21, 30, 43, 50, 67, 70, 89];
 for i in range(0, 8, 2):
     val = data[i];
     show val;
     show ' ';
 close
-show '\n';",,10 30 50 70
+show '\n';",,10 30 50 70,
 "show 'Enter upper bound: ';
 raw = read;
 n = int(raw);
@@ -1215,7 +1215,7 @@ close",64,"Enter upper bound: 1
 4
 8
 16
-32"
+32",
 "total = 0;
 step = 0;
 i = 1;
@@ -1230,7 +1230,7 @@ show '\n';
 show 'Total reached: ';
 show total;
 show '\n';",,"Steps needed: 10
-Total reached: 55"
+Total reached: 55",
 "show 'Enter a number: ';
 raw = read;
 n = int(raw);
@@ -1241,7 +1241,7 @@ while n > 0:
     show ' ';
     n = n // 10;
 close
-show '\n';",64,Enter a number: Digits (right to left): 4 6
+show '\n';",64,Enter a number: Digits (right to left): 4 6,
 "fn count_digits(n):
     count = 0;
     while n > 0:
@@ -1257,7 +1257,7 @@ num = int(raw);
 digits = count_digits(num);
 show 'Number of digits: ';
 show digits;
-show '\n';",64,Enter a number: Number of digits: 2
+show '\n';",64,Enter a number: Number of digits: 2,
 "fn largest_digit(n):
     max_d = 0;
     while n > 0:
@@ -1275,7 +1275,7 @@ num = 3947215;
 result = largest_digit(num);
 show 'Largest digit: ';
 show result;
-show '\n';",,Largest digit: 9
+show '\n';",,Largest digit: 9,
 "show 'How many times to repeat? ';
 raw = read;
 n = int(raw);
@@ -1293,7 +1293,7 @@ CHUNGUS
 CHUNGUS
 CHUNGUS
 CHUNGUS
-CHUNGUS"
+CHUNGUS",
 "data:[7] = [5, 12, 8, 0, 3, 9, 1];
 total = 0;
 i = 0;
@@ -1305,7 +1305,7 @@ while val != 0:
 close
 show 'Sum before sentinel: ';
 show total;
-show '\n';",,Sum before sentinel: 25
+show '\n';",,Sum before sentinel: 25,
 "show 'Enter target value: ';
 raw = read;
 target = int(raw);
@@ -1321,7 +1321,7 @@ show '\n';
 show 'Final value: ';
 show val;
 show '\n';",64,"Enter target value: Steps: 7
-Final value: 128"
+Final value: 128",
 "target = 25;
 guess = float(target);
 epsilon = 0.0001;
@@ -1333,7 +1333,7 @@ close
 show 'Sqrt approx of 25 ~ ';
 show guess;
 show '\n';
- ",,Sqrt approx of 25 ~ 4.12374
+ ",,Sqrt approx of 25 ~ 5.0,
 "fn is_leap(y):
     by400 = y % 400 == 0;
     by100 = y % 100 == 0;
@@ -1354,7 +1354,7 @@ else:
     msg = 'Not a Leap Year';
     show msg;
     show '\n';
-close",64,Enter a year: Leap Year
+close",64,Enter a year: Leap Year,
 "fn compute_bmi(weight, height):
     bmi = weight / (height * height);
     ret bmi;
@@ -1385,7 +1385,7 @@ close
 show 'BMI = ';
 show bmi;
 show '\n';",,"Normal weight
-BMI = 22.857143"
+BMI = 22.857143",
 "fn abs_diff(a, b):
     diff = a - b;
     is_neg = diff < 0;
@@ -1401,7 +1401,7 @@ result = abs_diff(a, b);
 show 'Absolute difference: ';
 show result;
 show '\n';
- ",,Absolute difference: 13
+ ",,Absolute difference: 13,
 "for i in range(1, 16):
     check = i % 3 == 0;
     if check:
@@ -1425,7 +1425,7 @@ Fizz
 Fizz
 13
 14
-Fizz"
+Fizz",
 "a:[2] = [false, true];
 b:[2] = [false, true];
 for i in range(2):
@@ -1443,7 +1443,7 @@ for i in range(2):
 close",,"false AND false = false
 false AND true = false
 true AND false = false
-true AND true = true"
+true AND true = true",
 "arr:[6] = [5, 2, 8, 1, 9, 3];
 size = 6;
  
@@ -1469,7 +1469,7 @@ for k in range(6):
     show val;
     show ' ';
 close
-show '\n';",,Sorted: 5 2 8 1 9 3
+show '\n';",,Sorted: 1 2 3 5 8 9 ,
 "grid:[3][3] = [
     [0, 0, 0],
     [0, 0, 0],
@@ -1492,7 +1492,7 @@ for r in range(3):
     show '\n';
 close",,"0 0 0 
 0 1 2 
-0 2 4"
+0 2 4",
 "original:[2][3] = [
     [1, 2, 3],
     [4, 5, 6]
@@ -1521,7 +1521,7 @@ for r in range(3):
 close",,"Transposed matrix:
 1 4 
 2 5 
-3 6"
+3 6",
 "word = 'code';
 chars:[4] = ['c', 'o', 'd', 'e'];
 for i in range(4):
@@ -1531,7 +1531,7 @@ for i in range(4):
 close
 show '\n';
  ",,"c-o-d-e-
-"
+",
 "fn factorial(n):
     result = 1;
     for i in range(1, n + 1):
@@ -1543,34 +1543,34 @@ close
 ans = factorial(0);
 show '0! = ';
 show ans;
-show '\n';",,0! = 1
+show '\n';",,0! = 1,
 "for i in range(5, 5):
     show i;
 close
-show 'Done\n';",,Done
+show 'Done\n';",,Done,
 "for i in range(1, 10, ~1):
     show i;
 close
-show 'Done\n';",,Done
+show 'Done\n';",,Done,
 "a = ~50;
 b = 50;
 result = a + b;
 show result;
-show '\n';",,0
+show '\n';",,0,
 "x = 9999;
 result = x * 0;
 show result;
-show '\n';",,0
+show '\n';",,0,
 "a = ~3;
 b = 2;
 result = a // b;
 show result;
-show '\n';",,~1
+show '\n';",,~1,
 "a = ~7;
 b = 3;
 result = a % b;
 show result;
-show '\n';",,~1
+show '\n';",,~1,
 "val = 0;
 check = ! val;
 if check:
@@ -1582,7 +1582,7 @@ else:
     show msg;
     show '\n';
 close
- ",,zero is falsy
+ ",,zero is falsy,
 "s = '';
 check = ! s;
 if check:
@@ -1593,7 +1593,7 @@ else:
     msg = 'string is truthy';
     show msg;
     show '\n';
-close",,empty string is falsy
+close",,empty string is falsy,
 "s = 'hello';
 if s:
     msg = 'string is truthy';
@@ -1603,7 +1603,7 @@ else:
     msg = 'string is falsy';
     show msg;
     show '\n';
-close",,string is truthy
+close",,string is truthy,
 "fn square(n):
     result = n * n;
     ret result;
@@ -1619,7 +1619,7 @@ b = cube(2);
 total = a + b;
 show 'Result: ';
 show total;
-show '\n';",,Result: 17
+show '\n';",,Result: 17,
 "src:[5] = [10, 20, 30, 40, 50];
 dst:[5] = [0, 0, 0, 0, 0];
 for i in range(5):
@@ -1632,7 +1632,7 @@ for i in range(5):
     show v;
     show ' ';
 close
-show '\n';",,Copied array: 10 20 30 40 50
+show '\n';",,Copied array: 10 20 30 40 50,
 "arr:[5] = [1, 2, 3, 4, 5];
 scalar = 3;
 for i in range(5):
@@ -1644,7 +1644,7 @@ for i in range(5):
     show v;
     show ' ';
 close
-show '\n';",,3 6 9 12 15
+show '\n';",,3 6 9 12 15,
 "mat:[3][3] = [
     [1, 2, 3],
     [4, 5, 6],
@@ -1663,7 +1663,7 @@ for c in range(3):
     show '\n';
 close",,"Col 0 sum = 12
 Col 1 sum = 15
-Col 2 sum = 18"
+Col 2 sum = 18",
 "data:[7] = [3, ~1, 5, ~9, 2, ~4, 8];
 for i in range(7):
     val = data[i];
@@ -1678,7 +1678,7 @@ for i in range(7):
     show v;
     show ' ';
 close
-show '\n';",,Cleaned array: 3 0 5 0 2 0 8
+show '\n';",,Cleaned array: 3 0 5 0 2 0 8,
 "mat:[4][4] = [
     [1, 1, 1, 1],
     [1, 1, 1, 1],
@@ -1694,7 +1694,7 @@ for r in range(4):
 close
 show 'Total sum of 4x4 ones: ';
 show total;
-show '\n';",,Total sum of 4x4 ones: 16
+show '\n';",,Total sum of 4x4 ones: 16,
 "items:[5] = [10, 3, 7, 1, 6];
  
 show 'Low stock items at index:\n';
@@ -1710,7 +1710,7 @@ for i in range(5):
     close
 close",,"Low stock items at index:
 Index 1 -> qty: 3
-Index 3 -> qty: 1"
+Index 3 -> qty: 1",
 "data:[8] = [4, 7, 2, 9, 1, 5, 8, 3];
 running_max = data[0];
 show 'Running max: ';
@@ -1725,7 +1725,7 @@ for i in range(1, 8):
     show running_max;
     show ' ';
 close
-show '\n';",,Running max: 4 7 7 9 9 9 9 9
+show '\n';",,Running max: 4 7 7 9 9 9 9 9,
 "table:[4][4] = [
     [0, 0, 0, 0],
     [0, 0, 0, 0],
@@ -1749,7 +1749,7 @@ for r in range(4):
 close",,"1	2	3	4	
 2	4	6	8	
 3	6	9	12	
-4	8	12	16"
+4	8	12	16",
 "mat:[3][3] = [
     [1, 2, 3],
     [4, 5, 6],
@@ -1764,7 +1764,7 @@ for i in range(size):
 close
 show 'Anti-diagonal sum: ';
 show anti_sum;
-show '\n';",,Anti-diagonal sum: 15
+show '\n';",,Anti-diagonal sum: 15,
 "fn power(base, exp):
     result = 1;
     for i in range(exp):
@@ -1787,7 +1787,7 @@ amount = compound_interest(principal, rate, years);
 show 'Compound amount: ';
 show amount;
 show '\n';
- ",,Compound amount: 0.216
+ ",,Compound amount: 1157.625,
 "mat:[3][3] = [
     [1, 2, 3],
     [4, 5, 6],
@@ -1816,7 +1816,7 @@ close
  
 show 'Border sum: ';
 show border_sum;
-show '\n';",,Border sum: 40
+show '\n';",,Border sum: 40,
 "fn countdown(n):
     i = n;
     while i > 0:
@@ -1830,7 +1830,7 @@ countdown(5);",,"5
 4
 3
 2
-1"
+1",
 "fn is_teen(age):
     low = age >= 13;
     high = age <= 19;
@@ -1842,7 +1842,7 @@ result = is_teen(age);
 show 'Is teen: ';
 show result;
 show '\n';
- ",,Is teen: true
+ ",,Is teen: true,
 "fn is_perfect(n):
     total = 0;
     i = 1;
@@ -1860,7 +1860,7 @@ close
 check = is_perfect(6);
 show 'Is 6 perfect: ';
 show check;
-show '\n';",,Is 6 perfect: true
+show '\n';",,Is 6 perfect: true,
 "fn is_armstrong(n):
     d1 = n // 100;
     d2 = (n // 10) % 10;
@@ -1872,7 +1872,7 @@ close
 check = is_armstrong(153);
 show '153 is Armstrong: ';
 show check;
-show '\n';",,153 is Armstrong: false
+show '\n';",,153 is Armstrong: true,
 "total = 0;
 for i in range(1, 50):
     by3 = i % 3 == 0;
@@ -1883,7 +1883,7 @@ for i in range(1, 50):
 close
 show 'Sum: ';
 show total;
-show '\n';",,Sum: 543
+show '\n';",,Sum: 543,
 "a = 0;
 b = 1;
 while a < 100:
@@ -1893,7 +1893,7 @@ while a < 100:
     a = b;
     b = temp;
 close
-show '\n';",,0 1 1 2 3 5 8 13 21 34 55 89
+show '\n';",,0 1 1 2 3 5 8 13 21 34 55 89,
 "count = 0;
 for i in range(11):
     for j in range(11):
@@ -1905,7 +1905,7 @@ for i in range(11):
 close
 show 'Pairs where i+j=10: ';
 show count;
-show '\n';",,Pairs where i+j=10: 11
+show '\n';",,Pairs where i+j=10: 11,
 "for i in range(1, 6):
     sq = i * i;
     cu = i * i * i;
@@ -1919,7 +1919,7 @@ close",,"1 -> sq=1 cu=1
 2 -> sq=4 cu=8
 3 -> sq=9 cu=27
 4 -> sq=16 cu=64
-5 -> sq=25 cu=125"
+5 -> sq=25 cu=125",
 "data:[5] = [8, 3, 7, 1, 5];
 min_idx = 0;
 for i in range(1, 5):
@@ -1932,7 +1932,7 @@ for i in range(1, 5):
 close
 show 'Min index: ';
 show min_idx;
-show '\n';",,Min index: 3
+show '\n';",,Min index: 3,
 "decade:[3] = [0, 0, 0];
 for i in range(1, 21):
     in_first = i < 10;
@@ -1953,8 +1953,8 @@ for i in range(3):
     show v;
     show '\n';
 close",,"Decade 0: 9
-Decade 1: 11
-Decade 2: 0"
+Decade 1: 10
+Decade 2: 1",
 "mat:[3][3] = [
     [1, 2, 3],
     [2, 5, 6],
@@ -1973,7 +1973,7 @@ for i in range(3):
 close
 show 'Is symmetric: ';
 show is_sym;
-show '\n';",,Is symmetric: true
+show '\n';",,Is symmetric: true,
 "for i in range(1, 21):
     by2 = i % 2 == 0;
     gt5 = i > 5;
@@ -1982,7 +1982,7 @@ show '\n';",,Is symmetric: true
         show ' ';
     close
 close
-show '\n';",,6 8 10 12 14 16 18 20
+show '\n';",,6 8 10 12 14 16 18 20,
 "for r in range(4):
     for c in range(4):
         upper = c >= r;
@@ -1998,7 +1998,7 @@ show '\n';",,6 8 10 12 14 16 18 20
 close",,"1 2 3 4 
 0 4 6 8 
 0 0 9 12 
-0 0 0 16"
+0 0 0 16",
 "fn gcd(a, b):
     while b != 0:
         temp = b;
@@ -2016,7 +2016,7 @@ close
 result = lcm(12, 18);
 show 'LCM: ';
 show result;
-show '\n';",,LCM: 36.0
+show '\n';",,LCM: 36.0,
 "total = 0;
 i = 1;
 while total <= 500:
@@ -2030,14 +2030,14 @@ show '\n';
 show 'Total: ';
 show total;
 show '\n';",,"Sum exceeded 500 at i=8
-Total: 784"
+Total: 784",
 "val = 1;
 while val <= 1000:
     show val;
     show ' ';
     val = val * 3;
 close
-show '\n';",,1 3 9 27 81 243 729
+show '\n';",,1 3 9 27 81 243 729,
 "sums:[5] = [0, 0, 0, 0, 0];
 total = 0;
 i = 0;
@@ -2053,7 +2053,7 @@ for k in range(5):
     show v;
     show ' ';
 close
-show '\n';",,1 3 6 10 15
+show '\n';",,1 3 6 10 15,
 "fn count_divisors(n):
     count = 0;
     i = 1;
@@ -2070,7 +2070,7 @@ close
 result = count_divisors(36);
 show 'Divisors of 36: ';
 show result;
-show '\n';",,Divisors of 36: 9
+show '\n';",,Divisors of 36: 9,
 "base = 2.5;
 exp = 3;
 result = 1.0;
@@ -2081,7 +2081,7 @@ while i < exp:
 close
 show '2.5^3 = ';
 show result;
-show '\n';",,2.5^3 = 15.625
+show '\n';",,2.5^3 = 15.625,
 "a = 10;
 b = 20;
 show 'Before: a=';
@@ -2097,7 +2097,7 @@ show a;
 show ' b=';
 show b;
 show '\n';",,"Before: a=10 b=20
-After: a=20 b=10"
+After: a=20 b=10",
 "n = 1;
 found = false;
 while ! found:
@@ -2111,7 +2111,7 @@ while ! found:
 close
 show 'First n where n^2 > 200: ';
 show n;
-show '\n';",,First n where n^2 > 200: 15
+show '\n';",,First n where n^2 > 200: 15,
 "data:[6] = [5, ~3, 8, ~1, 12, 7];
 total = 0;
 i = 0;
@@ -2125,7 +2125,7 @@ while i < 6:
 close
 show 'Sum of positives: ';
 show total;
-show '\n';",,Sum of positives: 32
+show '\n';",,Sum of positives: 32,
 "rows = 4;
 for r in range(1, rows + 1):
     for c in range(1, r + 1):
@@ -2136,7 +2136,7 @@ for r in range(1, rows + 1):
 close",,"1 
 1 2 
 1 2 3 
-1 2 3 4"
+1 2 3 4",
 "freq:[10] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 num = 1234321;
 while num > 0:
@@ -2161,7 +2161,7 @@ Digit 5: 0 times
 Digit 6: 0 times
 Digit 7: 0 times
 Digit 8: 0 times
-Digit 9: 0 times"
+Digit 9: 0 times",
 "
 fn sqrt_approx(n):
     guess = float(n);
@@ -2183,10 +2183,10 @@ for i in range(4):
     show s;
     show '\n';
 close
- ",,"sqrt(4) ~ 1.679604
-sqrt(9) ~ 2.311079
-sqrt(16) ~ 2.823383
-sqrt(25) ~ 3.209058"
+ ",,"sqrt(4) ~ 2.0
+sqrt(9) ~ 3.0
+sqrt(16) ~ 4.0
+sqrt(25) ~ 5.0",
 "data:[10] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 evens = 0;
 odds = 0;
@@ -2205,7 +2205,7 @@ show '\n';
 show 'Odds: ';
 show odds;
 show '\n';",,"Evens: 5
-Odds: 5"
+Odds: 5",
 "a = 2;
 b = 3;
 c = 4;
@@ -2214,7 +2214,7 @@ e = 2;
 f = 5;
 result = ((((a + b) * (c - d)) ** e) // f);
 show result;
-show '\n';",,45
+show '\n';",,45,
 "a = 2;
 b = 3;
 c = 4;
@@ -2223,17 +2223,17 @@ e = 2;
 f = 1;
 result = a + b * c - d / e + f;
 show result;
-show '\n';",,7.0
+show '\n';",,11.0,
 "result = (10 + 2) * 3 - 15 / 5 + 10 % 3 - 2 // 1;
 show result;
-show '\n';",,0
+show '\n';",,32.0,
 "result = 2 ** 3 ** 2;
 show result;
-show '\n';",,64
+show '\n';",,512,
 "val = true;
 result = ! ! ! val;
 show result;
-show '\n';",,false
+show '\n';",,false,
 "a = 5;
 b = 10;
 c = 3;
@@ -2241,45 +2241,45 @@ d = 7;
 flag = false;
 result = a < b and c != d and ! flag;
 show result;
-show '\n';",,true
+show '\n';",,true,
 "x = true;
 y = true;
 z = false;
 result = x + y + z;
 show result;
-show '\n';",,2
+show '\n';",,2,
 "s1 = 'hello';
 s2 = 'world';
 result = s1 + s2;
 show result;
-show '\n';",,2
+show '\n';",,2,
 "empty = '';
 n = 5;
 result = empty + n;
 show result;
-show '\n';",,5
+show '\n';",,5,
 "a = 5;
 b = 2.0;
 result = a * b;
 show result;
-show '\n';",,10.0
+show '\n';",,10.0,
 "x = 5;
 result = x * 3;
 show result;
-show '\n';",,15
+show '\n';",,15,
 "a = 10;
 b = 20;
 
 result = (a + b);
 
-show result;",,30
+show result;",,30,
 "x = 5;
 
 if x == 5:
     show 'yes';
 close
 
-",,yes
+",,yes,
 "fn set_counter(val):
     counter = val;
 close
@@ -2287,7 +2287,7 @@ close
 counter = 0;
 set_counter(99);
 show counter;
-show '\n';",,0
+show '\n';",,0,
 "fn shadow_test():
     x = 999;
     show x;
@@ -2298,7 +2298,7 @@ x = 1;
 shadow_test();
 show x;
 show '\n';",,"999
-1"
+1",
 "fn triple(n):
 todo;
     ret n * 3;
@@ -2311,13 +2311,13 @@ close
  
 result = double(triple(2));
 show result;
-show '\n';",,12
+show '\n';",,12,
 "fn no_ret():
     x = 1;
 close
  
 result = no_ret();
-show 'done\n';",,done
+show 'done\n';",,done,
 "fn add(a, b):
     todo;
     ret a + b;
@@ -2327,7 +2327,7 @@ result = add(2, 3);
 show result;
 show '\n';
  
-",,5
+",,5,
 "fn empty_fn():
 todo;
     ret 5;
@@ -2335,7 +2335,7 @@ close
  
 x = empty_fn();
 show x;
-show '\n';",,5
+show '\n';",,5,
 "fn add(a, b):
 todo;
     ret a + b;
@@ -2343,7 +2343,7 @@ close
  
 result = add(1, 2);
 show result;
-show '\n';",,3
+show '\n';",,3,
 "fn f1(n):
 todo;
     ret n + 1;
@@ -2368,7 +2368,7 @@ n = 4;
 result = f4(f3(f2(f1(2))));
 show result;
 show '\n';
-",,14
+",,14,
 "fn add(a, b):
 todo;
     ret a + b;
@@ -2377,14 +2377,14 @@ close
 result = add(3 ** 2 + 1, 10 // 3 * 2);
 show result;
 show '\n';
- ",,16
+ ",,16,
 "base = 2;
 extra = 3;
 sz = base + extra;
 nums:[sz] = [10, 20, 30, 40, 50];
 val = nums[4];
 show val;
-show '\n';",,50
+show '\n';",,50,
 "arr:[5] = [1, 2];
 v0 = arr[0];
 v2 = arr[2];
@@ -2396,19 +2396,19 @@ show '\n';
 show v4;
 show '\n';",,"1
 0
-0"
+0",
 "arr:[5] = [10, 20, 30, 40, 50];
 idx = 1 + 1;
 arr[idx] = 99;
 val = arr[2];
 show val;
-show '\n';",,99
+show '\n';",,99,
 "matrix:[1][3] = [[1, 2, 3]];
 arr:[4] = [10, 20, 30, 40];
 idx = matrix[0][1];
 val = arr[idx];
 show val;
-show '\n';",,30
+show '\n';",,30,
 "fn square(n):
 todo;
     ret n * n;
@@ -2417,7 +2417,7 @@ close
 data:[3] = [3, 5, 7];
 result = square(data[2]);
 show result;
-show '\n';",,49
+show '\n';",,49,
 "fn product(a, b):
 todo;
     ret a * b;
@@ -2438,17 +2438,17 @@ for r in range(2):
     close
     show '\n';
 close",,"1 2 
-2 4"
+2 4",
 "arr:[1] = [];
-show 'should not reach here\n';",,should not reach here
+show 'should not reach here\n';",,should not reach here,
 "arr:[3] = [1, 2, 3];
 val = arr[1];
 show val;
-show '\n';",,2
+show '\n';",,2,
 "arr:[3] = [1, 2, 3];
-show 'should not reach here\n';",,should not reach here
+show 'should not reach here\n';",,should not reach here,
 "arr:[3] = [10, 20, 30];
-show arr;",,[Array 1x3]
+show arr;",,[Array 1x3],
 "grid:[3][3] = [
     [0, 0, 0],
     [0, 0, 0],
@@ -2461,7 +2461,7 @@ show val;
 show '\n';
 show corner;
 show '\n';",,"7
-0"
+0",
 "low = 0;
 mid_low = 0;
 mid_high = 0;
@@ -2493,7 +2493,7 @@ show high;
 show '\n';",,"low: 4
 mid_low: 6
 mid_high: 5
-high: 5"
+high: 5",
 "count = 0;
 for i in range(1, 6):
     for j in range(1, 6):
@@ -2506,7 +2506,7 @@ for i in range(1, 6):
 close
 show 'Pairs where i*j>10: ';
 show count;
-show '\n';",,Pairs where i*j>10: 8
+show '\n';",,Pairs where i*j>10: 8,
 "x = 10;
 y = 1;
 done = false;
@@ -2522,14 +2522,14 @@ while x > 0 and y < 100 and ! done:
 close
 show 'Steps: ';
 show steps;
-show '\n';",,"Runtime Error: Integer result out of signed 64-bit range [-9223372036854775808, 9223372036854775807]"
+show '\n';",,Steps: 7,
 "x = read;
 n = int(x);
 
 while n > 0:
     show n;
     n = n - 1;
-close",3,321
+close",3,321,
 "x = read;
 n = int(x);
 i = 1;
@@ -2537,7 +2537,7 @@ i = 1;
 while i < n:
     show i;
     i = i + 1;
-close",3,12
+close",3,12,
 "x = read;
 n = int(x);
 
@@ -2545,17 +2545,17 @@ if n:
     show 'non-zero';
 else:
     show 'zero';
-close",4,non-zero
+close",4,non-zero,
 "x = read;
 y = x + 5;
-show y;",4,9
+show y;",4,9,
 "x = read;
 n = int(x);
 
 while n >= 1:
     show n;
     n = n - 1;
-close",4,4321
+close",4,4321,
 "x = read;
 n = int(x);
 
@@ -2563,7 +2563,7 @@ if n % 2:
     show 'odd';
 else:
     show 'even';
-close",4,even
+close",4,even,
 "x = read;
 n = int(x);
 sum = 0;
@@ -2574,46 +2574,46 @@ while n > 0:
 close
 
 show sum;
-",4,10
+",4,10,
 "x = read;
 p = int(x);
 
 interest = p * 2;
-show interest;",4,8
+show interest;",4,8,
 "for i in range(1):
     show i;
-close",,0
+close",,0,
 "x = read;
 n = int(x);
 
 while n > 0:
     show n;
     n = n - 1;
-close",4,4321
+close",4,4321,
 "x = read;
 
 if x == 'admin':
     show 'access';
 else:
     show 'denied';
-close",2,denied
+close",2,denied,
 "x = read;
 
 if x:
     show 'true';
 else:
     show 'false';
-close",4,true
+close",4,true,
 "x = read;
 n = int(x);
 
 result = n + 20;
-show result;",4,24
+show result;",4,24,
 "x = read;
 n = int(x);
 
 result = 10 / n;
-show result;",4,2.5
+show result;",4,2.5,
 "x = read;
 n = int(x);
 
@@ -2621,7 +2621,7 @@ if n >= 75:
     show 'pass';
 else:
     show 'fail';
-close",4,fail
+close",4,fail,
 "i = 1;
 
 while i <= 2:
@@ -2632,7 +2632,7 @@ while i <= 2:
         j = j + 1;
     close
     i = i + 1;
-close",,11122122
+close",,11122122,
 "fn add(n):
     todo;
     ret n + 2;
@@ -2647,7 +2647,7 @@ x = read;
 y = int(x);
 
 result = mul(add(y));
-show result;",4,18
+show result;",4,18,
 "x = read;
 n = int(x);
 
@@ -2657,7 +2657,7 @@ while count < n:
     count = count + 1;
 close
 
-show count;",4,4
+show count;",4,4,
 "x = read;
 n = int(x);
 
@@ -2667,7 +2667,7 @@ while count < n:
     count = count + 2;
 close
 
-show count;",3,4
+show count;",3,4,
 "x = read;
 
 attempts = 1;
@@ -2675,7 +2675,7 @@ attempts = 1;
 while attempts <= 3:
     show attempts;
     attempts = attempts + 1;
-close",3,123
+close",3,123,
 "x = read;
 n = int(x);
 
@@ -2687,7 +2687,7 @@ while i <= n:
     i = i + 1;
 close
 
-show result;",4,24
+show result;",4,24,
 "x = read;
 price = int(x);
 
@@ -2695,40 +2695,40 @@ if price >= 100:
     price = price - 20;
 close
 
-show price;",4,4
+show price;",4,4,
 "x = read;
 price = int(x);
 
 if price >= 100:
     price = price - 20;
 close
-show price;",4,4
+show price;",4,4,
 "a = true;
 b = true;
 
 c = a and b;
-show c;",,true
+show c;",,true,
 "x = read;
 
 if x == 0:
     show 'zero';
 else:
     show 'not zero';
-close",4,not zero
+close",4,not zero,
 "sum = 0;
 
 for i in range(3):
     sum = sum + i;
 close
 
-show sum;",,3
+show sum;",,3,
 "sum = 0;
 
 for i in range(0):
     sum = sum + i;
 close
 
-show sum;",,0
+show sum;",,0,
 "x = read;
 temp = int(x);
 
@@ -2736,7 +2736,7 @@ if temp > 30:
     show 'hot';
 else:
     show 'normal';
-close",4,normal
+close",4,normal,
 "x = read;
 n = int(x);
 
@@ -2748,12 +2748,12 @@ if n > 0:
     close
 else:
     show 'negative';
-close",4,even positive
+close",4,even positive,
 "x = read;
 qty = int(x);
 
 total = qty * 50;
-show total;",4,200
+show total;",4,200,
 "x = read;
 qty = int(x);
 
@@ -2764,11 +2764,11 @@ while qty > 0:
     qty = qty - 1;
 close
 
-show total;",4,240
+show total;",4,240,
 "arr:[3] = [10, 20, 30];
 
 val = arr[0];
-show val;",,10
+show val;",,10,
 "x = read;
 n = int(x);
 
@@ -2776,7 +2776,7 @@ if n > 10:
     show n;
 else:
     show '10';
-close",4,10
+close",4,10,
 "x = read;
 n = int(x);
 
@@ -2788,7 +2788,7 @@ if n > 0:
     close
 else:
     show 'negative';
-close",1000,big positive
+close",1000,big positive,
 "arr:[3] = [1,2,3];
 i = 0;
 sum = 0;
@@ -2798,7 +2798,7 @@ while i < 3:
     i = i + 1;
 close
 
-show sum;",,6
+show sum;",,6,
 "arr:[4] = [1,2,3,4];
 i = 0;
 count = 0;
@@ -2810,14 +2810,14 @@ while i < 4:
     i = i + 1;
 close
 
-show count;",,2
+show count;",,2,
 "x = read;
 
 if x == '5':
     show 'five';
 else:
     show 'not five';
-close",4,not five
+close",4,not five,
 "arr:[3] = [1,2,3];
 i = 2;
 
@@ -2825,7 +2825,7 @@ while i >= 0:
     val =  arr[i];
     show val;        
     i = i - 1;
-close",,321
+close",,321,
 "arr:[3] = [2,4,6];
 i = 0;
 found = false;
@@ -2837,7 +2837,7 @@ while i < 3:
     i = i + 1;
 close
 
-show found;",,true
+show found;",,true,
 "arr:[4] = [~1,2,~3,4];
 i = 0;
 count = 0;
@@ -2849,7 +2849,7 @@ while i < 4:
     i = i + 1;
 close
 
-show count;",,2
+show count;",,2,
 "i = 1;
 sum = 0;
 
@@ -2862,7 +2862,7 @@ while i <= 2:
     i = i + 1;
 close
 
-show sum;",,6
+show sum;",,6,
 "arr:[3] = [5,2,8];
 min = arr[0];
 i = 1;
@@ -2874,7 +2874,7 @@ while i < 3:
     i = i + 1;
 close
 
-show min;",,2
+show min;",,2,
 "x = read;
 n = int(x);
 
@@ -2886,14 +2886,14 @@ while i <= n:
     i = i + 1;
 close
 
-show sum;",4,10
+show sum;",4,10,
 "x = read;
 
 if x:
     show 'valid';
 else:
     show 'invalid';
-close",4,valid
+close",4,valid,
 "arr:[4] = [0,1,0,2];
 i = 0;
 count = 0;
@@ -2905,17 +2905,17 @@ while i < 4:
     i = i + 1;
 close
 
-show count;",,2
+show count;",,2,
 "x = read;
 n = int(x);
 
 result = n * n;
-show result;",4,16
+show result;",4,16,
 "x = read;
 n = int(x);
 
 result = n * n * n;
-show result;",4,64
+show result;",4,64,
 "x = read;
 n = int(x);
 
@@ -2927,7 +2927,7 @@ while i <= n:
     i = i + 1;
 close
 
-show sum;",4,10
+show sum;",4,10,
 "x = read;
 n = int(x);
 
@@ -2938,7 +2938,7 @@ while n > 0:
     count = count + 1;
 close
 
-show count;",4,7
+show count;",4,7,
 "x = read;
 n = int(x);
 
@@ -2946,7 +2946,7 @@ if n > 0:
     show 'positive';
 else:
     show 'not positive';
-close",4,positive
+close",4,positive,
 "arr:[4] = [2,4,6,8];
 i = 0;
 sum = 0;
@@ -2956,7 +2956,7 @@ while i < 4:
     i = i + 1;
 close
 
-show sum;",,20
+show sum;",,20,
 "arr:[3] = [5,9,3];
 max = arr[0];
 i = 1;
@@ -2968,7 +2968,7 @@ while i < 3:
     i = i + 1;
 close
 
-show max;",,9
+show max;",,9,
 "arr:[5] = [1,2,3,4,5];
 i = 0;
 count = 0;
@@ -2980,14 +2980,14 @@ while i < 5:
     i = i + 1;
 close
 
-show count;",,2
+show count;",,2,
 "x = read;
 n = int(x);
 
 while n >= 1:
     show n;
     n = n - 1;
-close",4,4321
+close",4,4321,
 "x = read;
 n = int(x);
 
@@ -2999,7 +2999,7 @@ while i <= n:
     i = i + 1;
 close
 
-show fact;",4,24
+show fact;",4,24,
 "x = read;
 n = int(x);
 
@@ -3011,7 +3011,7 @@ else:
     else:
         show 'C';
     close
-close",4,C
+close",4,C,
 "x = read;
 t = int(x);
 
@@ -3019,7 +3019,7 @@ if t > 30:
     show 'hot';
 else:
     show 'cool';
-close",4,cool
+close",4,cool,
 "x = read;
 n = int(x);
 
@@ -3028,7 +3028,7 @@ while n >= 1:
         show n;
     close
     n = n - 1;
-close",4,42
+close",4,42,
 "x = read;
 n = int(x);
 
@@ -3042,7 +3042,7 @@ while i <= n:
     i = i + 1;
 close
 
-show sum;",4,6
+show sum;",4,6,
 "arr:[5] = [1,2,3,4,5];
 i = 0;
 count = 0;
@@ -3054,12 +3054,12 @@ while i < 5:
     i = i + 1;
 close
 
-show count;",,3
+show count;",,3,
 "
 double = 12;
 
 show double;
-",,12
+",,12,
 "# Original C reserved words used as variable names
 switch = 1;      
 return = 3;   
@@ -3069,7 +3069,7 @@ struct = 5;
 show switch;
 show return;
 show void;
-show struct;",,1345
+show struct;",,1345,
 "fn switch():       
     todo;
 close
@@ -3089,7 +3089,7 @@ close
 todo;
 out = struct();
 
-show out;",,0
+show out;",,0,
 "fn simpleLoop():
     data:[5] = []; 
 
@@ -3139,7 +3139,7 @@ Enter a number: Enter a number: Enter a number: Enter a number: Enter a number: 
 2
 3
 4
-5"
+5",
 "x = 2;
 
 input = 1;
@@ -3150,7 +3150,7 @@ elif x == 2:
         input = 0;
 close 
 
-show input;",,0
+show input;",,0,
 "x = 1;
 
 input = 1;
@@ -3161,7 +3161,7 @@ elif x == 2:
         input = 0;
 close 
 
-show input;",testing,testing
+show input;",testing,testing,
 "str = 'john pork';
 arr = str_to_arr(str);
 arrNew : [9] =  [];
@@ -3177,7 +3177,7 @@ while i < 9:
 close 
 
 newStr = arr_to_str(arrNew);
-show newStr;",,krop nhoj
+show newStr;",,krop nhoj,
 "result = str_to_arr('hello');
 for i in range(length(result)):
     out =  result[i];
@@ -3188,7 +3188,7 @@ close
 e
 l
 l
-o"
+o",
 "result = str_to_arr('abc123');
 for i in range(length(result)):
     out = result[i];
@@ -3199,51 +3199,51 @@ b
 c
 1
 2
-3"
+3",
 "arr : [5] = [1,2,3];
 
 result = arr_to_str(arr);
 show result;
-",,12300
+",,12300,
 "arr : [3] = ['a', 'b', true];
 
 result = arr_to_str(arr);
 show result;
-",,abtrue
+",,abtrue,
 "arr : [3] = ['a', 'b', 1];
 
 result = arr_to_str(arr);
-show result;",,ab1
+show result;",,ab1,
 "arr : [3] = ['a', 'b', false];
 
 result = arr_to_str(arr);
-show result;",,abfalse
+show result;",,abfalse,
 "arr : [1] = [];
 
 result = arr_to_str(arr);
-show result;",,0
+show result;",,0,
 "result = length('hello');
-show result;",,5
+show result;",,5,
 "arr : [3] = ['a', 'b', true];
 
 result = length(arr);
-show result;",,3
+show result;",,3,
 "result = length('');
-show result;",,0
+show result;",,0,
 "arr : [1] = [];
 
 result = length(arr);
-show result;",,1
+show result;",,1,
 "result = compare('hello', 'hello');
-show result;",,true
+show result;",,true,
 "result = compare('hello', 'world');
-show result;",,false
+show result;",,false,
 "result = compare('abc', 'abc');
-show result;",,true
+show result;",,true,
 "result = compare('', '');
-show result;",,true
+show result;",,true,
 "result = compare('abc', 'abd');
-show result;",,false
+show result;",,false,
 "type_val = type(42);
 show type_val;      # int
 show '\n';
@@ -3284,12 +3284,37 @@ str
 int
 float
 str
-array"
+array",
 "res =  ~9223372036854775808.999999 - 9223372036854775807;
 
 
-show res;",,"Runtime Error: Float value out of supported range [~9223372036854775808.999999, 9223372036854775807.999999]"
+show res;",,"Runtime Error: Float value out of supported range [~9223372036854775808.999999, 9223372036854775807.999999]",
 show '\n';,,"
-"
-show '\t\ttest';,,                test
-"show '\""';",,"\"""
+",
+show '\t\ttest';,,                test,
+"show '\""';",,"\""",
+x = 2 + 3 * 4; show x;,,14,* before +
+x = 2 * 3 + 4; show x;,,10,* before +
+x = 10 - 2 * 3; show x;,,4,* before -
+x = 10 / 2 + 3; show x;,,8.0,/ before +
+x = 10 / (2 + 3); show x;,,2.0,parentheses override
+x = 2 * 3 ** 2; show x;,,18,** before *
+x = 2 ** 3 * 2; show x;,,16,** before *
+x = 2 + 3 ** 2 * 2; show x;,,20,** → * → +
+x = 2 ** 3 ** 2; show x;,,512,** is right-associative
+x = !2 ** 2; show x;,,0,** before !
+x = !(2 ** 2); show x;,,false,parentheses override
+x = 1 + 2 > 2; show x;,,true,arithmetic before relational
+x = 1 + (2 > 2); show x;,,1,relational first via parentheses
+x = 3 * 2 == 6; show x;,,true,arithmetic before equality
+x = 3 * (2 == 6); show x;,,0,equality first via parentheses
+x = 3 > 2 == 1; show x;,,true,relational before equality (L→R collapse)
+x = 1 == 1 and 0; show x;,,false,#ERROR!
+x = 1 == (1 and 0); show x;,,false,logical first via parentheses
+x = 1 == 1 or 0; show x;,,true,#ERROR!
+x = 1 and 0 or 1; show x;,,true,and before or
+x = 1 and (0 or 1); show x;,,true,parentheses override
+x = 0 or 0 and 1; show x;,,false,and before or
+x = 1 + 2 * 3 > 5 and 4 == 4; show x;,,true,full chain precedence
+x = 1 + 2 * 3 > 5 and 4 == 4 or 0; show x;,,true,and before or
+x = (1 + 2 * 3 > 5 and 4 == 4) or 0; show x;,,true,grouping check

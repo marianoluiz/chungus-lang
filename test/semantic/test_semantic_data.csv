@@ -805,45 +805,32 @@ index_m: [0][5] = [];,Invalid array row expression: expression must be a non-neg
 git_m: [1][0] = [[]];,Invalid array column expression: expression must be a non-negative integer,,
 "check = 4 < 2 and 5 > 2 + 10 ** 20 // false - true % !!!!true * (320 % 4);
 ",Floor division by zero,,
-"flag = !!! 10 == 10;
-",NO SEMANTIC ERROR/S,,
+"flag = !!! 10 == 10;",NO SEMANTIC ERROR/S,,
 add = 5 + 3;,NO SEMANTIC ERROR/S,,
 todo; todo;,NO SEMANTIC ERROR/S,,
-show x; todo;,"Variable 'x' not defined
-",,
+show x; todo;,"Variable 'x' not defined",,
 show 'str';,NO SEMANTIC ERROR/S,,
 "y = 10; 
 x = y;",NO SEMANTIC ERROR/S,,
 "result = undeclared_variable + 5;
-","Variable 'undeclared_variable' not defined
+","Variable 'undeclared_variable' not defined",,
+"calculation = 'test' - out_of_scope_variable;","Variable 'out_of_scope_variable' not defined
 ",,
-"calculation = 'test' - out_of_scope_variable;
-","Variable 'out_of_scope_variable' not defined
-",,
-"constant_max_score = 999;
-",NO SEMANTIC ERROR/S,,
-"read_only_pi = 3.14159;
-",NO SEMANTIC ERROR/S,,
+"constant_max_score = 999;",NO SEMANTIC ERROR/S,,
+"read_only_pi = 3.14159;",NO SEMANTIC ERROR/S,,
 "defined_function = 'new string value';
 ",NO SEMANTIC ERROR/S,,
 "output = regular_integer_variable('argument');
-","Function 'regular_integer_variable' not defined
-",,
+","Function 'regular_integer_variable' not defined",,
 "result = regular_boolean_variable(10, 20);
 ",Function 'regular_boolean_variable' not defined,,
-"total = undefined_function_call('hello');
-","Function 'undefined_function_call' not defined
-",,
+"total = undefined_function_call('hello');","Function 'undefined_function_call' not defined",,
 "sum = function_expecting_two(1);
-","Function 'function_expecting_two' not defined
+","Function 'function_expecting_two' not defined",,
+"value = function_expecting_ARG('a', 'b', 'c');","Function 'function_expecting_ARG' not defined
 ",,
-"value = function_expecting_ARG('a', 'b', 'c');
-","Function 'function_expecting_ARG' not defined
-",,
-"uninitialized_var = uninitialized_var + 1;
-",Variable 'uninitialized_var' not defined,,
-"score = 100; todo;
-",NO SEMANTIC ERROR/S,,
+"uninitialized_var = uninitialized_var + 1;",Variable 'uninitialized_var' not defined,,
+"score = 100; todo;",NO SEMANTIC ERROR/S,,
 "todo; player_name = 'Shawn';
 ",NO SEMANTIC ERROR/S,,
 "todo; todo; todo;
@@ -1144,8 +1131,7 @@ arr10: [1][1/0] = [[]];",Division by zero,,
 "arr20: [10] = [0,1,2,3,4,5,6,7,8,9];
 # PASS: expression index
 val2 = arr20[2 + 3];
-show val2;
-",NO SEMANTIC ERROR/S,,
+show val2;",NO SEMANTIC ERROR/S,,
 "arr20: [10] = [0,1,2,3,4,5,6,7,8,9];
 # PASS: expression index
 val2 = arr20[2 + 19];
@@ -1735,7 +1721,7 @@ expr1 = 'str' and 2.2;
 expr2 = 1 + expr1 and expr1 + 8;
 
 x = compare(expr1, expr2);","compare() expects string, got bool
-compare() expects string, got int
+compare() expects string, got bool
 
 ",,
 type_val = type(42);,NO SEMANTIC ERROR/S,,

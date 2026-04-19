@@ -21,62 +21,239 @@ class ExprRules:
 
         ```
         <expr>
-            -> <operand> <expr_tail>
+            -> <or_expr>
+        ```
 
-        <expr_tail>
-            -> <operator> <operand> <expr_tail>
+        Returns:
+            ASTNode
+        """
+        return self._or_expr()
+
+
+    def _or_expr(self: "RDParser") -> ASTNode:
+        """
+        Parse logical OR precedence level.
+
+        ```
+        <or_expr>
+            -> <and_expr> <or_tail>
+
+        <or_tail>
+            -> or <and_expr> <or_tail>
             -> λ
         ```
 
         Returns:
             ASTNode
         """
-        left = self._operand()
-        return self._expr_tail(left) # pass operand to tail to build the ast node
+        left = self._and_expr()
 
-
-    def _expr_tail(self: "RDParser", left: ASTNode) -> ASTNode:
-        """
-        Parse expression tail (operators and operands).
-
-        ```
-        <expr_tail>
-            -> <operator> <operand> <expr_tail>
-            -> λ
-
-        <operator>
-            -> and | or | == | != | > | < | >= | <= | + | - | * | / | ** | // | %
-        ```
-
-        Returns:
-            ASTNode
-        """
-        # All operators that can appear in expr_tail
-        operators = ('and', 'or', '==', '!=', '>', '<', '>=', '<=', '+', '-', '*', '/', '**', '//', '%')
-
-        if self._match(*operators):
+        while self._match('or'):
             tok = self._advance()
-            right = self._operand()
-            # Build binary operation node
-            node = self._ast_node(tok.lexeme, tok, children=[left, right])
-            # Recursively parse the rest of the expression tail
-            return self._expr_tail(node)
-        
-        # Base case: no more operators (lambda production)
+            right = self._and_expr()
+            left = self._ast_node(tok.lexeme, tok, children=[left, right])
+
         return left
 
 
-    def _operand(self: "RDParser") -> ASTNode:
+    def _and_expr(self: "RDParser") -> ASTNode:
         """
-        Parse an operand.
+        Parse logical AND precedence level.
 
         ```
-        <operand>
+        <and_expr>
+            -> <eq_expr> <and_tail>
+
+        <and_tail>
+            -> and <eq_expr> <and_tail>
+            -> λ
+        ```
+
+        Returns:
+            ASTNode
+        """
+        left = self._eq_expr()
+
+        while self._match('and'):
+            tok = self._advance()
+            right = self._eq_expr()
+            left = self._ast_node(tok.lexeme, tok, children=[left, right])
+
+        return left
+
+
+    def _eq_expr(self: "RDParser") -> ASTNode:
+        """
+        Parse equality precedence level.
+
+        ```
+        <eq_expr>
+            -> <rel_expr> <eq_tail>
+
+        <eq_tail>
+            -> <eq_op> <rel_expr> <eq_tail>
+            -> λ
+
+        <eq_op>
+            -> == | !=
+        ```
+
+        Returns:
+            ASTNode
+        """
+        left = self._rel_expr()
+
+        while self._match('==', '!='):
+            tok = self._advance()
+            right = self._rel_expr()
+            left = self._ast_node(tok.lexeme, tok, children=[left, right])
+
+        return left
+
+
+    def _rel_expr(self: "RDParser") -> ASTNode:
+        """
+        Parse relational precedence level.
+
+        ```
+        <rel_expr>
+            -> <add_expr> <rel_tail>
+
+        <rel_tail>
+            -> <rel_op> <add_expr> <rel_tail>
+            -> λ
+
+        <rel_op>
+            -> > | < | >= | <=
+        ```
+
+        Returns:
+            ASTNode
+        """
+        left = self._add_expr()
+
+        while self._match('>', '<', '>=', '<='):
+            tok = self._advance()
+            right = self._add_expr()
+            left = self._ast_node(tok.lexeme, tok, children=[left, right])
+
+        return left
+
+
+    def _add_expr(self: "RDParser") -> ASTNode:
+        """
+        Parse additive precedence level.
+
+        ```
+        <add_expr>
+            -> <mul_expr> <add_tail>
+
+        <add_tail>
+            -> <add_op> <mul_expr> <add_tail>
+            -> λ
+
+        <add_op>
+            -> + | -
+        ```
+
+        Returns:
+            ASTNode
+        """
+        left = self._mul_expr()
+
+        while self._match('+', '-'):
+            tok = self._advance()
+            right = self._mul_expr()
+            left = self._ast_node(tok.lexeme, tok, children=[left, right])
+
+        return left
+
+
+    def _mul_expr(self: "RDParser") -> ASTNode:
+        """
+        Parse multiplicative precedence level.
+
+        ```
+        <mul_expr>
+            -> <pow_expr> <mul_tail>
+
+        <mul_tail>
+            -> <mul_op> <pow_expr> <mul_tail>
+            -> λ
+
+        <mul_op>
+            -> * | / | // | %
+        ```
+
+        Returns:
+            ASTNode
+        """
+        left = self._pow_expr()
+
+        while self._match('*', '/', '//', '%'):
+            tok = self._advance()
+            right = self._pow_expr()
+            left = self._ast_node(tok.lexeme, tok, children=[left, right])
+
+        return left
+
+
+    def _pow_expr(self: "RDParser") -> ASTNode:
+        """
+        Parse power precedence level (right-associative).
+
+        <operator>
+            -> **
+        ```
+
+        Returns:
+            ASTNode
+        """
+        left = self._unary_expr()
+
+        # Right associativity: a ** b ** c -> a ** (b ** c)
+        if self._match('**'):
+            tok = self._advance()
+            right = self._pow_expr()
+            return self._ast_node(tok.lexeme, tok, children=[left, right])
+
+        return left
+
+
+    def _unary_expr(self: "RDParser") -> ASTNode:
+        """
+        Parse unary precedence level.
+
+        ```
+        <unary_expr>
+            -> ! <unary_expr>
+            -> <primary>
+        ```
+
+        Returns:
+            ASTNode
+        """
+        self._expect(self.PRED_EXPR, 'unary_expr')
+
+        if self._match('!'):
+            tok = self._advance()
+            operand = self._unary_expr()
+            return self._ast_node('!', tok, children=[operand])
+
+        return self._primary()
+
+
+    def _primary(self: "RDParser") -> ASTNode:
+        """
+        Parse a primary expression.
+
+        ```
+        <primary>
             -> <int_float_str_bool_lit>
-            -> ! <operand>
             -> ( <expr> )
             -> <type_casting>
             -> id <postfix_tail>
+            -> <builtin_call>
 
         <int_float_str_bool_lit>
             -> int_literal | float_literal | str_literal | true | false
@@ -97,20 +274,15 @@ class ExprRules:
             ASTNode
         """
 
-        self._expect(self.PRED_EXPR, 'operand')
-
-        # NOT operand
-        if self._match('!'):
-            tok = self._advance()
-            operand = self._operand()
-            return self._ast_node('!', tok, children=[operand])
+        self._expect(self.PRED_EXPR, 'primary')
 
         # Parenthesized expression
         if self._match('('):
             self._advance()
             expr = self._expr()
 
-            self._expect_after_expr({')'}, expr, 'operand')
+            self._expect_after_expr({')'}, expr, 'primary')
+            self._expect_type(')', 'primary')
             self._advance()
 
             return expr
@@ -120,12 +292,13 @@ class ExprRules:
             cast_tok = self._advance()
             cast_type = cast_tok.lexeme
 
-            self._expect_type('(', 'operand')
+            self._expect_type('(', 'primary')
             self._advance()
 
             expr = self._expr()
 
-            self._expect_after_expr({')'}, expr, 'operand')
+            self._expect_after_expr({')'}, expr, 'primary')
+            self._expect_type(')', 'primary')
             self._advance()
 
             return self._ast_node('type_cast', cast_tok, value=cast_type, children=[expr])
@@ -234,8 +407,6 @@ class ExprRules:
                 node = self._postfix_tail(node, id_tok=tok)
 
             return node
-
-
     def _postfix_tail(self: "RDParser", node: ASTNode, id_tok: Token) -> ASTNode:
         """
         Parse an optional postfix tail after an identifier.
@@ -315,6 +486,7 @@ class ExprRules:
         indices.append(expr)
 
         self._expect_after_expr({']'}, expr, 'postfix_index')
+        self._expect_type(']', 'postfix_index')
         self._advance()
 
         # optional index for 2D (index_loop)
@@ -325,6 +497,7 @@ class ExprRules:
             indices.append(expr)
 
             self._expect_after_expr({']'}, expr, 'postfix_index')
+            self._expect_type(']', 'postfix_index')
             self._advance()
 
 
