@@ -1,9 +1,7 @@
 import datetime
-import tkinter as tk
 import subprocess
 from pathlib import Path
-import os
-import time
+import customtkinter as ctk
 from src.gui import ChungusLexerGUI
 from src.lexer.dfa_lexer import Lexer
 from src.syntax.rd_parser import RDParser
@@ -213,7 +211,7 @@ def codegen_adapter(source: str):
 
  
 if __name__ == "__main__":
-    root = tk.Tk()
+    root = ctk.CTk()
     app = ChungusLexerGUI(
         root,
         lexer_callback=lexer_adapter,
