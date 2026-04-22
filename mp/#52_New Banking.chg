@@ -1,0 +1,684 @@
+fn is_digit(ch):
+    res = compare(ch, '0') or compare(ch, '1') or compare(ch, '2') or compare(ch, '3') or compare(ch, '4') or compare(ch, '5') or compare(ch, '6') or compare(ch, '7') or compare(ch, '8') or compare(ch, '9');
+    ret res;
+close
+
+fn is_upper(ch):
+    res = compare(ch, 'A') or compare(ch, 'B') or compare(ch, 'C') or compare(ch, 'D') or compare(ch, 'E') or compare(ch, 'F') or compare(ch, 'G') or compare(ch, 'H') or compare(ch, 'I') or compare(ch, 'J') or compare(ch, 'K') or compare(ch, 'L') or compare(ch, 'M') or compare(ch, 'N') or compare(ch, 'O') or compare(ch, 'P') or compare(ch, 'Q') or compare(ch, 'R') or compare(ch, 'S') or compare(ch, 'T') or compare(ch, 'U') or compare(ch, 'V') or compare(ch, 'W') or compare(ch, 'X') or compare(ch, 'Y') or compare(ch, 'Z');
+    ret res;
+close
+
+fn is_lower(ch):
+    res = compare(ch, 'a') or compare(ch, 'b') or compare(ch, 'c') or compare(ch, 'd') or compare(ch, 'e') or compare(ch, 'f') or compare(ch, 'g') or compare(ch, 'h') or compare(ch, 'i') or compare(ch, 'j') or compare(ch, 'k') or compare(ch, 'l') or compare(ch, 'm') or compare(ch, 'n') or compare(ch, 'o') or compare(ch, 'p') or compare(ch, 'q') or compare(ch, 'r') or compare(ch, 's') or compare(ch, 't') or compare(ch, 'u') or compare(ch, 'v') or compare(ch, 'w') or compare(ch, 'x') or compare(ch, 'y') or compare(ch, 'z');
+    ret res;
+close
+
+fn is_letter(ch):
+    res = is_upper(ch) or is_lower(ch);
+    ret res;
+close
+
+fn char_to_int(ch):
+    value = 0;
+
+    if compare(ch, '0'):
+        value = 0;
+    elif compare(ch, '1'):
+        value = 1;
+    elif compare(ch, '2'):
+        value = 2;
+    elif compare(ch, '3'):
+        value = 3;
+    elif compare(ch, '4'):
+        value = 4;
+    elif compare(ch, '5'):
+        value = 5;
+    elif compare(ch, '6'):
+        value = 6;
+    elif compare(ch, '7'):
+        value = 7;
+    elif compare(ch, '8'):
+        value = 8;
+    else:
+        value = 9;
+    close
+
+    ret value;
+close
+
+fn is_digit_text(text):
+    chars = str_to_arr(text);
+    len_text = length(chars);
+    valid = true;
+
+    if len_text == 0:
+        valid = false;
+    else:
+        i = 0;
+        while i < len_text:
+            ch = chars[i];
+
+            if is_digit(ch) == false:
+                valid = false;
+                i = len_text;
+            else:
+                i = i + 1;
+            close
+        close
+    close
+
+    ret valid;
+close
+
+run = 1;
+
+while run == 1:
+
+    acct_list:[5]=[];
+    stored_clients = 0;
+
+    valid_client_count = false;
+    client_count = 0;
+
+    while valid_client_count == false:
+        show 'Enter number of clients (1 to 5): ';
+        client_count_input = read;
+        t_client_count = type(client_count_input);
+
+        if compare(t_client_count, 'int'):
+            client_count = client_count_input;
+
+            if client_count <= 0:
+                show 'Invalid Input';
+                show '\n';
+            elif client_count > 5:
+                show 'Invalid Input';
+                show '\n';
+            else:
+                valid_client_count = true;
+            close
+
+        elif compare(t_client_count, 'str'):
+            if is_digit_text(client_count_input):
+                client_count = int(client_count_input);
+
+                if client_count <= 0:
+                    show 'Invalid Input';
+                    show '\n';
+                elif client_count > 5:
+                    show 'Invalid Input';
+                    show '\n';
+                else:
+                    valid_client_count = true;
+                close
+            else:
+                show 'Invalid Input';
+                show '\n';
+            close
+        else:
+            show 'Invalid Input';
+            show '\n';
+        close
+    close
+
+    client_index = 1;
+
+    while client_index <= client_count:
+        client_name = '';
+        valid_name = false;
+
+        while valid_name == false:
+            show 'Enter client name (letters and spaces only): ';
+            client_name = read;
+
+            name_arr = str_to_arr(client_name);
+            name_len = length(name_arr);
+
+            if name_len == 0:
+                show 'Please enter letters and spaces only';
+                show '\n';
+            else:
+                idx = 0;
+                name_ok = true;
+
+                while idx < name_len:
+                    ch = name_arr[idx];
+
+                    if compare(ch, ' '):
+                        idx = idx + 1;
+                    else:
+                        if is_letter(ch) == false:
+                            name_ok = false;
+                            idx = name_len;
+                        else:
+                            idx = idx + 1;
+                        close
+                    close
+                close
+
+                if name_ok == true:
+                    valid_name = true;
+                else:
+                    show 'Please enter letters and spaces only';
+                    show '\n';
+                close
+            close
+        close
+
+        valid_account = false;
+        account_no = 0;
+
+        while valid_account == false:
+            show 'Enter 5-digit account number: ';
+            account_input = read;
+            t_account = type(account_input);
+
+            if compare(t_account, 'int'):
+                account_no = account_input;
+
+                if account_no < 10000:
+                    show 'Account number must be exactly 5 digits';
+                    show '\n';
+                elif account_no > 99999:
+                    show 'Account number must be exactly 5 digits';
+                    show '\n';
+                else:
+                    duplicate = false;
+                    check_index = 0;
+
+                    while check_index < stored_clients:
+                        saved_acct = acct_list[check_index];
+
+                        if saved_acct == account_no:
+                            duplicate = true;
+                        close
+
+                        check_index = check_index + 1;
+                    close
+
+                    if duplicate == true:
+                        show 'Account number already exists';
+                        show '\n';
+                    else:
+                        acct_list[stored_clients] = account_no;
+                        stored_clients = stored_clients + 1;
+                        valid_account = true;
+                    close
+                close
+
+            elif compare(t_account, 'str'):
+                if is_digit_text(account_input):
+                    account_no = int(account_input);
+
+                    if account_no < 10000:
+                        show 'Account number must be exactly 5 digits';
+                        show '\n';
+                    elif account_no > 99999:
+                        show 'Account number must be exactly 5 digits';
+                        show '\n';
+                    else:
+                        duplicate = false;
+                        check_index = 0;
+
+                        while check_index < stored_clients:
+                            saved_acct = acct_list[check_index];
+
+                            if saved_acct == account_no:
+                                duplicate = true;
+                            close
+
+                            check_index = check_index + 1;
+                        close
+
+                        if duplicate == true:
+                            show 'Account number already exists';
+                            show '\n';
+                        else:
+                            acct_list[stored_clients] = account_no;
+                            stored_clients = stored_clients + 1;
+                            valid_account = true;
+                        close
+                    close
+                else:
+                    show 'Account number must be exactly 5 digits';
+                    show '\n';
+                close
+            else:
+                show 'Account number must be exactly 5 digits';
+                show '\n';
+            close
+        close
+
+        trans_date = '';
+        valid_date = false;
+
+        while valid_date == false:
+            show 'Enter transaction date (DD/MM/YYYY): ';
+            trans_date = read;
+
+            date_arr = str_to_arr(trans_date);
+            date_len = length(date_arr);
+
+            if date_len != 10:
+                show 'Invalid date format. Use DD/MM/YYYY only';
+                show '\n';
+            else:
+                date_ok = true;
+
+                d0 = date_arr[0];
+                d1 = date_arr[1];
+                s2 = date_arr[2];
+                m3 = date_arr[3];
+                m4 = date_arr[4];
+                s5 = date_arr[5];
+                y6 = date_arr[6];
+                y7 = date_arr[7];
+                y8 = date_arr[8];
+                y9 = date_arr[9];
+
+                if is_digit(d0) == false:
+                    date_ok = false;
+                close
+                if is_digit(d1) == false:
+                    date_ok = false;
+                close
+                if compare(s2, '/') == false:
+                    date_ok = false;
+                close
+                if is_digit(m3) == false:
+                    date_ok = false;
+                close
+                if is_digit(m4) == false:
+                    date_ok = false;
+                close
+                if compare(s5, '/') == false:
+                    date_ok = false;
+                close
+                if is_digit(y6) == false:
+                    date_ok = false;
+                close
+                if is_digit(y7) == false:
+                    date_ok = false;
+                close
+                if is_digit(y8) == false:
+                    date_ok = false;
+                close
+                if is_digit(y9) == false:
+                    date_ok = false;
+                close
+
+                if date_ok == false:
+                    show 'Invalid date format. Use DD/MM/YYYY only';
+                    show '\n';
+                else:
+                    day_a = char_to_int(d0);
+                    day_b = char_to_int(d1);
+                    day = (day_a * 10) + day_b;
+
+                    month_a = char_to_int(m3);
+                    month_b = char_to_int(m4);
+                    month = (month_a * 10) + month_b;
+
+                    year_a = char_to_int(y6);
+                    year_b = char_to_int(y7);
+                    year_c = char_to_int(y8);
+                    year_d = char_to_int(y9);
+                    year = (year_a * 1000) + (year_b * 100) + (year_c * 10) + year_d;
+
+                    if day <= 0:
+                        show 'Invalid day';
+                        show '\n';
+                    elif day > 31:
+                        show 'Invalid day';
+                        show '\n';
+                    elif month <= 0:
+                        show 'Invalid month';
+                        show '\n';
+                    elif month > 12:
+                        show 'Invalid month';
+                        show '\n';
+                    elif year > 2026:
+                        show 'Invalid year';
+                        show '\n';
+                    else:
+                        valid_date = true;
+                    close
+                close
+            close
+        close
+
+        trxn_count = 0;
+        valid_trxn_count = false;
+
+        while valid_trxn_count == false:
+            show 'Enter number of transactions for this client (1 to 5): ';
+            trxn_input = read;
+            t_trxn = type(trxn_input);
+
+            if compare(t_trxn, 'int'):
+                trxn_count = trxn_input;
+
+                if trxn_count <= 0:
+                    show 'Number of transactions must be from 1 to 5 only';
+                    show '\n';
+                elif trxn_count > 5:
+                    show 'Number of transactions must be from 1 to 5 only';
+                    show '\n';
+                else:
+                    valid_trxn_count = true;
+                close
+
+            elif compare(t_trxn, 'str'):
+                if is_digit_text(trxn_input):
+                    trxn_count = int(trxn_input);
+
+                    if trxn_count <= 0:
+                        show 'Number of transactions must be from 1 to 5 only';
+                        show '\n';
+                    elif trxn_count > 5:
+                        show 'Number of transactions must be from 1 to 5 only';
+                        show '\n';
+                    else:
+                        valid_trxn_count = true;
+                    close
+                else:
+                    show 'Number of transactions must be from 1 to 5 only';
+                    show '\n';
+                close
+            else:
+                show 'Number of transactions must be from 1 to 5 only';
+                show '\n';
+            close
+        close
+
+        balance = 0;
+        total_deposit = 0;
+        total_withdraw = 0;
+        deposit_count = 0;
+        withdraw_count = 0;
+        inquiry_count = 0;
+
+        trxn_index = 1;
+
+        while trxn_index <= trxn_count:
+            valid_choice = false;
+
+            while valid_choice == false:
+                choice = 0;
+
+                show 'Choose transaction:\n';
+                show '1 - Deposit\n';
+                show '2 - Withdraw\n';
+                show '3 - Balance Inquiry\n';
+                show 'Enter choice: ';
+                choice_input = read;
+                t_choice = type(choice_input);
+
+                if compare(t_choice, 'int'):
+                    choice = choice_input;
+
+                elif compare(t_choice, 'str'):
+                    if is_digit_text(choice_input):
+                        choice = int(choice_input);
+                    else:
+                        choice = 0;
+                    close
+
+                else:
+                    choice = 0;
+                close
+
+                if choice == 1:
+                    retry_dep = true;
+
+                    while retry_dep == true:
+                        amount = 0;
+                        opt = 0;
+
+                        show 'Enter deposit amount: ';
+                        amount_input = read;
+                        t_amount = type(amount_input);
+
+                        if compare(t_amount, 'int'):
+                            amount = amount_input;
+                        elif compare(t_amount, 'str'):
+                            if is_digit_text(amount_input):
+                                amount = int(amount_input);
+                            else:
+                                amount = 0;
+                            close
+                        else:
+                            amount = 0;
+                        close
+
+                        if amount <= 0:
+                            show 'Invalid Input';
+                            show '\n';
+                        elif amount > 50000:
+                            show 'Deposit exceeds maximum limit of 50000';
+                            show '\n';
+                            show '1 - Enter another amount\n';
+                            show '2 - Cancel\n';
+                            show 'Enter choice: ';
+                            opt_input = read;
+                            t_opt = type(opt_input);
+
+                            if compare(t_opt, 'int'):
+                                opt = opt_input;
+                            elif compare(t_opt, 'str'):
+                                if is_digit_text(opt_input):
+                                    opt = int(opt_input);
+                                else:
+                                    opt = 0;
+                                close
+                            else:
+                                opt = 0;
+                            close
+
+                            if opt == 1:
+                                retry_dep = true;
+                            elif opt == 2:
+                                retry_dep = false;
+                            else:
+                                show 'Invalid Input';
+                                show '\n';
+                            close
+                        else:
+                            balance = balance + amount;
+                            total_deposit = total_deposit + amount;
+                            deposit_count = deposit_count + 1;
+                            show 'Deposit successful';
+                            show '\n';
+                            retry_dep = false;
+                        close
+                    close
+
+                    valid_choice = true;
+
+                elif choice == 2:
+                    retry_wd = true;
+
+                    while retry_wd == true:
+                        amount = 0;
+                        opt = 0;
+
+                        show 'Enter withdrawal amount: ';
+                        amount_input = read;
+                        t_amount = type(amount_input);
+
+                        if compare(t_amount, 'int'):
+                            amount = amount_input;
+                        elif compare(t_amount, 'str'):
+                            if is_digit_text(amount_input):
+                                amount = int(amount_input);
+                            else:
+                                amount = 0;
+                            close
+                        else:
+                            amount = 0;
+                        close
+
+                        if amount <= 0:
+                            show 'Invalid Input';
+                            show '\n';
+                        elif amount > 20000:
+                            show 'Withdrawal exceeds maximum limit of 20000';
+                            show '\n';
+                            show '1 - Enter another amount\n';
+                            show '2 - Cancel\n';
+                            show 'Enter choice: ';
+                            opt_input = read;
+                            t_opt = type(opt_input);
+
+                            if compare(t_opt, 'int'):
+                                opt = opt_input;
+                            elif compare(t_opt, 'str'):
+                                if is_digit_text(opt_input):
+                                    opt = int(opt_input);
+                                else:
+                                    opt = 0;
+                                close
+                            else:
+                                opt = 0;
+                            close
+
+                            if opt == 1:
+                                retry_wd = true;
+                            elif opt == 2:
+                                retry_wd = false;
+                            else:
+                                show 'Invalid Input';
+                                show '\n';
+                            close
+                        elif amount > balance:
+                            show 'Insufficient balance';
+                            show '\n';
+                            show '1 - Enter another amount\n';
+                            show '2 - Cancel\n';
+                            show 'Enter choice: ';
+                            opt_input = read;
+                            t_opt = type(opt_input);
+
+                            if compare(t_opt, 'int'):
+                                opt = opt_input;
+                            elif compare(t_opt, 'str'):
+                                if is_digit_text(opt_input):
+                                    opt = int(opt_input);
+                                else:
+                                    opt = 0;
+                                close
+                            else:
+                                opt = 0;
+                            close
+
+                            if opt == 1:
+                                retry_wd = true;
+                            elif opt == 2:
+                                retry_wd = false;
+                            else:
+                                show 'Invalid Input';
+                                show '\n';
+                            close
+                        else:
+                            balance = balance - amount;
+                            total_withdraw = total_withdraw + amount;
+                            withdraw_count = withdraw_count + 1;
+                            show 'Withdrawal successful';
+                            show '\n';
+                            retry_wd = false;
+                        close
+                    close
+
+                    valid_choice = true;
+
+                elif choice == 3:
+                    inquiry_count = inquiry_count + 1;
+                    show 'Current balance: ';
+                    show balance;
+                    show '\n';
+                    valid_choice = true;
+
+                else:
+                    show 'Invalid Input';
+                    show '\n';
+                close
+            close
+
+            trxn_index = trxn_index + 1;
+        close
+
+        show '--- Transaction Summary ---\n';
+        show 'Client name: ';
+        show client_name;
+        show '\n';
+
+        show 'Account number: ';
+        show account_no;
+        show '\n';
+
+        show 'Date: ';
+        show trans_date;
+        show '\n';
+
+        show 'Total deposit: ';
+        show total_deposit;
+        show '\n';
+
+        show 'Total withdrawal: ';
+        show total_withdraw;
+        show '\n';
+
+        show 'Final balance: ';
+        show balance;
+        show '\n';
+
+        show 'Deposit transactions: ';
+        show deposit_count;
+        show '\n';
+
+        show 'Withdrawal transactions: ';
+        show withdraw_count;
+        show '\n';
+
+        show 'Balance inquiries: ';
+        show inquiry_count;
+        show '\n';
+
+        client_index = client_index + 1;
+    close
+
+    valid_run = false;
+
+    while valid_run == false:
+        run = 0;
+
+        show 'All clients processed\n';
+        show '1 - Run Again\n';
+        show '2 - Exit\n';
+        show 'Enter choice: ';
+        run_input = read;
+        t_run = type(run_input);
+
+        if compare(t_run, 'int'):
+            run = run_input;
+        elif compare(t_run, 'str'):
+            if is_digit_text(run_input):
+                run = int(run_input);
+            else:
+                run = 0;
+            close
+        else:
+            run = 0;
+        close
+
+        if run == 1:
+            show '\n';
+            valid_run = true;
+        elif run == 2:
+            show 'Program terminated\n';
+            valid_run = true;
+        else:
+            show 'Invalid Input\n';
+        close
+    close
+close

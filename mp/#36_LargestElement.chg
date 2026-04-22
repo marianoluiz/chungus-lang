@@ -1,0 +1,171 @@
+fn get_max_recursive(idx, total, current_max):
+    result = current_max;
+    
+    if idx < total:
+        valid_e = false;
+        contender = 0;
+        
+        while !valid_e:
+            show ' > Enter element ';
+            show idx;
+
+            show ' : ';
+            
+            val_e = read;
+            t_e = type(val_e);
+            is_int_e = compare(t_e, 'int');
+            is_str_e = compare(t_e, 'str');
+
+            if is_int_e:
+                contender = val_e;
+                valid_e = true;
+            elif is_str_e:
+                len_e = length(val_e);
+                if len_e == 0:
+                    show ' [X] Error: Input cannot be blank.\n';
+                elif len_e > 0:
+                    show ' [X] Error: Letters are not allowed.\n';
+                close
+            elif !is_int_e:
+                show ' [X] Error: Unrecognized input format.\n';
+            close
+        close
+
+        new_max = current_max;
+        if contender > current_max:
+            new_max = contender;
+        close
+
+        next_idx = idx + 1;
+        result = get_max_recursive(next_idx, total, new_max);
+    close
+    
+    ret result;
+close
+
+app_open = true;
+
+while app_open:
+    show '\n------------------------------------\n';
+    show '      RECURSIVE ARRAY MAX FINDER    \n';
+    show '------------------------------------\n';
+    show '  [1] Find Largest Element\n';
+    show '  [2] Close Tool\n';
+    show ' --> Select option (1-2): ';
+
+    opt = read;
+    t_opt = type(opt);
+    is_opt_int = compare(t_opt, 'int');
+    is_opt_str = compare(t_opt, 'str');
+
+    if is_opt_int:
+        if opt == 1:
+            
+            valid_n = false;
+            n = 0;
+            
+            while !valid_n:
+                show '\n > Enter number of elements: ';
+                val_n = read;
+                t_n = type(val_n);
+                is_int_n = compare(t_n, 'int');
+                is_str_n = compare(t_n, 'str');
+
+                if is_int_n:
+                    if val_n <= 0:
+                        show ' [X] Error: Number of elements must be greater than 0.\n';
+                    elif val_n > 0:
+                        n = val_n;
+                        valid_n = true;
+                    close
+                elif is_str_n:
+                    len_n = length(val_n);
+                    if len_n == 0:
+                        show ' [X] Error: Input cannot be blank.\n';
+                    elif len_n > 0:
+                        show ' [X] Error: Letters are not allowed.\n';
+                    close
+                elif !is_int_n:
+                    show ' [X] Error: Unrecognized input format.\n';
+                close
+            close
+
+            show '\n  [ Populating Elements ]\n';
+            
+            valid_first = false;
+            first_element = 0;
+
+            while !valid_first:
+                show ' > Enter element 0 : ';
+                val_first = read;
+                t_first = type(val_first);
+                is_int_first = compare(t_first, 'int');
+                is_str_first = compare(t_first, 'str');
+
+                if is_int_first:
+                    first_element = val_first;
+                    valid_first = true;
+                elif is_str_first:
+                    len_first = length(val_first);
+                    if len_first == 0:
+                        show ' [X] Error: Input cannot be blank.\n';
+                    elif len_first > 0:
+                        show ' [X] Error: Letters are not allowed.\n';
+                    close
+                elif !is_int_first:
+                    show ' [X] Error: Unrecognized input format.\n';
+                close
+            close
+
+            largest = get_max_recursive(1, n, first_element);
+
+            show '\n  [ RESULTS ]\n';
+            show '  > Total Elements  : '; show n; show '\n';
+            show '  > Largest Element : '; show largest; show '\n';
+
+            waiting = true;
+            while waiting:
+                show '\n --> [ Enter 1 to return to Menu ] : ';
+                wait_opt = read;
+                t_wait = type(wait_opt);
+                is_wait_int = compare(t_wait, 'int');
+                is_w_str = compare(t_wait, 'str');
+
+                if is_wait_int:
+                    if wait_opt == 1:
+                        waiting = false;
+                    elif wait_opt != 1:
+                        show '\n [X] Error: Please enter exactly 1 to return.\n';
+                    close
+                elif is_w_str:
+                    len_w = length(wait_opt);
+                    if len_w == 0:
+                        show '\n [X] Error: Input cannot be blank.\n';
+                    elif len_w > 0:
+                        show '\n [X] Error: Letters are not allowed.\n';
+                    close
+                elif !is_wait_int:
+                    show '\n [X] Error: Invalid format.\n';
+                close
+            close
+
+        elif opt == 2:
+            show '\n Closing Tool. Goodbye!\n';
+            app_open = false;
+        elif opt > 2:
+            show '\n [X] Error: Invalid selection. Please enter 1 or 2.\n';
+        elif opt < 1:
+            show '\n [X] Error: Invalid selection. Please enter 1 or 2.\n';
+        close
+
+    elif is_opt_str:
+        len_opt = length(opt);
+        if len_opt == 0:
+            show '\n [X] Error: Menu input cannot be blank.\n';
+        elif len_opt > 0:
+            show '\n [X] Error: Please enter a number, not text.\n';
+        close
+    elif !is_opt_int:
+        show '\n [X] Error: Invalid input type.\n';
+    close
+close

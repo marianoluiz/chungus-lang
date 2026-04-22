@@ -1,0 +1,117 @@
+app_open = true;
+
+while app_open:
+    show '\n------------------------------------\n';
+    show '    EVEN SUM & ODD AVERAGE TOOL     \n';
+    show '------------------------------------\n';
+    show '  [1] Calculate from 1 to N\n';
+    show '  [2] Close Tool\n';
+    show ' --> Select option (1-2): ';
+
+    opt = read;
+    t_opt = type(opt);
+    is_opt_int = compare(t_opt, 'int');
+    is_opt_str = compare(t_opt, 'str');
+
+    if is_opt_int:
+        if opt == 1:
+            show '\n > Enter a positive integer for N: ';
+            
+            n = read;
+            t_n = type(n);
+            is_n_int = compare(t_n, 'int');
+            is_n_str = compare(t_n, 'str');
+
+            if is_n_int:
+                if n <= 0:
+                    show '\n [X] Error: N must be greater than 0.\n';
+                elif n > 0:
+                    i = 1;
+                    evenSum = 0;
+                    oddSum = 0;
+                    oddCount = 0;
+
+                    while i <= n:
+                        rem = i % 2;
+                        
+                        if rem == 0:
+                            evenSum = evenSum + i;
+                        elif rem != 0:
+                            oddSum = oddSum + i;
+                            oddCount = oddCount + 1;
+                        close
+                        
+                        i = i + 1;
+                    close
+
+                    avgOdd = oddSum / oddCount;
+
+                    show '\n  [ RESULTS ]\n';
+                    show '  > N value                : '; 
+                    show n; 
+                    show '\n';
+                    show '  > Sum of even numbers    : '; 
+                    show evenSum; 
+                    show '\n';
+                    show '  > Average of odd numbers : '; 
+                    show avgOdd; 
+                    show '\n';
+                close
+
+            elif is_n_str:
+                len_n = length(n);
+                if len_n == 0:
+                    show '\n [X] Error: Input cannot be blank.\n';
+                elif len_n > 0:
+                    show '\n [X] Error: Letters are not allowed. Enter a number.\n';
+                close
+            elif !is_n_int:
+                show '\n [X] Error: Unrecognized input format.\n';
+            close
+
+            waiting = true;
+            while waiting:
+                show '\n --> [ Enter 1 to return to Menu ] : ';
+                wait_opt = read;
+                t_wait = type(wait_opt);
+                is_wait_int = compare(t_wait, 'int');
+                is_w_str = compare(t_wait, 'str');
+
+                if is_wait_int:
+                    if wait_opt == 1:
+                        waiting = false;
+                    elif wait_opt != 1:
+                        show '\n [X] Error: Please enter exactly 1 to return.\n';
+                    close
+                elif is_w_str:
+                    len_w = length(wait_opt);
+                    if len_w == 0:
+                        show '\n [X] Error: Input cannot be blank.\n';
+                    elif len_w > 0:
+                        show '\n [X] Error: Letters are not allowed.\n';
+                    close
+                elif !is_wait_int:
+                    show '\n [X] Error: Invalid format.\n';
+                close
+            close
+
+        elif opt == 2:
+            show '\n Closing Tool. Goodbye!\n';
+            app_open = false;
+        elif opt > 2:
+            show '\n [X] Error: Invalid selection. Please enter 1 or 2.\n';
+        elif opt < 1:
+            show '\n [X] Error: Invalid selection. Please enter 1 or 2.\n';
+        close
+
+    elif is_opt_str:
+        len_opt = length(opt);
+        if len_opt == 0:
+            show '\n [X] Error: Menu input cannot be blank.\n';
+        elif len_opt > 0:
+            show '\n [X] Error: Please enter a number, not text.\n';
+        close
+    elif !is_opt_int:
+        show '\n [X] Error: Invalid input type.\n';
+    close
+close

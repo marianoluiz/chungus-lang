@@ -1,0 +1,239 @@
+app_open = true;
+arr = str_to_arr('');
+
+while app_open:
+    show '\n------------------------------------\n';
+    show '         WORD SORTER TOOL           \n';
+    show '------------------------------------\n';
+
+    valid_word = false;
+    word = '';
+
+    while !valid_word:
+        show ' > Enter a 5-letter word (lowercase a-z): ';
+        word = read;
+        t_word = type(word);
+        is_str = compare(t_word, 'str');
+
+        if !is_str:
+            show '\n [X] Error: Invalid input. Must be text.\n';
+        close
+
+        if is_str:
+            n = length(word);
+            
+            if n != 5:
+                show '\n [X] Error: Word must be exactly 5 letters long.\n';
+            elif n == 5:
+                arr = str_to_arr(word);
+                has_error = false;
+                k = 0;
+                
+                while k < 5:
+                    char_rank = 0;
+                    char_val = arr[k];
+                    
+                    if compare(char_val, 'a'): char_rank = 1; close
+                    if compare(char_val, 'b'): char_rank = 2; close
+                    if compare(char_val, 'c'): char_rank = 3; close
+                    if compare(char_val, 'd'): char_rank = 4; close
+                    if compare(char_val, 'e'): char_rank = 5; close
+                    if compare(char_val, 'f'): char_rank = 6; close
+                    if compare(char_val, 'g'): char_rank = 7; close
+                    if compare(char_val, 'h'): char_rank = 8; close
+                    if compare(char_val, 'i'): char_rank = 9; close
+                    if compare(char_val, 'j'): char_rank = 10; close
+                    if compare(char_val, 'k'): char_rank = 11; close
+                    if compare(char_val, 'l'): char_rank = 12; close
+                    if compare(char_val, 'm'): char_rank = 13; close
+                    if compare(char_val, 'n'): char_rank = 14; close
+                    if compare(char_val, 'o'): char_rank = 15; close
+                    if compare(char_val, 'p'): char_rank = 16; close
+                    if compare(char_val, 'q'): char_rank = 17; close
+                    if compare(char_val, 'r'): char_rank = 18; close
+                    if compare(char_val, 's'): char_rank = 19; close
+                    if compare(char_val, 't'): char_rank = 20; close
+                    if compare(char_val, 'u'): char_rank = 21; close
+                    if compare(char_val, 'v'): char_rank = 22; close
+                    if compare(char_val, 'w'): char_rank = 23; close
+                    if compare(char_val, 'x'): char_rank = 24; close
+                    if compare(char_val, 'y'): char_rank = 25; close
+                    if compare(char_val, 'z'): char_rank = 26; close
+                    
+                    if char_rank == 0:
+                        has_error = true;
+                    close
+                    
+                    k = k + 1;
+                close
+
+                if has_error:
+                    show '\n [X] Error: Please use lowercase letters (a-z) only. No symbols/spaces.\n';
+                elif !has_error:
+                    valid_word = true;
+                close
+            close
+        close
+    close
+
+    valid_order = false;
+    order_choice = 0;
+
+    while !valid_order:
+        show '\n  [ Sorting Order ]\n';
+        show '  [1] Ascending (a-z)\n';
+        show '  [2] Descending (z-a)\n';
+        show ' --> Select option (1-2): ';
+        
+        opt = read;
+        t_opt = type(opt);
+        is_int = compare(t_opt, 'int');
+
+        if !is_int:
+            show '\n [X] Error: Input must be a number.\n';
+        close
+
+        if is_int:
+            if opt == 1:
+                order_choice = 1;
+                valid_order = true;
+            elif opt == 2:
+                order_choice = 2;
+                valid_order = true;
+            elif opt > 2:
+                show '\n [X] Error: Please select 1 or 2.\n';
+            elif opt < 1:
+                show '\n [X] Error: Please select 1 or 2.\n';
+            close
+        close
+    close
+
+    i = 0;
+    while i < 4:
+        j = 0;
+        limit = 4 - i;
+        
+        while j < limit:
+            rank_j = 0;
+            rank_j1 = 0;
+            
+            val_j = arr[j];
+            val_j1 = arr[j + 1];
+
+            if compare(val_j, 'a'): rank_j = 1; close
+            if compare(val_j, 'b'): rank_j = 2; close
+            if compare(val_j, 'c'): rank_j = 3; close
+            if compare(val_j, 'd'): rank_j = 4; close
+            if compare(val_j, 'e'): rank_j = 5; close
+            if compare(val_j, 'f'): rank_j = 6; close
+            if compare(val_j, 'g'): rank_j = 7; close
+            if compare(val_j, 'h'): rank_j = 8; close
+            if compare(val_j, 'i'): rank_j = 9; close
+            if compare(val_j, 'j'): rank_j = 10; close
+            if compare(val_j, 'k'): rank_j = 11; close
+            if compare(val_j, 'l'): rank_j = 12; close
+            if compare(val_j, 'm'): rank_j = 13; close
+            if compare(val_j, 'n'): rank_j = 14; close
+            if compare(val_j, 'o'): rank_j = 15; close
+            if compare(val_j, 'p'): rank_j = 16; close
+            if compare(val_j, 'q'): rank_j = 17; close
+            if compare(val_j, 'r'): rank_j = 18; close
+            if compare(val_j, 's'): rank_j = 19; close
+            if compare(val_j, 't'): rank_j = 20; close
+            if compare(val_j, 'u'): rank_j = 21; close
+            if compare(val_j, 'v'): rank_j = 22; close
+            if compare(val_j, 'w'): rank_j = 23; close
+            if compare(val_j, 'x'): rank_j = 24; close
+            if compare(val_j, 'y'): rank_j = 25; close
+            if compare(val_j, 'z'): rank_j = 26; close
+
+            if compare(val_j1, 'a'): rank_j1 = 1; close
+            if compare(val_j1, 'b'): rank_j1 = 2; close
+            if compare(val_j1, 'c'): rank_j1 = 3; close
+            if compare(val_j1, 'd'): rank_j1 = 4; close
+            if compare(val_j1, 'e'): rank_j1 = 5; close
+            if compare(val_j1, 'f'): rank_j1 = 6; close
+            if compare(val_j1, 'g'): rank_j1 = 7; close
+            if compare(val_j1, 'h'): rank_j1 = 8; close
+            if compare(val_j1, 'i'): rank_j1 = 9; close
+            if compare(val_j1, 'j'): rank_j1 = 10; close
+            if compare(val_j1, 'k'): rank_j1 = 11; close
+            if compare(val_j1, 'l'): rank_j1 = 12; close
+            if compare(val_j1, 'm'): rank_j1 = 13; close
+            if compare(val_j1, 'n'): rank_j1 = 14; close
+            if compare(val_j1, 'o'): rank_j1 = 15; close
+            if compare(val_j1, 'p'): rank_j1 = 16; close
+            if compare(val_j1, 'q'): rank_j1 = 17; close
+            if compare(val_j1, 'r'): rank_j1 = 18; close
+            if compare(val_j1, 's'): rank_j1 = 19; close
+            if compare(val_j1, 't'): rank_j1 = 20; close
+            if compare(val_j1, 'u'): rank_j1 = 21; close
+            if compare(val_j1, 'v'): rank_j1 = 22; close
+            if compare(val_j1, 'w'): rank_j1 = 23; close
+            if compare(val_j1, 'x'): rank_j1 = 24; close
+            if compare(val_j1, 'y'): rank_j1 = 25; close
+            if compare(val_j1, 'z'): rank_j1 = 26; close
+
+            need_swap = false;
+            
+            if order_choice == 1:
+                if rank_j > rank_j1:
+                    need_swap = true;
+                close
+            elif order_choice == 2:
+                if rank_j < rank_j1:
+                    need_swap = true;
+                close
+            close
+
+            if need_swap:
+                temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            close
+
+            j = j + 1;
+        close
+        
+        i = i + 1;
+    close
+
+    sorted_word = arr_to_str(arr);
+    
+    show '\n  [ RESULTS ]\n';
+    show '  > Original : ';
+    show word;
+    show '\n  > Sorted   : ';
+    show sorted_word;
+    show '\n';
+
+    waiting = true;
+    while waiting:
+        show '\n  Do you want to sort another word?\n';
+        show '  [1] Yes\n';
+        show '  [2] No (Exit)\n';
+        show ' --> Select option (1-2): ';
+        
+        wait_opt = read;
+        t_wait = type(wait_opt);
+        is_w_int = compare(t_wait, 'int');
+
+        if !is_w_int:
+            show '\n [X] Error: Input must be a number.\n';
+        close
+
+        if is_w_int:
+            if wait_opt == 1:
+                waiting = false;
+            elif wait_opt == 2:
+                waiting = false;
+                app_open = false;
+                show '\n Closing Sorter Tool. Goodbye!\n';
+            elif wait_opt > 2:
+                show '\n [X] Error: Please select 1 or 2.\n';
+            elif wait_opt < 1:
+                show '\n [X] Error: Please select 1 or 2.\n';
+            close
+        close
+    close
+close

@@ -1,0 +1,215 @@
+fn read_number(prompt_text):
+    valid = 0;
+    res = 0;
+    while valid == 0:
+        show prompt_text;
+        raw = read;
+        raw_t = type(raw);
+        
+        is_int = compare(raw_t, 'int');
+        is_float = compare(raw_t, 'float');
+        
+        if is_int:
+            res = raw;
+            valid = 1;
+        elif is_float:
+            res = raw;
+            valid = 1;
+        else:
+            show '[ERROR] Invalid input! Please enter a numeric value.\n';
+        close
+    close
+    ret res;
+close
+
+# ---- Menu Validator for 1 or 2 ----
+fn read_choice(prompt_text):
+    valid = 0;
+    res = 0;
+    while valid == 0:
+        show prompt_text;
+        raw = read;
+        raw_t = type(raw);
+        
+        if compare(raw_t, 'int'):
+            if raw == 1: 
+                res = 1; 
+                valid = 1; 
+            elif raw == 2: 
+                res = 2; 
+                valid = 1; 
+            else: 
+                show '[ERROR] Please enter either 1 or 2.\n'; 
+            close
+        else:
+            show '[ERROR] Invalid input! Please enter a number.\n';
+        close
+    close
+    ret res;
+close
+
+# ---- Validate continue prompt ----
+fn read_continue():
+    valid = 0;
+    res = 0;
+    while valid == 0:
+        show '\nDo you want to sort another set of arrays? (1 = Yes / 0 = No): ';
+        raw = read;
+        raw_t = type(raw);
+        
+        if compare(raw_t, 'int'):
+            if raw == 1: 
+                res = 1; 
+                valid = 1; 
+            elif raw == 0: 
+                res = 0; 
+                valid = 1; 
+            else: 
+                show '[ERROR] Please enter 1 (Yes) or 0 (No).\n'; 
+            close
+        else:
+            show '[ERROR] Invalid input! Please enter a number.\n';
+        close
+    close
+    ret res;
+close
+
+# ========================
+#   MAIN PROGRAM
+# ========================
+
+# Global Array Declarations
+A:[5] = [];
+B:[5] = [];
+C:[10] = [];
+
+loop = 1;
+
+while loop == 1:
+    show ' <<<<CHUNGUS ARRAY SORTING TOOL>>>>\n';
+    
+    # --- Input for Array A ---
+    show '\n>>> Input for Array A <<<\n';
+    i = 0;
+    while i < 5:
+        show 'A['; show i; show '] ';
+        A[i] = read_number('-> ');
+        i = i + 1;
+    close
+    
+    # --- Input for Array B ---
+    show '\n>>> Input for Array B <<<\n';
+    i = 0;
+    while i < 5:
+        show 'B['; show i; show '] ';
+        B[i] = read_number('-> ');
+        i = i + 1;
+    close
+    
+    # --- Combine A and B into Array C ---
+    i = 0;
+    while i < 5:
+        C[i] = A[i];
+        offset = i + 5;
+        C[offset] = B[i];
+        i = i + 1;
+    close
+    
+    # --- User Selection: Order ---
+	show '\n';
+    show 'Select Sorting Order:\n';
+    show '[1] Ascending\n';
+    show '[2] Descending\n';
+    order_choice = read_choice('Choice: ');
+    
+    # --- User Selection: Technique ---
+	show '\n'; 
+    show 'Select Sorting Technique:\n';
+    show '[1] Bubble Sort\n';
+    show '[2] Balloon Sort\n';
+    technique = read_choice('Choice: ');
+    
+    # --- Inline Sorting Execution ---
+    if technique == 1:
+        show '\nYou chose Bubble Sort...\n';
+		show '\nDoing Bubble Sort Now...\n'; 
+        
+        i = 0;
+        n = 10;
+        while i < (n - 1):
+            j = 0;
+            limit = (n - 1) - i;
+            while j < limit:
+                j_next = j + 1;
+                
+                if order_choice == 1:
+                    # Ascending
+                    if C[j] > C[j_next]:
+                        temp = C[j];
+                        C[j] = C[j_next];
+                        C[j_next] = temp;
+                    close
+                elif order_choice == 2:
+                    # Descending
+                    if C[j] < C[j_next]:
+                        temp = C[j];
+                        C[j] = C[j_next];
+                        C[j_next] = temp;
+                    close
+                close
+                
+                j = j + 1;
+            close
+            i = i + 1;
+        close
+    
+    elif technique == 2:
+        show '\nYou Chose Balloon Sort...\n';
+		show '\nDoing Balloon Sort Now...\n'; 
+        
+        i = 0;
+        n = 10;
+        while i < (n - 1):
+            j = i + 1;
+            while j < n:
+                if order_choice == 1:
+                    # Ascending
+                    if C[i] > C[j]:
+                        temp = C[i];
+                        C[i] = C[j];
+                        C[j] = temp;
+                    close
+                elif order_choice == 2:
+                    # Descending
+                    if C[i] < C[j]:
+                        temp = C[i];
+                        C[i] = C[j];
+                        C[j] = temp;
+                    close
+                close
+                
+                j = j + 1;
+            close
+            i = i + 1;
+        close
+    close
+    
+    # --- Inline Print Array Result ---
+    show '\n[ ARRAY C (COMBINED & SORTED) ]\n';
+    show '[ ';
+    i = 0;
+    while i < 10:
+		c = C[i]; 
+        show c; 
+        if i < 9:
+            show ', ';
+        close
+        i = i + 1;
+    close
+    show ' ]\n';
+    
+    # --- Check to Loop or Exit ---
+    loop = read_continue();
+close
+
+show '\nProgram Exited. Goodbye!\n';

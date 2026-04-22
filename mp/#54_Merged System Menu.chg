@@ -1,0 +1,1248 @@
+fn is_digit(ch):
+    res = compare(ch, '0') or compare(ch, '1') or compare(ch, '2') or compare(ch, '3') or compare(ch, '4') or compare(ch, '5') or compare(ch, '6') or compare(ch, '7') or compare(ch, '8') or compare(ch, '9');
+    ret res;
+close
+
+fn is_upper(ch):
+    res = compare(ch, 'A') or compare(ch, 'B') or compare(ch, 'C') or compare(ch, 'D') or compare(ch, 'E') or compare(ch, 'F') or compare(ch, 'G') or compare(ch, 'H') or compare(ch, 'I') or compare(ch, 'J') or compare(ch, 'K') or compare(ch, 'L') or compare(ch, 'M') or compare(ch, 'N') or compare(ch, 'O') or compare(ch, 'P') or compare(ch, 'Q') or compare(ch, 'R') or compare(ch, 'S') or compare(ch, 'T') or compare(ch, 'U') or compare(ch, 'V') or compare(ch, 'W') or compare(ch, 'X') or compare(ch, 'Y') or compare(ch, 'Z');
+    ret res;
+close
+
+fn is_lower(ch):
+    res = compare(ch, 'a') or compare(ch, 'b') or compare(ch, 'c') or compare(ch, 'd') or compare(ch, 'e') or compare(ch, 'f') or compare(ch, 'g') or compare(ch, 'h') or compare(ch, 'i') or compare(ch, 'j') or compare(ch, 'k') or compare(ch, 'l') or compare(ch, 'm') or compare(ch, 'n') or compare(ch, 'o') or compare(ch, 'p') or compare(ch, 'q') or compare(ch, 'r') or compare(ch, 's') or compare(ch, 't') or compare(ch, 'u') or compare(ch, 'v') or compare(ch, 'w') or compare(ch, 'x') or compare(ch, 'y') or compare(ch, 'z');
+    ret res;
+close
+
+fn is_letter(ch):
+    res = is_upper(ch) or is_lower(ch);
+    ret res;
+close
+
+fn char_to_int(ch):
+    value = 0;
+    if compare(ch, '0'):
+        value = 0;
+    elif compare(ch, '1'):
+        value = 1;
+    elif compare(ch, '2'):
+        value = 2;
+    elif compare(ch, '3'):
+        value = 3;
+    elif compare(ch, '4'):
+        value = 4;
+    elif compare(ch, '5'):
+        value = 5;
+    elif compare(ch, '6'):
+        value = 6;
+    elif compare(ch, '7'):
+        value = 7;
+    elif compare(ch, '8'):
+        value = 8;
+    else:
+        value = 9;
+    close
+    ret value;
+close
+
+fn read_matrix_choice():
+    valid = 0;
+    result = 0;
+    while valid == 0:
+        show '\nSelect an option (1-4): ';
+        raw = read;
+        raw_t = type(raw);
+        
+        if compare(raw_t, 'int'):
+            if raw == 1:
+                result = 1;
+                valid = 1;
+            elif raw == 2:
+                result = 2;
+                valid = 1;
+            elif raw == 3:
+                result = 3;
+                valid = 1;
+            elif raw == 4:
+                result = 4;
+                valid = 1;
+            else:
+                show '[ERROR] Invalid option. Please enter 1, 2, 3, or 4.\n';
+            close
+        else:
+            show '[ERROR] Invalid input. Please enter a number.\n';
+        close
+    close
+    ret result;
+close
+
+fn read_continue():
+    valid = 0;
+    result = 0;
+    while valid == 0:
+        show '\nDo you want to continue? (1 = Yes / 0 = No): ';
+        raw = read;
+        raw_t = type(raw);
+        if compare(raw_t, 'int'):
+            if raw == 1:
+                result = 1;
+                valid = 1;
+            elif raw == 0:
+                result = 0;
+                valid = 1;
+            else:
+                show '[ERROR] Invalid option. Please enter 1 (Yes) or 0 (No).\n';
+            close
+        else:
+            show '[ERROR] Invalid input. Please enter a number.\n';
+        close
+    close
+    ret result;
+close
+
+fn read_number(label):
+    valid = 0;
+    res = 0;
+    while valid == 0:
+        show label;
+        raw = read;
+        raw_t = type(raw);
+        is_int = compare(raw_t, 'int');
+        is_float = compare(raw_t, 'float');
+        
+        if is_int:
+            res = float(raw);
+            valid = 1;
+        elif is_float:
+            res = float(raw);
+            valid = 1;
+        else:
+            show '[ERROR] Invalid input! Please enter a numeric value.\n';
+        close
+    close
+    ret res;
+close
+
+fn print_matrix(a00, a01, a10, a11):
+    show '[ '; show a00; show '  '; show a01; show ' ]\n';
+    show '[ '; show a10; show '  '; show a11; show ' ]\n';
+    ret 0;
+close
+
+fn matrix_addition():
+    show '\n--- MATRIX ADDITION (2x2) ---\n';
+    show 'Enter Matrix A:\n';
+    a00 = read_number('A[0][0]: ');
+    a01 = read_number('A[0][1]: ');
+    a10 = read_number('A[1][0]: ');
+    a11 = read_number('A[1][1]: ');
+    show '\nEnter Matrix B:\n';
+    b00 = read_number('B[0][0]: ');
+    b01 = read_number('B[0][1]: ');
+    b10 = read_number('B[1][0]: ');
+    b11 = read_number('B[1][1]: ');
+    r00 = a00 + b00;
+    r01 = a01 + b01;
+    r10 = a10 + b10;
+    r11 = a11 + b11;
+    show '\nMatrix A:\n';
+    print_matrix(a00, a01, a10, a11);
+    show '\nMatrix B:\n';
+    print_matrix(b00, b01, b10, b11);
+    show '\nResult (A + B):\n';
+    print_matrix(r00, r01, r10, r11);
+    ret 0;
+close
+
+fn matrix_multiplication():
+    show '\n--- MATRIX MULTIPLICATION (2x2) ---\n';
+    show 'Enter Matrix A:\n';
+    a00 = read_number('A[0][0]: ');
+    a01 = read_number('A[0][1]: ');
+    a10 = read_number('A[1][0]: ');
+    a11 = read_number('A[1][1]: ');
+    show '\nEnter Matrix B:\n';
+    b00 = read_number('B[0][0]: ');
+    b01 = read_number('B[0][1]: ');
+    b10 = read_number('B[1][0]: ');
+    b11 = read_number('B[1][1]: ');
+    r00 = a00 * b00 + a01 * b10;
+    r01 = a00 * b01 + a01 * b11;
+    r10 = a10 * b00 + a11 * b10;
+    r11 = a10 * b01 + a11 * b11;
+    show '\nMatrix A:\n';
+    print_matrix(a00, a01, a10, a11);
+    show '\nMatrix B:\n';
+    print_matrix(b00, b01, b10, b11);
+    show '\nResult (A x B):\n';
+    print_matrix(r00, r01, r10, r11);
+    ret 0;
+close
+
+fn matrix_transpose():
+    show '\n--- MATRIX TRANSPOSE (2x2) ---\n';
+    show 'Enter Matrix:\n';
+    m00 = read_number('M[0][0]: ');
+    m01 = read_number('M[0][1]: ');
+    m10 = read_number('M[1][0]: ');
+    m11 = read_number('M[1][1]: ');
+    t00 = m00;
+    t01 = m10;
+    t10 = m01;
+    t11 = m11;
+    show '\nOriginal Matrix:\n';
+    print_matrix(m00, m01, m10, m11);
+    show '\nTransposed Matrix:\n';
+    print_matrix(t00, t01, t10, t11);
+    ret 0;
+close
+
+fn show_matrix_menu():
+    show '\n============================\n';
+    show '   MATRIX OPERATIONS MENU\n';
+    show '============================\n';
+    show '[1] Matrix Addition\n';
+    show '[2] Matrix Multiplication\n';
+    show '[3] Matrix Transpose\n';
+    show '[4] Exit\n';
+    show '============================\n';
+    ret 0;
+close
+
+fn run_bank_system():
+    bank_run = 1;
+
+    while bank_run == 1:
+        acct_list:[5]=[];
+        stored_clients = 0;
+        valid_client_count = false;
+        client_count = 0;
+
+        while valid_client_count == false:
+            show 'Enter number of clients (1 to 5): ';
+            client_count_input = read;
+            t_client = type(client_count_input);
+
+            if compare(t_client, 'int'):
+                client_count = client_count_input;
+
+                if client_count <= 0:
+                    show 'Invalid Input\n';
+                elif client_count > 5:
+                    show 'Invalid Input\n';
+                else:
+                    valid_client_count = true;
+                close
+            else:
+                show 'Invalid Input\n';
+            close
+        close
+
+        client_index = 1;
+
+        while client_index <= client_count:
+            client_name = '';
+            valid_name = false;
+
+            while valid_name == false:
+                show 'Enter client name (letters and spaces only): ';
+                client_name = read;
+                t_name = type(client_name);
+
+                if compare(t_name, 'str'):
+                    name_arr = str_to_arr(client_name);
+                    name_len = length(name_arr);
+
+                    if name_len == 0:
+                        show 'Please enter letters and spaces only\n';
+                    else:
+                        idx = 0;
+                        name_ok = true;
+
+                        while idx < name_len:
+                            ch = name_arr[idx];
+
+                            if compare(ch, ' '):
+                                idx = idx + 1;
+                            else:
+                                if is_letter(ch) == false:
+                                    name_ok = false;
+                                    idx = name_len;
+                                else:
+                                    idx = idx + 1;
+                                close
+                            close
+                        close
+
+                        if name_ok == true:
+                            valid_name = true;
+                        else:
+                            show 'Please enter letters and spaces only\n';
+                        close
+                    close
+                else:
+                    show 'Please enter letters and spaces only\n';
+                close
+            close
+
+            valid_account = false;
+            account_no = 0;
+
+            while valid_account == false:
+                show 'Enter 5-digit account number: ';
+                account_input = read;
+                t_account = type(account_input);
+
+                if compare(t_account, 'int'):
+                    account_no = account_input;
+
+                    if account_no < 10000:
+                        show 'Account number must be exactly 5 digits\n';
+                    elif account_no > 99999:
+                        show 'Account number must be exactly 5 digits\n';
+                    else:
+                        duplicate = false;
+                        check_index = 0;
+
+                        while check_index < stored_clients:
+                            saved_acct = acct_list[check_index];
+
+                            if saved_acct == account_no:
+                                duplicate = true;
+                            close
+
+                            check_index = check_index + 1;
+                        close
+
+                        if duplicate == true:
+                            show 'Account number already exists\n';
+                        else:
+                            acct_list[stored_clients] = account_no;
+                            stored_clients = stored_clients + 1;
+                            valid_account = true;
+                        close
+                    close
+                else:
+                    show 'Account number must be exactly 5 digits\n';
+                close
+            close
+
+            trans_date = '';
+            valid_date = false;
+
+            while valid_date == false:
+                show 'Enter transaction date (DD/MM/YYYY): ';
+                trans_date = read;
+                t_date = type(trans_date);
+
+                if compare(t_date, 'str'):
+                    date_arr = str_to_arr(trans_date);
+                    date_len = length(date_arr);
+
+                    if date_len != 10:
+                        show 'Invalid date format. Use DD/MM/YYYY only\n';
+                    else:
+                        date_ok = true;
+                        d0 = date_arr[0]; d1 = date_arr[1]; s2 = date_arr[2];
+                        m3 = date_arr[3]; m4 = date_arr[4]; s5 = date_arr[5];
+                        y6 = date_arr[6]; y7 = date_arr[7]; y8 = date_arr[8]; y9 = date_arr[9];
+
+                        if is_digit(d0) == false: date_ok = false; close
+                        if is_digit(d1) == false: date_ok = false; close
+                        if compare(s2, '/') == false: date_ok = false; close
+                        if is_digit(m3) == false: date_ok = false; close
+                        if is_digit(m4) == false: date_ok = false; close
+                        if compare(s5, '/') == false: date_ok = false; close
+                        if is_digit(y6) == false: date_ok = false; close
+                        if is_digit(y7) == false: date_ok = false; close
+                        if is_digit(y8) == false: date_ok = false; close
+                        if is_digit(y9) == false: date_ok = false; close
+
+                        if date_ok == false:
+                            show 'Invalid date format. Use DD/MM/YYYY only\n';
+                        else:
+                            day_a = char_to_int(d0);
+                            day_b = char_to_int(d1);
+                            day = (day_a * 10) + day_b;
+
+                            month_a = char_to_int(m3);
+                            month_b = char_to_int(m4);
+                            month = (month_a * 10) + month_b;
+
+                            year_a = char_to_int(y6);
+                            year_b = char_to_int(y7);
+                            year_c = char_to_int(y8);
+                            year_d = char_to_int(y9);
+                            year = (year_a * 1000) + (year_b * 100) + (year_c * 10) + year_d;
+
+                            if day <= 0:
+                                show 'Invalid day\n';
+                            elif day > 31:
+                                show 'Invalid day\n';
+                            elif month <= 0:
+                                show 'Invalid month\n';
+                            elif month > 12:
+                                show 'Invalid month\n';
+                            elif year > 2026:
+                                show 'Invalid year\n';
+                            else:
+                                valid_date = true;
+                            close
+                        close
+                    close
+                else:
+                    show 'Invalid date format. Use DD/MM/YYYY only\n';
+                close
+            close
+
+            trxn_count = 0;
+            valid_trxn_count = false;
+
+            while valid_trxn_count == false:
+                show 'Enter number of transactions for this client (1 to 5): ';
+                trxn_input = read;
+                t_trxn = type(trxn_input);
+
+                if compare(t_trxn, 'int'):
+                    trxn_count = trxn_input;
+
+                    if trxn_count <= 0:
+                        show 'Number of transactions must be from 1 to 5 only\n';
+                    elif trxn_count > 5:
+                        show 'Number of transactions must be from 1 to 5 only\n';
+                    else:
+                        valid_trxn_count = true;
+                    close
+                else:
+                    show 'Number of transactions must be from 1 to 5 only\n';
+                close
+            close
+
+            balance = 0;
+            total_deposit = 0;
+            total_withdraw = 0;
+            deposit_count = 0;
+            withdraw_count = 0;
+            inquiry_count = 0;
+            trxn_index = 1;
+
+            while trxn_index <= trxn_count:
+                valid_choice = false;
+
+                while valid_choice == false:
+                    show 'Choose transaction:\n';
+                    show '1 - Deposit\n2 - Withdraw\n3 - Balance Inquiry\nEnter choice: ';
+                    choice_input = read;
+                    t_choice = type(choice_input);
+
+                    if compare(t_choice, 'int'):
+                        bc_choice = choice_input;
+
+                        if bc_choice == 1:
+                            retry_dep = true;
+
+                            while retry_dep == true:
+                                show 'Enter deposit amount: ';
+                                amount_input = read;
+                                t_amount = type(amount_input);
+
+                                if compare(t_amount, 'int'):
+                                    amount = amount_input;
+
+                                    if amount <= 0:
+                                        show 'Invalid Input\n';
+                                    elif amount > 50000:
+                                        show 'Deposit exceeds maximum limit of 50000\n';
+                                        show '1 - Enter another amount\n2 - Cancel\nEnter choice: ';
+                                        opt_input = read;
+                                        t_opt = type(opt_input);
+
+                                        if compare(t_opt, 'int'):
+                                            opt = opt_input;
+
+                                            if opt == 1:
+                                                retry_dep = true;
+                                            elif opt == 2:
+                                                retry_dep = false;
+                                            else:
+                                                show 'Invalid Input\n';
+                                            close
+                                        else:
+                                            show 'Invalid Input\n';
+                                        close
+                                    else:
+                                        balance = balance + amount;
+                                        total_deposit = total_deposit + amount;
+                                        deposit_count = deposit_count + 1;
+                                        show 'Deposit successful\n';
+                                        retry_dep = false;
+                                    close
+                                else:
+                                    show 'Invalid Input\n';
+                                close
+                            close
+
+                            valid_choice = true;
+
+                        elif bc_choice == 2:
+                            retry_wd = true;
+
+                            while retry_wd == true:
+                                show 'Enter withdrawal amount: ';
+                                amount_input = read;
+                                t_amount = type(amount_input);
+
+                                if compare(t_amount, 'int'):
+                                    amount = amount_input;
+
+                                    if amount <= 0:
+                                        show 'Invalid Input\n';
+                                    elif amount > 20000:
+                                        show 'Withdrawal exceeds maximum limit of 20000\n';
+                                        show '1 - Enter another amount\n2 - Cancel\nEnter choice: ';
+                                        opt_input = read;
+                                        t_opt = type(opt_input);
+
+                                        if compare(t_opt, 'int'):
+                                            opt = opt_input;
+
+                                            if opt == 1:
+                                                retry_wd = true;
+                                            elif opt == 2:
+                                                retry_wd = false;
+                                            else:
+                                                show 'Invalid Input\n';
+                                            close
+                                        else:
+                                            show 'Invalid Input\n';
+                                        close
+                                    elif amount > balance:
+                                        show 'Insufficient balance\n';
+                                        show '1 - Enter another amount\n2 - Cancel\nEnter choice: ';
+                                        opt_input = read;
+                                        t_opt = type(opt_input);
+
+                                        if compare(t_opt, 'int'):
+                                            opt = opt_input;
+
+                                            if opt == 1:
+                                                retry_wd = true;
+                                            elif opt == 2:
+                                                retry_wd = false;
+                                            else:
+                                                show 'Invalid Input\n';
+                                            close
+                                        else:
+                                            show 'Invalid Input\n';
+                                        close
+                                    else:
+                                        balance = balance - amount;
+                                        total_withdraw = total_withdraw + amount;
+                                        withdraw_count = withdraw_count + 1;
+                                        show 'Withdrawal successful\n';
+                                        retry_wd = false;
+                                    close
+                                else:
+                                    show 'Invalid Input\n';
+                                close
+                            close
+
+                            valid_choice = true;
+
+                        elif bc_choice == 3:
+                            inquiry_count = inquiry_count + 1;
+                            show 'Current balance: ';
+                            show balance;
+                            show '\n';
+                            valid_choice = true;
+                        else:
+                            show 'Invalid Input\n';
+                        close
+                    else:
+                        show 'Invalid Input\n';
+                    close
+                close
+
+                trxn_index = trxn_index + 1;
+            close
+
+            show '--- Transaction Summary ---\n';
+            show 'Client name: '; show client_name; show '\n';
+            show 'Account number: '; show account_no; show '\n';
+            show 'Date: '; show trans_date; show '\n';
+            show 'Total deposit: '; show total_deposit; show '\n';
+            show 'Total withdrawal: '; show total_withdraw; show '\n';
+            show 'Final balance: '; show balance; show '\n';
+            show 'Deposit transactions: '; show deposit_count; show '\n';
+            show 'Withdrawal transactions: '; show withdraw_count; show '\n';
+            show 'Balance inquiries: '; show inquiry_count; show '\n';
+
+            client_index = client_index + 1;
+        close
+
+        valid_run = false;
+
+        while valid_run == false:
+            show 'All clients processed\n';
+            show '1 - Run Again\n2 - Exit\nEnter choice: ';
+            run_input = read;
+            t_run = type(run_input);
+
+            if compare(t_run, 'int'):
+                bank_run = run_input;
+
+                if bank_run == 1:
+                    show '\n';
+                    valid_run = true;
+                elif bank_run == 2:
+                    show 'Program terminated\n';
+                    valid_run = true;
+                else:
+                    show 'Invalid Input\n';
+                close
+            else:
+                show 'Invalid Input\n';
+            close
+        close
+    close
+
+    ret 0;
+close
+
+fn run_jeep_system():
+    seats:[22] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    passenger_count = 0;
+    MAX_CAPACITY = 22;
+    jeep_running = true;
+    current_station = 2;
+
+    show '========================================\n';
+    show '     WELCOME TO THE CHUNGUS JEEPNEY     \n';
+    show '========================================\n';
+
+    while jeep_running == true:
+        if current_station == 1:
+            current_station = 2;
+        else:
+            current_station = 1;
+        close
+
+        show '\n========================================\n';
+        if current_station == 1:
+            show '>>> CURRENT LOCATION: LOADING AREA <<<\n';
+        elif current_station == 2:
+            show '>>> CURRENT LOCATION: UNLOADING AREA <<<\n';
+        close
+        show '========================================\n';
+
+        show '--- MENU ---\n';
+        show '[1] Load Passengers\n';
+        show '[2] Unload Passengers\n';
+        show '[3] Show Passenger Visuals\n';
+        show '[4] Exit\n';
+        show 'Choose an option: ';
+        choice_input = read;
+        t_choice = type(choice_input);
+        show '\n';
+
+        if compare(t_choice, 'int'):
+            jp_choice = choice_input;
+
+            if jp_choice == 1:
+                if current_station != 1:
+                    show '[ERROR] Invalid Action! You are currently at an Unloading Area. Wait for the next stop.\n';
+                else:
+                    vacant = MAX_CAPACITY - passenger_count;
+
+                    if vacant == 0:
+                        show '[ERROR] Jeep is at maximum capacity. No overloading allowed!\n';
+                    else:
+                        show 'Vacant seats: ';
+                        show vacant;
+                        show '\nHow many passengers to load? ';
+                        n_input = read;
+                        t_n = type(n_input);
+                        show '\n';
+
+                        if compare(t_n, 'int'):
+                            n = n_input;
+
+                            if n <= 0:
+                                show '[ERROR] Invalid input. Passenger count must be 1 or higher.\n';
+                            elif n > vacant:
+                                show '[ERROR] Cannot load ';
+                                show n;
+                                show ' passengers. Only ';
+                                show vacant;
+                                show ' seats available. No overloading!\n';
+                            else:
+                                loaded = 0;
+
+                                while loaded < n:
+                                    pax_num = loaded + 1;
+                                    show 'Assign seat for passenger ';
+                                    show pax_num;
+                                    show ' (0-21): ';
+                                    seat_input = read;
+                                    t_seat = type(seat_input);
+                                    show '\n';
+
+                                    if compare(t_seat, 'int'):
+                                        seat = seat_input;
+
+                                        if seat < 0:
+                                            show '[ERROR] Invalid seat. Cannot be a negative number.\n';
+                                        elif seat >= MAX_CAPACITY:
+                                            show '[ERROR] Invalid seat. Must be between 0 and 21.\n';
+                                        elif seats[seat] == 1:
+                                            show '[ERROR] Seat ';
+                                            show seat;
+                                            show ' is already occupied! Choose a different seat.\n';
+                                        else:
+                                            seats[seat] = 1;
+                                            passenger_count = passenger_count + 1;
+                                            loaded = loaded + 1;
+                                            show '[OK] Passenger seated at ';
+                                            show seat;
+                                            show '.\n';
+                                        close
+                                    else:
+                                        show '[ERROR] Invalid seat. Must be an integer from 0 to 21.\n';
+                                    close
+                                close
+
+                                show 'Loading successful. Total passengers: ';
+                                show passenger_count;
+                                show '\n';
+                            close
+                        else:
+                            show '[ERROR] Invalid input. Passenger count must be a number.\n';
+                        close
+                    close
+                close
+
+            elif jp_choice == 2:
+                if current_station != 2:
+                    show '[ERROR] Invalid Action! You are currently at a Loading Area. Wait for the next stop.\n';
+                else:
+                    if passenger_count == 0:
+                        show '[ERROR] Jeep is empty. No passengers to unload!\n';
+                    else:
+                        show 'Current passengers: ';
+                        show passenger_count;
+                        show '\nHow many passengers to unload? ';
+                        n_input = read;
+                        t_n = type(n_input);
+                        show '\n';
+
+                        if compare(t_n, 'int'):
+                            n = n_input;
+
+                            if n <= 0:
+                                show '[ERROR] Invalid input. Must be 1 or higher.\n';
+                            elif n > passenger_count:
+                                show '[ERROR] Invalid input. Cannot unload more than the current passengers.\n';
+                            else:
+                                unloaded = 0;
+
+                                while unloaded < n:
+                                    show 'Enter seat number to unload (0-21): ';
+                                    seat_input = read;
+                                    t_seat = type(seat_input);
+                                    show '\n';
+
+                                    if compare(t_seat, 'int'):
+                                        seat = seat_input;
+
+                                        if seat < 0:
+                                            show '[ERROR] Invalid seat. Cannot be negative.\n';
+                                        elif seat >= MAX_CAPACITY:
+                                            show '[ERROR] Invalid seat. Must be between 0 and 21.\n';
+                                        elif seats[seat] == 0:
+                                            show '[ERROR] Seat ';
+                                            show seat;
+                                            show ' is already empty! Cannot unload a ghost.\n';
+                                        else:
+                                            seats[seat] = 0;
+                                            passenger_count = passenger_count - 1;
+                                            unloaded = unloaded + 1;
+                                            show '[OK] Passenger unloaded from seat ';
+                                            show seat;
+                                            show '.\n';
+                                        close
+                                    else:
+                                        show '[ERROR] Invalid seat. Must be an integer from 0 to 21.\n';
+                                    close
+                                close
+
+                                show 'Unloading successful. Remaining passengers: ';
+                                show passenger_count;
+                                show '\n';
+                            close
+                        else:
+                            show '[ERROR] Invalid input. Must be a number.\n';
+                        close
+                    close
+                close
+
+            elif jp_choice == 3:
+                show '-- SEATING VISUALIZATION --\n';
+                show '[ ] = Vacant  |  [X] = Occupied\n\n';
+                row = 0;
+
+                while row <= 10:
+                    show 'Seat ';
+                    show row;
+
+                    if row < 10:
+                        show '  [';
+                    else:
+                        show ' [';
+                    close
+
+                    if seats[row] == 1:
+                        show 'X]   |   Seat ';
+                    else:
+                        show ' ]   |   Seat ';
+                    close
+
+                    right_seat = row + 11;
+                    show right_seat;
+
+                    if seats[right_seat] == 1:
+                        show ' [X]\n';
+                    else:
+                        show ' [ ]\n';
+                    close
+
+                    row = row + 1;
+                close
+
+                show '\nTotal Passengers: ';
+                show passenger_count;
+                show ' / 22\n';
+
+            elif jp_choice == 4:
+                show 'Terminating program. Thank you for using the Jeepney System!\n';
+                jeep_running = false;
+            else:
+                show '[ERROR] System unrecognized input. Please enter 1, 2, 3, or 4 only.\n';
+            close
+        else:
+            show '[ERROR] System unrecognized input. Please enter 1, 2, 3, or 4 only.\n';
+        close
+    close
+
+    ret 0;
+close
+
+fn run_matrix_system():
+    show '\nWelcome to Matrix Operations!\n';
+    mat_running = 1;
+    while mat_running == 1:
+        show_matrix_menu();
+        mat_choice = read_matrix_choice();
+        
+        if mat_choice == 1:
+            matrix_addition();
+        elif mat_choice == 2:
+            matrix_multiplication();
+        elif mat_choice == 3:
+            matrix_transpose();
+        elif mat_choice == 4:
+            show '\nGoodbye! Exiting Matrix Operations...\n';
+            mat_running = 0;
+        close
+        
+        if mat_running == 1:
+            cont = read_continue();
+            if cont == 0:
+                show '\nGoodbye! Exiting Matrix Operations...\n';
+                mat_running = 0;
+            close
+        close
+    close
+    ret 0;
+close
+
+fn run_student_system():
+    names:[100]   = [];
+    id_nums:[100] = [];
+    courses:[100] = [];
+    total_records = 0;
+    student_app_open = true;
+
+    while student_app_open:
+        show '\n+----------------------------------+\n';
+        show '|      STUDENT RECORDS SYSTEM      |\n';
+        show '+----------------------------------+\n';
+        show '|  [1] Add New Record              |\n';
+        show '|  [2] View All Records            |\n';
+        show '|  [3] Search for a Student        |\n';
+        show '|  [4] Update Record               |\n';
+        show '|  [5] Delete Record               |\n';
+        show '|  [6] Close System                |\n';
+        show '+----------------------------------+\n';
+        show ' --> Select an option (1-6): ';
+
+        user_input = read;
+        input_type = type(user_input);
+
+        if compare(input_type, 'int'):
+            opt = user_input;
+
+            if opt == 1:
+                if total_records >= 100:
+                    show '\n [X] System Full: Maximum of 100 records reached.\n';
+                else:
+                    show '\n---<< REGISTRATION FORM >>---\n';
+                    show ' > Name       : ';
+                    in_name   = read;
+                    type_name = type(in_name);
+                    name_ok   = compare(type_name, 'str');
+
+                    if name_ok:
+                        name_len = length(in_name);
+                        if name_len == 0:
+                            show '\n [X] Error: Name cannot be blank.\n';
+                        else:
+                            show ' > ID Number  : ';
+                            in_id   = read;
+                            type_id = type(in_id);
+                            id_ok   = compare(type_id, 'int');
+                            
+                            if id_ok:
+                                len_ok = 0;
+                                if in_id >= 100000000:
+                                    if in_id <= 999999999:
+                                        len_ok = 1;
+                                    close
+                                close
+
+                                if len_ok == 1:
+                                    has_dup = false;
+                                    i = 0;
+                                    while i < total_records:
+                                        curr_id = id_nums[i];
+                                        if curr_id == in_id:
+                                            has_dup = true;
+                                        close
+                                        i = i + 1;
+                                    close
+
+                                    if has_dup:
+                                        show '\n [X] Error: That ID number is already registered.\n';
+                                    else:
+                                        show '\n  [ Select Course ]\n';
+                                        show '  [1] BS Computer Science (BSCS)\n';
+                                        show '  [2] BS Information Technology (BSIT)\n';
+                                        show '  [3] BS Information Systems (BSIS)\n';
+                                        show '  [4] BS Computer Engineering (BSCpE)\n';
+                                        show '  [5] BS Civil Engineering (BSCE)\n';
+                                        show '  [6] BS Accountancy (BSA)\n';
+                                        show '  [7] BS Nursing (BSN)\n';
+                                        show '  [8] BA Communication (BAComm)\n';
+                                        show '  [9] OTHERS (Type your own course)\n';
+                                        show '  --> Select Course (1-9): ';
+
+                                        c_choice = read;
+                                        type_c   = type(c_choice);
+                                        c_ok     = compare(type_c, 'int');
+                                        course_finalized = false;
+                                        final_course = '';
+
+                                        if c_ok:
+                                            if c_choice == 1: final_course = 'BSCS'; course_finalized = true;
+                                            elif c_choice == 2: final_course = 'BSIT'; course_finalized = true;
+                                            elif c_choice == 3: final_course = 'BSIS'; course_finalized = true;
+                                            elif c_choice == 4: final_course = 'BSCpE'; course_finalized = true;
+                                            elif c_choice == 5: final_course = 'BSCE'; course_finalized = true;
+                                            elif c_choice == 6: final_course = 'BSA'; course_finalized = true;
+                                            elif c_choice == 7: final_course = 'BSN'; course_finalized = true;
+                                            elif c_choice == 8: final_course = 'BAComm'; course_finalized = true;
+                                            elif c_choice == 9:
+                                                show ' > Enter Custom Course: ';
+                                                manual_c = read;
+                                                type_mc  = type(manual_c);
+                                                mc_ok    = compare(type_mc, 'str');
+                                                if mc_ok:
+                                                    len_mc = length(manual_c);
+                                                    if len_mc == 0:
+                                                        show '\n [X] Error: Custom course cannot be blank.\n';
+                                                    else:
+                                                        final_course = manual_c;
+                                                        course_finalized = true;
+                                                    close
+                                                else:
+                                                    show '\n [X] Error: Course must be text.\n';
+                                                close
+                                            else:
+                                                show '\n [X] Error: Invalid selection. Please choose 1-9.\n';
+                                            close
+                                        else:
+                                            show '\n [X] Error: Input must be a number.\n';
+                                        close
+
+                                        if course_finalized:
+                                            names[total_records]   = in_name;
+                                            id_nums[total_records] = in_id;
+                                            courses[total_records] = final_course;
+                                            total_records = total_records + 1;
+                                            show '\n [V] Success: Student securely saved to the database!\n';
+                                        close
+                                    close
+                                else:
+                                    show '\n [X] Error: ID Number must be exactly 9 digits (e.g., 202400001).\n';
+                                close
+                            else:
+                                show '\n [X] Error: ID Number must be a pure integer.\n';
+                            close
+                        close
+                    else:
+                        show '\n [X] Error: Name input must be text.\n';
+                    close
+                close
+
+            elif opt == 2:
+                if total_records == 0:
+                    show '\n [!] The database is currently empty.\n';
+                else:
+                    show '\n+----------------------------------+\n';
+                    show '|          MASTER DATABASE         |\n';
+                    show '+----------------------------------+\n';
+                    show '  Total Registered: '; show total_records; show ' student/s\n';
+
+                    j = 0;
+                    while j < total_records:
+                        pos = j + 1;
+                        n_tmp = names[j]; id_tmp = id_nums[j]; c_tmp = courses[j];
+                        show '\n  [ Record #'; show pos; show ' ]\n';
+                        show '  > Name     : '; show n_tmp;
+                        show '\n  > ID No.   : '; show id_tmp;
+                        show '\n  > Course   : '; show c_tmp; show '\n';
+                        j = j + 1;
+                    close
+                close
+            
+            elif opt == 3:
+                if total_records == 0:
+                    show '\n [!] No records available to search.\n';
+                else:
+                    show '\n---<< STUDENT LOOKUP >>---\n';
+                    show ' > Enter ID Number to search: ';
+                    search_id = read; s_type = type(search_id);
+                    s_type_ok = compare(s_type, 'int');
+
+                    if s_type_ok:
+                        s_len_ok = 0;
+                        if search_id >= 100000000:
+                            if search_id <= 999999999: s_len_ok = 1; close
+                        close
+
+                        if s_len_ok == 1:
+                            match_found = false; target_idx = 0; k = 0;
+                            while k < total_records:
+                                curr_id = id_nums[k];
+                                if curr_id == search_id:
+                                    match_found = true; target_idx = k;
+                                close
+                                k = k + 1;
+                            close
+
+                            if match_found:
+                                f_name = names[target_idx]; f_id = id_nums[target_idx]; f_course = courses[target_idx];
+                                show '\n  [ MATCH FOUND ]\n';
+                                show '  > Name     : '; show f_name;
+                                show '\n  > ID No.   : '; show f_id;
+                                show '\n  > Course   : '; show f_course; show '\n';
+                            else:
+                                show '\n [X] Record not found in the database.\n';
+                            close
+                        else:
+                            show '\n [X] Error: ID Number must be exactly 9 digits.\n';
+                        close
+                    else:
+                        show '\n [X] Error: ID Number must be an integer.\n';
+                    close
+                close
+
+            elif opt == 4:
+                if total_records == 0:
+                    show '\n [!] No records available to edit.\n';
+                else:
+                    show '\n---<< UPDATE RECORD >>---\n';
+                    show ' > Enter ID Number to edit: ';
+                    target_id = read; t_type = type(target_id);
+                    t_type_ok = compare(t_type, 'int');
+
+                    if t_type_ok:
+                        t_len_ok = 0;
+                        if target_id >= 100000000:
+                            if target_id <= 999999999: t_len_ok = 1; close
+                        close
+
+                        if t_len_ok == 1:
+                            found_target = false; edit_idx = 0; m = 0;
+                            while m < total_records:
+                                curr_id = id_nums[m];
+                                if curr_id == target_id:
+                                    found_target = true; edit_idx = m;
+                                close
+                                m = m + 1;
+                            close
+
+                            if found_target:
+                                curr_n = names[edit_idx]; curr_c = courses[edit_idx];
+                                show '\n  [ CURRENT RECORD DETAILS ]\n';
+                                show '  > Name     : '; show curr_n;
+                                show '\n  > ID No.   : '; show target_id;
+                                show '\n  > Course   : '; show curr_c; show '\n';
+                                
+                                show '\n  What would you like to edit?\n';
+                                show '  [1] Edit Name Only\n  [2] Edit Course Only\n  [3] Cancel Update\n';
+                                show '  --> Select option (1-3): ';
+                                edit_opt = read; e_type = type(edit_opt); e_ok = compare(e_type, 'int');
+
+                                if e_ok:
+                                    if edit_opt == 1:
+                                        show ' > Enter New Name : ';
+                                        upd_name = read; type_uname = type(upd_name); uname_ok = compare(type_uname, 'str');
+                                        if uname_ok:
+                                            len_un = length(upd_name);
+                                            if len_un == 0: show '\n [X] Error: Name cannot be blank.\n';
+                                            else: names[edit_idx] = upd_name; show '\n [V] Success: Name updated successfully!\n'; close
+                                        else: show '\n [X] Error: Name input must be text.\n'; close
+
+                                    elif edit_opt == 2:
+                                        show '\n  [ Select New Course ]\n';
+                                        show '  [1] BSCS\n  [2] BSIT\n  [3] BSIS\n  [4] BSCpE\n  [5] BSCE\n  [6] BSA\n  [7] BSN\n  [8] BAComm\n  [9] OTHERS\n';
+                                        show '  --> Select Course (1-9): ';
+                                        ec_choice = read; type_ec = type(ec_choice); ec_ok = compare(type_ec, 'int');
+                                        ec_finalized = false; new_course = '';
+
+                                        if ec_ok:
+                                            if ec_choice == 1: new_course = 'BSCS'; ec_finalized = true;
+                                            elif ec_choice == 2: new_course = 'BSIT'; ec_finalized = true;
+                                            elif ec_choice == 3: new_course = 'BSIS'; ec_finalized = true;
+                                            elif ec_choice == 4: new_course = 'BSCpE'; ec_finalized = true;
+                                            elif ec_choice == 5: new_course = 'BSCE'; ec_finalized = true;
+                                            elif ec_choice == 6: new_course = 'BSA'; ec_finalized = true;
+                                            elif ec_choice == 7: new_course = 'BSN'; ec_finalized = true;
+                                            elif ec_choice == 8: new_course = 'BAComm'; ec_finalized = true;
+                                            elif ec_choice == 9:
+                                                show ' > Enter Custom Course: '; emanual_c = read; type_emc = type(emanual_c); emc_ok = compare(type_emc, 'str');
+                                                if emc_ok:
+                                                    len_emc = length(emanual_c);
+                                                    if len_emc == 0: show '\n [X] Error: Cannot be blank.\n';
+                                                    else: new_course = emanual_c; ec_finalized = true; close
+                                                else: show '\n [X] Error: Must be text.\n'; close
+                                            else: show '\n [X] Error: Choose 1-9.\n'; close
+                                        else: show '\n [X] Error: Input must be a number.\n'; close
+
+                                        if ec_finalized: courses[edit_idx] = new_course; show '\n [V] Success: Course updated successfully!\n'; close
+                                    elif edit_opt == 3: show '\n [!] Update cancelled.\n';
+                                    else: show '\n [X] Error: Invalid selection. Please choose 1, 2, or 3.\n'; close
+                                else: show '\n [X] Error: Input must be an integer.\n'; close
+                            else: show '\n [X] Record not found in the database.\n'; close
+                        else: show '\n [X] Error: ID Number must be exactly 9 digits.\n'; close
+                    else: show '\n [X] Error: ID Number must be an integer.\n'; close
+                close
+
+            elif opt == 5:
+                if total_records == 0:
+                    show '\n [!] No records available to delete.\n';
+                else:
+                    show '\n---<< DELETE RECORD >>---\n';
+                    show ' > Enter ID Number to delete: ';
+                    del_id = read; d_type = type(del_id); d_type_ok = compare(d_type, 'int');
+
+                    if d_type_ok:
+                        d_len_ok = 0;
+                        if del_id >= 100000000:
+                            if del_id <= 999999999: d_len_ok = 1; close
+                        close
+
+                        if d_len_ok == 1:
+                            will_delete = false; delete_idx = 0; p = 0;
+                            while p < total_records:
+                                curr_id = id_nums[p];
+                                if curr_id == del_id: will_delete = true; delete_idx = p; close
+                                p = p + 1;
+                            close
+
+                            if will_delete:
+                                show '\n [!] Are you sure you want to delete this record?\n';
+                                show '  [1] Yes, Delete it\n  [2] No, Cancel\n  --> Confirm (1-2): ';
+                                confirm_del = read;
+                                if confirm_del == 1:
+                                    limit = total_records - 1;
+                                    while delete_idx < limit:
+                                        next_val = delete_idx + 1;
+                                        shift_name = names[next_val]; shift_id = id_nums[next_val]; shift_course = courses[next_val];
+                                        names[delete_idx] = shift_name; id_nums[delete_idx] = shift_id; courses[delete_idx] = shift_course;
+                                        delete_idx = delete_idx + 1;
+                                    close
+                                    total_records = total_records - 1;
+                                    show '\n [V] Success: Student record has been deleted.\n';
+                                elif confirm_del == 2: show '\n [!] Deletion cancelled. The record is safe.\n';
+                                else: show '\n [X] Error: Invalid option. Deletion cancelled.\n'; close
+                            else: show '\n [X] Record not found in the database.\n'; close
+                        else: show '\n [X] Error: ID Number must be exactly 9 digits.\n'; close
+                    else: show '\n [X] Error: ID Number must be an integer.\n'; close
+                close
+
+            elif opt == 6:
+                show '\n Closing Student Records System. Goodbye!\n';
+                student_app_open = false;
+            else:
+                show '\n [X] Invalid selection. Please enter a number from 1 to 6.\n';
+            close
+        else:
+            show '\n [X] Invalid input. Please enter an integer.\n';
+        close
+
+        if student_app_open:
+            show '\n --> [ Press 1 and Enter to return to Main Menu ] : ';
+            wait_input = read;
+        close
+    close
+    ret 0;
+close
+
+master_running = true;
+
+while master_running:
+    show '\n========================================\n';
+    show '        CHUNGUS SYSTEM MENU        \n';
+    show '========================================\n';
+    show '[1] Bank Transaction System\n';
+    show '[2] Jeepney Passenger System\n';
+    show '[3] Matrix Operations System\n';
+    show '[4] Student Records System\n';
+    show '[5] Exit\n';
+    show '========================================\n';
+    show 'Select an application to launch (1-5): ';
+    
+    raw_choice = read;
+    c_type = type(raw_choice);
+    
+    if compare(c_type, 'int'):
+        main_choice = raw_choice;
+        
+        if main_choice == 1:
+            run_bank_system();
+        elif main_choice == 2:
+            run_jeep_system();
+        elif main_choice == 3:
+            run_matrix_system();
+        elif main_choice == 4:
+            run_student_system();
+        elif main_choice == 5:
+            show '\nExiting the CHUNGUS System.\n';
+            master_running = false;
+        else:
+            show '\n[ERROR] Invalid choice. Please select 1 through 5.\n';
+        close
+    else:
+        show '\n[ERROR] Invalid input type. Please enter a number.\n';
+    close
+close

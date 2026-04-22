@@ -1,0 +1,558 @@
+
+
+
+names:[100]   = [];
+id_nums:[100] = [];
+courses:[100] = [];
+
+total_records = 0;
+app_open      = true;
+
+
+while app_open:
+
+    show '\n+----------------------------------+\n';
+    show '|      STUDENT RECORDS SYSTEM      |\n';
+    show '+----------------------------------+\n';
+    show '|  [1] Add New Record              |\n';
+    show '|  [2] View All Records            |\n';
+    show '|  [3] Search for a Student        |\n';
+    show '|  [4] Update Record               |\n';
+    show '|  [5] Delete Record               |\n';
+    show '|  [6] Close System                |\n';
+    show '+----------------------------------+\n';
+    show ' --> Select an option (1-6): ';
+
+    user_input = read;
+    input_type = type(user_input);
+
+    if compare(input_type, 'int'):
+        
+        opt = user_input;
+
+        # --------------------------------------------------
+        #  [1] ADD NEW RECORD
+        # --------------------------------------------------
+        if opt == 1:
+
+            if total_records >= 100:
+                show '\n [X] System Full: Maximum of 100 records reached.\n';
+            else:
+                show '\n---<< REGISTRATION FORM >>---\n';
+
+                show ' > Name       : ';
+                in_name   = read;
+                type_name = type(in_name);
+                name_ok   = compare(type_name, 'str');
+
+                if name_ok:
+                    name_len = length(in_name);
+                    
+                    if name_len == 0:
+                        show '\n [X] Error: Name cannot be blank.\n';
+                    else:
+                        show ' > ID Number  : ';
+                        in_id   = read;
+                        type_id = type(in_id);
+                        id_ok   = compare(type_id, 'int');
+
+                        if id_ok:
+                            len_ok = 0;
+                            if in_id >= 100000000:
+                                if in_id <= 999999999:
+                                    len_ok = 1;
+                                close
+                            close
+
+                            if len_ok == 1:
+                                
+                                has_dup = false;
+                                i = 0;
+                                while i < total_records:
+                                    curr_id = id_nums[i];
+                                    if curr_id == in_id:
+                                        has_dup = true;
+                                    close
+                                    i = i + 1;
+                                close
+
+                                if has_dup:
+                                    show '\n [X] Error: That ID number is already registered.\n';
+                                else:
+                                    # HYBRID COURSE SELECTION
+                                    show '\n  [ Select Course ]\n';
+                                    show '  [1] BS Computer Science (BSCS)\n';
+                                    show '  [2] BS Information Technology (BSIT)\n';
+                                    show '  [3] BS Information Systems (BSIS)\n';
+                                    show '  [4] BS Computer Engineering (BSCpE)\n';
+                                    show '  [5] BS Civil Engineering (BSCE)\n';
+                                    show '  [6] BS Accountancy (BSA)\n';
+                                    show '  [7] BS Nursing (BSN)\n';
+                                    show '  [8] BA Communication (BAComm)\n';
+                                    show '  [9] OTHERS (Type your own course)\n';
+                                    show '  --> Select Course (1-9): ';
+
+                                    c_choice = read;
+                                    type_c   = type(c_choice);
+                                    c_ok     = compare(type_c, 'int');
+
+                                    course_finalized = false;
+                                    final_course = '';
+
+                                    if c_ok:
+                                        if c_choice == 1:
+                                            final_course = 'BSCS';
+                                            course_finalized = true;
+                                        elif c_choice == 2:
+                                            final_course = 'BSIT';
+                                            course_finalized = true;
+                                        elif c_choice == 3:
+                                            final_course = 'BSIS';
+                                            course_finalized = true;
+                                        elif c_choice == 4:
+                                            final_course = 'BSCpE';
+                                            course_finalized = true;
+                                        elif c_choice == 5:
+                                            final_course = 'BSCE';
+                                            course_finalized = true;
+                                        elif c_choice == 6:
+                                            final_course = 'BSA';
+                                            course_finalized = true;
+                                        elif c_choice == 7:
+                                            final_course = 'BSN';
+                                            course_finalized = true;
+                                        elif c_choice == 8:
+                                            final_course = 'BAComm';
+                                            course_finalized = true;
+                                        elif c_choice == 9:
+                                            show ' > Enter Custom Course: ';
+                                            manual_c = read;
+                                            type_mc  = type(manual_c);
+                                            mc_ok    = compare(type_mc, 'str');
+
+                                            if mc_ok:
+                                                len_mc = length(manual_c);
+                                                if len_mc == 0:
+                                                    show '\n [X] Error: Custom course cannot be blank.\n';
+                                                else:
+                                                    final_course = manual_c;
+                                                    course_finalized = true;
+                                                close
+                                            else:
+                                                show '\n [X] Error: Course must be text.\n';
+                                            close
+                                        else:
+                                            show '\n [X] Error: Invalid selection. Please choose 1-9.\n';
+                                        close
+                                    else:
+                                        show '\n [X] Error: Input must be a number.\n';
+                                    close
+
+                                    # IF EVERYTHING IS VALID, SAVE THE RECORD
+                                    if course_finalized:
+                                        names[total_records]   = in_name;
+                                        id_nums[total_records] = in_id;
+                                        courses[total_records] = final_course;
+                                        
+                                        total_records = total_records + 1;
+                                        show '\n [V] Success: Student securely saved to the database!\n';
+                                    close
+
+                                close
+                            else:
+                                show '\n [X] Error: ID Number must be exactly 9 digits (e.g., 202400001).\n';
+                            close
+                        else:
+                            show '\n [X] Error: ID Number must be a pure integer.\n';
+                        close
+                    close
+                else:
+                    show '\n [X] Error: Name input must be text.\n';
+                close
+            close
+
+        # --------------------------------------------------
+        #  [2] DISPLAY ALL RECORDS
+        # --------------------------------------------------
+        elif opt == 2:
+
+            if total_records == 0:
+                show '\n [!] The database is currently empty.\n';
+            else:
+                show '\n+----------------------------------+\n';
+                show '|          MASTER DATABASE         |\n';
+                show '+----------------------------------+\n';
+                show '  Total Registered: ';
+                show total_records;
+                show ' student/s\n';
+
+                j = 0;
+                while j < total_records:
+                    pos = j + 1;
+                    
+                    n_tmp = names[j];
+                    id_tmp = id_nums[j];
+                    c_tmp = courses[j];
+
+                    show '\n  [ Record #';
+                    show pos;
+                    show ' ]\n';
+                    show '  > Name     : ';
+                    show n_tmp;
+                    show '\n  > ID No.   : ';
+                    show id_tmp;
+                    show '\n  > Course   : ';
+                    show c_tmp;
+                    show '\n';
+                    
+                    j = j + 1;
+                close
+            close
+        
+        # --------------------------------------------------
+        #  [3] SEARCH RECORDS
+        # --------------------------------------------------
+        elif opt == 3:
+
+            if total_records == 0:
+                show '\n [!] No records available to search.\n';
+            else:
+                show '\n---<< STUDENT LOOKUP >>---\n';
+                show ' > Enter ID Number to search: ';
+
+                search_id = read;
+                s_type    = type(search_id);
+                s_type_ok = compare(s_type, 'int');
+
+                if s_type_ok:
+                    s_len_ok = 0;
+                    if search_id >= 100000000:
+                        if search_id <= 999999999:
+                            s_len_ok = 1;
+                        close
+                    close
+
+                    if s_len_ok == 1:
+                        match_found = false;
+                        target_idx  = 0;
+                        
+                        k = 0;
+                        while k < total_records:
+                            curr_id = id_nums[k];
+                            if curr_id == search_id:
+                                match_found = true;
+                                target_idx  = k;
+                            close
+                            k = k + 1;
+                        close
+
+                        if match_found:
+                            f_name   = names[target_idx];
+                            f_id     = id_nums[target_idx];
+                            f_course = courses[target_idx];
+
+                            show '\n  [ MATCH FOUND ]\n';
+                            show '  > Name     : ';
+                            show f_name;
+                            show '\n  > ID No.   : ';
+                            show f_id;
+                            show '\n  > Course   : ';
+                            show f_course;
+                            show '\n';
+                        else:
+                            show '\n [X] Record not found in the database.\n';
+                        close
+                    else:
+                        show '\n [X] Error: ID Number must be exactly 9 digits.\n';
+                    close
+                else:
+                    show '\n [X] Error: ID Number must be an integer.\n';
+                close
+            close
+
+        # --------------------------------------------------
+        #  [4] EDIT RECORD
+        # --------------------------------------------------
+        elif opt == 4:
+            
+            if total_records == 0:
+                show '\n [!] No records available to edit.\n';
+            else:
+                show '\n---<< UPDATE RECORD >>---\n';
+                show ' > Enter ID Number to edit: ';
+
+                target_id = read;
+                t_type    = type(target_id);
+                t_type_ok = compare(t_type, 'int');
+
+                if t_type_ok:
+                    t_len_ok = 0;
+                    if target_id >= 100000000:
+                        if target_id <= 999999999:
+                            t_len_ok = 1;
+                        close
+                    close
+
+                    if t_len_ok == 1:
+                        found_target = false;
+                        edit_idx     = 0;
+                        
+                        m = 0;
+                        while m < total_records:
+                            curr_id = id_nums[m];
+                            if curr_id == target_id:
+                                found_target = true;
+                                edit_idx     = m;
+                            close
+                            m = m + 1;
+                        close
+
+                        if found_target:
+                            curr_n = names[edit_idx];
+                            curr_c = courses[edit_idx];
+
+                            show '\n  [ CURRENT RECORD DETAILS ]\n';
+                            show '  > Name     : ';
+                            show curr_n;
+                            show '\n  > ID No.   : ';
+                            show target_id;
+                            show '\n  > Course   : ';
+                            show curr_c;
+                            show '\n';
+
+                            show '\n  What would you like to edit?\n';
+                            show '  [1] Edit Name Only\n';
+                            show '  [2] Edit Course Only\n';
+                            show '  [3] Cancel Update\n';
+                            show '  --> Select option (1-3): ';
+                            
+                            edit_opt = read;
+                            e_type   = type(edit_opt);
+                            e_ok     = compare(e_type, 'int');
+
+                            if e_ok:
+                                if edit_opt == 1:
+                                    show ' > Enter New Name : ';
+                                    upd_name   = read;
+                                    type_uname = type(upd_name);
+                                    uname_ok   = compare(type_uname, 'str');
+                                    
+                                    if uname_ok:
+                                        len_un = length(upd_name);
+                                        if len_un == 0:
+                                            show '\n [X] Error: Name cannot be blank.\n';
+                                        else:
+                                            names[edit_idx] = upd_name;
+                                            show '\n [V] Success: Name updated successfully!\n';
+                                        close
+                                    else:
+                                        show '\n [X] Error: Name input must be text.\n';
+                                    close
+
+                                elif edit_opt == 2:
+                                    show '\n  [ Select New Course ]\n';
+                                    show '  [1] BS Computer Science (BSCS)\n';
+                                    show '  [2] BS Information Technology (BSIT)\n';
+                                    show '  [3] BS Information Systems (BSIS)\n';
+                                    show '  [4] BS Computer Engineering (BSCpE)\n';
+                                    show '  [5] BS Civil Engineering (BSCE)\n';
+                                    show '  [6] BS Accountancy (BSA)\n';
+                                    show '  [7] BS Nursing (BSN)\n';
+                                    show '  [8] BA Communication (BAComm)\n';
+                                    show '  [9] OTHERS (Type your own course)\n';
+                                    show '  --> Select Course (1-9): ';
+
+                                    ec_choice = read;
+                                    type_ec   = type(ec_choice);
+                                    ec_ok     = compare(type_ec, 'int');
+
+                                    ec_finalized = false;
+                                    new_course = '';
+
+                                    if ec_ok:
+                                        if ec_choice == 1:
+                                            new_course = 'BSCS';
+                                            ec_finalized = true;
+                                        elif ec_choice == 2:
+                                            new_course = 'BSIT';
+                                            ec_finalized = true;
+                                        elif ec_choice == 3:
+                                            new_course = 'BSIS';
+                                            ec_finalized = true;
+                                        elif ec_choice == 4:
+                                            new_course = 'BSCpE';
+                                            ec_finalized = true;
+                                        elif ec_choice == 5:
+                                            new_course = 'BSCE';
+                                            ec_finalized = true;
+                                        elif ec_choice == 6:
+                                            new_course = 'BSA';
+                                            ec_finalized = true;
+                                        elif ec_choice == 7:
+                                            new_course = 'BSN';
+                                            ec_finalized = true;
+                                        elif ec_choice == 8:
+                                            new_course = 'BAComm';
+                                            ec_finalized = true;
+                                        elif ec_choice == 9:
+                                            show ' > Enter Custom Course: ';
+                                            emanual_c = read;
+                                            type_emc  = type(emanual_c);
+                                            emc_ok    = compare(type_emc, 'str');
+
+                                            if emc_ok:
+                                                len_emc = length(emanual_c);
+                                                if len_emc == 0:
+                                                    show '\n [X] Error: Custom course cannot be blank.\n';
+                                                else:
+                                                    new_course = emanual_c;
+                                                    ec_finalized = true;
+                                                close
+                                            else:
+                                                show '\n [X] Error: Course must be text.\n';
+                                            close
+                                        else:
+                                            show '\n [X] Error: Invalid selection. Please choose 1-9.\n';
+                                        close
+                                    else:
+                                        show '\n [X] Error: Input must be a number.\n';
+                                    close
+
+                                    if ec_finalized:
+                                        courses[edit_idx] = new_course;
+                                        show '\n [V] Success: Course updated successfully!\n';
+                                    close
+
+                                elif edit_opt == 3:
+                                    show '\n [!] Update cancelled.\n';
+
+                                else:
+                                    show '\n [X] Error: Invalid selection. Please choose 1, 2, or 3.\n';
+                                close
+
+                            else:
+                                show '\n [X] Error: Input must be an integer.\n';
+                            close
+
+                        else:
+                            show '\n [X] Record not found in the database.\n';
+                        close
+                    else:
+                        show '\n [X] Error: ID Number must be exactly 9 digits.\n';
+                    close
+                else:
+                    show '\n [X] Error: ID Number must be an integer.\n';
+                close
+            close
+
+        # --------------------------------------------------
+        #  [5] DELETE RECORD
+        # --------------------------------------------------
+        elif opt == 5:
+            
+            if total_records == 0:
+                show '\n [!] No records available to delete.\n';
+            else:
+                show '\n---<< DELETE RECORD >>---\n';
+                show ' > Enter ID Number to delete: ';
+
+                del_id   = read;
+                d_type   = type(del_id);
+                d_type_ok = compare(d_type, 'int');
+
+                if d_type_ok:
+                    d_len_ok = 0;
+                    if del_id >= 100000000:
+                        if del_id <= 999999999:
+                            d_len_ok = 1;
+                        close
+                    close
+
+                    if d_len_ok == 1:
+                        will_delete = false;
+                        delete_idx  = 0;
+                        
+                        p = 0;
+                        while p < total_records:
+                            curr_id = id_nums[p];
+                            if curr_id == del_id:
+                                will_delete = true;
+                                delete_idx  = p;
+                            close
+                            p = p + 1;
+                        close
+
+                        if will_delete:
+                            
+                            # CONFIRMATION HANDLER
+                            show '\n [!] Are you sure you want to delete this record?\n';
+                            show '  [1] Yes, Delete it\n';
+                            show '  [2] No, Cancel\n';
+                            show '  --> Confirm (1-2): ';
+                            confirm_del = read;
+                            
+                            if confirm_del == 1:
+                                limit = total_records - 1;
+                                
+                                # Shift arrays to cover the deleted index
+                                while delete_idx < limit:
+                                    next_val = delete_idx + 1;
+                                    
+                                    shift_name   = names[next_val];
+                                    shift_id     = id_nums[next_val];
+                                    shift_course = courses[next_val];
+
+                                    names[delete_idx]   = shift_name;
+                                    id_nums[delete_idx] = shift_id;
+                                    courses[delete_idx] = shift_course;
+                                    
+                                    delete_idx = delete_idx + 1;
+                                close
+                                
+                                total_records = total_records - 1;
+                                show '\n [V] Success: Student record has been deleted.\n';
+                            
+                            elif confirm_del == 2:
+                                show '\n [!] Deletion cancelled. The record is safe.\n';
+                            else:
+                                show '\n [X] Error: Invalid option. Deletion cancelled.\n';
+                            close
+
+                        else:
+                            show '\n [X] Record not found in the database.\n';
+                        close
+                    else:
+                        show '\n [X] Error: ID Number must be exactly 9 digits.\n';
+                    close
+                else:
+                    show '\n [X] Error: ID Number must be an integer.\n';
+                close
+            close
+
+        # --------------------------------------------------
+        #  [6] CLOSE RECORD
+        # --------------------------------------------------
+        elif opt == 6:
+            show '\n Closing Student Records System. Goodbye!\n';
+            app_open = false;
+
+        # --------------------------------------------------
+        #  INVALID OPTION
+        # --------------------------------------------------
+        else:
+            show '\n [X] Invalid selection. Please enter a number from 1 to 6.\n';
+        close
+
+    else:
+        show '\n [X] Invalid input. Please enter an integer.\n';
+    close
+
+    # --------------------------------------------------
+    #  WAIT-TO-CONTINUE HANDLER (SCREEN PAUSE)
+    # --------------------------------------------------
+    if app_open:
+        show '\n --> [ Press 1 and Enter to return to Main Menu ] : ';
+        wait_input = read;
+    close
+
+close

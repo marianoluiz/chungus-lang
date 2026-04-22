@@ -1,8 +1,0 @@
-show 'Enter first number: ';
-a = read;
-show 'Enter second number: ';
-b = read;
-
-prod = a * b;
-show 'The product is: ';
-show prod;

@@ -1,0 +1,111 @@
+app_open = true;
+
+while app_open:
+    show '\n------------------------------------\n';
+    show '      PALINDROME CHECKER TOOL       \n';
+    show '------------------------------------\n';
+    show '  [1] Check a Number\n';
+    show '  [2] Close Tool\n';
+    show '------------------------------------\n';
+    show ' --> Select option (1-2): ';
+
+    opt = read;
+    t_opt = type(opt);
+    is_opt_int = compare(t_opt, 'int');
+    is_opt_str = compare(t_opt, 'str');
+
+    if is_opt_int:
+        if opt == 1:
+            show '\n > Enter a positive integer: ';
+            
+            val = read;
+            t_val = type(val);
+            is_val_int = compare(t_val, 'int');
+            is_val_str = compare(t_val, 'str');
+
+            if is_val_int:
+                if val < 0:
+                    show '\n [X] Error: Negative numbers cannot be palindromes.\n';
+                else:
+                    original = val;
+                    reversed = 0;
+                    temp = original;
+
+                    while temp > 0:
+                        divided = temp // 10;
+                        multiply_back = divided * 10;
+                        digit = temp - multiply_back;
+
+                        reversed = (reversed * 10) + digit;
+                        temp = divided;
+                    close
+
+                    show '\n  [ RESULTS ]\n';
+                    show '  > Original : ';
+                    show original;
+                    show '\n  > Reversed : ';
+                    show reversed;
+                    show '\n';
+
+                    if original == reversed:
+                        show '  > Verdict  : This number IS a palindrome!\n';
+                    else:
+                        show '  > Verdict  : This number is NOT a palindrome.\n';
+                    close
+                close
+
+            elif is_val_str:
+                len_val = length(val);
+                if len_val == 0:
+                    show '\n [X] Error: Input cannot be blank.\n';
+                else:
+                    show '\n [X] Error: Invalid input. Please enter numbers only.\n';
+                close
+            else:
+                show '\n [X] Error: Unrecognized input format.\n';
+            close
+
+            waiting = true;
+            while waiting:
+                show '\n --> [ Enter 1 to return to Menu ] : ';
+                wait_opt = read;
+                t_wait = type(wait_opt);
+                is_wait_int = compare(t_wait, 'int');
+                is_w_str = compare(t_wait, 'str');
+
+                if is_wait_int:
+                    if wait_opt == 1:
+                        waiting = false;
+                    else:
+                        show '\n [X] Error: Please enter exactly 1 to return.\n';
+                    close
+                elif is_w_str:
+                    len_w = length(wait_opt);
+                    if len_w == 0:
+                        show '\n [X] Error: Input cannot be blank.\n';
+                    else:
+                        show '\n [X] Error: Letters are not allowed.\n';
+                    close
+                else:
+                    show '\n [X] Error: Invalid format.\n';
+                close
+            close
+
+        elif opt == 2:
+            show '\n Closing Palindrome Checker. Goodbye!\n';
+            app_open = false;
+        else:
+            show '\n [X] Error: Invalid selection. Please enter 1 or 2.\n';
+        close
+
+    elif is_opt_str:
+        len_opt = length(opt);
+        if len_opt == 0:
+            show '\n [X] Error: Menu input cannot be blank.\n';
+        else:
+            show '\n [X] Error: Please enter a number, not text.\n';
+        close
+    else:
+        show '\n [X] Error: Invalid input type.\n';
+    close
+close

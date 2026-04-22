@@ -1,0 +1,95 @@
+subjects:[4] = ['Math', 'Science', 'English', 'Filipino'];
+app_open = true;
+
+while app_open:
+    show '\n------------------------------------\n';
+    show '      STUDENT GRADE CALCULATOR      \n';
+    show '------------------------------------\n';
+
+    subj_idx = 0;
+
+    while subj_idx < 4:
+        current_sub = subjects[subj_idx];
+        
+        show '\n  [ Subject: ';
+        show current_sub;
+        show ' ]\n';
+        
+        total_score = 0;
+        quiz_idx = 1;
+
+        while quiz_idx <= 5:
+            show ' > Enter score for Quiz ';
+            show quiz_idx;
+            show ': ';
+
+            score_in = read;
+            t_score = type(score_in);
+            is_int = compare(t_score, 'int');
+            is_str = compare(t_score, 'str');
+
+            if is_int:
+                if score_in < 0:
+                    show ' [X] Error: Negative scores are not allowed.\n';
+                elif score_in >= 0:
+                    total_score = total_score + score_in;
+                    quiz_idx = quiz_idx + 1;
+                close
+            elif is_str:
+                len_score = length(score_in);
+                if len_score == 0:
+                    show ' [X] Error: Input cannot be blank.\n';
+                elif len_score > 0:
+                    show ' [X] Error: Letters are not allowed. Enter a number.\n';
+                close
+            elif !is_int:
+                show ' [X] Error: Unrecognized input format.\n';
+            close
+        close
+
+        average = total_score / 5;
+        show '\n  > Average for ';
+        show current_sub;
+        show ': ';
+        show average;
+        show '\n';
+
+        subj_idx = subj_idx + 1;
+    close
+
+    waiting = true;
+    while waiting:
+        show '\n------------------------------------\n';
+        show '  [1] Compute another student\n';
+        show '  [2] Exit Calculator\n';
+        show ' --> Select option (1-2): ';
+        
+        wait_opt = read;
+        t_wait = type(wait_opt);
+        is_w_int = compare(t_wait, 'int');
+        is_w_str = compare(t_wait, 'str');
+
+        if is_w_int:
+            if wait_opt == 1:
+                waiting = false;
+            elif wait_opt == 2:
+                waiting = false;
+                app_open = false;
+                show '\n Closing Grade Calculator. Goodbye!\n';
+            elif wait_opt > 2:
+                show '\n [X] Error: Please select 1 or 2.\n';
+            elif wait_opt < 1:
+                show '\n [X] Error: Please select 1 or 2.\n';
+            close
+        elif is_w_str:
+            len_w = length(wait_opt);
+            if len_w == 0:
+                show '\n [X] Error: Input cannot be blank.\n';
+            elif len_w > 0:
+                show '\n [X] Error: Letters are not allowed.\n';
+            close
+        elif !is_w_int:
+            show '\n [X] Error: Invalid format.\n';
+        close
+    
+close

@@ -1,0 +1,136 @@
+fn is_digit_text(text):
+    chars = str_to_arr(text);
+    len_text = length(chars);
+    valid = true;
+
+    if len_text == 0:
+        valid = false;
+    else:
+        for i in range(len_text):
+            ch = chars[i];
+
+            if compare(ch, '0') or compare(ch, '1') or compare(ch, '2') or compare(ch, '3') or compare(ch, '4') or compare(ch, '5') or compare(ch, '6') or compare(ch, '7') or compare(ch, '8') or compare(ch, '9'):
+                valid = valid and true;
+            else:
+                valid = false;
+            close
+        close
+    close
+
+    ret valid;
+close
+
+app_open = true;
+
+while app_open:
+    show '\n+----------------------------------+\n';
+    show '|        PASCALS TRIANGLE TOOL     |\n';
+    show '+----------------------------------+\n';
+    show '|  [1] Generate Pascals Triangle   |\n';
+    show '|  [2] Close Tool                  |\n';
+    show '+----------------------------------+\n';
+    show ' --> Select option (1-2): ';
+
+    opt_input = read;
+    t_opt = type(opt_input);
+    is_opt_int = compare(t_opt, 'int');
+
+    if is_opt_int:
+
+        if opt_input == 1:
+            show '\n > Enter the number of rows: ';
+            rows_input = read;
+            t_rows = type(rows_input);
+            valid_rows = false;
+            rows = 0;
+
+            if compare(t_rows, 'int'):
+                rows = rows_input;
+                valid_rows = true;
+
+            elif compare(t_rows, 'str'):
+                if is_digit_text(rows_input):
+                    rows = int(rows_input);
+                    valid_rows = true;
+                else:
+                    show '\n [X] Error: Please enter a positive number.\n';
+                close
+
+            else:
+                show '\n [X] Error: Please enter a positive number.\n';
+            close
+
+            if valid_rows:
+                if rows <= 0:
+                    show '\n [X] Error: Please enter a positive number.\n';
+                else:
+                    show '\n  [ SUCCESS ]\n';
+                    show '  > Pascals Triangle:\n\n';
+
+                    for line in range(rows):
+                        spaces = rows - line - 1;
+                        leading_spaces = spaces * 2;
+
+                        for s in range(leading_spaces):
+                            show ' ';
+                        close
+
+                        val = 1;
+                        num_elements = line + 1;
+
+                        for i in range(num_elements):
+                            show val;
+
+                            pad = 3;
+
+                            if val >= 10:
+                                pad = 2;
+                            close
+
+                            if val >= 100:
+                                pad = 1;
+                            close
+
+                            if val >= 1000:
+                                pad = 0;
+                            close
+
+                            for p in range(pad):
+                                show ' ';
+                            close
+
+                            num = line - i;
+                            den = i + 1;
+
+                            numerator = val * num;
+                            quotient = 0;
+
+                            while numerator >= den:
+                                numerator = numerator - den;
+                                quotient = quotient + 1;
+                            close
+
+                            val = quotient;
+                        close
+
+                        show '\n';
+                    close
+                close
+            close
+
+            show '\n --> [ Press 1 and Enter to return to Menu ] : ';
+            wait_input = read;
+
+        elif opt_input == 2:
+            show '\n Closing Pascals Triangle Tool. Goodbye!\n';
+            app_open = false;
+
+        else:
+            show '\n [X] Error: Invalid selection. Please enter 1 or 2.\n';
+        close
+
+    else:
+        show '\n [X] Error: Invalid input. Please enter an integer.\n';
+    close
+
+close

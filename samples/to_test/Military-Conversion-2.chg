@@ -1,0 +1,294 @@
+fn char_to_int(ch):
+    val = 0;
+
+    if compare(ch, '0'): val = 0;
+    elif compare(ch, '1'): val = 1;
+    elif compare(ch, '2'): val = 2;
+    elif compare(ch, '3'): val = 3;
+    elif compare(ch, '4'): val = 4;
+    elif compare(ch, '5'): val = 5;
+    elif compare(ch, '6'): val = 6;
+    elif compare(ch, '7'): val = 7;
+    elif compare(ch, '8'): val = 8;
+    else: val = 9;
+    close
+
+    ret val;
+close
+
+fn is_digit(ch):
+    res = compare(ch,'0') or compare(ch,'1') or compare(ch,'2') or compare(ch,'3') or compare(ch,'4') or compare(ch,'5') or compare(ch,'6') or compare(ch,'7') or compare(ch,'8') or compare(ch,'9');
+    ret res;
+close
+
+run = 1;
+
+while run == 1:
+
+    choice = 0;
+    ttype = 0;
+    valid_time = 0;
+
+    while valid_time == 0:
+
+        valid_menu = false;
+
+        while valid_menu == false:
+            show 'Choose Conversion:\n';
+            show '1 - Military to Standard\n';
+            show '2 - Standard to Military\n';
+            show 'Enter choice: ';
+            choice_input = read;
+
+            if compare(type(choice_input), 'int') == false:
+                show 'Invalid input. Enter number 1 or 2 only.\n';
+
+            else:
+                choice = choice_input;
+
+                if choice == 1 or choice == 2:
+                    valid_menu = true;
+                else:
+                    show 'Invalid choice. Enter 1 or 2 only.\n';
+                close
+            close
+        close
+
+        show 'Enter time (H:MM or HH:MM): ';
+        t_input = read;
+
+        if compare(type(t_input), 'str') == false:
+            show 'Invalid input. Time must be string.\n';
+
+        else:
+            arr = str_to_arr(t_input);
+            len_arr = length(arr);
+
+            parsed_ok = false;
+            hour = 0;
+            mins = 0;
+
+            if len_arr == 5:
+
+                h1 = arr[0]; h2 = arr[1];
+                colon = arr[2];
+                m1 = arr[3]; m2 = arr[4];
+
+                if compare(colon, ':') == false:
+                    show 'Invalid format\n';
+
+                elif is_digit(h1) == false or is_digit(h2) == false or is_digit(m1) == false or is_digit(m2) == false:
+                    show 'Invalid time input\n';
+
+                else:
+                    hour = (char_to_int(h1)*10) + char_to_int(h2);
+                    mins = (char_to_int(m1)*10) + char_to_int(m2);
+                    parsed_ok = true;
+                close
+
+            elif len_arr == 4:
+
+                h1 = arr[0];
+                colon = arr[1];
+                m1 = arr[2]; m2 = arr[3];
+
+                if compare(colon, ':') == false:
+                    show 'Invalid format\n';
+
+                elif is_digit(h1) == false or is_digit(m1) == false or is_digit(m2) == false:
+                    show 'Invalid time input\n';
+
+                else:
+                    hour = char_to_int(h1);
+                    mins = (char_to_int(m1)*10) + char_to_int(m2);
+                    parsed_ok = true;
+                close
+
+            else:
+                show 'Invalid format\n';
+            close
+
+            if parsed_ok == true:
+
+                if mins > 59:
+                    show 'Invalid minutes\n';
+
+                else:
+
+                    if choice == 1:
+
+                        if hour > 23:
+                            show 'Invalid hour\n';
+
+                        else:
+                            if hour == 0:
+                                show '12';
+                                show ':';
+                                if mins < 10:
+                                    show '0';
+                                close
+                                show mins;
+                                show ' AM\n';
+                            elif hour < 12:
+                                show hour;
+                                show ':';
+                                if mins < 10:
+                                    show '0';
+                                close
+                                show mins;
+                                show ' AM\n';
+                            elif hour == 12:
+                                show '12';
+                                show ':';
+                                if mins < 10:
+                                    show '0';
+                                close
+                                show mins;
+                                show ' PM\n';
+                            else:
+                                std = hour - 12;
+                                show std;
+                                show ':';
+                                if mins < 10:
+                                    show '0';
+                                close
+                                show mins;
+                                show ' PM\n';
+                            close
+
+                            valid_time = 1;
+                        close
+
+                    elif choice == 2:
+
+                        valid_type = false;
+
+                        while valid_type == false:
+                            show 'Enter type (1 = AM, 2 = PM): ';
+                            ttype_input = read;
+
+                            if compare(type(ttype_input), 'int') == false:
+                                show 'Invalid input. Enter 1 or 2 only.\n';
+
+                            else:
+                                ttype = ttype_input;
+
+                                if ttype == 1 or ttype == 2:
+                                    valid_type = true;
+                                else:
+                                    show 'Invalid type. Enter 1 or 2 only.\n';
+                                close
+                            close
+                        close
+
+                        if hour < 1 or hour > 12:
+                            show 'Invalid hour\n';
+
+                        else:
+                            if ttype == 1:
+                                if hour == 12:
+                                    show '0';
+                                    show ':';
+                                    if mins < 10:
+                                        show '0';
+                                    close
+                                    show mins;
+                                    show '\n';
+                                else:
+                                    show hour;
+                                    show ':';
+                                    if mins < 10:
+                                        show '0';
+                                    close
+                                    show mins;
+                                    show '\n';
+                                close
+                            else:
+                                if hour == 12:
+                                    show '12';
+                                    show ':';
+                                    if mins < 10:
+                                        show '0';
+                                    close
+                                    show mins;
+                                    show '\n';
+                                else:
+                                    mil = hour + 12;
+                                    show mil;
+                                    show ':';
+                                    if mins < 10:
+                                        show '0';
+                                    close
+                                    show mins;
+                                    show '\n';
+                                close
+                            close
+
+                            valid_time = 1;
+                        close
+                    close
+                close
+            close
+        close
+
+        if valid_time == 0:
+
+            valid_retry = false;
+
+            while valid_retry == false:
+                show '\n1 - Re-enter time\n';
+                show '2 - Exit\n';
+                show 'Enter choice: ';
+                retry_input = read;
+
+                if compare(type(retry_input), 'int') == false:
+                    show 'Invalid input. Enter 1 or 2 only.\n';
+
+                else:
+                    retry = retry_input;
+
+                    if retry == 1:
+                        valid_retry = true;
+                    elif retry == 2:
+                        run = 0;
+                        valid_time = 1;
+                        valid_retry = true;
+                    else:
+                        show 'Invalid choice. Enter 1 or 2 only.\n';
+                    close
+                close
+            close
+        close
+
+    close
+
+    if run == 1:
+
+        valid_run = false;
+
+        while valid_run == false:
+            show '\n1 - Do another conversion\n';
+            show '2 - Exit\n';
+            show 'Enter choice: ';
+            run_input = read;
+
+            if compare(type(run_input), 'int') == false:
+                show 'Invalid input. Enter 1 or 2 only.\n';
+
+            else:
+                run = run_input;
+
+                if run == 1 or run == 2:
+                    valid_run = true;
+                else:
+                    show 'Invalid choice. Enter 1 or 2 only.\n';
+                close
+            close
+        close
+
+        if run == 2:
+            show 'Program terminated\n';
+        close
+    close
+
+close

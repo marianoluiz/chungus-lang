@@ -1,0 +1,62 @@
+show 'MAIN MENU\n';
+
+validChoice = 0;
+choice = 0; 
+
+while (validChoice == 0):
+    show '[1] Phase 1: Text Input Mode\n';
+    show '[2] Phase 2: Number Input Mode\n';
+    show 'Choose an option (1 or 2): ';
+    
+    rawChoice = read;
+
+    # STEP 1: I-check muna natin kung number (int) ba yung tinype niya
+    if (compare(type(rawChoice), 'int') == 1):
+        # STEP 2: Kung number siya, i-check kung 1 o 2
+        if (rawChoice == 1):
+            choice = 1;
+            validChoice = 1;
+        elif (rawChoice == 2):
+            choice = 2;
+            validChoice = 1;
+        else:
+            show '\n[!] Invalid input. Please enter 1 or 2 only.\n\n';
+        close
+    else:
+        # Kung hindi siya number (ibig sabihin text tulad ng 'dawdwad'), dito siya babagsak
+        show '\n[!] Invalid input. Please enter 1 or 2 only.\n\n';
+    close
+close
+
+if (choice == 1):
+    show '\n[PHASE 1: TEXT INPUT MODE]\n';
+    stop1 = 0;
+    while (stop1 == 0):
+        show 'Input a character: ';
+        val1 = read;
+        
+        if (compare(type(val1), 'int') == 1):
+            show 'Number detected. Stopping Mode 1.\n';
+            stop1 = 1;
+        elif (compare(type(val1), 'float') == 1):
+            show 'Number detected. Stopping Mode 1.\n';
+            stop1 = 1;
+        close
+    close
+
+elif (choice == 2):
+    show '\n[PHASE 2: NUMBER INPUT MODE]\n';
+    stop2 = 0;
+    while (stop2 == 0):
+        show 'Input a number: ';
+        val2 = read;
+        
+        if (compare(type(val2), 'str') == 1):
+            show 'Character detected. Stopping Mode 2.\n';
+            stop2 = 1;
+        close
+    close
+close
+
+
+show '\nPROGRAM TERMINATED\n';
