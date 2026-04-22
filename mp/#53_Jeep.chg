@@ -1,0 +1,252 @@
+seats:[22] = [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+];
+
+passenger_count = 0;
+MAX_CAPACITY = 22;
+running = true;
+current_station = 2;
+
+show 'CHUNGUS JEEPNEY SYSTEM\n';
+
+while running == true:
+
+    if current_station == 1:
+        current_station = 2;
+    else:
+        current_station = 1;
+    close
+
+    if current_station == 1:
+        show '\nLocation: Loading Area\n';
+    elif current_station == 2:
+        show '\nLocation: Unloading Area\n';
+    close
+
+    valid_choice = false;
+    choice = 0;
+
+    while valid_choice == false:
+        show '\n[1] Load Passengers\n';
+        show '[2] Unload Passengers\n';
+        show '[3] Show Passenger Visuals\n';
+        show '[4] Exit\n';
+        show 'Choose an option: ';
+        choice_input = read;
+        t_choice = type(choice_input);
+        show '\n';
+
+        if compare(t_choice, 'int'):
+            choice = choice_input;
+
+            if choice >= 1 and choice <= 4:
+                valid_choice = true;
+            else:
+                show 'Error: Enter 1, 2, 3, or 4 only.\n';
+            close
+        else:
+            show 'Error: Input must be a whole number.\n';
+        close
+    close
+
+    if choice == 1:
+        if current_station != 1:
+            show 'Error: You are in the unloading area.\n';
+        else:
+            vacant = MAX_CAPACITY - passenger_count;
+
+            if vacant == 0:
+                show 'Error: Jeep is full.\n';
+            else:
+                show 'Vacant seats: ';
+                show vacant;
+                show '\n';
+
+                valid_n = false;
+                n = 0;
+
+                while valid_n == false:
+                    show 'How many passengers to load? ';
+                    n_input = read;
+                    t_n = type(n_input);
+                    show '\n';
+
+                    if compare(t_n, 'int'):
+                        n = n_input;
+
+                        if n <= 0:
+                            show 'Error: Passenger count must be at least 1.\n';
+                        elif n > vacant:
+                            show 'Error: Not enough vacant seats.\n';
+                        else:
+                            valid_n = true;
+                        close
+                    else:
+                        show 'Error: Input must be a whole number.\n';
+                    close
+                close
+
+                loaded = 0;
+
+                while loaded < n:
+                    valid_seat = false;
+                    seat = 0;
+
+                    while valid_seat == false:
+                        show 'Seat for passenger ';
+                        pax_num = loaded + 1;
+                        show pax_num;
+                        show ' (0-21): ';
+                        seat_input = read;
+                        t_seat = type(seat_input);
+                        show '\n';
+
+                        if compare(t_seat, 'int'):
+                            seat = seat_input;
+
+                            if seat < 0:
+                                show 'Error: Seat cannot be negative.\n';
+                            elif seat >= MAX_CAPACITY:
+                                show 'Error: Seat must be from 0 to 21.\n';
+                            elif seats[seat] == 1:
+                                show 'Error: Seat already occupied.\n';
+                            else:
+                                valid_seat = true;
+                            close
+                        else:
+                            show 'Error: Input must be a whole number.\n';
+                        close
+                    close
+
+                    seats[seat] = 1;
+                    passenger_count = passenger_count + 1;
+                    loaded = loaded + 1;
+                    show 'Passenger loaded.\n';
+                close
+
+                show 'Total passengers: ';
+                show passenger_count;
+                show '\n';
+            close
+        close
+
+    elif choice == 2:
+        if current_station != 2:
+            show 'Error: You are in the loading area.\n';
+        else:
+            if passenger_count == 0:
+                show 'Error: Jeep is empty.\n';
+            else:
+                show 'Current passengers: ';
+                show passenger_count;
+                show '\n';
+
+                valid_n = false;
+                n = 0;
+
+                while valid_n == false:
+                    show 'How many passengers to unload? ';
+                    n_input = read;
+                    t_n = type(n_input);
+                    show '\n';
+
+                    if compare(t_n, 'int'):
+                        n = n_input;
+
+                        if n <= 0:
+                            show 'Error: Input must be at least 1.\n';
+                        elif n > passenger_count:
+                            show 'Error: Cannot unload more than current passengers.\n';
+                        else:
+                            valid_n = true;
+                        close
+                    else:
+                        show 'Error: Input must be a whole number.\n';
+                    close
+                close
+
+                unloaded = 0;
+
+                while unloaded < n:
+                    valid_seat = false;
+                    seat = 0;
+
+                    while valid_seat == false:
+                        show 'Seat to unload (0-21): ';
+                        seat_input = read;
+                        t_seat = type(seat_input);
+                        show '\n';
+
+                        if compare(t_seat, 'int'):
+                            seat = seat_input;
+
+                            if seat < 0:
+                                show 'Error: Seat cannot be negative.\n';
+                            elif seat >= MAX_CAPACITY:
+                                show 'Error: Seat must be from 0 to 21.\n';
+                            elif seats[seat] == 0:
+                                show 'Error: Seat is already empty.\n';
+                            else:
+                                valid_seat = true;
+                            close
+                        else:
+                            show 'Error: Input must be a whole number.\n';
+                        close
+                    close
+
+                    seats[seat] = 0;
+                    passenger_count = passenger_count - 1;
+                    unloaded = unloaded + 1;
+                    show 'Passenger unloaded.\n';
+                close
+
+                show 'Remaining passengers: ';
+                show passenger_count;
+                show '\n';
+            close
+        close
+
+    elif choice == 3:
+        show 'Seats:\n';
+        show '[ ] = Vacant, [X] = Occupied\n\n';
+
+        row = 0;
+        while row <= 10:
+            show 'Seat ';
+            show row;
+
+            if row < 10:
+                show '  [';
+            else:
+                show ' [';
+            close
+
+            if seats[row] == 1:
+                show 'X]   |   Seat ';
+            else:
+                show ' ]   |   Seat ';
+            close
+
+            right_seat = row + 11;
+            show right_seat;
+
+            if seats[right_seat] == 1:
+                show ' [X]\n';
+            else:
+                show ' [ ]\n';
+            close
+
+            row = row + 1;
+        close
+
+        show '\nPassengers: ';
+        show passenger_count;
+        show ' / 22\n';
+
+    elif choice == 4:
+        show 'Program terminated.\n';
+        running = false;
+    close
+
+close

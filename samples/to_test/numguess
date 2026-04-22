@@ -1,0 +1,64 @@
+fn get_valid_guess():
+    valid = false;
+    val = 0;
+    
+    while valid == false:
+        show 'Enter your guess: ';
+        raw = read;
+        raw_t = type(raw);
+
+        if compare(raw_t, 'int'):
+            val = raw;
+            valid = true;
+        else:
+            show '[ERROR] Invalid input. Please enter a whole number.\n';
+        close
+    close
+    
+    ret val;
+close
+
+show '        NUMBER GUESSING GAME        \n';
+show 'I have chosen a number between 1 and 100.\n';
+show 'You have 5 attempts to guess.\n\n';
+
+secret_number = 42;
+max_attempts = 5;
+attempts_made = 0;
+has_won = false;
+
+while attempts_made < max_attempts:
+    
+    # Calculate and display remaining attempts
+    rem = max_attempts - attempts_made;
+    show 'Attempts remaining: ';
+    show rem;
+    show '\n';
+    
+    # Safely get the user's integer guess
+    guess = get_valid_guess();
+    attempts_made = attempts_made + 1;
+    
+    # Win Condition
+    if guess == secret_number:
+        has_won = true;
+        attempts_made = max_attempts; # Force the loop to end early
+        
+    # Hints
+    elif guess < secret_number:
+        show 'Hint: Your guess is too low!\n\n';
+    else:
+        show 'Hint: Your guess is too high!\n\n';
+    close
+close
+
+if has_won:
+    show 'WINNER! Congratulations, you correctly guessed the secret number: ';
+    show secret_number;
+    show '\n';
+else:
+    show 'GAME OVER! You ran out of attempts.\n';
+    show 'The secret number was: ';
+    show secret_number;
+    show '\n';
+close

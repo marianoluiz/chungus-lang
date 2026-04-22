@@ -1,0 +1,220 @@
+fn read_menu_choice():
+    valid = 0;
+    result = 0;
+    while valid == 0:
+        show '\nSelect an option (1-4): ';
+        raw = read;
+        raw_t = type(raw);
+        
+        # GATE 1: Is it an integer?
+        if compare(raw_t, 'int'):
+            
+            # GATE 2: Is it within range?
+            if raw == 1:
+                result = 1;
+                valid = 1;
+            elif raw == 2:
+                result = 2;
+                valid = 1;
+            elif raw == 3:
+                result = 3;
+                valid = 1;
+            elif raw == 4:
+                result = 4;
+                valid = 1;
+            else:
+                show '[ERROR] Invalid option. Please enter 1, 2, 3, or 4.\n';
+            close
+            
+        else:
+            show '[ERROR] Invalid input. Please enter a number.\n';
+        close
+    close
+    ret result;
+close
+
+# ---- Validate continue prompt using type() gate ----
+fn read_continue():
+    valid = 0;
+    result = 0;
+    while valid == 0:
+        show '\nDo you want to continue? (1 = Yes / 0 = No): ';
+        raw = read;
+        raw_t = type(raw);
+        
+        if compare(raw_t, 'int'):
+            if raw == 1:
+                result = 1;
+                valid = 1;
+            elif raw == 0:
+                result = 0;
+                valid = 1;
+            else:
+                show '[ERROR] Invalid option. Please enter 1 (Yes) or 0 (No).\n';
+            close
+        else:
+            show '[ERROR] Invalid input. Please enter a number.\n';
+        close
+    close
+    ret result;
+close
+
+# ---- Safely read matrix numbers using type() gate ----
+fn read_number(label):
+    valid = 0;
+    res = 0;
+    while valid == 0:
+        show label;
+        raw = read;
+        raw_t = type(raw);
+        
+        # We accept both 'int' and 'float' for matrix math
+        is_int = compare(raw_t, 'int');
+        is_float = compare(raw_t, 'float');
+        
+        if is_int:
+            res = float(raw);
+            valid = 1;
+        elif is_float:
+            res = float(raw);
+            valid = 1;
+        else:
+            show '[ERROR] Invalid input! Please enter a numeric value.\n';
+        close
+    close
+    ret res;
+close
+
+# ---- Helper: print a 2x2 matrix ----
+fn print_matrix(a00, a01, a10, a11):
+    show '[ '; show a00; show '  '; show a01; show ' ]\n';
+    show '[ '; show a10; show '  '; show a11; show ' ]\n';
+    ret 0;
+close
+
+# ---- Matrix Addition ----
+fn matrix_addition():
+    show '\n--- MATRIX ADDITION (2x2) ---\n';
+    show 'Enter Matrix A:\n';
+    a00 = read_number('A[0][0]: ');
+    a01 = read_number('A[0][1]: ');
+    a10 = read_number('A[1][0]: ');
+    a11 = read_number('A[1][1]: ');
+    
+    show '\nEnter Matrix B:\n';
+    b00 = read_number('B[0][0]: ');
+    b01 = read_number('B[0][1]: ');
+    b10 = read_number('B[1][0]: ');
+    b11 = read_number('B[1][1]: ');
+    
+    r00 = a00 + b00;
+    r01 = a01 + b01;
+    r10 = a10 + b10;
+    r11 = a11 + b11;
+    
+    show '\nMatrix A:\n';
+    print_matrix(a00, a01, a10, a11);
+    show '\nMatrix B:\n';
+    print_matrix(b00, b01, b10, b11);
+    show '\nResult (A + B):\n';
+    print_matrix(r00, r01, r10, r11);
+    ret 0;
+close
+
+# ---- Matrix Multiplication ----
+fn matrix_multiplication():
+    show '\n--- MATRIX MULTIPLICATION (2x2) ---\n';
+    show 'Enter Matrix A:\n';
+    a00 = read_number('A[0][0]: ');
+    a01 = read_number('A[0][1]: ');
+    a10 = read_number('A[1][0]: ');
+    a11 = read_number('A[1][1]: ');
+    
+    show '\nEnter Matrix B:\n';
+    b00 = read_number('B[0][0]: ');
+    b01 = read_number('B[0][1]: ');
+    b10 = read_number('B[1][0]: ');
+    b11 = read_number('B[1][1]: ');
+    
+    r00 = a00 * b00 + a01 * b10;
+    r01 = a00 * b01 + a01 * b11;
+    r10 = a10 * b00 + a11 * b10;
+    r11 = a10 * b01 + a11 * b11;
+    
+    show '\nMatrix A:\n';
+    print_matrix(a00, a01, a10, a11);
+    show '\nMatrix B:\n';
+    print_matrix(b00, b01, b10, b11);
+    show '\nResult (A x B):\n';
+    print_matrix(r00, r01, r10, r11);
+    ret 0;
+close
+
+# ---- Matrix Transpose ----
+fn matrix_transpose():
+    show '\n--- MATRIX TRANSPOSE (2x2) ---\n';
+    show 'Enter Matrix:\n';
+    m00 = read_number('M[0][0]: ');
+    m01 = read_number('M[0][1]: ');
+    m10 = read_number('M[1][0]: ');
+    m11 = read_number('M[1][1]: ');
+    
+    t00 = m00;
+    t01 = m10;
+    t10 = m01;
+    t11 = m11;
+    
+    show '\nOriginal Matrix:\n';
+    print_matrix(m00, m01, m10, m11);
+    show '\nTransposed Matrix:\n';
+    print_matrix(t00, t01, t10, t11);
+    ret 0;
+close
+
+# ---- Show Menu ----
+fn show_menu():
+    show '\n============================\n';
+    show '   MATRIX OPERATIONS MENU\n';
+    show '============================\n';
+    show '[1] Matrix Addition\n';
+    show '[2] Matrix Multiplication\n';
+    show '[3] Matrix Transpose\n';
+    show '[4] Exit\n';
+    show '============================\n';
+    ret 0;
+close
+
+# ========================
+#   MAIN PROGRAM
+# ========================
+
+show 'Welcome to Matrix Operations!\n';
+
+running = 1;
+
+while running == 1:
+    show_menu();
+    choice = read_menu_choice();
+    
+    if choice == 1:
+        matrix_addition();
+    elif choice == 2:
+        matrix_multiplication();
+    elif choice == 3:
+        matrix_transpose();
+    elif choice == 4:
+        show '\nGoodbye! Exiting program...\n';
+        running = 0;
+    close
+    
+    # Check if they want to continue only if they haven't chosen Exit
+    if running == 1:
+        cont = read_continue();
+        if cont == 0:
+            show '\nGoodbye! Exiting program...\n';
+            running = 0;
+        close
+    close
+close
+
+show 'Program ended.\n';

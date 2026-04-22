@@ -1,0 +1,71 @@
+show '========================================\n';
+show '       SYSTEM BOOT SEQUENCE STARTED     \n';
+show '========================================\n';
+
+show '\n[PHASE 1: TEXT INPUT MODE]\n';
+stop1 = false;
+
+while stop1 == false:
+    show 'Input a series of characters: ';
+    val1 = read;
+
+    if compare(type(val1), 'int'):
+        show 'Number detected. Stopping Mode 1.\n';
+        stop1 = true;
+    elif compare(type(val1), 'float'):
+        show 'Number detected. Stopping Mode 1.\n';
+        stop1 = true;
+    elif compare(type(val1), 'str'):
+        if length(val1) == 0:
+            show '[!] Error: Input cannot be empty.\n';
+        else:
+            show 'Valid character input accepted.\n';
+        close
+    else:
+        show '[!] Error: Invalid input.\n';
+    close
+close
+
+show '\n[PHASE 2: NUMBER INPUT MODE]\n';
+stop2 = false;
+
+while stop2 == false:
+    show 'Input a series of numbers: ';
+    val2 = read;
+
+    if compare(type(val2), 'str'):
+        show 'Character detected. Stopping Mode 2.\n';
+        stop2 = true;
+    elif compare(type(val2), 'int'):
+        show 'Valid number input accepted.\n';
+    elif compare(type(val2), 'float'):
+        show 'Valid number input accepted.\n';
+    else:
+        show '[!] Error: Invalid input.\n';
+    close
+close
+
+show '\n[PHASE 3: USERNAME REGISTRATION]\n';
+valid = 0;
+
+while valid == 0:
+    show 'Enter username (Minimum 8 characters): ';
+    user = read;
+
+    if compare(type(user), 'str'):
+        if length(user) == 0:
+            show '[!] Error: Username cannot be empty.\n\n';
+        elif length(user) < 8:
+            show '[!] Error: Username must be at least 8 characters long.\n\n';
+        else:
+            show '\n[+] Success: Username successfully registered!\n';
+            valid = 1;
+        close
+    else:
+        show '[!] Error: Username must be text.\n\n';
+    close
+close
+
+show '\n========================================\n';
+show '          ALL TASKS COMPLETED           \n';
+show '========================================\n';

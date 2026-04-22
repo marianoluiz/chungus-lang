@@ -1,0 +1,69 @@
+running = true;
+
+while running:
+    show 'ARITHMETIC OPERATIONS\n';
+    show '1 - Sum\n';
+    show '2 - Difference\n';
+    show '3 - Product\n';
+    show '4 - Quotient\n';
+    show '5 - Exit\n';
+    show '\nEnter your choice: ';
+
+    choice = read;
+    choice = int(choice);
+
+    if choice == 1:
+        show 'Enter first number: ';
+        a = read;
+        a = float(a);
+        show 'Enter second number: ';
+        b = read;
+        b = float(b);
+        result = a + b;
+        show '\nSum: \n';
+        show result;
+        show '\n';
+    elif choice == 2:
+        show 'Enter first number: ';
+        a = read;
+        a = float(a);
+        show 'Enter second number: ';
+        b = read;
+        b = float(b);
+        result = a - b;
+        show '\nDifference: \n';
+        show result;
+        show '\n';
+    elif choice == 3:
+        show 'Enter first number: ';
+        a = read;
+        a = float(a);
+        show 'Enter second number: ';
+        b = read;
+        b = float(b);
+        result = a * b;
+        show '\nProduct: \n';
+        show result;
+        show '\n';
+    elif choice == 4:
+        show 'Enter first number: ';
+        a = read;
+        a = float(a);
+        show 'Enter second number: ';
+        b = read;
+        b = float(b);
+        if b == 0:
+            show 'Error: Cannot divide by zero.\n';
+        else:
+            result = a / b;
+            show '\nQuotient: \n';
+            show result;
+            show '\n';
+        close
+    elif choice == 5:
+        show 'Exiting program.\n';
+        running = false;
+    else:
+        show 'Error: Invalid choice.\n';
+    close
+close

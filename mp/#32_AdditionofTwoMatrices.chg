@@ -1,0 +1,141 @@
+A:[5] = [];
+B:[5] = [];
+C:[5] = [];
+
+app_open = true;
+
+while app_open:
+    show '\n  ARRAY ADDITION TOOL\n';
+    show '  [1] Add Two Arrays\n';
+    show '  [2] Close Tool\n';
+    show ' --> Select option (1-2): ';
+
+    opt = read;
+    t_opt = type(opt);
+    is_opt_int = compare(t_opt, 'int');
+    is_opt_str = compare(t_opt, 'str');
+
+    if is_opt_int:
+        if opt == 1:
+            
+            show '\n  [ Input Array A ]\n';
+            count_a = 0;
+            while count_a < 5:
+                show ' > Enter element ';
+                pos_a = count_a + 1;
+                show pos_a;
+                show ' for Array A: ';
+
+                val_a = read;
+                t_a = type(val_a);
+                is_int_a = compare(t_a, 'int');
+                is_str_a = compare(t_a, 'str');
+
+                if is_int_a:
+                    A[count_a] = val_a;
+                    count_a = count_a + 1;
+                elif is_str_a:
+                    len_a = length(val_a);
+                    if len_a == 0:
+                        show ' [X] Error: Input cannot be blank.\n';
+                    else:
+                        show ' [X] Error: Letters are not allowed. Enter a number.\n';
+                    close
+                else:
+                    show ' [X] Error: Unrecognized input format.\n';
+                close
+            close
+
+            show '\n  [ Input Array B ]\n';
+            count_b = 0;
+            while count_b < 5:
+                show ' > Enter element ';
+                pos_b = count_b + 1;
+                show pos_b;
+                show ' for Array B: ';
+
+                val_b = read;
+                t_b = type(val_b);
+                is_int_b = compare(t_b, 'int');
+                is_str_b = compare(t_b, 'str');
+
+                if is_int_b:
+                    B[count_b] = val_b;
+                    count_b = count_b + 1;
+                elif is_str_b:
+                    len_b = length(val_b);
+                    if len_b == 0:
+                        show ' [X] Error: Input cannot be blank.\n';
+                    else:
+                        show ' [X] Error: Letters are not allowed. Enter a number.\n';
+                    close
+                else:
+                    show ' [X] Error: Unrecognized input format.\n';
+                close
+            close
+
+            show '\n  [ RESULTS: Array C = A + B ]\n';
+            count_c = 0;
+            while count_c < 5:
+                val_sum1 = A[count_c];
+                val_sum2 = B[count_c];
+                sum_res = val_sum1 + val_sum2;
+                C[count_c] = sum_res;
+
+                show ' > Index ';
+                show count_c;
+                show ' : ';
+                show val_sum1;
+                show ' + ';
+                show val_sum2;
+                show ' = ';
+                show sum_res;
+                show '\n';
+
+                count_c = count_c + 1;
+            close
+
+            waiting = true;
+            while waiting:
+                show '\n --> [ Enter 1 to return to Menu ] : ';
+                wait_opt = read;
+                t_wait = type(wait_opt);
+                is_wait_int = compare(t_wait, 'int');
+                is_w_str = compare(t_wait, 'str');
+
+                if is_wait_int:
+                    if wait_opt == 1:
+                        waiting = false;
+                    else:
+                        show '\n [X] Error: Please enter exactly 1 to return.\n';
+                    close
+                elif is_w_str:
+                    len_w = length(wait_opt);
+                    if len_w == 0:
+                        show '\n [X] Error: Input cannot be blank.\n';
+                    else:
+                        show '\n [X] Error: Letters are not allowed.\n';
+                    close
+                else:
+                    show '\n [X] Error: Invalid format.\n';
+                close
+            close
+
+        elif opt == 2:
+            show '\n Closing Array Addition Tool. Goodbye!\n';
+            app_open = false;
+        else:
+            show '\n [X] Error: Invalid selection. Please enter 1 or 2.\n';
+        close
+
+    elif is_opt_str:
+        len_opt = length(opt);
+        if len_opt == 0:
+            show '\n [X] Error: Menu input cannot be blank.\n';
+        else:
+            show '\n [X] Error: Please enter a number, not text.\n';
+        close
+    else:
+        show '\n [X] Error: Invalid input type.\n';
+    close
+close

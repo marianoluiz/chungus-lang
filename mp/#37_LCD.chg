@@ -1,0 +1,151 @@
+fn gcd(a, b):
+    result = a;
+    if b != 0:
+        rem = a % b;
+        result = gcd(b, rem);
+    close
+    ret result;
+close
+
+fn lcm(a, b):
+    ans = 0;
+    if a == 0:
+        ans = 0;
+    elif b == 0:
+        ans = 0;
+    elif a != 0:
+        div = gcd(a, b);
+        prod = a * b;
+        ans = prod // div;
+    close
+    ret ans;
+close
+
+app_open = true;
+
+while app_open:
+    show '\n------------------------------------\n';
+    show '        RECURSIVE LCM FINDER        \n';
+    show '------------------------------------\n';
+    show '  [1] Find LCM of two numbers\n';
+    show '  [2] Close Tool\n';
+    show ' --> Select option (1-2): ';
+
+    opt = read;
+    t_opt = type(opt);
+    is_opt_int = compare(t_opt, 'int');
+    is_opt_str = compare(t_opt, 'str');
+
+    if is_opt_int:
+        if opt == 1:
+            
+            n1_valid = false;
+            n1 = 0;
+            while !n1_valid:
+                show '\n > Enter the first positive integer: ';
+                val1 = read;
+                t_val1 = type(val1);
+                is_int1 = compare(t_val1, 'int');
+                is_str1 = compare(t_val1, 'str');
+
+                if is_int1:
+                    if val1 < 0:
+                        show ' [X] Error: Negative numbers are not supported.\n';
+                    elif val1 >= 0:
+                        n1 = val1;
+                        n1_valid = true;
+                    close
+                elif is_str1:
+                    len_v1 = length(val1);
+                    if len_v1 == 0:
+                        show ' [X] Error: Input cannot be blank.\n';
+                    elif len_v1 > 0:
+                        show ' [X] Error: Letters are not allowed.\n';
+                    close
+                elif !is_int1:
+                    show ' [X] Error: Unrecognized input format.\n';
+                close
+            close
+
+            n2_valid = false;
+            n2 = 0;
+            while !n2_valid:
+                show ' > Enter the second positive integer: ';
+                val2 = read;
+                t_val2 = type(val2);
+                is_int2 = compare(t_val2, 'int');
+                is_str2 = compare(t_val2, 'str');
+
+                if is_int2:
+                    if val2 < 0:
+                        show ' [X] Error: Negative numbers are not supported.\n';
+                    elif val2 >= 0:
+                        n2 = val2;
+                        n2_valid = true;
+                    close
+                elif is_str2:
+                    len_v2 = length(val2);
+                    if len_v2 == 0:
+                        show ' [X] Error: Input cannot be blank.\n';
+                    elif len_v2 > 0:
+                        show ' [X] Error: Letters are not allowed.\n';
+                    close
+                elif !is_int2:
+                    show ' [X] Error: Unrecognized input format.\n';
+                close
+            close
+
+            lcm_res = lcm(n1, n2);
+            
+            show '\n  [ RESULTS ]\n';
+            show '  > First Number  : '; show n1; show '\n';
+            show '  > Second Number : '; show n2; show '\n';
+            show '  > LCM           : '; show lcm_res; show '\n';
+
+            waiting = true;
+            while waiting:
+                show '\n --> [ Enter 1 to return to Menu ] : ';
+                wait_opt = read;
+                t_wait = type(wait_opt);
+                is_wait_int = compare(t_wait, 'int');
+                is_w_str = compare(t_wait, 'str');
+
+                if is_wait_int:
+                    if wait_opt == 1:
+                        waiting = false;
+                    elif wait_opt != 1:
+                        show '\n [X] Error: Please enter exactly 1 to return.\n';
+                    close
+                elif is_w_str:
+                    len_w = length(wait_opt);
+                    if len_w == 0:
+                        show '\n [X] Error: Input cannot be blank.\n';
+                    elif len_w > 0:
+                        show '\n [X] Error: Letters are not allowed.\n';
+                    close
+                elif !is_wait_int:
+                    show '\n [X] Error: Invalid format.\n';
+                close
+            close
+
+        elif opt == 2:
+            show '\n Closing Tool. Goodbye!\n';
+            app_open = false;
+        elif opt > 2:
+            show '\n [X] Error: Invalid selection. Please enter 1 or 2.\n';
+        elif opt < 1:
+            show '\n [X] Error: Invalid selection. Please enter 1 or 2.\n';
+        close
+
+    elif is_opt_str:
+        len_opt = length(opt);
+        if len_opt == 0:
+            show '\n [X] Error: Menu input cannot be blank.\n';
+        elif len_opt > 0:
+            show '\n [X] Error: Please enter 
+a number, not text.\n';
+        close
+    elif !is_opt_int:
+        show '\n [X] Error: Invalid input type.\n';
+    close1
+close

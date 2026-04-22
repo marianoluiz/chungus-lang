@@ -1,0 +1,69 @@
+app_open = true;
+
+while app_open:
+    show '\nSTRING REVERSER TOOL\n';
+    show '[1] Reverse a String\n';
+    show '[2] Close Tool\n';
+
+    valid_opt = false;
+    opt_input = 0;
+
+    while valid_opt == false:
+        show 'Select option (1-2): ';
+        raw_opt = read;
+        t_opt = type(raw_opt);
+
+        if compare(t_opt, 'int'):
+            if raw_opt == 1:
+                opt_input = 1;
+                valid_opt = true;
+            elif raw_opt == 2:
+                opt_input = 2;
+                valid_opt = true;
+            else:
+                show 'Error: Please enter 1 or 2 only.\n';
+            close
+        else:
+            show 'Error: Please enter 1 or 2 only.\n';
+        close
+    close
+
+    if opt_input == 1:
+        show '\nEnter text: ';
+        input_str = read;
+        t_input = type(input_str);
+
+        if compare(t_input, 'str'):
+            len_input = length(input_str);
+
+            if len_input == 0:
+                show 'Error: Input cannot be blank.\n';
+            else:
+                chars = str_to_arr(input_str);
+
+                show '\nOriginal: ';
+                show input_str;
+                show '\nReversed: ';
+
+                i = len_input - 1;
+                while i >= 0:
+                    curr_char = chars[i];
+                    show curr_char;
+                    i = i - 1;
+                close
+
+                show '\n';
+            close
+        else:
+            show 'Error: Please enter valid text only.\n';
+        close
+
+        show '\nPress 1 and Enter to return to menu: ';
+        wait_input = read;
+
+    elif opt_input == 2:
+        show '\nClosing String Reverser Tool.\n';
+        app_open = false;
+    close
+
+close

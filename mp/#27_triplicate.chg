@@ -1,30 +1,52 @@
 numbers:[100] = []; 
 count = 0;
-triple_duplicate_found = false;
+app_open = true;
 
-while !triple_duplicate_found:
-    show 'Enter a number: ';
+while app_open:
+    show '\n > Enter a number: ';
+    
     current_input = read;
-    val = int(current_input);
+    t_input = type(current_input);
+    is_int = compare(t_input, 'int');
     
-    occurrence_count = 0;
-    i = 0;
-    while i < count:
-        existing_val = numbers[i];
-        if val == existing_val:
-            occurrence_count = occurrence_count + 1;
+    if is_int:
+        occurrence_count = 0;
+        i = 0;
+        while i < count:
+            existing_val = numbers[i];
+            if current_input == existing_val:
+                occurrence_count = occurrence_count + 1;
+            close
+            i = i + 1;
         close
-        i = i + 1;
-    close
-    
-    if occurrence_count >= 2:
-        triple_duplicate_found = true;
-    close
-
-    if !triple_duplicate_found:
-        numbers[count] = val;
-        count = count + 1;
+        
+        if occurrence_count >= 2:
+            show '\n  [ STOP ]\n';
+            show '  > Triplicate detected for number: ';
+            show current_input;
+            show '\n  > Program stopped.\n';
+            app_open = false;
+        else:
+            if count >= 100:
+                show '\n [X] Error: Memory limit reached (100 numbers). Stopping program.\n';
+                app_open = false;
+            else:
+                numbers[count] = current_input;
+                count = count + 1;
+            close
+        close
+        
+    else:
+        is_str = compare(t_input, 'str');
+        if is_str:
+            len_input = length(current_input);
+            if len_input == 0:
+                show '\n [X] Error: Input cannot be blank.\n';
+            else:
+                show '\n [X] Error: Invalid input. Text is not allowed.\n';
+            close
+        else:
+            show '\n [X] Error: Unrecognized input format.\n';
+        close
     close
 close
-
-show 'Triple duplicate detected! Program stopped.';

@@ -1,11 +1,12 @@
+# ---- Arithmetic Functions ----
 fn calcCircle(radius):
-    # Area = pi * r^2 (Using 3.14 for pi)
+    # Area = pi * r^2
     area = 3.14 * (radius**2);
     ret area;
 close
 
 fn calcTriangle(base, height):
-    # Area = 1/2base x height 
+    # Area = 1/2 base x height 
     area = 0.5 * base * height;
     ret area;
 close
@@ -16,83 +17,154 @@ fn calcSquare(side):
     ret area;
 close
 
-fn calcRectangle(length, width):
+fn calcRectangle(l, width):
     # Area = l * w
-    area = length * width;
+    area = l * width;
     ret area;
 close
 
+# ---- Validate Shape Dimensions (No Strings, No Negatives) ----
+fn read_dimension(prompt_text):
+    valid = 0;
+    res = 0;
+    while valid == 0:
+        show prompt_text;
+        raw = read;
+        raw_t = type(raw);
+        
+        is_int = compare(raw_t, 'int');
+        is_float = compare(raw_t, 'float');
+        
+        if is_int:
+            val = float(raw);
+            if val >= 0:
+                res = val;
+                valid = 1;
+            else:
+                show '[ERROR] Dimensions cannot be negative!\n';
+            close
+        elif is_float:
+            val = float(raw);
+            if val >= 0:
+                res = val;
+                valid = 1;
+            else:
+                show '[ERROR] Dimensions cannot be negative!\n';
+            close
+        else:
+            show '[ERROR] Invalid input! Please enter a number.\n';
+        close
+    close
+    ret res;
+close
+
+# ---- Validate Menu Choice ----
+fn read_menu_choice():
+    valid = 0;
+    res = 0;
+    while valid == 0:
+        show 'Enter your choice (1-4): ';
+        raw = read;
+        raw_t = type(raw);
+        
+        if compare(raw_t, 'int'):
+            # Only ONE close at the very end of the if-elif-else chain
+            if raw == 1: 
+                res = 1; valid = 1; 
+            elif raw == 2: 
+                res = 2; valid = 1; 
+            elif raw == 3: 
+                res = 3; valid = 1; 
+            elif raw == 4: 
+                res = 4; valid = 1; 
+            else: 
+                show '[ERROR] Please enter 1, 2, 3, or 4.\n'; 
+            close
+        else:
+            show '[ERROR] Invalid input! Please enter an integer.\n';
+        close
+    close
+    ret res;
+close
+
+# ---- Validate Continue Prompt ----
+fn read_continue():
+    valid = 0;
+    res = 0;
+    while valid == 0:
+        show '\nPress 1 to calculate again, or 0 to exit: ';
+        raw = read;
+        raw_t = type(raw);
+        
+        if compare(raw_t, 'int'):
+            if raw == 1: 
+                res = 1; valid = 1; 
+            elif raw == 0: 
+                res = 0; valid = 1; 
+            else: 
+                show '[ERROR] INVALID INPUT! Please type 1 or 0.\n'; 
+            close
+        else:
+            show '[ERROR] Invalid input! Please enter a number.\n';
+        close
+    close
+    ret res;
+close
+
+# ========================
+#   MAIN PROGRAM
+# ========================
+
 ans = 1; 
-while (ans == 1 ): 
-show '--- Shape Area Calculator ---';   show '\n'; 
-show '1. Circle';    					show '\n'; 
-show '2. Triangle';  					show '\n';  
-show '3. Square';    					show '\n';  
-show '4. Rectangle'; 					show '\n'; 
-show 'Enter your choice (1-4): ';
+while ans == 1: 
+    show '\n=============================\n';
+    show '   --- Shape Area Calculator ---\n';
+    show '=============================\n';
+    show '[1] Circle\n';  
+    show '[2] Triangle\n';   
+    show '[3] Square\n';    
+    show '[4] Rectangle\n';   
+    show '-----------------------------\n';
 
+    choice = read_menu_choice(); 
 
-choice = read; 
+    if choice == 1:
+        show '\n--- Circle ---\n';
+        r = read_dimension('Enter radius: ');
+        result = calcCircle(r);
+        show 'Area of the Circle is: ';
+        show result;
+        show '\n';
 
-if (choice == 1):
-    show 'Enter radius: ';
-    r = read; 
- 
-    result = calcCircle(r);
-    
-    
-    show 'Area of the Circle is: ';
-    show result;
-
-elif (choice == 2):
-        show 'Enter base: ';
-        b = read; 
-        show 'Enter height: ';
-        h = read; 
-        
+    elif choice == 2:
+        show '\n--- Triangle ---\n';
+        b = read_dimension('Enter base: ');
+        h = read_dimension('Enter height: ');
         result = calcTriangle(b, h);
-        
         show 'Area of the Triangle is: ';
         show result;
+        show '\n';
 
-    elif (choice == 3):
-            show 'Enter side: ';
-            s = read; 
-            
-            result = calcSquare(s);
-            
-            show 'Area of the Square is: ';
-            show result;
-        elif (choice == 4):
-                show 'Enter length: ';
-                l = read; 
-                show 'Enter width: ';
-                w = read; 
-                
-                result = calcRectangle(l, w);
-                
-                show 'Area of the Rectangle is: ';
-                show result;
+    elif choice == 3:
+        show '\n--- Square ---\n';
+        s = read_dimension('Enter side length: ');
+        result = calcSquare(s);
+        show 'Area of the Square is: ';
+        show result;
+        show '\n';
 
-            else:
-                # Triggers for any number outside 1-4
-                show 'invalid input';
-            close 
-	
-	validInput = false; 
-	while (validInput == false):
-		show '\n';    
-		show 'Press 1 if you want to use the calculator again or 0 to exit'; 
-		ans = read;
-			if (ans == 1): 
-				validInput = true; 
-			elif (ans == 0):  
-				validInput = true; 
-			else: 
-				show '\n' ; 
-				show 'INVALID INPUT! please type y or n '; 
-			close 
-		close 
+    elif choice == 4:
+        show '\n--- Rectangle ---\n';
+        l = read_dimension('Enter length: ');
+        w = read_dimension('Enter width: ');
+        result = calcRectangle(l, w);
+        show 'Area of the Rectangle is: ';
+        show result;
+        show '\n';
+    close 
+    
+    # Check if they want to run it again
+    ans = read_continue();
 close 
 
-show 'Exiting Program';  
+show '\nExiting Program. Goodbye!\n';

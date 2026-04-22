@@ -1,8 +1,0 @@
-show 'Enter first number: ';
-a = read;
-show 'Enter second number: ';
-b = read;
-
-diff = a - b;
-show 'The difference is: ';
-show diff;

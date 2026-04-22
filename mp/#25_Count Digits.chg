@@ -1,7 +1,17 @@
+fn count_digits(n):
+    res = 0;
+    if n < 10:
+        res = 1;
+    else:
+        res = 1 + count_digits(n // 10);
+    close
+    ret res;
+close
+
 app_open = true;
 
 while app_open:
-    show '\n > Enter a positive integer (or type EXIT to close): ';
+    show '\n > Input a positive number (or type EXIT to close): ';
     
     val = read;
     t_val = type(val);
@@ -11,21 +21,14 @@ while app_open:
 
     if is_int:
         if val < 0:
-            show '\n [X] Error: Factorial of a negative number does not exist.\n';
+            show '\n [X] Error: Invalid Input. Number cannot be negative.\n';
         else:
-            factorial = 1;
-            i = 1;
-            
-            while i <= val:
-                factorial = factorial * i;
-                i = i + 1;
-            close
+            num = int(val);
+            ans = count_digits(num);
             
             show '\n  [ SUCCESS ]\n';
-            show '  > The factorial of ';
-            show val;
-            show ' is ';
-            show factorial;
+            show '  > The number of digits is : ';
+            show ans;
             show '\n';
         close
         
@@ -33,14 +36,14 @@ while app_open:
         is_exit = compare(val, 'EXIT');
         
         if is_exit:
-            show '\n Closing Factorial Calculator. Goodbye!\n';
+            show '\n Closing Digit Counter. Goodbye!\n';
             app_open = false;
         else:
             len_val = length(val);
             if len_val == 0:
                 show '\n [X] Error: Input cannot be blank.\n';
             else:
-                show '\n [X] Error: Invalid input. Please enter numbers only.\n';
+                show '\n [X] Error: Invalid Input. Please enter numbers only.\n';
             close
         close
         

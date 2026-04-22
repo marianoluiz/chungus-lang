@@ -1,0 +1,31 @@
+valid_user = false;
+
+show '\n  USER REGISTRATION\n';
+show '------------------------------------\n';
+
+while !valid_user:
+    show '\n > Enter a username (at least 8 characters): ';
+    
+    username = read;
+
+    t_user = type(username);
+    is_str = compare(t_user, 'str');
+    
+    if is_str:
+        user_len = length(username);
+        
+        if user_len == 0:
+            show '\n [X] Error: Username cannot be blank.\n';
+        elif user_len < 8:
+            show '\n [X] Error: Username is too short. It must be at least 8 characters.\n';
+        else:
+            show '\n  [ SUCCESS ]\n';
+            show '  > Username accepted: ';
+            show username;
+            show '\n';
+            valid_user = true;
+        close
+    else:
+        show '\n [X] Error: Invalid input. Username must contain text.\n';
+    close
+close

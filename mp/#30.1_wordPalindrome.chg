@@ -1,0 +1,108 @@
+app_open = true;
+
+while app_open:
+    show '\n  WORD PALINDROME CHECKER\n';
+    show '  [1] Check a Word\n';
+    show '  [2] Close Tool\n';
+    show ' --> Select option (1-2): ';
+
+    opt = read;
+    t_opt = type(opt);
+    is_opt_int = compare(t_opt, 'int');
+    is_opt_str = compare(t_opt, 'str');
+
+    if is_opt_int:
+        if opt == 1:
+            show '\n > Enter a word: ';
+            
+            word = read;
+            t_word = type(word);
+            is_word_str = compare(t_word, 'str');
+            is_word_int = compare(t_word, 'int');
+
+            if is_word_str:
+                len_word = length(word);
+                if len_word == 0:
+                    show '\n [X] Error: Input cannot be blank.\n';
+                else:
+                    chars = str_to_arr(word);
+                    left = 0;
+                    right = len_word - 1;
+                    is_pal = true;
+
+                    while left < right:
+                        char_l = chars[left];
+                        char_r = chars[right];
+
+                        is_match = compare(char_l, char_r);
+
+                        if !is_match:
+                            is_pal = false;
+                        close
+
+                        left = left + 1;
+                        right = right - 1;
+                    close
+
+                    show '\n  [ RESULTS ]\n';
+                    show '  > Word     : ';
+                    show word;
+                    show '\n';
+
+                    if is_pal:
+                        show '  > Verdict  : This word IS a palindrome!\n';
+                    else:
+                        show '  > Verdict  : This word is NOT a palindrome.\n';
+                    close
+                close
+
+            elif is_word_int:
+                show '\n [X] Error: Invalid input. Please enter a word, not numbers.\n';
+            else:
+                show '\n [X] Error: Unrecognized input format.\n';
+            close
+
+            waiting = true;
+            while waiting:
+                show '\n --> [ Enter 1 to return to Menu ] : ';
+                wait_opt = read;
+                t_wait = type(wait_opt);
+                is_wait_int = compare(t_wait, 'int');
+                is_w_str = compare(t_wait, 'str');
+
+                if is_wait_int:
+                    if wait_opt == 1:
+                        waiting = false;
+                    else:
+                        show '\n [X] Error: Please enter exactly 1 to return.\n';
+                    close
+                elif is_w_str:
+                    len_w = length(wait_opt);
+                    if len_w == 0:
+                        show '\n [X] Error: Input cannot be blank.\n';
+                    else:
+                        show '\n [X] Error: Letters are not allowed.\n';
+                    close
+                else:
+                    show '\n [X] Error: Invalid format.\n';
+                close
+            close
+
+        elif opt == 2:
+            show '\n Closing Palindrome Checker. Goodbye!\n';
+            app_open = false;
+        else:
+            show '\n [X] Error: Invalid selection. Please enter 1 or 2.\n';
+        close
+
+    elif is_opt_str:
+        len_opt = length(opt);
+        if len_opt == 0:
+            show '\n [X] Error: Menu input cannot be blank.\n';
+        else:
+            show '\n [X] Error: Please enter a number, not text.\n';
+        close
+    else:
+        show '\n [X] Error: Invalid input type.\n';
+    close
+close

@@ -1,0 +1,81 @@
+app_open = true;
+
+while app_open:
+    show '\n+----------------------------------+\n';
+    show '|       STRING REVERSER TOOL       |\n';
+    show '+----------------------------------+\n';
+    show '|  [1] Reverse a String            |\n';
+    show '|  [2] Close Tool                  |\n';
+    show '+----------------------------------+\n';
+    show ' --> Select option (1-2): ';
+
+    opt_input = read;
+    t_opt     = type(opt_input);
+    is_opt_ok = compare(t_opt, 'int');
+
+    if is_opt_ok:
+        
+        # --------------------------------------------------
+        #  [1] REVERSE A STRING
+        # --------------------------------------------------
+        if opt_input == 1:
+            show '\n > Enter the text to reverse: ';
+            
+            input_str = read;
+            t_input   = type(input_str);
+            is_str    = compare(t_input, 'str');
+
+            if is_str:
+                
+                # Check for blank input
+                len_input = length(input_str);
+                
+                if len_input == 0:
+                    show '\n [X] Error: Input cannot be blank.\n';
+                else:
+                    # Convert the string into an array of characters
+                    chars = str_to_arr(input_str);
+                    
+                    show '\n  [ SUCCESS ]\n';
+                    show '  > Original : ';
+                    show input_str;
+                    show '\n  > Reversed : ';
+                    
+                    # Loop backwards starting from the last index
+                    i = len_input - 1;
+                    while i >= 0:
+                        # Extract character safely to satisfy CFG
+                        curr_char = chars[i];
+                        show curr_char;
+                        i = i - 1;
+                    close
+                    
+                    show '\n';
+                close
+            else:
+                show '\n [X] Error: Invalid input. Please enter valid text.\n';
+            close
+            
+            # SCREEN PAUSE
+            show '\n --> [ Press 1 or Enter to return to Menu ] : ';
+            wait_input = read;
+
+        # --------------------------------------------------
+        #  [2] CLOSE TOOL
+        # --------------------------------------------------
+        elif opt_input == 2:
+            show '\n Closing String Reverser Tool. Goodbye!\n';
+            app_open = false;
+
+        # --------------------------------------------------
+        #  INVALID MENU OPTION
+        # --------------------------------------------------
+        else:
+            show '\n [X] Error: Invalid selection. Please enter 1 or 2.\n';
+        close
+
+    else:
+        show '\n [X] Error: Invalid input. Please enter an integer.\n';
+    close
+
+close
