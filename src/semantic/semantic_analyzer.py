@@ -239,8 +239,8 @@ class SemanticAnalyzer:
     Analyzes an AST for semantic correctness.
     
     Two-pass approach:
-    1. First pass: Build symbol table (function declarations)
-    2. Second pass: Type check and declare variables
+    1. First pass: Collect function declarations
+    2. Second pass: Declare variables and type-check
     """
 
     def __init__(self, tree: ASTNode, source: str, debug: bool = False):
@@ -323,14 +323,14 @@ class SemanticAnalyzer:
         self._errors = []
 
         try:
-            # First pass: collect declarations
-            self._collect_declarations(self._tree)
+            # First pass: collect function declarations
+            self._collect_function_declarations(self._tree)
 
             # print table
-            self._dbg_symbol_tbl("After _collect_declarations")
+            self._dbg_symbol_tbl("After _collect_function_declarations")
 
-            # Second pass: type check
-            self._type_check(self._tree)
+            # Second pass: declare variables + type check
+            self._declare_variables_and_type_check(self._tree)
 
         except Exception as e:
             # Only catch unexpected crashes (bugs in analyzer itself) not semantic errors (those go in self.errors list)
@@ -893,7 +893,7 @@ class SemanticAnalyzer:
         return TY_INT
 
 
-    def _collect_declarations(self, node: ASTNode) -> None:
+    def _collect_function_declarations(self, node: ASTNode) -> None:
         """
         First pass: Collect only GLOBAL declarations (functions).
         Local variables are declared during type checking (pass 2).
@@ -904,7 +904,7 @@ class SemanticAnalyzer:
         if node.kind == "program":
             # Program contains function declarations and statements
             for child in node.children:
-                self._collect_declarations(child)
+                self._collect_function_declarations(child)
             return
 
         elif node.kind == "function":
@@ -960,12 +960,12 @@ class SemanticAnalyzer:
         
         # Recurse for other node types to find nested functions/declarations
         for child in node.children:
-            self._collect_declarations(child)
-    
+            self._collect_function_declarations(child)
 
-    def _type_check(self, node: ASTNode) -> Optional[str]:
+
+    def _declare_variables_and_type_check(self, node: ASTNode) -> Optional[str]:
         """
-        Second pass: traverse AST and type check.
+        Second pass: traverse AST, declare variables, and type check.
         Returns the inferred type of the node, or TY_UNKNOWN if type error.
         
         ⚠️ CRITICAL: Never stop at first error - collect ALL errors!
@@ -976,7 +976,7 @@ class SemanticAnalyzer:
         if node.kind == "program":
             # Recursively type check all children (functions and statements)
             for child in node.children:
-                self._type_check(child)
+                self._declare_variables_and_type_check(child)
             return None
 
         elif node.kind == "function":
@@ -1010,7 +1010,7 @@ class SemanticAnalyzer:
 
             # Type check function body (skip params node if it exists)
             for i in range(start_idx, len(node.children)):
-                self._type_check(node.children[i])
+                self._declare_variables_and_type_check(node.children[i])
 
             self._symbol_table.exit_scope()
             return None
@@ -1053,7 +1053,7 @@ class SemanticAnalyzer:
             # Type check range expressions (up to 3) - must produce integers only
             range_count = min(3, body_start)
             for i in range(range_count):
-                expr_type = self._type_check(node.children[i])
+                expr_type = self._declare_variables_and_type_check(node.children[i])
 
                 # Range expressions MUST produce integers (no floats, bools, or strings)
                 # Only TY_INT or TY_UNKNOWN (for variables/expressions) are allowed
@@ -1065,7 +1065,7 @@ class SemanticAnalyzer:
 
             # Type check loop body
             for i in range(body_start, len(node.children)):
-                self._type_check(node.children[i])
+                self._declare_variables_and_type_check(node.children[i])
 
             self._symbol_table.exit_scope()
 
@@ -1078,12 +1078,12 @@ class SemanticAnalyzer:
             
             # Type check condition (first child)
             if node.children:
-                cond_type = self._type_check(node.children[0])
+                cond_type = self._declare_variables_and_type_check(node.children[0])
                 # Condition should be bool-coercible (already handled by TypeChecker)
 
             # Type check loop body (skip first child which is condition)
             for i in range(1, len(node.children)):
-                self._type_check(node.children[i])
+                self._declare_variables_and_type_check(node.children[i])
 
             self._symbol_table.exit_scope()
             return None
@@ -1092,7 +1092,7 @@ class SemanticAnalyzer:
             # conditional_block: children=[if_node, ...elif_nodes, else_node]
             # Process each branch
             for child in node.children:
-                self._type_check(child)
+                self._declare_variables_and_type_check(child)
 
             return None
         
@@ -1103,11 +1103,11 @@ class SemanticAnalyzer:
             
             # Type check condition (first child)
             if node.children:
-                cond_type = self._type_check(node.children[0])
+                cond_type = self._declare_variables_and_type_check(node.children[0])
 
             # Type check body (skip first child which is condition)
             for i in range(1, len(node.children)):
-                self._type_check(node.children[i])
+                self._declare_variables_and_type_check(node.children[i])
             
             self._symbol_table.exit_scope()
             return None
@@ -1119,7 +1119,7 @@ class SemanticAnalyzer:
             
             # Type check body
             for child in node.children:
-                self._type_check(child)
+                self._declare_variables_and_type_check(child)
             
             self._symbol_table.exit_scope()
             return None
@@ -1205,7 +1205,7 @@ class SemanticAnalyzer:
             if indices_node:
                 for idx_node in indices_node.children:
                     # Type check the index expression first
-                    idx_type = self._type_check(idx_node)
+                    idx_type = self._declare_variables_and_type_check(idx_node)
                     
                     # Reject functions in array indices
                     if idx_type == "function":
@@ -1288,11 +1288,11 @@ class SemanticAnalyzer:
                                                 TypeMismatchError)
                 
                 # Type check indices node
-                self._type_check(indices_node)
+                self._declare_variables_and_type_check(indices_node)
             
             # Type check RHS expression
             if len(node.children) > 1:
-                expr_type = self._type_check(node.children[1])
+                expr_type = self._declare_variables_and_type_check(node.children[1])
             
             return TY_UNKNOWN
         
@@ -1300,7 +1300,7 @@ class SemanticAnalyzer:
             # indices node: children=[index expressions]
             # Note: Individual index expressions are type-checked in the index handler
             for child in node.children:
-                self._type_check(child)
+                self._declare_variables_and_type_check(child)
             return None
         
         elif node.kind == "id":
@@ -1309,9 +1309,9 @@ class SemanticAnalyzer:
             symbol = self._symbol_table.lookup(var_name)
 
             if symbol is None:
-                # ✅ Record error but DON'T STOP - continue analysis
+                # Record error but DON'T STOP - continue analysis
                 self._error(node, f"Variable '{var_name}' not defined", UndefinedVariableError)
-                # ✅ Return safe fallback type to allow continued analysis
+                # Return safe fallback type to allow continued analysis
                 node.inferred_type = TY_UNKNOWN
                 return TY_UNKNOWN
             
@@ -1390,7 +1390,7 @@ class SemanticAnalyzer:
             
             # Type check the expression being cast
             if node.children:
-                expr_type = self._type_check(node.children[0])
+                expr_type = self._declare_variables_and_type_check(node.children[0])
                 # Cannot cast functions
                 if expr_type == "function":
                     self._error(node.children[0],
@@ -1406,7 +1406,7 @@ class SemanticAnalyzer:
         elif node.kind == "return_statement":
             # Return statement: children=[return_expr]
             if node.children:
-                return_type = self._type_check(node.children[0])
+                return_type = self._declare_variables_and_type_check(node.children[0])
 
                 # CHUNGUS does not support returning arrays from functions
                 if return_type == TY_ARRAY:
@@ -1423,7 +1423,7 @@ class SemanticAnalyzer:
         elif node.kind == "output_statement":
             # Output/show statement: children=[expr]
             if node.children:
-                expr_type = self._type_check(node.children[0])
+                expr_type = self._declare_variables_and_type_check(node.children[0])
                 if expr_type == "function":
                     self._error(node.children[0],
                         f"Cannot show function",
@@ -1466,7 +1466,7 @@ class SemanticAnalyzer:
                         
                         # Check if size expression type is valid (must be int or int expression)
                         # Reject bool/string variables or literals (even if they have constant values)
-                        size_type = self._type_check(size_expr)
+                        size_type = self._declare_variables_and_type_check(size_expr)
                         
                         # Reject function types in array size
                         if size_type == "function":
@@ -1522,8 +1522,8 @@ class SemanticAnalyzer:
                         col_expr = size_node.children[1]
                         
                         # Check types
-                        row_type = self._type_check(row_expr)
-                        col_type = self._type_check(col_expr)
+                        row_type = self._declare_variables_and_type_check(row_expr)
+                        col_type = self._declare_variables_and_type_check(col_expr)
                         
                         # Reject function types in 2D array dimensions
                         if row_type == "function":
@@ -1606,7 +1606,7 @@ class SemanticAnalyzer:
             for i, child in enumerate(node.children):
                 if i == 0:  # Skip size node (already type-checked above)
                     continue
-                elem_type = self._type_check(child)
+                elem_type = self._declare_variables_and_type_check(child)
                 # Check if element is a function
                 if elem_type == "function":
                     self._error(child,
@@ -1617,32 +1617,32 @@ class SemanticAnalyzer:
         elif node.kind in ["size", "array_row"]:
             # Utility nodes for array initialization
             for child in node.children:
-                self._type_check(child)
+                self._declare_variables_and_type_check(child)
             return None
         
         elif node.kind == "base":
             # Base node in array indexing: children=[id or expr]
             if node.children:
-                return self._type_check(node.children[0])
+                return self._declare_variables_and_type_check(node.children[0])
             return None
         
         elif node.kind == "args":
             # Arguments wrapper node - just recurse
             for child in node.children:
-                self._type_check(child)
+                self._declare_variables_and_type_check(child)
             return None
         
         elif node.kind == "general_statement":
             # General statement wrapper - just recurse
             for child in node.children:
-                self._type_check(child)
+                self._declare_variables_and_type_check(child)
             return None
 
         elif node.kind in ["<", ">", "<=", ">=", "==", "!="]:
             # Relational operators
             op = node.kind
-            left_type = self._type_check(node.children[0]) if node.children else TY_UNKNOWN
-            right_type = self._type_check(node.children[1]) if len(node.children) > 1 else TY_UNKNOWN
+            left_type = self._declare_variables_and_type_check(node.children[0]) if node.children else TY_UNKNOWN
+            right_type = self._declare_variables_and_type_check(node.children[1]) if len(node.children) > 1 else TY_UNKNOWN
 
             # Reject function types in comparisons
             if left_type == "function":
@@ -1678,13 +1678,13 @@ class SemanticAnalyzer:
         elif node.kind in ["and", "or"]:
             # Logical operators
             op = node.kind
-            left_type = self._type_check(node.children[0]) if node.children else TY_UNKNOWN
+            left_type = self._declare_variables_and_type_check(node.children[0]) if node.children else TY_UNKNOWN
             
             # Reject function types in logical operations
             if left_type == "function":
                 self._error(node.children[0], f"Cannot use function in logical operation", TypeMismatchError)
                 return TY_UNKNOWN
-            right_type = self._type_check(node.children[1]) if len(node.children) > 1 else TY_UNKNOWN
+            right_type = self._declare_variables_and_type_check(node.children[1]) if len(node.children) > 1 else TY_UNKNOWN
             
             # Reject function types in right operand
             if right_type == "function":
@@ -1716,7 +1716,7 @@ class SemanticAnalyzer:
 
         elif node.kind == "!":
             # Logical NOT (unary)
-            operand_type = self._type_check(node.children[0]) if node.children else TY_UNKNOWN
+            operand_type = self._declare_variables_and_type_check(node.children[0]) if node.children else TY_UNKNOWN
             
             # Reject function types in logical NOT
             if operand_type == "function":
@@ -1749,8 +1749,8 @@ class SemanticAnalyzer:
         elif node.kind in ["+", "-", "*", "/", "//", "%", "**"]:
             # Binary arithmetic operation
             op = node.kind
-            left_type = self._type_check(node.children[0]) if node.children else TY_UNKNOWN
-            right_type = self._type_check(node.children[1]) if len(node.children) > 1 else TY_UNKNOWN
+            left_type = self._declare_variables_and_type_check(node.children[0]) if node.children else TY_UNKNOWN
+            right_type = self._declare_variables_and_type_check(node.children[1]) if len(node.children) > 1 else TY_UNKNOWN
 
             # Reject function types in arithmetic operations
             if left_type == "function":
@@ -1816,7 +1816,7 @@ class SemanticAnalyzer:
                 return TY_UNKNOWN
             
             # Type check the RHS expression
-            expr_type = self._type_check(node.children[0]) if node.children else TY_UNKNOWN
+            expr_type = self._declare_variables_and_type_check(node.children[0]) if node.children else TY_UNKNOWN
             
             # Check if trying to assign a function value
             if expr_type == "function":
@@ -1886,7 +1886,7 @@ class SemanticAnalyzer:
             
             arg_types = []
             for i, arg in enumerate(args):
-                arg_type = self._type_check(arg)
+                arg_type = self._declare_variables_and_type_check(arg)
                 arg_types.append(arg_type)
                 
                 # Disallow passing whole arrays to user-defined functions
@@ -1953,8 +1953,8 @@ class SemanticAnalyzer:
             node.inferred_type = result_type
             return result_type
 
-        # ✅ Recurse to children even if current node had errors
+        # Recurse to children even if current node had errors
         for child in node.children:
-            self._type_check(child)
+            self._declare_variables_and_type_check(child)
         
         return None
