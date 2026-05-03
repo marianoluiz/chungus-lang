@@ -949,19 +949,6 @@ class SemanticAnalyzer:
             # Don't enter function scope - local vars declared in pass 2
             return
 
-        # DO NOT declare global variables in pass 1
-        # Variables (both global and local) are declared during pass 2 (type checking)
-        # when assignments are encountered. This ensures proper order checking.
-        
-        # Don't recurse into control structures (while, if, for, etc.)
-        # Those contain local variables which are declared in pass 2
-        elif node.kind in ["while", "for", "if", "elif", "else", "conditional_block"]:
-            return
-        
-        # Recurse for other node types to find nested functions/declarations
-        for child in node.children:
-            self._collect_function_declarations(child)
-
 
     def _declare_variables_and_type_check(self, node: ASTNode) -> Optional[str]:
         """
