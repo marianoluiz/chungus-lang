@@ -163,6 +163,7 @@ class Lexer:
             lexeme = self.lexemize()
 
             if isinstance(lexeme, (UnknownCharError, DelimError, UnexpectedEOF)):
+                # add to error log
                 self.log += str(lexeme) + '\n'
 
                 # Delimiter errors do not consume input:
@@ -176,6 +177,7 @@ class Lexer:
             # Normal lexeme
             self._lexemes.append(lexeme)
             lexeme_positions.append(start_pos)
+        
         self.token_stream = build_token_stream(self._lexemes, lexeme_positions)
 
     def lexemize(self, curr_state: int = 0):
@@ -227,14 +229,14 @@ class Lexer:
             # consume the current state in this branch and recurse deeper
             self.advance_cursor()
             # the matched state earlier would be used for the next character
-            lexeme = self.lexemize(state)
+            lexeme = self.lexemize(state)   # state is the matched state number; eto yung papasukan natin
 
             # lexeme may be various types: string, tuple, error object, or None
             # str: int, float, comment, string,
             # tuple: reserved words, symbols
             # DelimError: full token but wrong delimeter
             if type(lexeme) is str:
-                return curr_char + lexeme
+                return curr_char + lexeme # concatenate
             if type(lexeme) is tuple:
                 # tuple expected to carry structured information; combine and return
                 # EX. show -> ('')('') -> ('w')('w') -> ('ow')('ow') -> ('how')('how') -> ('show')('show')

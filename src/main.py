@@ -110,7 +110,7 @@ def codegen_adapter(source: str):
         - If compilation succeeds: proc is a live subprocess.Popen with
           stdin/stdout/stderr pipes open. The GUI streams I/O directly.
     """
-    # ── Lexer ────────────────────────────────────────────────────────────────
+    #  Lexer 
     lexer = Lexer(source, debug=False)
     lexer.start()
     tokens = lexer.token_stream
@@ -121,7 +121,7 @@ def codegen_adapter(source: str):
         errors.extend(lexer.log.splitlines())
         return tokens, errors, None
  
-    # ── Parser ───────────────────────────────────────────────────────────────
+    #  Parser 
     parser = RDParser(tokens, source, debug=False)
     parse_result = parser.parse()
     if parse_result.errors:
@@ -129,7 +129,7 @@ def codegen_adapter(source: str):
         errors.extend(parse_result.errors)
         return tokens, errors, None
  
-    # ── Semantic analyzer ────────────────────────────────────────────────────
+    #  Semantic analyzer 
     semantic = SemanticAnalyzer(parse_result.tree, source, debug=False)
     semantic_result = semantic.analyze()
     if semantic_result.errors:
@@ -137,7 +137,7 @@ def codegen_adapter(source: str):
         errors.extend(semantic_result.errors)
         return tokens, errors, None
  
-    # ── Code generator ───────────────────────────────────────────────────────
+    #  Code generator 
     codegen_result = analyze_codegen(
         semantic_result.tree,
         source,
@@ -149,14 +149,14 @@ def codegen_adapter(source: str):
         errors.extend(codegen_result.errors)
         return tokens, errors, None
 
-    # ── Write generated C source ─────────────────────────────────────────────
+    #  Write generated C source 
     output_dir = Path(__file__).parent.parent / "output"
     output_dir.mkdir(exist_ok=True)
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     c_path = output_dir / f"gui_output_{timestamp}.c"
     c_path.write_text(codegen_result.code)
  
-    # ── Detect OS and choose compiler ────────────────────────────────────────
+    #  Detect OS and choose compiler 
     system = platform.system()
     
     if system == "Windows":
