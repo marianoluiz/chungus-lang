@@ -839,9 +839,22 @@ ChValue ch_read(void) {
             return ch_str("");
         }
 
-        // In CHUNGUS input, negative numeric values must use '~', not '-'.
-        // Reject only numeric-looking '-' inputs; keep other '-' prefixed text as string.
+        // In CHUNGUS input:
+        // - Positive numeric values must NOT use '+' prefix (write 123, not +123)
+        // - Negative numeric values must use '~', not '-' (write ~123, not -123)
+        // Reject numeric-looking '+' and '-' inputs; keep other prefixed text as string.
         int sign_frac_digits = 0;
+        
+        // Reject '+' prefix on numeric input
+        if (start[0] == '+' &&
+            (ch_is_integer_text(start) || ch_is_decimal_text(start, &sign_frac_digits))) {
+            fprintf(stderr,
+                    "Runtime Error: Positive numeric input must not use '+' prefix: '%s'\n",
+                    start);
+            exit(EXIT_FAILURE);
+        }
+        
+        // Reject '-' prefix on numeric input
         if (start[0] == '-' &&
             (ch_is_integer_text(start) || ch_is_decimal_text(start, &sign_frac_digits))) {
             fprintf(stderr,
