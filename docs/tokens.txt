@@ -13,12 +13,12 @@ in
 range
 fn
 ret
-try
-fail
-always
 todo
-array_add
-array_remove
+str_to_arr
+arr_to_str
+length
+compare
+type
 int
 float
 close

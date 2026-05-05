@@ -1,7 +1,10 @@
 import datetime
 import subprocess
 from pathlib import Path
-import customtkinter as ctk
+import sys
+
+from PySide6.QtWidgets import QApplication
+
 from src.gui import ChungusLexerGUI
 from src.lexer.dfa_lexer import Lexer
 from src.syntax.rd_parser import RDParser
@@ -211,12 +214,12 @@ def codegen_adapter(source: str):
 
  
 if __name__ == "__main__":
-    root = ctk.CTk()
-    app = ChungusLexerGUI(
-        root,
+    app = QApplication(sys.argv)
+    window = ChungusLexerGUI(
         lexer_callback=lexer_adapter,
         syntax_callback=syntax_adapter,
         semantic_callback=semantic_adapter,
         codegen_callback=codegen_adapter,
     )
-    root.mainloop()
+    window.show()
+    sys.exit(app.exec())
