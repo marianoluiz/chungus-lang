@@ -4,3 +4,4 @@
 #
 #    pip-compile requirements.in
 #
+pyside6>=6.7

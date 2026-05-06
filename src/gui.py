@@ -1,1273 +1,1788 @@
-import tkinter as tk
-from tkinter import ttk, font, messagebox, filedialog
-import platform
-import datetime
-import threading
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from pathlib import Path
 import queue
 import re
+import subprocess
+import threading
 import time
+from typing import Callable, Iterable
 
-# ==============================================================================
-# 1. LANGUAGE CONFIGURATION
-# ==============================================================================
+from PySide6.QtCore import QEvent, QEasingCurve, QPropertyAnimation, QRect, QSize, QStringListModel, Qt, QThread, Signal
+from PySide6.QtGui import (
+    QAction,
+    QColor,
+    QFont,
+    QFontDatabase,
+    QPainter,
+    QPalette,
+    QKeySequence,
+    QShortcut,
+    QTextCharFormat,
+    QTextCursor,
+    QTextDocument,
+    QTextFormat,
+    QSyntaxHighlighter,
+)
+from PySide6.QtWidgets import (
+    QApplication,
+    QAbstractItemView,
+    QCompleter,
+    QFileDialog,
+    QHBoxLayout,
+    QHeaderView,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QMainWindow,
+    QMessageBox,
+    QPlainTextEdit,
+    QPushButton,
+    QSizePolicy,
+    QSplitter,
+    QStatusBar,
+    QTableWidget,
+    QTableWidgetItem,
+    QTabWidget,
+    QToolBar,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+)
 
-KEYWORDS = sorted([
-    'true', 'false', 'read', 'show', 
-    'if', 'elif', 'else', 'while', 'for', 'in', 'range',
-    'try', 'fail', 'always', 
-    'int', 'float', 'and', 'or', 
-    'length', 'str_to_arr', 'arr_to_str', 'compare',
-    'fn', 'ret', 'todo', 'close'
-])
 
-LITERALS = {
-    'int_literal', 'float_literal', 'str_literal', 'bool_literal'
-}
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
+KEYWORDS = sorted(
+    [
+        "and",
+        "arr_to_str",
+        "close",
+        "compare",
+        "elif",
+        "else",
+        "false",
+        "float",
+        "fn",
+        "for",
+        "if",
+        "in",
+        "int",
+        "length",
+        "or",
+        "range",
+        "read",
+        "ret",
+        "show",
+        "str_to_arr",
+        "todo",
+        "true",
+        "type",
+        "while",
+    ]
+)
+
+LITERALS = {"int_literal", "float_literal", "str_literal", "bool_literal"}
 OPERATORS = {
-    '++', '--', '//', '**', '==', '!=', '>', '<', 
-    '>=', '<=', '+', '-', '*', '/', '%', '=', '!'
+    "++",
+    "--",
+    "//",
+    "**",
+    "==",
+    "!=",
+    ">",
+    "<",
+    ">=",
+    "<=",
+    "+",
+    "-",
+    "*",
+    "/",
+    "%",
+    "=",
+    "!",
+}
+DELIMS = {"(", ")", "[", "]", ",", ";", ":"}
+
+SNIPPETS = {
+    "true / false": "is_admin = true;\nlogged_in = false;\n",
+    "read": "user_input = read;\n",
+    "show": "show value;\n",
+    "if / elif / else": "if score >= 90:\n    show 'A';\nelif score >= 75:\n    show 'B';\nelse:\n    show 'C';\nclose\n",
+    "while": "x = 1;\nwhile x <= 5:\n    show x;\n    x = x + 1;\nclose\n",
+    "for / in / range": "for i in range(5):\n    show i;\nclose\n",
+    "int": "x = int('5');\n",
+    "float": "y = float('3.14');\n",
+    "str_to_arr": "word = 'hello';\narr = str_to_arr(word);\n",
+    "arr_to_str": "mixed = [1, 'A', true];\nresult = arr_to_str(mixed);\n",
+    "length": "result = str_to_arr('hello');\nfor i in range(length(result)):\n    out = result[i];\n    show out;\n    show '\\n';\nclose\n",
+    "compare": "result = compare('abc', 'abd');\nshow result;\n",
+    "type": "x = 3.14;\nt = type(x);\n\nif t == 'float':\n    show 'The variable is a float.';\nclose\n",
+    "and": "result = true and false;\nshow result;\n",
+    "or": "result = true or false;\nshow result;\n",
+    "fn": "fn square(x):\n    todo;\n    ret x * x;\nclose\n",
+    "ret": "ret value;\n",
+    "todo": "todo;\n",
+    "close": "if score >= 90:\n    show 'A';\nelse:\n    show 'B';\nclose\n",
 }
 
-DELIMS = {
-    '(', ')', '[', ']', ',', ';', ':'
+THEMES = {
+    "Light (macOS)": {
+        "bg": "#f5f5f7",
+        "surface": "#ffffff",
+        "surface_2": "#e5e5ea",
+        "surface_3": "#f9f9f9",
+        "text": "#333333",
+        "muted": "#6e6e73",
+        "border": "#d1d1d6",
+        "accent": "#007aff",
+        "accent_2": "#34c759",
+        "danger": "#ff3b30",
+        "warning": "#ff9500",
+        "purple": "#af52de",
+        "editor": "#ffffff",
+        "editor_line": "#f0f7ff",
+        "terminal": "#1e1e1e",
+        "terminal_text": "#000000",
+        "btn_analyze": "#af52de",
+        "btn_run": "#34c759",
+        "btn_danger": "#ff3b30",
+        "btn_layout": "#007aff",
+        "btn_utility": "#6e6e73",
+    },
+    "Dark": {
+        "bg": "#090b0f",
+        "surface": "#11151b",
+        "surface_2": "#181d25",
+        "surface_3": "#202732",
+        "text": "#e8edf5",
+        "muted": "#8f9aaa",
+        "border": "#2b3442",
+        "accent": "#3b82f6",
+        "accent_2": "#10b981",
+        "danger": "#f44747",
+        "warning": "#f59e0b",
+        "purple": "#8b5cf6",
+        "editor": "#0b0f14",
+        "editor_line": "#111827",
+        "terminal": "#05070a",
+        "terminal_text": "#d8e2ef",
+        "btn_analyze": "#6366f1",
+        "btn_run": "#059669",
+        "btn_danger": "#f44747",
+        "btn_layout": "#2563eb",
+        "btn_utility": "#475569",
+    },
+    "Oceanic Blue": {
+        "bg": "#e0f2f7",
+        "surface": "#ffffff",
+        "surface_2": "#cfd8dc",
+        "surface_3": "#e1f5fe",
+        "text": "#004d40",
+        "muted": "#455a64",
+        "border": "#b0bec5",
+        "accent": "#0277bd",
+        "accent_2": "#00695c",
+        "danger": "#c62828",
+        "warning": "#e65100",
+        "purple": "#0288d1",
+        "editor": "#ffffff",
+        "editor_line": "#e6f7ff",
+        "terminal": "#0d1b2a",
+        "terminal_text": "#000000",
+        "btn_analyze": "#0288d1",
+        "btn_run": "#00695c",
+        "btn_danger": "#c62828",
+        "btn_layout": "#0277bd",
+        "btn_utility": "#455a64",
+    },
+    "Forest Green": {
+        "bg": "#10251b",
+        "surface": "#173524",
+        "surface_2": "#214832",
+        "surface_3": "#2d5f42",
+        "text": "#ecfff3",
+        "muted": "#9fd5b3",
+        "border": "#3b7652",
+        "accent": "#2dd4bf",
+        "accent_2": "#22c55e",
+        "danger": "#f87171",
+        "warning": "#facc15",
+        "purple": "#86efac",
+        "editor": "#0f2118",
+        "editor_line": "#183c28",
+        "terminal": "#06120c",
+        "terminal_text": "#b8ffd0",
+        "btn_analyze": "#2dd4bf",
+        "btn_run": "#22c55e",
+        "btn_danger": "#ef4444",
+        "btn_layout": "#16a34a",
+        "btn_utility": "#4d7c59",
+    },
+    "Big Chungus": {
+        "bg": "#add8e6",
+        "surface": "#ffffff",
+        "surface_2": "#f0f8ff",
+        "surface_3": "#ffdead",
+        "text": "#404040",
+        "muted": "#708090",
+        "border": "#87ceeb",
+        "accent": "#ff4500",
+        "accent_2": "#228b22",
+        "danger": "#dc143c",
+        "warning": "#8b4513",
+        "purple": "#a9a9a9",
+        "editor": "#ffffff",
+        "editor_line": "#fff2df",
+        "terminal": "#1a1a2e",
+        "terminal_text": "#000000",
+        "btn_analyze": "#ff4500",
+        "btn_run": "#228b22",
+        "btn_danger": "#dc143c",
+        "btn_layout": "#ff4500",
+        "btn_utility": "#708090",
+    },
+    "Disney Magic": {
+        "bg": "#fff0f5",
+        "surface": "#ffffff",
+        "surface_2": "#e6e6fa",
+        "surface_3": "#ffe4e1",
+        "text": "#4b0082",
+        "muted": "#8b008b",
+        "border": "#ffb6c1",
+        "accent": "#1e90ff",
+        "accent_2": "#32cd32",
+        "danger": "#ff1493",
+        "warning": "#ffa500",
+        "purple": "#9370db",
+        "editor": "#ffffff",
+        "editor_line": "#fff4fb",
+        "terminal": "#1a0a2e",
+        "terminal_text": "#e0aaff",
+        "btn_analyze": "#9370db",
+        "btn_run": "#32cd32",
+        "btn_danger": "#ff1493",
+        "btn_layout": "#1e90ff",
+        "btn_utility": "#8b008b",
+    },
+    "Synthwave 84": {
+        "bg": "#21182f",
+        "surface": "#2a2039",
+        "surface_2": "#352747",
+        "surface_3": "#44305e",
+        "text": "#f9e7ff",
+        "muted": "#caa7de",
+        "border": "#6f4e9c",
+        "accent": "#01cdfe",
+        "accent_2": "#05ffa1",
+        "danger": "#ff4f8b",
+        "warning": "#ffcf5a",
+        "purple": "#ff71ce",
+        "editor": "#1d152b",
+        "editor_line": "#2b1f40",
+        "terminal": "#10091c",
+        "terminal_text": "#b8fff1",
+        "btn_analyze": "#b967ff",
+        "btn_run": "#05b86f",
+        "btn_danger": "#ff4f8b",
+        "btn_layout": "#0094b8",
+        "btn_utility": "#6f4e9c",
+    },
+    "Aurora Glass": {
+        "bg": "#eef8ff",
+        "surface": "#ffffff",
+        "surface_2": "#dff4ff",
+        "surface_3": "#d8f7ee",
+        "text": "#183047",
+        "muted": "#5c728a",
+        "border": "#9ccfe4",
+        "accent": "#0096c7",
+        "accent_2": "#00a878",
+        "danger": "#e63946",
+        "warning": "#f77f00",
+        "purple": "#6c63ff",
+        "editor": "#fbfeff",
+        "editor_line": "#e6f8ff",
+        "terminal": "#122032",
+        "terminal_text": "#000000",
+        "btn_analyze": "#6c63ff",
+        "btn_run": "#00a878",
+        "btn_danger": "#e63946",
+        "btn_layout": "#0096c7",
+        "btn_utility": "#607d9a",
+    },
 }
 
-# ==============================================================================
-# 2. UI HELPER CLASSES
-# ==============================================================================
 
-class ToolTip(object):
-    def __init__(self, widget, text='widget info'):
-        self.waittime = 500
-        self.wraplength = 180
-        self.widget = widget
-        self.text = text
-        self.widget.bind("<Enter>", self.enter)
-        self.widget.bind("<Leave>", self.leave)
-        self.widget.bind("<ButtonPress>", self.leave)
-        self.id = None
-        self.tw = None
-
-    def enter(self, event=None): self.schedule()
-    def leave(self, event=None): self.unschedule(); self.hidetip()
-
-    def schedule(self):
-        self.unschedule()
-        self.id = self.widget.after(self.waittime, self.showtip)
-
-    def unschedule(self):
-        id = self.id
-        self.id = None
-        if id: self.widget.after_cancel(id)
-
-    def showtip(self, event=None):
-        x, y, cx, cy = self.widget.bbox("insert")
-        x += self.widget.winfo_rootx() + 25
-        y += self.widget.winfo_rooty() + 20
-        self.tw = tk.Toplevel(self.widget)
-        self.tw.wm_overrideredirect(True)
-        self.tw.wm_geometry("+%d+%d" % (x, y))
-        label = tk.Label(self.tw, text=self.text, justify='left',
-                         background="#ffffe0", relief='solid', borderwidth=1,
-                         font=("tahoma", "8", "normal"))
-        label.pack(ipadx=1)
-
-    def hidetip(self):
-        tw = self.tw
-        self.tw = None
-        if tw: tw.destroy()
+@dataclass
+class EditorBuffer:
+    content: str = ""
+    path: Path | None = None
+    modified: bool = False
+    panes: list["EditorPane"] = field(default_factory=list)
 
 
-class TextLineNumbers(tk.Canvas):
-    def __init__(self, *args, **kwargs):
-        tk.Canvas.__init__(self, *args, **kwargs)
-        self.textwidget = None
-        self.bg_color = "#ffffff"
-        self.fg_color = "#000000"
+@dataclass
+class Diagnostic:
+    phase: str
+    message: str
+    line: int | None = None
+    col: int | None = None
 
-    def attach(self, text_widget):
-        self.textwidget = text_widget
 
-    def redraw(self, *args):
-        """Redraw line numbers - called on any text change"""
-        self.delete("all")
-        if not self.textwidget:
+class LineNumberArea(QWidget):
+    def __init__(self, editor: "CodeEditor"):
+        super().__init__(editor)
+        self.editor = editor
+
+    def sizeHint(self) -> QSize:
+        return QSize(self.editor.line_number_area_width(), 0)
+
+    def paintEvent(self, event):
+        self.editor.line_number_area_paint_event(event)
+
+
+class CodeEditor(QPlainTextEdit):
+    focused = Signal(object)
+    cursor_moved = Signal(int, int)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.line_number_area = LineNumberArea(self)
+        self.blockCountChanged.connect(self.update_line_number_area_width)
+        self.updateRequest.connect(self.update_line_number_area)
+        self.cursorPositionChanged.connect(self.highlight_current_line)
+        self.cursorPositionChanged.connect(self.emit_cursor_position)
+        self.update_line_number_area_width(0)
+        self.setTabStopDistance(self.fontMetrics().horizontalAdvance(" ") * 4)
+        self.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self.setUndoRedoEnabled(True)
+        self.completer = None
+        self.highlight_current_line()
+
+    def set_keywords(self, words: list[str]):
+        self.completer = QCompleter(words, self)
+        self.completer.setModel(QStringListModel(words, self.completer))
+        self.completer.setWidget(self)
+        self.completer.setCompletionMode(QCompleter.PopupCompletion)
+        self.completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.completer.activated.connect(self.insert_completion)
+
+    def text_under_cursor(self) -> str:
+        cursor = self.textCursor()
+        cursor.select(QTextCursor.WordUnderCursor)
+        return cursor.selectedText()
+
+    def insert_completion(self, completion: str):
+        cursor = self.textCursor()
+        prefix = self.text_under_cursor()
+        cursor.movePosition(QTextCursor.Left, QTextCursor.KeepAnchor, len(prefix))
+        cursor.insertText(completion)
+        self.setTextCursor(cursor)
+
+    def line_number_area_width(self) -> int:
+        digits = len(str(max(1, self.blockCount())))
+        return 18 + self.fontMetrics().horizontalAdvance("9") * digits
+
+    def update_line_number_area_width(self, _):
+        self.setViewportMargins(self.line_number_area_width(), 0, 0, 0)
+
+    def update_line_number_area(self, rect: QRect, dy: int):
+        if dy:
+            self.line_number_area.scroll(0, dy)
+        else:
+            self.line_number_area.update(0, rect.y(), self.line_number_area.width(), rect.height())
+        if rect.contains(self.viewport().rect()):
+            self.update_line_number_area_width(0)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        cr = self.contentsRect()
+        self.line_number_area.setGeometry(QRect(cr.left(), cr.top(), self.line_number_area_width(), cr.height()))
+
+    def focusInEvent(self, event):
+        super().focusInEvent(event)
+        self.focused.emit(self)
+
+    def keyPressEvent(self, event):
+        if event.modifiers() & Qt.ControlModifier:
+            key = event.key()
+            text = event.text()
+            window = self.window()
+            if key in (Qt.Key_Plus, Qt.Key_Equal) or text in ("+", "="):
+                if hasattr(window, "increase_font"):
+                    window.increase_font()
+                    return
+            if key in (Qt.Key_Minus, Qt.Key_Underscore) or text in ("-", "_"):
+                if hasattr(window, "decrease_font"):
+                    window.decrease_font()
+                    return
+        if self.completer and self.completer.popup().isVisible():
+            if event.key() in (Qt.Key_Enter, Qt.Key_Return, Qt.Key_Escape, Qt.Key_Tab, Qt.Key_Backtab):
+                event.ignore()
+                return
+        super().keyPressEvent(event)
+        self.focused.emit(self)
+        if not self.completer:
             return
-            
-        self.config(bg=self.bg_color)
-        
-        # Get total number of lines in the text widget
-        end_index = self.textwidget.index("end")
-        total_lines = int(end_index.split(".")[0])
-        
-        # Iterate through all lines and draw visible ones
-        for line_num in range(1, total_lines + 1):
-            line_index = f"{line_num}.0"
-            dline = self.textwidget.dlineinfo(line_index)
-            if dline is None:
-                continue  # Line not visible, skip it
-            y = dline[1]
-            self.create_text(
-                35, 
-                y, 
-                anchor="ne", 
-                text=str(line_num),
-                fill=self.fg_color, 
-                font=self.textwidget.cget("font")
-            )
+        prefix = self.text_under_cursor()
+        if len(prefix) < 2 or not prefix[-1:].isalnum():
+            self.completer.popup().hide()
+            return
+        self.completer.setCompletionPrefix(prefix)
+        if self.completer.completionCount() == 0:
+            self.completer.popup().hide()
+            return
+        rect = self.cursorRect()
+        rect.setWidth(self.completer.popup().sizeHintForColumn(0) + self.completer.popup().verticalScrollBar().sizeHint().width())
+        self.completer.complete(rect)
+
+    def emit_cursor_position(self):
+        cursor = self.textCursor()
+        self.cursor_moved.emit(cursor.blockNumber() + 1, cursor.positionInBlock() + 1)
+
+    def highlight_current_line(self):
+        selections = []
+        selection = QTextEdit.ExtraSelection()
+        selection.format.setProperty(QTextFormat.FullWidthSelection, True)
+        selection.format.setBackground(QColor(getattr(self, "current_line_color", "#eef6ff")))
+        selection.cursor = self.textCursor()
+        selection.cursor.clearSelection()
+        selections.append(selection)
+        self.setExtraSelections(selections)
+
+    def line_number_area_paint_event(self, event):
+        painter = QPainter(self.line_number_area)
+        painter.fillRect(event.rect(), QColor(getattr(self, "gutter_color", "#f1f3f5")))
+        block = self.firstVisibleBlock()
+        block_number = block.blockNumber()
+        top = int(self.blockBoundingGeometry(block).translated(self.contentOffset()).top())
+        bottom = top + int(self.blockBoundingRect(block).height())
+        color = QColor(getattr(self, "gutter_text_color", "#7a7f87"))
+
+        while block.isValid() and top <= event.rect().bottom():
+            if block.isVisible() and bottom >= event.rect().top():
+                number = str(block_number + 1)
+                painter.setPen(color)
+                painter.drawText(0, top, self.line_number_area.width() - 8, self.fontMetrics().height(), Qt.AlignRight, number)
+            block = block.next()
+            top = bottom
+            bottom = top + int(self.blockBoundingRect(block).height())
+            block_number += 1
 
 
-# ==============================================================================
-# 3. MAIN APPLICATION CONTROLLER
-# ==============================================================================
+class ChungusHighlighter(QSyntaxHighlighter):
+    def __init__(self, document, theme: dict[str, str]):
+        super().__init__(document)
+        self.theme = theme
+        self._build_rules()
 
-class ChungusLexerGUI:
-    def __init__(self, root, lexer_callback=None, syntax_callback=None,
-                 semantic_callback=None, codegen_callback=None):
-        self.root = root
-        self.setup_window()
+    def set_theme(self, theme: dict[str, str]):
+        self.theme = theme
+        self._build_rules()
+        self.rehighlight()
 
+    def _fmt(self, color: str, bold: bool = False, italic: bool = False) -> QTextCharFormat:
+        fmt = QTextCharFormat()
+        fmt.setForeground(QColor(color))
+        if bold:
+            fmt.setFontWeight(QFont.Bold)
+        if italic:
+            fmt.setFontItalic(True)
+        return fmt
+
+    def _build_rules(self):
+        self.rules = [
+            (re.compile(r"\b(" + "|".join(re.escape(k) for k in KEYWORDS) + r")\b"), self._fmt(self.theme["purple"], True)),
+            (re.compile(r"'[^'\n]*'"), self._fmt(self.theme["accent_2"])),
+            (re.compile(r"\b\d+(\.\d+)?\b"), self._fmt(self.theme["warning"])),
+            (re.compile(r"(//.*)$"), self._fmt(self.theme["muted"], italic=True)),
+            (re.compile(r"(\+\+|--|//|\*\*|==|!=|>=|<=|[+\-*/%=!<>])"), self._fmt(self.theme["accent"])),
+        ]
+
+    def highlightBlock(self, text: str):
+        for pattern, fmt in self.rules:
+            for match in pattern.finditer(text):
+                self.setFormat(match.start(), match.end() - match.start(), fmt)
+
+
+class EditorPane(QWidget):
+    close_requested = Signal(object)
+
+    def __init__(self, buffer: EditorBuffer, theme: dict[str, str], parent=None):
+        super().__init__(parent)
+        self.buffer = buffer
+        self.buffer.panes.append(self)
+        self.editor = CodeEditor()
+        self.editor.set_keywords(KEYWORDS)
+        self.path_label = QLabel(self.display_name())
+        self.path_label.setObjectName("paneTitle")
+        self.close_button = QPushButton("x")
+        self.close_button.setObjectName("paneClose")
+        self.close_button.setFixedSize(24, 24)
+        self.close_button.setCursor(Qt.PointingHandCursor)
+        self.close_button.clicked.connect(lambda: self.close_requested.emit(self))
+        self.highlighter = ChungusHighlighter(self.editor.document(), theme)
+        self.editor.setPlainText(buffer.content)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        header = QWidget()
+        header.setObjectName("paneHeader")
+        header_layout = QHBoxLayout(header)
+        header_layout.setContentsMargins(0, 0, 6, 0)
+        header_layout.setSpacing(4)
+        header_layout.addWidget(self.path_label, 1)
+        header_layout.addWidget(self.close_button, 0)
+        layout.addWidget(header)
+        layout.addWidget(self.editor)
+
+    def display_name(self) -> str:
+        if self.buffer.path:
+            suffix = " *" if self.buffer.modified else ""
+            return f"  {self.buffer.path.name}{suffix}"
+        return "  Untitled *" if self.buffer.modified else "  Untitled"
+
+    def refresh_title(self):
+        self.path_label.setText(self.display_name())
+
+    def set_buffer(self, buffer: EditorBuffer, theme: dict[str, str]):
+        if self in self.buffer.panes:
+            self.buffer.panes.remove(self)
+        self.buffer = buffer
+        self.buffer.panes.append(self)
+        self.editor.blockSignals(True)
+        self.editor.setPlainText(buffer.content)
+        self.editor.blockSignals(False)
+        self.highlighter.setDocument(self.editor.document())
+        self.highlighter.set_theme(theme)
+        self.refresh_title()
+
+    def apply_theme(self, theme: dict[str, str], font: QFont):
+        self.editor.setFont(font)
+        self.editor.gutter_color = theme["surface_2"]
+        self.editor.gutter_text_color = theme["muted"]
+        self.editor.current_line_color = theme["editor_line"]
+        self.editor.setStyleSheet(
+            f"""
+            QPlainTextEdit {{
+                background: {theme["editor"]};
+                color: {theme["text"]};
+                border: 0;
+                font-size: {font.pointSize()}pt;
+                selection-background-color: {theme["accent"]};
+                selection-color: {theme["surface"]};
+                padding: 8px;
+            }}
+            """
+        )
+        self.editor.document().setDefaultFont(font)
+        palette = self.editor.palette()
+        palette.setColor(QPalette.Base, QColor(theme["editor"]))
+        palette.setColor(QPalette.Text, QColor(theme["text"]))
+        palette.setColor(QPalette.Highlight, QColor(theme["accent"]))
+        palette.setColor(QPalette.HighlightedText, QColor(theme["surface"]))
+        self.editor.setPalette(palette)
+        self.editor.viewport().setStyleSheet(f"background: {theme['editor']};")
+        self.path_label.setStyleSheet(
+            f"""
+            QLabel#paneTitle {{
+                background: {theme["surface_2"]};
+                color: {theme["muted"]};
+                padding: 6px 8px;
+                font-weight: 600;
+            }}
+            """
+        )
+        self.findChild(QWidget, "paneHeader").setStyleSheet(
+            f"""
+            QWidget#paneHeader {{
+                background: {theme["surface_2"]};
+                border-bottom: 1px solid {theme["border"]};
+            }}
+            """
+        )
+        self.close_button.setStyleSheet(
+            f"""
+            QPushButton#paneClose {{
+                background: {theme["surface_3"]};
+                color: {theme["text"]};
+                border: 1px solid {theme["border"]};
+                border-radius: 12px;
+                padding: 0;
+                font-weight: 800;
+            }}
+            QPushButton#paneClose:hover {{
+                background: {theme["danger"]};
+                color: #ffffff;
+                border-color: {theme["danger"]};
+            }}
+            """
+        )
+        self.highlighter.set_theme(theme)
+        self.editor.update_line_number_area_width(0)
+        self.editor.highlight_current_line()
+
+
+class CompilerWorker(QThread):
+    finished = Signal(str, object, list, object)
+
+    def __init__(self, phase: str, source: str, callback: Callable):
+        super().__init__()
+        self.phase = phase
+        self.source = source
+        self.callback = callback
+
+    def run(self):
+        try:
+            result = self.callback(self.source)
+            if self.phase == "Run Program":
+                tokens, errors, proc = result if len(result) == 3 else (result[0], result[1], None)
+                self.finished.emit(self.phase, tokens, errors, proc)
+            else:
+                tokens, errors = result
+                self.finished.emit(self.phase, tokens, errors, None)
+        except Exception as exc:
+            self.finished.emit(self.phase, [], [f"{self.phase} internal error: {exc}"], None)
+
+
+class ProcessStreamer(QThread):
+    output = Signal(str, str)
+    done = Signal(int)
+
+    def __init__(
+        self,
+        proc: subprocess.Popen,
+        hard_timeout: float | None = None,
+        silent_timeout: float | None = None,
+        max_output_chars: int = 1_000_000,
+    ):
+        super().__init__()
+        self.proc = proc
+        self.stop_requested = threading.Event()
+        # timeouts: None = no limit
+        self.hard_timeout = hard_timeout
+        self.silent_timeout = silent_timeout
+        self.max_output_chars = max_output_chars
+
+    def stop(self):
+        self.stop_requested.set()
+        if self.proc and self.proc.poll() is None:
+            try:
+                self.proc.kill()
+            except Exception:
+                pass
+
+    def send_input(self, text: str):
+        if not self.proc or self.proc.poll() is not None or not self.proc.stdin:
+            return
+        try:
+            self.proc.stdin.write((text + "\n").encode("utf-8", errors="replace"))
+            self.proc.stdin.flush()
+        except (BrokenPipeError, OSError):
+            pass
+
+    def run(self):
+        # Bounded queue to avoid unbounded memory growth on spamming programs
+        events: queue.Queue[tuple[str, str]] = queue.Queue(maxsize=4000)
+        output_count = 0
+        output_count_lock = threading.Lock()
+
+        def reader(stream, tag):
+            nonlocal output_count
+            while not self.stop_requested.is_set():
+                try:
+                    chunk = stream.read(4096)
+                except Exception:
+                    break
+                if chunk in (b"", ""):
+                    break
+                if isinstance(chunk, bytes):
+                    chunk = chunk.decode("utf-8", errors="replace")
+
+                # Track total output safely
+                with output_count_lock:
+                    output_count += len(chunk)
+                    too_much = output_count > (self.max_output_chars or 1_000_000)
+
+                if too_much:
+                    try:
+                        events.put_nowait(("\n[Execution stopped: excessive output detected]\n", "stderr"))
+                    except queue.Full:
+                        pass
+                    try:
+                        self.proc.kill()
+                    except Exception:
+                        pass
+                    self.stop_requested.set()
+                    break
+
+                # Try to enqueue, but handle overflow gracefully
+                try:
+                    events.put((chunk, tag), timeout=0.2)
+                except queue.Full:
+                    try:
+                        events.put_nowait(("\n[Execution stopped: terminal queue overflow]\n", "stderr"))
+                    except queue.Full:
+                        pass
+                    try:
+                        self.proc.kill()
+                    except Exception:
+                        pass
+                    self.stop_requested.set()
+                    break
+
+        threads = []
+        if self.proc.stdout:
+            threads.append(threading.Thread(target=reader, args=(self.proc.stdout, "stdout"), daemon=True))
+        if self.proc.stderr:
+            threads.append(threading.Thread(target=reader, args=(self.proc.stderr, "stderr"), daemon=True))
+        for thread in threads:
+            thread.start()
+
+        # Watchdog / pump loop
+        started = time.monotonic()
+        last_activity = started
+        HARD_TIMEOUT = self.hard_timeout
+        SILENT_TIMEOUT = self.silent_timeout
+
+        while True:
+            now = time.monotonic()
+
+            # Drain a batch of queued events and coalesce them by tag to reduce signal frequency
+            processed = 0
+            pending: dict[str, list[str]] = {}
+            while processed < 300:
+                try:
+                    text, tag = events.get_nowait()
+                except queue.Empty:
+                    break
+                last_activity = time.monotonic()
+                pending.setdefault(tag or "stdout", []).append(text)
+                processed += 1
+
+            # Emit coalesced chunks (limit size per emit to avoid huge signals)
+            MAX_EMIT = 65536
+            for tag, chunks in pending.items():
+                agg = "".join(chunks)
+                start = 0
+                while start < len(agg):
+                    part = agg[start : start + MAX_EMIT]
+                    self.output.emit(part, tag)
+                    start += MAX_EMIT
+
+            # Hard runtime cutoff
+            if HARD_TIMEOUT is not None and now - started > HARD_TIMEOUT:
+                try:
+                    events.put_nowait(("\n[Execution timeout: exceeded 300s runtime]\n", "stderr"))
+                except queue.Full:
+                    pass
+                try:
+                    self.proc.kill()
+                except Exception:
+                    pass
+                self.stop_requested.set()
+                break
+
+            # Silent timeout (no output and no input)
+            if SILENT_TIMEOUT is not None and now - last_activity > SILENT_TIMEOUT:
+                try:
+                    events.put_nowait(("\n[Execution timeout: no terminal activity for 300s]\n", "stderr"))
+                except queue.Full:
+                    pass
+                try:
+                    self.proc.kill()
+                except Exception:
+                    pass
+                self.stop_requested.set()
+                break
+
+            if self.proc.poll() is not None:
+                break
+
+            time.sleep(0.03)
+
+        # final drain — coalesce remaining events before emitting
+        remaining: dict[str, list[str]] = {}
+        while not events.empty():
+            try:
+                text, tag = events.get_nowait()
+            except queue.Empty:
+                break
+            remaining.setdefault(tag or "stdout", []).append(text)
+
+        MAX_EMIT = 65536
+        for tag, chunks in remaining.items():
+            agg = "".join(chunks)
+            start = 0
+            while start < len(agg):
+                part = agg[start : start + MAX_EMIT]
+                self.output.emit(part, tag)
+                start += MAX_EMIT
+
+        # join reader threads briefly
+        for t in threads:
+            t.join(timeout=0.2)
+
+        try:
+            rc = self.proc.wait()
+        except Exception:
+            rc = -1
+
+        self.done.emit(rc)
+
+
+class ChungusCompilerGUI(QMainWindow):
+    def __init__(
+        self,
+        lexer_callback=None,
+        syntax_callback=None,
+        semantic_callback=None,
+        codegen_callback=None,
+    ):
+        super().__init__()
         self.lexer_callback = lexer_callback
         self.syntax_callback = syntax_callback
         self.semantic_callback = semantic_callback
         self.codegen_callback = codegen_callback
+        self.theme_name = "Oceanic Blue"
+        self.theme = THEMES[self.theme_name]
+        self.active_pane: EditorPane | None = None
+        self.buffers: list[EditorBuffer] = []
+        self.compiler_worker: CompilerWorker | None = None
+        self.streamer: ProcessStreamer | None = None
+        self._syncing = False
 
-        # App State
-        self.current_theme = tk.StringVar(value="Oceanic Blue")
-        self.search_open = False
-        self.last_search_idx = "1.0"
-        self.current_font_size = 12
+        self.setWindowTitle("CHUNGUS COMPILER")
+        self.resize(1440, 920)
+        self.setMinimumSize(1100, 720)
 
-        # Interactive terminal state
-        self._running_proc = None          # subprocess.Popen when a program is live
-        self._proc_lock = threading.Lock() # guard _running_proc | thread lock - prevents racing conditions
-        self._last_term_activity = 0.0     # monotonic timestamp; updated on output/user input
-        self._output_char_count = 0        # output flood guard for runaway loops
-        self._io_events = queue.Queue(maxsize=4000)  # bounded to prevent UI freeze on output floods
-        self._io_pump_active = False
+        self.code_font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        self.code_font.setPointSize(11)
+        self.current_font_size = 11
 
-        self.themes = {
-            "Light (macOS)": {
-                "BG_COLOR": "#f5f5f7", "TEXT_AREA_BG": "#ffffff", "FG_COLOR": "#333333",
-                "ACCENT_BLUE": "#007aff", "ACCENT_GREEN": "#34c759", "ACCENT_RED": "#ff3b30",
-                "ACCENT_ORANGE": "#ff9500", "ACCENT_PURPLE": "#af52de", "BORDER_COLOR": "#d1d1d6",
-                "TITLE_COLOR": "#1c1c1e", "SECONDARY_TEXT": "#6e6e73", "STATUS_BAR_BG": "#e5e5ea",
-                "TREE_HEADING_BG": "#f9f9f9", "TREE_EVEN_ROW": "#fafafa", "BUTTON_FG": "white",
-                "SELECT_BG": "#b3d7ff", "SELECT_FG": "#333333", "HEADER_BG": "#ffffff",
-                "BTN_TOOL_BG": "#e5e5ea", "BTN_TOOL_FG": "#333333",
-                "TERM_BG": "#1e1e1e", "TERM_FG": "#f0f0f0", "TERM_INPUT_BG": "#2a2a2a",
-            },
-            "Dark": {
-                "BG_COLOR": "#1e1e1e", "TEXT_AREA_BG": "#2a2a2a", "FG_COLOR": "#d4d4d4",
-                "ACCENT_BLUE": "#007acc", "ACCENT_GREEN": "#4ec9b0", "ACCENT_RED": "#f44747",
-                "ACCENT_ORANGE": "#ce9178", "ACCENT_PURPLE": "#c586c0", "BORDER_COLOR": "#444444",
-                "TITLE_COLOR": "#cccccc", "SECONDARY_TEXT": "#9e9e9e", "STATUS_BAR_BG": "#1a1a1a",
-                "TREE_HEADING_BG": "#333333", "TREE_EVEN_ROW": "#303030", "BUTTON_FG": "#d4d4d4",
-                "SELECT_BG": "#007acc", "SELECT_FG": "#d4d4d4", "HEADER_BG": "#1e1e1e",
-                "BTN_TOOL_BG": "#3c3c3c", "BTN_TOOL_FG": "#ffffff",
-                "TERM_BG": "#0d0d0d", "TERM_FG": "#d4d4d4", "TERM_INPUT_BG": "#1a1a1a",
-            },
-            "Oceanic Blue": {
-                "BG_COLOR": "#e0f2f7", "TEXT_AREA_BG": "#ffffff", "FG_COLOR": "#004d40",
-                "ACCENT_BLUE": "#0277bd", "ACCENT_GREEN": "#00695c", "ACCENT_RED": "#c62828",
-                "ACCENT_ORANGE": "#e65100", "ACCENT_PURPLE": "#6a1b9a", "BORDER_COLOR": "#b0bec5",
-                "TITLE_COLOR": "#01579b", "SECONDARY_TEXT": "#455a64", "STATUS_BAR_BG": "#cfd8dc",
-                "TREE_HEADING_BG": "#e1f5fe", "TREE_EVEN_ROW": "#f5fcff", "BUTTON_FG": "white",
-                "SELECT_BG": "#81d4fa", "SELECT_FG": "#004d40", "HEADER_BG": "#e0f2f7",
-                "BTN_TOOL_BG": "#81d4fa", "BTN_TOOL_FG": "#004d40",
-                "TERM_BG": "#0d1b2a", "TERM_FG": "#a8d8ea", "TERM_INPUT_BG": "#112233",
-            },
-            "Forest Green": {
-                "BG_COLOR": "#263238", "TEXT_AREA_BG": "#37474f", "FG_COLOR": "#eceff1",
-                "ACCENT_BLUE": "#80cbc4", "ACCENT_GREEN": "#a5d6a7", "ACCENT_RED": "#ef9a9a",
-                "ACCENT_ORANGE": "#ffcc80", "ACCENT_PURPLE": "#ce93d8", "BORDER_COLOR": "#546e7a",
-                "TITLE_COLOR": "#b0bec5", "SECONDARY_TEXT": "#90a4ae", "STATUS_BAR_BG": "#1a252a",
-                "TREE_HEADING_BG": "#455a64", "TREE_EVEN_ROW": "#3c4f57", "BUTTON_FG": "#1a252a",
-                "SELECT_BG": "#00695c", "SELECT_FG": "#eceff1", "HEADER_BG": "#263238",
-                "BTN_TOOL_BG": "#546e7a", "BTN_TOOL_FG": "#ffffff",
-                "TERM_BG": "#0a1a0a", "TERM_FG": "#a5d6a7", "TERM_INPUT_BG": "#122212",
-            },
-            "Big Chungus": {
-                "BG_COLOR": "#add8e6", "TEXT_AREA_BG": "#ffffff", "FG_COLOR": "#404040",
-                "ACCENT_BLUE": "#ff4500", "ACCENT_GREEN": "#228b22", "ACCENT_RED": "#dc143c",
-                "ACCENT_ORANGE": "#8b4513", "ACCENT_PURPLE": "#a9a9a9", "BORDER_COLOR": "#87ceeb",
-                "TITLE_COLOR": "#ff4500", "SECONDARY_TEXT": "#708090", "STATUS_BAR_BG": "#f0f8ff",
-                "TREE_HEADING_BG": "#ffdead", "TREE_EVEN_ROW": "#fff8dc", "BUTTON_FG": "white",
-                "SELECT_BG": "#ffd700", "SELECT_FG": "#404040", "HEADER_BG": "#add8e6",
-                "BTN_TOOL_BG": "#87ceeb", "BTN_TOOL_FG": "#404040",
-                "TERM_BG": "#1a1a2e", "TERM_FG": "#ffd700", "TERM_INPUT_BG": "#16213e",
-            },
-            "Disney Magic": {
-                "BG_COLOR": "#fff0f5", "TEXT_AREA_BG": "#ffffff", "FG_COLOR": "#4b0082",
-                "ACCENT_BLUE": "#1e90ff", "ACCENT_GREEN": "#32cd32", "ACCENT_RED": "#ff1493",
-                "ACCENT_ORANGE": "#ffa500", "ACCENT_PURPLE": "#9370db", "BORDER_COLOR": "#ffb6c1",
-                "TITLE_COLOR": "#c71585", "SECONDARY_TEXT": "#8b008b", "STATUS_BAR_BG": "#e6e6fa",
-                "TREE_HEADING_BG": "#ffe4e1", "TREE_EVEN_ROW": "#fffaf0", "BUTTON_FG": "white",
-                "SELECT_BG": "#87cefa", "SELECT_FG": "#ffffff", "HEADER_BG": "#fff0f5",
-                "BTN_TOOL_BG": "#ffb6c1", "BTN_TOOL_FG": "#4b0082",
-                "TERM_BG": "#1a0a2e", "TERM_FG": "#e0aaff", "TERM_INPUT_BG": "#2d1b4e",
-            },
-            "Synthwave 84": {
-                "BG_COLOR": "#2b213a", "TEXT_AREA_BG": "#241b2f", "FG_COLOR": "#ff71ce",
-                "ACCENT_BLUE": "#01cdfe", "ACCENT_GREEN": "#05ffa1", "ACCENT_RED": "#ff0055",
-                "ACCENT_ORANGE": "#b967ff", "ACCENT_PURPLE": "#fffb96", "BORDER_COLOR": "#01cdfe",
-                "TITLE_COLOR": "#05ffa1", "SECONDARY_TEXT": "#b967ff", "STATUS_BAR_BG": "#191221",
-                "TREE_HEADING_BG": "#3e2f5b", "TREE_EVEN_ROW": "#2b213a", "BUTTON_FG": "#191221",
-                "SELECT_BG": "#ff71ce", "SELECT_FG": "#2b213a", "HEADER_BG": "#241b2f",
-                "BTN_TOOL_BG": "#3e2f5b", "BTN_TOOL_FG": "#01cdfe",
-                "TERM_BG": "#0d0013", "TERM_FG": "#05ffa1", "TERM_INPUT_BG": "#1a0026",
-            },
-        }
-        self.colors = self.themes[self.current_theme.get()]
+        self._build_actions()
+        self._build_shortcuts()
+        self._build_menu()
+        self._build_toolbar()
+        self._build_layout()
+        self._build_status_bar()
+        self._new_editor_pane(EditorBuffer())
+        self._load_sample_on_start()
+        self.apply_theme(self.theme_name)
+        app = QApplication.instance()
+        if app:
+            app.installEventFilter(self)
 
-        self.init_fonts()
-        self.build_ui_structure()
-        self.apply_theme()
+    def _build_actions(self):
+        self.open_action = QAction("Open", self)
+        self.open_action.setShortcut("Ctrl+O")
+        self.open_action.triggered.connect(self.open_file)
 
-        self.code_input.bind("<<Change>>", self.on_code_change)
-        self.code_input.bind("<Configure>", self.on_code_change)
+        self.save_action = QAction("Save", self)
+        self.save_action.setShortcut("Ctrl+S")
+        self.save_action.triggered.connect(self.save_file)
 
-    def setup_window(self):
-        self.root.title("Chungus Compiler Environment")
-        self.root.geometry("1300x900")
-        self.root.minsize(1024, 700)
+        self.find_action = QAction("Find", self)
+        self.find_action.setShortcut("Ctrl+F")
+        self.find_action.triggered.connect(lambda: self.search_box.setFocus())
 
-    def init_fonts(self):
-        os_name = platform.system()
-        if os_name == "Darwin":
-            base_font, title_family, mono_family = "SF Pro Text", "Avenir Next", "SF Mono"
-        elif os_name == "Windows":
-            base_font, title_family, mono_family = "Segoe UI", "Segoe UI Black", "Consolas"
+        self.split_h_action = QAction("Split", self)
+        self.split_h_action.triggered.connect(lambda: self.split_editor(Qt.Horizontal))
+
+        self.zoom_in_action = QAction("Zoom In", self)
+        self.zoom_in_action.setShortcut("Ctrl++")
+        self.zoom_in_action.triggered.connect(self.increase_font)
+
+        self.zoom_out_action = QAction("Zoom Out", self)
+        self.zoom_out_action.setShortcut("Ctrl+-")
+        self.zoom_out_action.triggered.connect(self.decrease_font)
+
+    def _build_shortcuts(self):
+        for sequence in ("Ctrl++", "Ctrl+=", "Ctrl+Plus"):
+            shortcut = QShortcut(QKeySequence(sequence), self)
+            shortcut.setContext(Qt.ApplicationShortcut)
+            shortcut.activated.connect(self.increase_font)
+        for sequence in ("Ctrl+-", "Ctrl+_", "Ctrl+Minus"):
+            shortcut = QShortcut(QKeySequence(sequence), self)
+            shortcut.setContext(Qt.ApplicationShortcut)
+            shortcut.activated.connect(self.decrease_font)
+
+    def eventFilter(self, watched, event):
+        if event.type() == QEvent.KeyPress and event.modifiers() & Qt.ControlModifier:
+            key = event.key()
+            if key in (Qt.Key_Plus, Qt.Key_Equal):
+                self.increase_font()
+                return True
+            if key in (Qt.Key_Minus, Qt.Key_Underscore):
+                self.decrease_font()
+                return True
+        return super().eventFilter(watched, event)
+
+    def _build_menu(self):
+        menu = self.menuBar()
+        file_menu = menu.addMenu("File")
+        file_menu.addAction(self.open_action)
+        file_menu.addAction(self.save_action)
+        file_menu.addSeparator()
+        file_menu.addAction("Exit", self.close)
+
+        edit_menu = menu.addMenu("Edit")
+        edit_menu.addAction(self.find_action)
+        edit_menu.addAction(self.split_h_action)
+
+        view_menu = menu.addMenu("View")
+        theme_menu = view_menu.addMenu("Theme")
+        for name in THEMES:
+            action = QAction(name, self)
+            action.triggered.connect(lambda _, n=name: self.apply_theme(n))
+            theme_menu.addAction(action)
+        view_menu.addSeparator()
+        view_menu.addAction(self.zoom_in_action)
+        view_menu.addAction(self.zoom_out_action)
+
+        snippet_menu = menu.addMenu("Snippet")
+        snippet_menu.addAction("Show / Hide Snippets", self.toggle_snippets)
+        snippet_menu.addSeparator()
+        for name in SNIPPETS:
+            action = QAction(name, self)
+            action.triggered.connect(lambda _checked=False, n=name: self.insert_snippet_by_name(n))
+            snippet_menu.addAction(action)
+
+        help_menu = menu.addMenu("Help")
+        help_menu.addAction("About Chungus Compiler", self.show_about)
+
+    def _build_toolbar(self):
+        toolbar = QToolBar("Compiler Commands")
+        toolbar.setMovable(False)
+        toolbar.setIconSize(QSize(18, 18))
+        self.addToolBar(toolbar)
+
+        self.btn_lexer = self._tool_button("▶ Lexer", lambda: self.run_phase("Lexer", self.lexer_callback), "analyze")
+        self.btn_syntax = self._tool_button("▶ Syntax", lambda: self.run_phase("Syntax", self.syntax_callback), "analyze")
+        self.btn_semantic = self._tool_button("▶ Semantic", lambda: self.run_phase("Semantic", self.semantic_callback), "analyze")
+        self.btn_codegen = self._tool_button("▶ Run", lambda: self.run_phase("Run Program", self.codegen_callback), "run")
+        self.btn_stop = self._tool_button("Stop", self.stop_process, "danger")
+        self.btn_split_h = self._tool_button("Split", lambda: self.split_editor(Qt.Horizontal), "layout")
+        self.btn_clear = self._tool_button("Clear", self.clear_bottom_panels, "utility")
+
+        for group in [
+            [self.btn_lexer, self.btn_syntax, self.btn_semantic],
+            [self.btn_codegen, self.btn_stop],
+        ]:
+            for btn in group:
+                toolbar.addWidget(btn)
+            toolbar.addSeparator()
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        toolbar.addWidget(spacer)
+        toolbar.addWidget(self.btn_split_h)
+        toolbar.addWidget(self.btn_clear)
+        self.btn_stop.setEnabled(False)
+
+    def _tool_button(self, label: str, callback: Callable, role: str) -> QPushButton:
+        button = QPushButton(label)
+        button.setProperty("buttonRole", role)
+        button.setCursor(Qt.PointingHandCursor)
+        button.clicked.connect(callback)
+        button.setMinimumSize(92, 36)
+        return button
+
+    def _nav_button(self, label: str, callback: Callable) -> QPushButton:
+        button = QPushButton(label)
+        button.setObjectName("findNavButton")
+        button.setCursor(Qt.PointingHandCursor)
+        button.clicked.connect(callback)
+        button.setFixedSize(34, 34)
+        return button
+
+    def _build_layout(self):
+        root_splitter = QSplitter(Qt.Horizontal)
+        self.root_splitter = root_splitter
+        self.setCentralWidget(root_splitter)
+
+        self.snippet_drawer = self._build_snippets()
+        self.snippet_drawer.setMinimumWidth(0)
+        self.snippet_drawer.setMaximumWidth(0)
+        self.snippet_drawer.setVisible(False)
+        root_splitter.addWidget(self.snippet_drawer)
+
+        content_splitter = QSplitter(Qt.Horizontal)
+        root_splitter.addWidget(content_splitter)
+
+        center_splitter = QSplitter(Qt.Vertical)
+        content_splitter.addWidget(center_splitter)
+
+        center = QWidget()
+        center_layout = QVBoxLayout(center)
+        center_layout.setContentsMargins(12, 10, 8, 8)
+        center_layout.setSpacing(8)
+
+        title_row = QHBoxLayout()
+        self.app_title = QLabel("CHUNGUS COMPILER")
+        self.app_title.setObjectName("appTitle")
+        self.search_box = QLineEdit()
+        self.search_box.setPlaceholderText("Find in active editor")
+        self.search_box.returnPressed.connect(self.find_next)
+        self.search_box.textChanged.connect(self.highlight_search)
+        self.search_box.setMinimumWidth(250)
+        self.btn_find_prev = self._nav_button("▲", self.find_previous)
+        self.btn_find_next = self._nav_button("▼", self.find_next)
+        title_row.addWidget(self.app_title)
+        title_row.addStretch(1)
+        title_row.addWidget(self.search_box)
+        title_row.addWidget(self.btn_find_prev)
+        title_row.addWidget(self.btn_find_next)
+        center_layout.addLayout(title_row)
+
+        self.editor_splitter = QSplitter(Qt.Horizontal)
+        center_layout.addWidget(self.editor_splitter)
+        center_splitter.addWidget(center)
+
+        self.bottom_tabs = QTabWidget()
+        self._build_bottom_panel()
+        center_splitter.addWidget(self.bottom_tabs)
+        center_splitter.setSizes([560, 360])
+
+        self.inspector = QTabWidget()
+        self.inspector.setMinimumWidth(390)
+        self._build_inspector()
+        content_splitter.addWidget(self.inspector)
+        content_splitter.setSizes([1040, 440])
+        root_splitter.setSizes([0, 1480])
+
+    def _build_snippets(self):
+        container = QWidget()
+        container.setObjectName("snippetDrawer")
+        layout = QVBoxLayout(container)
+        layout.setContentsMargins(10, 10, 8, 8)
+        layout.setSpacing(8)
+        title = QLabel("Code Snippets")
+        title.setObjectName("sideTitle")
+        self.snippet_list = QListWidget()
+        for name in SNIPPETS:
+            item = QListWidgetItem(name)
+            item.setToolTip(SNIPPETS[name])
+            self.snippet_list.addItem(item)
+        self.snippet_list.itemDoubleClicked.connect(self.insert_snippet)
+        layout.addWidget(title)
+        layout.addWidget(self.snippet_list)
+        return container
+
+    def toggle_snippets(self):
+        opening = self.snippet_drawer.maximumWidth() == 0
+        start = self.snippet_drawer.maximumWidth()
+        end = 270 if opening else 0
+        if opening:
+            self.snippet_drawer.setVisible(True)
+            self.root_splitter.setSizes([270, max(900, self.width() - 270)])
         else:
-            base_font, title_family, mono_family = "DejaVu Sans", "DejaVu Sans", "DejaVu Sans Mono"
+            self.root_splitter.setSizes([0, max(900, self.width())])
+        self.snippet_animation = QPropertyAnimation(self.snippet_drawer, b"maximumWidth", self)
+        self.snippet_animation.setDuration(220)
+        self.snippet_animation.setStartValue(start)
+        self.snippet_animation.setEndValue(end)
+        self.snippet_animation.setEasingCurve(QEasingCurve.OutCubic)
+        self.snippet_animation.finished.connect(lambda: self.snippet_drawer.setVisible(opening))
+        self.snippet_animation.start()
+
+    def _build_inspector(self):
+        self.token_filter = QLineEdit()
+        self.token_filter.setPlaceholderText("Filter tokens")
+        self.token_filter.textChanged.connect(self.filter_tokens)
+        token_widget = QWidget()
+        token_layout = QVBoxLayout(token_widget)
+        token_layout.setContentsMargins(0, 0, 0, 0)
+        token_layout.addWidget(self.token_filter)
+        self.token_table = QTableWidget(0, 4)
+        self.token_table.setHorizontalHeaderLabels(["Line", "Col", "Lexeme", "Token"])
+        self.token_table.verticalHeader().setVisible(False)
+        self.token_table.setShowGrid(False)
+        self.token_table.setAlternatingRowColors(True)
+        self.token_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.token_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.token_table.horizontalHeader().setStretchLastSection(True)
+        self.token_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        self.token_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        self.token_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
+        self.token_table.horizontalHeader().setSectionResizeMode(3, QHeaderView.Stretch)
+        self.token_table.setSortingEnabled(False)
+        token_layout.addWidget(self.token_table)
+        self.inspector.addTab(token_widget, "Token Stream")
+
+    def _build_bottom_panel(self):
+        self.problems_table = QTableWidget(0, 4)
+        self.problems_table.setHorizontalHeaderLabels(["Phase", "Line", "Col", "Message"])
+        self.problems_table.horizontalHeader().setSectionResizeMode(3, QHeaderView.Stretch)
+        self.problems_table.cellDoubleClicked.connect(self.goto_problem)
+        self.bottom_tabs.addTab(self.problems_table, "Problems")
+
+        self.output_view = QPlainTextEdit()
+        self.output_view.setReadOnly(True)
+        self.bottom_tabs.addTab(self.output_view, "Output")
+
+        terminal_widget = QWidget()
+        terminal_layout = QVBoxLayout(terminal_widget)
+        terminal_layout.setContentsMargins(0, 0, 0, 0)
+        self.terminal_view = QPlainTextEdit()
+        self.terminal_view.setReadOnly(True)
+        self.terminal_input = QLineEdit()
+        self.terminal_input.setPlaceholderText("Program input")
+        self.terminal_input.returnPressed.connect(self.send_terminal_input)
+        self.terminal_input.setEnabled(False)
+        terminal_layout.addWidget(self.terminal_view)
+        terminal_layout.addWidget(self.terminal_input)
+        self.bottom_tabs.addTab(terminal_widget, "Terminal")
+
+        self.log_view = QPlainTextEdit()
+        self.log_view.setReadOnly(True)
+        self.bottom_tabs.addTab(self.log_view, "Compilation Log")
+
+    def _build_status_bar(self):
+        status = QStatusBar()
+        self.setStatusBar(status)
+        self.status_phase = QLabel("Ready")
+        self.status_file = QLabel("Untitled")
+        self.status_cursor = QLabel("Ln 1, Col 1")
+        self.status_errors = QLabel("0 problems")
+        self.status_runtime = QLabel("Idle")
+        status.addWidget(self.status_phase, 2)
+        status.addWidget(self.status_file, 3)
+        status.addPermanentWidget(self.status_errors)
+        status.addPermanentWidget(self.status_cursor)
+        status.addPermanentWidget(self.status_runtime)
+
+    def _new_editor_pane(self, buffer: EditorBuffer, orientation: Qt.Orientation | None = None) -> EditorPane:
+        if buffer not in self.buffers:
+            self.buffers.append(buffer)
+        if orientation is not None:
+            self.editor_splitter.setOrientation(orientation)
+        pane = EditorPane(buffer, self.theme)
+        pane.editor.textChanged.connect(lambda p=pane: self.editor_text_changed(p))
+        pane.editor.focused.connect(lambda _editor, p=pane: self.set_active_pane(p))
+        pane.editor.cursor_moved.connect(self.update_cursor_status)
+        pane.close_requested.connect(self.close_split)
+        pane.apply_theme(self.theme, self.code_font)
+        self.editor_splitter.addWidget(pane)
+        self.set_active_pane(pane)
+        self.update_split_close_buttons()
+        return pane
+
+    def editor_panes(self) -> list[EditorPane]:
+        panes = []
+        if not hasattr(self, "editor_splitter"):
+            return panes
+        for index in range(self.editor_splitter.count()):
+            pane = self.editor_splitter.widget(index)
+            if isinstance(pane, EditorPane):
+                panes.append(pane)
+        return panes
+
+    def _load_sample_on_start(self):
+        sample = PROJECT_ROOT / "samples" / "program1.chg"
+        if sample.exists() and self.active_pane:
+            self.load_path_into_pane(sample, self.active_pane, analyze=False)
 
-        self.fonts = {
-            "title":      font.Font(family=title_family, size=28, weight="bold"),
-            "header":     font.Font(family=title_family, size=20, weight="bold"),
-            "subheader":  font.Font(family=base_font,   size=12, weight="bold"),
-            "ui_reg":     font.Font(family=base_font,   size=10),
-            "ui_small":   font.Font(family=base_font,   size=9),
-            "code":       font.Font(family=mono_family, size=self.current_font_size),
-            "mono_small": font.Font(family=mono_family, size=10),
-            "mono_bold":  font.Font(family=mono_family, size=10, weight="bold"),
-            "terminal":   font.Font(family=mono_family, size=11),
-        }
+    def set_active_pane(self, pane: EditorPane):
+        self.active_pane = pane
+        self.status_file.setText(str(pane.buffer.path) if pane.buffer.path else "Untitled")
+        pane.editor.emit_cursor_position()
 
-    # ==========================================================================
-    # 4. UI CONSTRUCTION
-    # ==========================================================================
+    def active_editor(self) -> CodeEditor | None:
+        return self.active_pane.editor if self.active_pane else None
 
-    def build_ui_structure(self):
-        self.build_menu()
-        self.main_container = tk.Frame(self.root)
-        self.main_container.pack(fill=tk.BOTH, expand=True)
-        self.build_header()
-        self.build_toolbar()
-        self.build_workspace()
-        self.build_status_bar()
-
-    def build_menu(self):
-        self.menubar = tk.Menu(self.root)
-
-        file_menu = tk.Menu(self.menubar, tearoff=0)
-        file_menu.add_command(label="Open Source File...", command=self.open_file, accelerator="Ctrl+O")
-        file_menu.add_command(label="Save Source Code...", command=self.save_file, accelerator="Ctrl+S")
-        file_menu.add_separator()
-        file_menu.add_command(label="Exit Environment", command=self.root.quit)
-        self.menubar.add_cascade(label="File", menu=file_menu)
-
-        view_menu = tk.Menu(self.menubar, tearoff=0)
-        theme_menu = tk.Menu(view_menu, tearoff=0)
-        for theme_name in self.themes.keys():
-            theme_menu.add_radiobutton(label=theme_name, variable=self.current_theme,
-                                       value=theme_name, command=self.set_theme)
-        view_menu.add_cascade(label="Interface Theme", menu=theme_menu)
-
-        font_menu = tk.Menu(view_menu, tearoff=0)
-        font_menu.add_command(label="Increase Font (Zoom In)", command=self.increase_font)
-        font_menu.add_command(label="Decrease Font (Zoom Out)", command=self.decrease_font)
-        view_menu.add_cascade(label="Editor Zoom", menu=font_menu)
-        self.menubar.add_cascade(label="View", menu=view_menu)
-
-        help_menu = tk.Menu(self.menubar, tearoff=0)
-        help_menu.add_command(label="About", command=self.show_about)
-        self.menubar.add_cascade(label="Help", menu=help_menu)
-
-        self.root.config(menu=self.menubar)
-        self.root.bind('<Control-o>', lambda e: self.open_file())
-        self.root.bind('<Control-s>', lambda e: self.save_file())
-        self.root.bind('<Control-plus>', lambda e: self.increase_font())
-        self.root.bind('<Control-minus>', lambda e: self.decrease_font())
-
-    def build_header(self):
-        self.header_frame = tk.Frame(self.main_container, padx=20, pady=15)
-        self.header_frame.pack(fill=tk.X, side=tk.TOP)
-        self.title_label = tk.Label(self.header_frame, text="CHUNGUS COMPILER",
-                                    font=self.fonts['title'], anchor='center')
-        self.title_label.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
-
-    def build_toolbar(self):
-        self.toolbar = tk.Frame(self.main_container, bd=1, relief="raised")
-        self.toolbar.pack(fill=tk.X, side=tk.TOP, pady=(0, 5))
-
-        btn_container = tk.Frame(self.toolbar)
-        btn_container.pack(side=tk.LEFT, padx=15, pady=8)
-
-        self.btn_lexer = tk.Button(btn_container, text="▶ RUN LEXER",
-                                   command=self.run_lexer, font=self.fonts['subheader'],
-                                   relief="raised", borderwidth=0, padx=20, pady=8, cursor="hand2")
-        self.btn_lexer.pack(side=tk.LEFT, padx=(0, 10))
-
-        self.btn_syntax = tk.Button(btn_container, text="▶ RUN SYNTAX",
-                                    command=self.run_syntax, font=self.fonts['subheader'],
-                                    relief="raised", borderwidth=0, padx=20, pady=8, cursor="hand2")
-        self.btn_syntax.pack(side=tk.LEFT, padx=(0, 10))
-
-        self.btn_semantic = tk.Button(btn_container, text="▶ RUN SEMANTIC",
-                                      command=self.run_semantic, font=self.fonts['subheader'],
-                                      relief="raised", borderwidth=0, padx=20, pady=8, cursor="hand2")
-        self.btn_semantic.pack(side=tk.LEFT, padx=(0, 10))
-
-        self.btn_codegen = tk.Button(btn_container, text="▶ RUN PROGRAM",
-                                     command=self.run_codegen, font=self.fonts['subheader'],
-                                     relief="raised", borderwidth=0, padx=20, pady=8, cursor="hand2")
-        self.btn_codegen.pack(side=tk.LEFT, padx=(0, 10))
-
-        tools_container = tk.Frame(self.toolbar)
-        tools_container.pack(side=tk.RIGHT, padx=15)
-
-        self.btn_find = tk.Button(tools_container, text="🔍 Find in Code",
-                                  command=self.toggle_search_bar, font=self.fonts['ui_reg'],
-                                  relief="flat", padx=15, pady=6, cursor="hand2")
-        self.btn_find.pack(side=tk.LEFT, padx=5)
-
-        self.btn_clear = tk.Button(tools_container, text="🗑 Clear Output",
-                                   command=self.clear_console, font=self.fonts['ui_reg'],
-                                   relief="flat", padx=15, pady=6, cursor="hand2")
-        self.btn_clear.pack(side=tk.LEFT, padx=5)
-
-        self.btn_kill = tk.Button(tools_container, text="⏹ Kill Process",
-                                  command=self.kill_process, font=self.fonts['ui_reg'],
-                                  relief="flat", padx=15, pady=6, cursor="hand2", state=tk.DISABLED)
-        self.btn_kill.pack(side=tk.LEFT, padx=5)
-
-    def build_workspace(self):
-        self.paned_main = tk.PanedWindow(self.main_container, orient=tk.HORIZONTAL,
-                                         sashwidth=8, bd=0)
-        self.paned_main.pack(fill=tk.BOTH, expand=True, padx=10, pady=(0, 10))
-
-        self.left_pane = tk.PanedWindow(self.paned_main, orient=tk.VERTICAL, sashwidth=8, bd=0)
-        self.paned_main.add(self.left_pane, minsize=400, stretch="always")
-
-        self.editor_frame = tk.Frame(self.left_pane)
-        self.left_pane.add(self.editor_frame, stretch="always", minsize=300)
-        self.build_editor_area()
-
-        self.console_frame = tk.Frame(self.left_pane)
-        self.left_pane.add(self.console_frame, stretch="never", minsize=180)
-        self.build_console_area()
-
-        self.right_pane = tk.Frame(self.paned_main)
-        self.paned_main.add(self.right_pane, minsize=350, stretch="never")
-        self.build_analysis_area()
-
-
-    def build_editor_area(self):
-        lbl_frame = tk.Frame(self.editor_frame)
-        lbl_frame.pack(fill=tk.X, side=tk.TOP, pady=(0, 2))
-        self.editor_header_lbl = tk.Label(lbl_frame, text="  SOURCE CODE  ",
-                                          font=self.fonts['mono_bold'], anchor='w')
-        self.editor_header_lbl.pack(side=tk.LEFT, fill=tk.Y)
-
-        self.search_frame = tk.Frame(self.editor_frame, bd=1, relief="raised", padx=5, pady=5)
-        tk.Label(self.search_frame, text="Find:", font=self.fonts['ui_small']).pack(side=tk.LEFT, padx=2)
-        self.entry_search = tk.Entry(self.search_frame, font=self.fonts['ui_reg'], width=25)
-        self.entry_search.pack(side=tk.LEFT, padx=5)
-        self.entry_search.bind("<Return>", self.find_next)
-        tk.Button(self.search_frame, text="Next", command=self.find_next,
-                  font=self.fonts['ui_small']).pack(side=tk.LEFT, padx=2)
-        tk.Button(self.search_frame, text="✖", command=self.toggle_search_bar,
-                  font=self.fonts['ui_small'], relief="flat", fg="red").pack(side=tk.RIGHT, padx=5)
-
-        self.text_container = tk.Frame(self.editor_frame, bd=2, relief="flat")
-        self.text_container.pack(fill=tk.BOTH, expand=True)
-
-        self.v_scroll = ttk.Scrollbar(self.text_container, orient=tk.VERTICAL)
-        self.v_scroll.pack(side=tk.RIGHT, fill=tk.Y)
-
-        self.code_input = tk.Text(self.text_container, font=self.fonts['code'], undo=True,
-                                  wrap=tk.NONE, yscrollcommand=self.v_scroll.set,
-                                  padx=10, pady=10, borderwidth=0, highlightthickness=0)
-        self.code_input.config(tabs='1c')  # Set tab stops to 4 spaces visually
-
-        self.v_scroll.config(command=self.code_input.yview)
-
-        self.line_numbers = TextLineNumbers(self.text_container, width=40)
-        self.line_numbers.attach(self.code_input)
-        self.line_numbers.pack(side=tk.LEFT, fill=tk.Y)
-        self.code_input.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        self.code_input.bind("<<Change>>", self.on_code_change)
-        self.code_input.bind("<Configure>", self.on_code_change)
-        self.code_input.bind("<MouseWheel>", self.on_code_change)
-        self.code_input.bind("<Button-1>", self.update_cursor_info)
-
-        # new bindings to trigger line number updates
-        self.code_input.bind("<Key>", self.on_code_change)
-        self.code_input.bind("<Return>", lambda e: self.root.after(10, self.on_code_change))
-        self.code_input.bind("<BackSpace>", lambda e: self.root.after(10, self.on_code_change))
-        self.code_input.bind("<Delete>", lambda e: self.root.after(10, self.on_code_change))
-        self.code_input.bind("<Control-v>", lambda e: self.root.after(50, self.on_code_change))
-        self.code_input.bind("<Control-V>", lambda e: self.root.after(50, self.on_code_change))
-
-        self.autocomplete_listbox = tk.Listbox(self.text_container, height=5, bd=1,
-                                               relief="solid", font=self.fonts['ui_reg'],
-                                               exportselection=False)
-        self.code_input.bind("<KeyRelease>", self.check_autocomplete)
-        self.code_input.bind("<Tab>", self.accept_autocomplete)
-        self.code_input.bind("<Return>", self.accept_autocomplete)
-        self.code_input.bind("<Up>", self.nav_autocomplete_up)
-        self.code_input.bind("<Down>", self.nav_autocomplete_down)
-        self.code_input.bind("<FocusOut>", self.hide_autocomplete)
-
-
-    def build_console_area(self):
-        # ── Header row ──────────────────────────────────────────────────────
-        header = tk.Frame(self.console_frame, height=25)
-        header.pack(fill=tk.X, side=tk.TOP, pady=(5, 0))
-
-        self.console_header_lbl = tk.Label(header, text="  TERMINAL / OUTPUT  ",
-                                           font=self.fonts['mono_bold'], anchor='w')
-        self.console_header_lbl.pack(side=tk.LEFT, fill=tk.Y)
-
-        # small indicator label: "● RUNNING" shown while a process is live
-        self.term_status_lbl = tk.Label(header, text="", font=self.fonts['ui_small'], padx=8)
-        self.term_status_lbl.pack(side=tk.LEFT)
-
-        # ── Output text area ─────────────────────────────────────────────────
-        out_container = tk.Frame(self.console_frame, bd=2, relief="flat")
-        out_container.pack(fill=tk.BOTH, expand=True)
-
-        scroll = ttk.Scrollbar(out_container, orient=tk.VERTICAL)
-        scroll.pack(side=tk.RIGHT, fill=tk.Y)
-
-        self.error_output = tk.Text(out_container, font=self.fonts['terminal'],
-                                    state=tk.DISABLED, wrap=tk.WORD,
-                                    yscrollcommand=scroll.set,
-                                    borderwidth=0, highlightthickness=0,
-                                    padx=10, pady=8)
-        scroll.config(command=self.error_output.yview)
-        self.error_output.pack(fill=tk.BOTH, expand=True)
-
-        # ── Input bar (hidden until a program is running) ────────────────────
-        self.input_bar = tk.Frame(self.console_frame, bd=0)
-        # NOT packed yet — shown only when process is live
-
-        prompt_lbl = tk.Label(self.input_bar, text="›", font=self.fonts['terminal'],
-                              padx=6, pady=4)
-        prompt_lbl.pack(side=tk.LEFT)
-        self._prompt_lbl = prompt_lbl
-
-        self.term_input_var = tk.StringVar()
-        self.term_entry = tk.Entry(self.input_bar, textvariable=self.term_input_var,
-                                   font=self.fonts['terminal'],
-                                   borderwidth=0, highlightthickness=1,
-                                   relief="flat")
-        self.term_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 6), pady=4)
-        self.term_entry.bind("<KeyPress>", self._on_term_keypress)
-        self.term_entry.bind("<Return>", self._on_term_enter) # Key binding for input field
-        self.term_entry.bind("<KP_Enter>", self._on_term_enter)
-
-    def build_analysis_area(self):
-        self.notebook = ttk.Notebook(self.right_pane)
-        self.notebook.pack(fill=tk.BOTH, expand=True)
-
-        self.tab_tokens = tk.Frame(self.notebook)
-        self.notebook.add(self.tab_tokens, text="  Token Stream  ")
-
-        cols = ("Line", "Col", "Lexeme", "Token")
-        self.token_tree = ttk.Treeview(self.tab_tokens, columns=cols,
-                                       show="headings", selectmode="browse")
-
-        vsb = ttk.Scrollbar(self.tab_tokens, orient="vertical", command=self.token_tree.yview)
-        hsb = ttk.Scrollbar(self.tab_tokens, orient="horizontal", command=self.token_tree.xview)
-        self.token_tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
-
-        vsb.pack(side=tk.RIGHT, fill=tk.Y)
-        hsb.pack(side=tk.BOTTOM, fill=tk.X)
-        self.token_tree.pack(fill=tk.BOTH, expand=True)
-
-        self.token_tree.heading("Line",   text="Ln",         command=lambda: self.sort_column("Line",   False))
-        self.token_tree.heading("Col",    text="Col",        command=lambda: self.sort_column("Col",    False))
-        self.token_tree.heading("Lexeme", text="Lexeme",     command=lambda: self.sort_column("Lexeme", False))
-        self.token_tree.heading("Token",  text="Token Type", command=lambda: self.sort_column("Token",  False))
-
-        self.token_tree.column("Line",   width=50,  anchor="center")
-        self.token_tree.column("Col",    width=50,  anchor="center")
-        self.token_tree.column("Lexeme", width=150, anchor="w")
-        self.token_tree.column("Token",  width=150, anchor="w")
-
-    def build_status_bar(self):
-        self.status_bar = tk.Frame(self.main_container, height=30, bd=0)
-        self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
-
-        self.status_cursor = tk.Label(self.status_bar, text="Ln 1, Col 1",
-                                      font=self.fonts['ui_small'], relief="flat", padx=10)
-        self.status_cursor.pack(side=tk.RIGHT)
-
-        self.status_msg = tk.Label(self.status_bar, text="Ready",
-                                   font=self.fonts['ui_small'], relief="flat", padx=10)
-        self.status_msg.pack(side=tk.LEFT)
-
-        self.status_time = tk.Label(self.status_bar, text="",
-                                    font=self.fonts['ui_small'], relief="flat", padx=10)
-        self.status_time.pack(side=tk.RIGHT)
-        self.update_time()
-
-    # ==========================================================================
-    # 5. INTERACTIVE TERMINAL LOGIC
-    # ==========================================================================
-
-    def _show_input_bar(self):
-        """Make the input entry bar visible and focused."""
-        c = self.colors
-        self.input_bar.pack(fill=tk.X, side=tk.BOTTOM, before=self.console_frame.winfo_children()[1])
-        self.term_entry.config(bg=c["TERM_INPUT_BG"], fg=c["TERM_FG"],
-                               insertbackground=c["TERM_FG"],
-                               highlightcolor=c["ACCENT_BLUE"],
-                               highlightbackground=c["BORDER_COLOR"])
-        self._prompt_lbl.config(bg=c["TERM_INPUT_BG"], fg=c["ACCENT_GREEN"])
-        self.input_bar.config(bg=c["TERM_INPUT_BG"])
-        self.term_input_var.set("")
-        self.term_entry.focus_set()
-        self._last_term_activity = time.monotonic()
-        self._output_char_count = 0
-
-        self.term_status_lbl.config(text="● RUNNING", fg=self.colors["ACCENT_GREEN"],
-                                    bg=self.colors["BG_COLOR"])
-        
-        # enable kill btn
-        self.btn_kill.config(state=tk.NORMAL)
-
-    def _hide_input_bar(self):
-        """Hide the input bar when no process is running."""
-        self.input_bar.pack_forget()
-        self.term_status_lbl.config(text="")
-        self.btn_kill.config(state=tk.DISABLED)
-
-
-    def _on_term_enter(self, event=None):
-        """Called when user presses Enter in the terminal input bar."""
-        text = self.term_input_var.get()
-        self.term_input_var.set("")
-        self._last_term_activity = time.monotonic()
-
-        with self._proc_lock:
-            proc = self._running_proc
-
-        if proc is None or proc.poll() is not None:
+    def editor_text_changed(self, pane: EditorPane):
+        if self._syncing:
             return
-
-        # Echo the typed input in the terminal (like a real terminal)
-        self._term_write(text + "\n", tag="term_input")
-
-        # Send to the process stdin
-        try:
-            proc.stdin.write((text + "\n").encode("utf-8", errors="replace"))
-            proc.stdin.flush()
-        except (BrokenPipeError, OSError):
-            pass  # process may have already ended
-
-    def _on_term_keypress(self, event=None):
-        """Track user keyboard activity so input wait time does not trigger watchdog."""
-        self._last_term_activity = time.monotonic()
-
-    def kill_process(self):
-        """Force-kill the running process."""
-        with self._proc_lock:
-            proc = self._running_proc
-        if proc and proc.poll() is None:
-            try:
-                proc.kill()
-            except Exception:
-                pass
-        self._term_write("\n[Process killed by user]\n", tag="term_error")
-
-    def _term_write(self, text, tag=None):
-        """Thread-safe write to the terminal output widget."""
-        def _do():
-            self.error_output.config(state=tk.NORMAL)
-            if tag:
-                self.error_output.insert(tk.END, text, tag)
-            else:
-                self.error_output.insert(tk.END, text)
-            self.error_output.see(tk.END)
-            self.error_output.config(state=tk.DISABLED)
-        self.root.after(0, _do)
-
-    def _start_io_pump(self):
-        """Start periodic draining of queued terminal events on the Tk thread."""
-        if self._io_pump_active:
-            return
-        self._io_pump_active = True
-        self.root.after(30, self._drain_io_events)
-
-    def _drain_io_events(self):
-        """Apply background process events to UI safely on the Tk thread."""
-        processed = 0
-        pending_output = []
-        finish_rc = None
-
-        while processed < 300:
-            try:
-                event = self._io_events.get_nowait()
-            except queue.Empty:
-                break
-
-            processed += 1
-            kind = event[0]
-
-            if kind == "output":
-                _, text, tag = event
-                self._output_char_count += len(text)
-                pending_output.append((text, tag))
-            elif kind == "finish":
-                _, rc = event
-                finish_rc = rc
-                self._io_pump_active = False
-                break
-
-        if pending_output:
-            self.error_output.config(state=tk.NORMAL)
-            for text, tag in pending_output:
-                if tag:
-                    self.error_output.insert(tk.END, text, tag)
-                else:
-                    self.error_output.insert(tk.END, text)
-            self.error_output.see(tk.END)
-            self.error_output.config(state=tk.DISABLED)
-
-        if finish_rc is not None:
-            self._hide_input_bar()
-            self.btn_codegen.config(state=tk.NORMAL)
-            if finish_rc == 0:
-                self._term_write("\n=== Program finished (exit 0) ===\n", tag="success")
-                self.status_msg.config(text="Program finished successfully.")
-            else:
-                self._term_write(f"\n=== Program exited with code {finish_rc} ===\n", tag="term_error")
-                self.status_msg.config(text=f"Program exited with code {finish_rc}.")
-
-        if self._io_pump_active:
-            self.root.after(30, self._drain_io_events)
-
-    # ==========================================================================
-    # 6. AUTOCOMPLETE LOGIC
-    # ==========================================================================
-
-    def check_autocomplete(self, event=None):
-        if event.keysym in ["Up", "Down", "Left", "Right", "Return", "BackSpace", "Tab", "Escape"]:
-            return
-        try:
-            current_pos = self.code_input.index(tk.INSERT)
-            line, col = current_pos.split('.')
-            text_line = self.code_input.get(f"{line}.0", current_pos)
-            if not text_line or (not text_line[-1].isalnum() and text_line[-1] != '_'):
-                self.hide_autocomplete(); return
-            partial_word = ""
-            for char in reversed(text_line):
-                if char.isalnum() or char == '_': partial_word = char + partial_word
-                else: break
-            if not partial_word: self.hide_autocomplete(); return
-            matches = [k for k in KEYWORDS if k.startswith(partial_word)]
-            if matches: self.show_autocomplete(matches, partial_word)
-            else: self.hide_autocomplete()
-        except Exception: self.hide_autocomplete()
-
-    def show_autocomplete(self, matches, partial_word):
-        self.autocomplete_listbox.delete(0, tk.END)
-        for match in matches: self.autocomplete_listbox.insert(tk.END, match)
-        self.autocomplete_listbox.select_set(0)
-        bbox = self.code_input.bbox("insert")
-        if bbox:
-            x, y, w, h = bbox
-            self.autocomplete_listbox.place(x=x, y=y+h)
-            self.autocomplete_listbox.lift()
-
-    def hide_autocomplete(self, event=None):
-        self.autocomplete_listbox.place_forget()
-
-    def nav_autocomplete_up(self, event):
-        if self.autocomplete_listbox.winfo_ismapped():
-            cur = self.autocomplete_listbox.curselection()
-            if cur and cur[0] > 0:
-                self.autocomplete_listbox.select_clear(cur[0])
-                self.autocomplete_listbox.select_set(cur[0] - 1)
-                self.autocomplete_listbox.see(cur[0] - 1)
-            return "break"
-
-    def nav_autocomplete_down(self, event):
-        if self.autocomplete_listbox.winfo_ismapped():
-            cur = self.autocomplete_listbox.curselection()
-            if cur and cur[0] < self.autocomplete_listbox.size() - 1:
-                self.autocomplete_listbox.select_clear(cur[0])
-                self.autocomplete_listbox.select_set(cur[0] + 1)
-                self.autocomplete_listbox.see(cur[0] + 1)
-            return "break"
-
-    def accept_autocomplete(self, event):
-        if self.autocomplete_listbox.winfo_ismapped():
-            selection = self.autocomplete_listbox.curselection()
-            if selection:
-                word = self.autocomplete_listbox.get(selection[0])
-                current_pos = self.code_input.index(tk.INSERT)
-                line, col = current_pos.split('.')
-                text_line = self.code_input.get(f"{line}.0", current_pos)
-                
-                # Calculate how many characters from the end are part of the word
-                partial_len = 0
-                for char in reversed(text_line):
-                    if char.isalnum() or char == '_':
-                        partial_len += 1
-                    else:
-                        break
-                
-                start_del = f"{line}.{int(col) - partial_len}"
-                self.code_input.delete(start_del, current_pos)
-                self.code_input.insert(start_del, word + " ")
-                self.hide_autocomplete()
-                return "break"
-        return None
-
-    # ==========================================================================
-    # 7. GENERAL FUNCTIONALITY
-    # ==========================================================================
-
-    def update_time(self):
-        self.status_time.config(text=datetime.datetime.now().strftime("%H:%M:%S"))
-        self.root.after(1000, self.update_time)
-
-    def on_code_change(self, event=None):
-        self.line_numbers.redraw()
-        self.update_cursor_info()
-
-    def update_cursor_info(self, event=None):
-        try:
-            pos = self.code_input.index(tk.INSERT)
-            line, col = pos.split('.')
-            self.status_cursor.config(text=f"Ln {line}, Col {int(col)+1}")
-        except: pass
-
-    def increase_font(self):
-        self.current_font_size += 2
-        self.fonts['code'].configure(size=self.current_font_size)
-        self.fonts['mono_bold'].configure(size=self.current_font_size - 1)
-        self.fonts['mono_small'].configure(size=self.current_font_size - 2)
-        style = ttk.Style()
-        style.configure("Treeview", rowheight=int(self.current_font_size * 2.2), font=self.fonts['ui_reg'])
-        self.autocomplete_listbox.config(font=self.fonts['ui_reg'])
-        self.on_code_change()
-
-    def decrease_font(self):
-        if self.current_font_size > 8:
-            self.current_font_size -= 2
-            self.fonts['code'].configure(size=self.current_font_size)
-            self.fonts['mono_bold'].configure(size=self.current_font_size - 1)
-            self.fonts['mono_small'].configure(size=self.current_font_size - 2)
-            style = ttk.Style()
-            style.configure("Treeview", rowheight=int(self.current_font_size * 2.2), font=self.fonts['ui_reg'])
-            self.autocomplete_listbox.config(font=self.fonts['ui_reg'])
-            self.on_code_change()
-
-    def toggle_search_bar(self):
-        if self.search_open:
-            self.search_frame.forget(); self.search_open = False
-            self.code_input.tag_remove('found', '1.0', tk.END)
-        else:
-            self.search_frame.pack(side=tk.TOP, fill=tk.X, before=self.text_container, pady=(0, 5))
-            self.entry_search.focus_set(); self.search_open = True
-
-    def find_next(self, event=None):
-        term = self.entry_search.get()
-        if not term: return
-        self.code_input.tag_remove('found', '1.0', tk.END)
-        idx = self.code_input.search(term, self.last_search_idx, nocase=True, stopindex=tk.END)
-        if not idx:
-            idx = self.code_input.search(term, "1.0", nocase=True, stopindex=self.last_search_idx)
-        if idx:
-            end_idx = f"{idx}+{len(term)}c"
-            self.code_input.tag_add('found', idx, end_idx)
-            self.code_input.tag_config('found', background='yellow', foreground='black')
-            self.code_input.see(idx)
-            self.last_search_idx = end_idx
-            self.status_msg.config(text=f"Found '{term}' at {idx}")
-        else:
-            self.status_msg.config(text=f"'{term}' not found.")
-            self.last_search_idx = "1.0"
-
-    def clear_console(self):
-        self.error_output.config(state=tk.NORMAL)
-        self.error_output.delete("1.0", tk.END)
-        self.error_output.config(state=tk.DISABLED)
-        self.status_msg.config(text="Console cleared.")
-
-    def sort_column(self, col, reverse):
-        l = [(self.token_tree.set(k, col), k) for k in self.token_tree.get_children('')]
-        try: l.sort(key=lambda t: int(t[0]), reverse=reverse)
-        except ValueError: l.sort(reverse=reverse)
-        for index, (val, k) in enumerate(l):
-            self.token_tree.move(k, '', index)
-            cur_tags = [t for t in self.token_tree.item(k, "tags") if t not in ('evenrow', 'oddrow')]
-            self.token_tree.item(k, tags=cur_tags + ['evenrow' if index % 2 == 0 else 'oddrow'])
-        self.token_tree.heading(col, command=lambda: self.sort_column(col, not reverse))
-
-    # ==========================================================================
-    # 8. THEME ENGINE
-    # ==========================================================================
-
-    def apply_theme(self):
-        c = self.colors
-        style = ttk.Style()
-        style.theme_use('clam')
-
-        self.root.config(bg=c["BG_COLOR"])
-        self.main_container.config(bg=c["BG_COLOR"])
-        self.header_frame.config(bg=c["HEADER_BG"])
-        self.toolbar.config(bg=c["BG_COLOR"])
-        self.status_bar.config(bg=c["STATUS_BAR_BG"])
-        self.search_frame.config(bg=c["BG_COLOR"])
-        self.title_label.config(bg=c["HEADER_BG"], fg=c["TITLE_COLOR"])
-
-        self.paned_main.config(bg=c["BG_COLOR"], sashrelief="flat")
-        self.left_pane.config(bg=c["BG_COLOR"], sashrelief="flat")
-        self.right_pane.config(bg=c["BG_COLOR"])
-        self.editor_frame.config(bg=c["BG_COLOR"])
-        self.console_frame.config(bg=c["BG_COLOR"])
-
-        for lbl in [self.editor_header_lbl, self.console_header_lbl]:
-            lbl.config(bg=c["BG_COLOR"], fg=c["TITLE_COLOR"])
-
-        btn_bg = c["ACCENT_RED"] if self.current_theme.get() == "Synthwave 84" else c["ACCENT_BLUE"]
-        btn_fg = c["BUTTON_FG"]
-        for btn in [self.btn_lexer, self.btn_syntax, self.btn_semantic, self.btn_codegen]:
-            btn.config(bg=btn_bg, fg=btn_fg, activebackground=c["ACCENT_GREEN"], activeforeground=btn_fg)
-
-        tool_bg = c.get("BTN_TOOL_BG", "#dddddd")
-        tool_fg = c.get("BTN_TOOL_FG", "#000000")
-        for btn in [self.btn_clear, self.btn_find]:
-            btn.config(bg=tool_bg, fg=tool_fg, activebackground=c["BORDER_COLOR"], bd=0)
-        self.btn_kill.config(bg="#c62828", fg="white", activebackground="#b71c1c", bd=0)
-
-        self.text_container.config(bg=c["BORDER_COLOR"])
-        self.code_input.config(bg=c["TEXT_AREA_BG"], fg=c["FG_COLOR"],
-                               insertbackground=c["FG_COLOR"],
-                               selectbackground=c["SELECT_BG"], selectforeground=c["SELECT_FG"])
-
-        # Terminal output area 
-        self.error_output.config(bg=c["STATUS_BAR_BG"], fg=c["FG_COLOR"],
-                                 selectbackground=c["SELECT_BG"])
-
-        self.autocomplete_listbox.config(bg=c["STATUS_BAR_BG"], fg=c["FG_COLOR"],
-                                         selectbackground=c["ACCENT_BLUE"],
-                                         selectforeground=c["BUTTON_FG"])
-
-        self.line_numbers.bg_color = c["TREE_HEADING_BG"]
-        self.line_numbers.fg_color = c["SECONDARY_TEXT"]
-        self.line_numbers.redraw()
-
-        self.status_cursor.config(bg=c["STATUS_BAR_BG"], fg=c["SECONDARY_TEXT"])
-        self.status_msg.config(bg=c["STATUS_BAR_BG"], fg=c["ACCENT_BLUE"])
-        self.status_time.config(bg=c["STATUS_BAR_BG"], fg=c["SECONDARY_TEXT"])
-
-        row_h = int(self.current_font_size * 2.2)
-        style.configure("Treeview", background=c["TEXT_AREA_BG"], foreground=c["FG_COLOR"],
-                        fieldbackground=c["TEXT_AREA_BG"], font=self.fonts['ui_reg'],
-                        borderwidth=0, rowheight=row_h)
-        style.configure("Treeview.Heading", background=c["TREE_HEADING_BG"],
-                        foreground=c["FG_COLOR"], font=self.fonts['mono_bold'], relief="flat")
-        style.map("Treeview",
-                  background=[('selected', c["SELECT_BG"])],
-                  foreground=[('selected', c["SELECT_FG"])])
-        style.configure("TNotebook", background=c["BG_COLOR"], borderwidth=0)
-        style.configure("TNotebook.Tab", background=c["TREE_HEADING_BG"],
-                        foreground=c["FG_COLOR"], padding=[12, 4], font=self.fonts['ui_reg'])
-        style.map("TNotebook.Tab",
-                  background=[("selected", c["TEXT_AREA_BG"])],
-                  foreground=[("selected", c["ACCENT_BLUE"])])
-
-        self.configure_tags()
-
-    def configure_tags(self):
-        c = self.colors
-        self.token_tree.tag_configure('keyword',    foreground=c["ACCENT_PURPLE"], font=self.fonts['mono_bold'])
-        self.token_tree.tag_configure('literal',    foreground=c["ACCENT_GREEN"])
-        self.token_tree.tag_configure('identifier', foreground=c["FG_COLOR"])
-        self.token_tree.tag_configure('operator',   foreground=c["ACCENT_ORANGE"])
-        self.token_tree.tag_configure('delimiter',  foreground=c["SECONDARY_TEXT"])
-        self.token_tree.tag_configure('comment',    foreground=c["SECONDARY_TEXT"],
-                                      font=(self.fonts['code'].actual()['family'], 10, 'italic'))
-        self.token_tree.tag_configure('error',      foreground=c["ACCENT_RED"])
-        self.token_tree.tag_configure('oddrow',     background=c["TEXT_AREA_BG"])
-        self.token_tree.tag_configure('evenrow',    background=c["TREE_EVEN_ROW"])
-
-        # Terminal-specific tags
-        self.error_output.tag_configure("error",      foreground=c["ACCENT_RED"],   font=self.fonts['mono_bold'])
-        self.error_output.tag_configure("term_error",  foreground="#ff6b6b")
-        self.error_output.tag_configure("success",    foreground=c["ACCENT_GREEN"], font=self.fonts['mono_bold'])
-        self.error_output.tag_configure("info",       foreground=c["ACCENT_BLUE"])
-        self.error_output.tag_configure("term_input", foreground=c["ACCENT_GREEN"]) # echoed user input
-
-    def set_theme(self):
-        theme = self.current_theme.get()
-        if theme in self.themes:
-            self.colors = self.themes[theme]
-            self.apply_theme()
-            self.refresh_token_display_only()
-
-    def refresh_token_display_only(self):
-        for i, item in enumerate(self.token_tree.get_children()):
-            tags = [t for t in self.token_tree.item(item, "tags") if t not in ('evenrow', 'oddrow')]
-            tags.append('evenrow' if i % 2 == 0 else 'oddrow')
-            self.token_tree.item(item, tags=tags)
-
-    # ==========================================================================
-    # 9. FILE OPERATIONS
-    # ==========================================================================
+        self._syncing = True
+        buffer = pane.buffer
+        buffer.content = pane.editor.toPlainText()
+        buffer.modified = True
+        for other in list(buffer.panes):
+            other.refresh_title()
+            if other is pane:
+                continue
+            cursor_pos = other.editor.textCursor().position()
+            other.editor.blockSignals(True)
+            other.editor.setPlainText(buffer.content)
+            cursor = other.editor.textCursor()
+            cursor.setPosition(min(cursor_pos, len(buffer.content)))
+            other.editor.setTextCursor(cursor)
+            other.editor.blockSignals(False)
+        self._syncing = False
 
     def open_file(self):
-        filepath = filedialog.askopenfilename(
-            title="Open Source File",
-            filetypes=[("Chungus Files", "*.chg *.chungus"), ("Text Files", "*.txt"), ("All Files", "*.*")])
-        if not filepath: return
+        path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Open Source File",
+            str(PROJECT_ROOT),
+            "Chungus Files (*.chg *.chungus);;Text Files (*.txt);;All Files (*.*)",
+        )
+        if path and self.active_pane:
+            self.load_path_into_pane(Path(path), self.active_pane)
+
+    def load_path_into_pane(self, path: Path, pane: EditorPane, analyze: bool = True):
         try:
-            with open(filepath, "r", encoding="utf-8") as f:
-                content = f.read()
-            self.code_input.delete("1.0", tk.END)
-            self.code_input.insert("1.0", content)
-            self.on_code_change()
-            self.status_msg.config(text=f"Opened: {filepath}")
-            self.run_lexer()
-        except Exception as e:
-            messagebox.showerror("Error Opening File", f"Could not read file:\n{e}")
+            content = path.read_text(encoding="utf-8")
+        except Exception as exc:
+            QMessageBox.critical(self, "Open Source File", f"Could not read file:\n{exc}")
+            return
+        existing = next((b for b in self.buffers if b.path == path), None)
+        buffer = existing or EditorBuffer(content=content, path=path, modified=False)
+        if buffer not in self.buffers:
+            self.buffers.append(buffer)
+        buffer.content = content
+        buffer.modified = False
+        pane.set_buffer(buffer, self.theme)
+        pane.apply_theme(self.theme, self.code_font)
+        self.set_active_pane(pane)
+        self.log(f"Opened {path}")
+        if analyze:
+            self.run_phase("Lexer", self.lexer_callback, quiet=True)
 
     def save_file(self):
-        filepath = filedialog.asksaveasfilename(
-            title="Save Source Code", defaultextension=".chg",
-            filetypes=[("Chungus Files", "*.chg *.chungus"), ("Text Files", "*.txt"), ("All Files", "*.*")])
-        if not filepath: return
+        if not self.active_pane:
+            return
+        buffer = self.active_pane.buffer
+        if not buffer.path:
+            path, _ = QFileDialog.getSaveFileName(
+                self,
+                "Save Source Code",
+                str(PROJECT_ROOT / "untitled.chg"),
+                "Chungus Files (*.chg *.chungus);;Text Files (*.txt);;All Files (*.*)",
+            )
+            if not path:
+                return
+            buffer.path = Path(path)
         try:
-            content = self.code_input.get("1.0", tk.END)
-            if content.endswith('\n'): content = content[:-1]
-            with open(filepath, "w", encoding="utf-8") as f:
-                f.write(content)
-            self.status_msg.config(text=f"Saved: {filepath}")
-        except Exception as e:
-            messagebox.showerror("Error Saving File", f"Could not save file:\n{e}")
+            buffer.path.write_text(buffer.content, encoding="utf-8")
+        except Exception as exc:
+            QMessageBox.critical(self, "Save Source Code", f"Could not save file:\n{exc}")
+            return
+        buffer.modified = False
+        for pane in buffer.panes:
+            pane.refresh_title()
+        self.status_file.setText(str(buffer.path))
+        self.log(f"Saved {buffer.path}")
+
+    def split_editor(self, orientation: Qt.Orientation):
+        if not self.active_pane:
+            return
+        self._new_editor_pane(self.active_pane.buffer, orientation)
+
+    def close_split(self, pane: EditorPane):
+        if self.editor_splitter.count() <= 1:
+            return
+        if pane in pane.buffer.panes:
+            pane.buffer.panes.remove(pane)
+        pane.setParent(None)
+        pane.deleteLater()
+        first = self.editor_splitter.widget(0)
+        if isinstance(first, EditorPane):
+            self.set_active_pane(first)
+        self.update_split_close_buttons()
+
+    def update_split_close_buttons(self):
+        can_close = self.editor_splitter.count() > 1
+        for i in range(self.editor_splitter.count()):
+            pane = self.editor_splitter.widget(i)
+            if isinstance(pane, EditorPane):
+                pane.close_button.setVisible(can_close)
+
+    def insert_snippet(self, item: QListWidgetItem):
+        self.insert_snippet_by_name(item.text())
+
+    def insert_snippet_by_name(self, name: str):
+        editor = self.active_editor()
+        if not editor:
+            return
+        snippet = SNIPPETS[name]
+        editor.textCursor().insertText(snippet)
+        editor.setFocus()
+
+    def find_next(self):
+        editor = self.active_editor()
+        term = self.search_box.text()
+        if not editor or not term:
+            return
+        if not editor.find(term):
+            cursor = editor.textCursor()
+            cursor.movePosition(QTextCursor.Start)
+            editor.setTextCursor(cursor)
+            editor.find(term)
+
+    def find_previous(self):
+        editor = self.active_editor()
+        term = self.search_box.text()
+        if not editor or not term:
+            return
+        if not editor.find(term, QTextDocument.FindBackward):
+            cursor = editor.textCursor()
+            cursor.movePosition(QTextCursor.End)
+            editor.setTextCursor(cursor)
+            editor.find(term, QTextDocument.FindBackward)
+
+    def highlight_search(self):
+        # Qt's native incremental find is less noisy than persistent custom marks here.
+        pass
+
+    def run_phase(self, phase: str, callback: Callable, quiet: bool = False):
+        if not callable(callback):
+            QMessageBox.information(self, phase, f"{phase} backend is not configured.")
+            return
+        if self.compiler_worker and self.compiler_worker.isRunning():
+            return
+        source = self.active_pane.buffer.content if self.active_pane else ""
+        if not quiet:
+            self.clear_analysis_for_run()
+        self.set_phase_status(f"{phase} running")
+        self.log(f"{phase} started")
+        self.compiler_worker = CompilerWorker(phase, source.expandtabs(4), callback)
+        self.compiler_worker.finished.connect(self.finish_phase)
+        self.compiler_worker.start()
+
+    def finish_phase(self, phase: str, tokens, errors: list, proc):
+        self.populate_tokens(tokens)
+        diagnostics = self.extract_diagnostics(phase, errors)
+        self.populate_diagnostics(diagnostics)
+        self.status_errors.setText(f"{len(diagnostics)} problems")
+
+        if errors:
+            text = "\n".join(str(e) for e in errors)
+            self.output_view.setPlainText(text)
+            self.log(f"{phase} finished with {len(errors)} reported messages")
+            self.set_phase_status(f"{phase} failed")
+            self.bottom_tabs.setCurrentWidget(self.problems_table)
+        else:
+            self.output_view.setPlainText(f">>> {phase} complete. No errors found.")
+            self.log(f"{phase} finished successfully")
+            self.set_phase_status(f"{phase} complete")
+
+        if phase == "Run Program":
+            if proc is not None:
+                self.start_process_stream(proc)
+            else:
+                self.btn_codegen.setEnabled(True)
+
+    def start_process_stream(self, proc):
+        self.terminal_view.clear()
+        self.terminal_input.setEnabled(True)
+        self.terminal_input.setFocus()
+        self.btn_stop.setEnabled(True)
+        self.btn_codegen.setEnabled(False)
+        self.set_runtime_status("Running")
+        self.bottom_tabs.setCurrentWidget(self.terminal_view.parentWidget())
+        self.streamer = ProcessStreamer(proc)
+        self.streamer.output.connect(self.append_terminal)
+        self.streamer.done.connect(self.process_done)
+        self.streamer.start()
+
+    def append_terminal(self, text: str, tag: str):
+        cursor = self.terminal_view.textCursor()
+        cursor.movePosition(QTextCursor.End)
+        fmt = QTextCharFormat()
+        # Render stderr in danger color, user-typed input with reduced opacity, otherwise normal terminal text
+        if tag == "stderr":
+            color = QColor(self.theme["danger"])
+        elif tag in ("term_input", "stdin"):
+            color = QColor(self.theme.get("muted", self.theme["terminal_text"]))
+            # reduce opacity for user inputs to visually separate them from program output
+            color.setAlpha(160)
+        else:
+            color = QColor(self.theme["terminal_text"])
+        fmt.setForeground(color)
+        cursor.insertText(text, fmt)
+        self.terminal_view.setTextCursor(cursor)
+        self.terminal_view.ensureCursorVisible()
+
+    def send_terminal_input(self):
+        text = self.terminal_input.text()
+        self.terminal_input.clear()
+        if not text:
+            return
+        # show user input in terminal with muted opacity
+        self.append_terminal(text + "\n", "term_input")
+        if self.streamer:
+            self.streamer.send_input(text)
+
+    def stop_process(self):
+        if self.streamer:
+            self.streamer.stop()
+            self.append_terminal("\n[Process killed by user]\n", "stderr")
+
+    def process_done(self, rc: int):
+        self.terminal_input.setEnabled(False)
+        self.btn_stop.setEnabled(False)
+        self.btn_codegen.setEnabled(True)
+        self.set_runtime_status("Idle")
+        if rc == 0:
+            self.append_terminal("\n=== Program finished (exit 0) ===\n", "stdout")
+            self.set_phase_status("Program finished successfully")
+        else:
+            self.append_terminal(f"\n=== Program exited with code {rc} ===\n", "stderr")
+            self.set_phase_status(f"Program exited with code {rc}")
+
+    def clear_analysis_for_run(self):
+        self.output_view.clear()
+        self.problems_table.setRowCount(0)
+        self.token_table.setRowCount(0)
+
+    def clear_bottom_panels(self):
+        self.output_view.clear()
+        self.terminal_view.clear()
+        self.log_view.clear()
+        self.problems_table.setRowCount(0)
+        self.status_errors.setText("0 problems")
+
+    def populate_tokens(self, tokens: Iterable):
+        self.token_table.setSortingEnabled(False)
+        self.token_table.setRowCount(0)
+        for token in tokens or []:
+            token_type = getattr(token, "type", token.get("type") if isinstance(token, dict) else "")
+            if hasattr(token_type, "name"):
+                token_type = token_type.name
+            line = getattr(token, "line", token.get("line") if isinstance(token, dict) else "")
+            col = getattr(token, "col", token.get("col") if isinstance(token, dict) else "")
+            raw_lexeme = getattr(token, "lexeme", token.get("lexeme") if isinstance(token, dict) else str(token))
+            lexeme = str(raw_lexeme).replace("\n", "\\n").replace("\r", "\\r").replace("\t", "    ")
+            if str(token_type).lower() in {"whitespace", "whitespaces"}:
+                lexeme = "space" if not lexeme.strip() else lexeme
+            row = self.token_table.rowCount()
+            self.token_table.insertRow(row)
+            for column, value in enumerate([line, col, lexeme, token_type]):
+                item = QTableWidgetItem(str(value))
+                if column in (0, 1):
+                    item.setTextAlignment(Qt.AlignCenter)
+                self.token_table.setItem(row, column, item)
+        self.filter_tokens()
+        self.token_table.resizeRowsToContents()
+
+    def filter_tokens(self):
+        term = self.token_filter.text().lower()
+        for row in range(self.token_table.rowCount()):
+            visible = not term
+            if term:
+                for col in range(self.token_table.columnCount()):
+                    item = self.token_table.item(row, col)
+                    if item and term in item.text().lower():
+                        visible = True
+                        break
+            self.token_table.setRowHidden(row, not visible)
+
+    def extract_diagnostics(self, phase: str, errors: list) -> list[Diagnostic]:
+        diagnostics = []
+        for error in errors or []:
+            message = str(error)
+            line = None
+            col = None
+            match = re.search(r"(?:line|ln)\s*[:=]?\s*(\d+).*?(?:col|column)\s*[:=]?\s*(\d+)", message, re.I | re.S)
+            if match:
+                line = int(match.group(1))
+                col = int(match.group(2))
+            else:
+                caret = re.search(r"^\s*(\d+)\s*\|(.+?)\n\s*\|(\s*)\^", message, re.M)
+                if caret:
+                    line = int(caret.group(1))
+                    col = len(caret.group(3)) + 1
+            diagnostics.append(Diagnostic(phase=phase, message=message, line=line, col=col))
+        return diagnostics
+
+    def populate_diagnostics(self, diagnostics: list[Diagnostic]):
+        self.problems_table.setRowCount(0)
+        for diag in diagnostics:
+            row = self.problems_table.rowCount()
+            self.problems_table.insertRow(row)
+            values = [
+                diag.phase,
+                "" if diag.line is None else str(diag.line),
+                "" if diag.col is None else str(diag.col),
+                diag.message.replace("\n", "  "),
+            ]
+            for col, value in enumerate(values):
+                item = QTableWidgetItem(value)
+                if col in (1, 2):
+                    item.setTextAlignment(Qt.AlignCenter)
+                self.problems_table.setItem(row, col, item)
+
+    def goto_problem(self, row: int, _column: int):
+        editor = self.active_editor()
+        if not editor:
+            return
+        line_item = self.problems_table.item(row, 1)
+        col_item = self.problems_table.item(row, 2)
+        if not line_item or not line_item.text():
+            return
+        line = int(line_item.text())
+        col = int(col_item.text() or "1")
+        cursor = editor.textCursor()
+        block = editor.document().findBlockByLineNumber(max(0, line - 1))
+        if block.isValid():
+            cursor.setPosition(block.position() + max(0, col - 1))
+            editor.setTextCursor(cursor)
+            editor.setFocus()
+
+    def update_cursor_status(self, line: int, col: int):
+        self.status_cursor.setText(f"Ln {line}, Col {col}")
+
+    def increase_font(self):
+        if self.current_font_size >= 24:
+            return
+        self.current_font_size += 1
+        self.apply_zoom()
+
+    def decrease_font(self):
+        if self.current_font_size <= 8:
+            return
+        self.current_font_size -= 1
+        self.apply_zoom()
+
+    def apply_zoom(self):
+        self.code_font.setPointSize(self.current_font_size)
+        app = QApplication.instance()
+        if app:
+            app.setStyleSheet(self.stylesheet())
+        for pane in self.editor_panes():
+            pane.apply_theme(self.theme, self.code_font)
+        ui_font = QFont()
+        ui_font.setPointSize(max(9, self.current_font_size - 1))
+        terminal_font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        terminal_font.setPointSize(self.current_font_size)
+        for widget in [
+            self.token_table,
+            self.problems_table,
+            self.output_view,
+            self.terminal_view,
+            self.log_view,
+            self.token_filter,
+            self.search_box,
+            self.terminal_input,
+            self.snippet_list,
+        ]:
+            widget.setFont(terminal_font if isinstance(widget, QPlainTextEdit) else ui_font)
+        row_height = max(28, int(self.current_font_size * 2.4))
+        self.token_table.verticalHeader().setDefaultSectionSize(row_height)
+        self.problems_table.verticalHeader().setDefaultSectionSize(row_height)
+
+    def set_phase_status(self, text: str):
+        self.status_phase.setText(text)
+        if hasattr(self, "phase_badge"):
+            self.phase_badge.setText(text.upper())
+
+    def set_runtime_status(self, text: str):
+        self.status_runtime.setText(text)
+        if hasattr(self, "runtime_badge"):
+            self.runtime_badge.setText(text.upper())
+
+    def log(self, message: str):
+        self.log_view.appendPlainText(message)
 
     def show_about(self):
-        messagebox.showinfo("About Chungus Compiler",
+        QMessageBox.information(
+            self,
+            "About Chungus Compiler",
             "Chungus Language Compiler Environment\n\n"
             "Created by:\n"
             "- Goyena, Shawn Kieffer E.\n- Cantal, Henkepeck T.\n- Capiral, Luis Gabriel A.\n"
             "- Frias, Railey Miguel B.\n- King, Mariano Luiz B.\n- Manguni, John Gabriel H.\n\n"
-            "Course Project - CISTM, PLM")
+            "Course Project - CISTM, PLM",
+        )
 
-    # ==========================================================================
-    # 10. COMPILER EXECUTION LOGIC
-    # ==========================================================================
-
-    def _clear_terminal(self):
-        self.error_output.config(state=tk.NORMAL)
-        self.error_output.delete("1.0", tk.END)
-        self.error_output.config(state=tk.DISABLED)
-
-
-    def run_lexer(self):
-        self.status_msg.config(text="Running Lexer...")
-        self._clear_terminal()
-        for item in self.token_tree.get_children(): self.token_tree.delete(item)
-
-        source_code = self.code_input.get("1.0", "end-1c").expandtabs(4)
-        if not callable(self.lexer_callback):
-            self._show_mock_instructions("Lexer"); return
-        try:
-            tokens, errors = self.lexer_callback(source_code)
-        except Exception as e:
-            messagebox.showerror("Lexer Internal Error", str(e))
-            self.status_msg.config(text="Lexer Failed."); return
-
-        self._populate_tokens(tokens)
-        self.error_output.config(state=tk.NORMAL)
-        if errors:
-            self.error_output.insert(tk.END, "\n".join(errors), "error")
-            self.status_msg.config(text=f"Lexer finished with {len(errors)} errors.")
-        else:
-            self.error_output.insert(tk.END, ">>> Lexical analysis complete. No errors found.", "success")
-            self.status_msg.config(text="Lexer finished successfully.")
-        self.error_output.config(state=tk.DISABLED)
-
-
-    def run_syntax(self):
-        self.status_msg.config(text="Running Parser...")
-        self._clear_terminal()
-        for item in self.token_tree.get_children(): self.token_tree.delete(item)
-
-        source_code = self.code_input.get("1.0", "end-1c").expandtabs(4)
-        if not callable(self.syntax_callback):
-            self._show_mock_instructions("Syntax"); return
-        try:
-            tokens, errors = self.syntax_callback(source_code)
-        except Exception as e:
-            messagebox.showerror("Parser Internal Error", str(e))
-            self.status_msg.config(text="Parser Failed."); return
-
-        self._populate_tokens(tokens)
-        self.error_output.config(state=tk.NORMAL)
-        if errors:
-            self.error_output.insert(tk.END, "\n".join(errors), "error")
-            self.status_msg.config(text=f"Syntax analysis finished with {len(errors)} errors.")
-        else:
-            self.error_output.insert(tk.END, ">>> Syntax analysis complete. No errors found.", "success")
-            self.status_msg.config(text="Syntax analysis finished successfully.")
-        self.error_output.config(state=tk.DISABLED)
-
-
-    def run_semantic(self):
-        self.status_msg.config(text="Running Semantic Analyzer...")
-        self._clear_terminal()
-        for item in self.token_tree.get_children(): self.token_tree.delete(item)
-
-        source_code = self.code_input.get("1.0", "end-1c").expandtabs(4)
-        if not callable(self.semantic_callback):
-            messagebox.showinfo("Semantic Analyzer", "No semantic analyzer callback provided.")
-            self.status_msg.config(text="Semantic analyzer not configured."); return
-        try:
-            tokens, errors = self.semantic_callback(source_code)
-        except Exception as e:
-            messagebox.showerror("Semantic Analyzer Internal Error", str(e))
-            self.status_msg.config(text="Semantic Analysis Failed."); return
-
-        self._populate_tokens(tokens)
-        self.error_output.config(state=tk.NORMAL)
-        if errors:
-            self.error_output.insert(tk.END, "Errors found during semantic analysis:\n", "info")
-            self.error_output.insert(tk.END, "\n".join(errors), "error")
-            self.status_msg.config(text=f"Semantic analysis finished with {len(errors)} errors.")
-        else:
-            self.error_output.insert(tk.END, ">>> Semantic analysis complete. No errors found.", "success")
-            self.status_msg.config(text="Semantic analysis finished successfully.")
-        self.error_output.config(state=tk.DISABLED)
-
-
-    def run_codegen(self):
-        if not callable(self.codegen_callback):
-            messagebox.showinfo("Code Generator", "No code generator callback provided.")
-            self.status_msg.config(text="Code generator not configured."); return
-
-        self._clear_terminal()
-
-        # delete table of tokens
-        for item in self.token_tree.get_children(): self.token_tree.delete(item)
-
-        self.btn_codegen.config(state=tk.DISABLED)
-        self.status_msg.config(text="Compiling...")
-
-        # self._term_write("Compiling...\n", tag="info")
-
-        source_code = self.code_input.get("1.0", "end-1c").expandtabs(4)
-
-        def _worker():
-            try:
-                # codegen_callback now returns (tokens, errors, proc_or_None)
-                result = self.codegen_callback(source_code)
-
-                # codegen callback must return 3 vars
-                if len(result) == 3:
-                    tokens, errors, proc = result
-                else:
-                    tokens, errors = result
-                    proc = None
-            except Exception as exc:
-                tokens, errors, proc = [], [f"Code Generator Internal Error: {exc}"], None
-        
-            # returns to main thread
-            self.root.after(0, lambda: self._finish_codegen(tokens, errors, proc))
-
-        # Create a new thread that runs _worker in the background
-        threading.Thread(target=_worker, daemon=True).start()
-
-    def _finish_codegen(self, tokens, errors, proc=None):
-        """Called on the main thread after compilation finishes."""
-        self._populate_tokens(tokens)
-
-        if errors:
-            # Compilation/semantic errors — display and stop
-            self.error_output.config(state=tk.NORMAL)
-            self.error_output.delete("1.0", tk.END)
-            for line in errors:
-                if isinstance(line, bytes): line = line.decode('utf-8', errors='replace')
-                tag = "error" if "Error" in line else ("info" if "===" in line else None)
-                self.error_output.insert(tk.END, line + "\n", tag or "")
-            self.error_output.config(state=tk.DISABLED)
-            self.status_msg.config(text="Compilation failed.")
-            self.btn_codegen.config(state=tk.NORMAL)
+    def apply_theme(self, name: str):
+        if name not in THEMES:
             return
+        self.theme_name = name
+        self.theme = THEMES[name]
+        app = QApplication.instance()
+        if app:
+            app.setStyleSheet(self.stylesheet())
+            self.refresh_theme_polish()
+        for pane in self.editor_panes():
+            pane.apply_theme(self.theme, self.code_font)
 
-        if proc is None:
-            # No process to run (unexpected)
-            self._term_write(">>> Done (no output).\n", tag="success")
-            self.status_msg.config(text="Done.")
-            self.btn_codegen.config(state=tk.NORMAL)
+    def refresh_theme_polish(self):
+        app = QApplication.instance()
+        if not app:
             return
+        for widget in self.findChildren(QWidget):
+            app.style().unpolish(widget)
+            app.style().polish(widget)
+            widget.update()
 
-        # ── Live process: wire up streaming I/O ─────────────────────────────
-        with self._proc_lock:
-            self._running_proc = proc   # Store for kill button
+    def stylesheet(self) -> str:
+        t = self.theme
+        table_font_size = max(9, self.current_font_size - 1)
+        return f"""
+        QMainWindow, QWidget {{
+            background: {t["bg"]};
+            color: {t["text"]};
+            font-family: "Segoe UI", "Inter", sans-serif;
+            font-size: 10pt;
+        }}
+        QMenuBar, QMenu, QToolBar, QStatusBar {{
+            background: {t["surface"]};
+            color: {t["text"]};
+            border-color: {t["border"]};
+        }}
+        QToolBar {{
+            spacing: 6px;
+            padding: 6px;
+            border-bottom: 1px solid {t["border"]};
+        }}
+        QSplitter::handle {{
+            background: {t["border"]};
+        }}
+        QSplitter::handle:horizontal {{
+            width: 2px;
+        }}
+        QSplitter::handle:vertical {{
+            height: 2px;
+        }}
+        QPushButton {{
+            background: {t["surface_2"]};
+            color: {t["text"]};
+            border: 1px solid {t["border"]};
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-weight: 600;
+        }}
+        QPushButton[buttonRole="file"] {{
+            background: #2563eb;
+            color: #ffffff;
+            border-color: #2563eb;
+        }}
+        QPushButton[buttonRole="analyze"] {{
+            background: {t["btn_analyze"]};
+            color: #ffffff;
+            border-color: {t["btn_analyze"]};
+            border-bottom: 3px solid {t["purple"]};
+        }}
+        QPushButton[buttonRole="run"] {{
+            background: {t["btn_run"]};
+            color: #ffffff;
+            border-color: {t["btn_run"]};
+            border-bottom: 3px solid {t["accent_2"]};
+        }}
+        QPushButton[buttonRole="danger"] {{
+            background: {t["btn_danger"]};
+            color: #ffffff;
+            border-color: {t["btn_danger"]};
+            border-bottom: 3px solid {t["danger"]};
+        }}
+        QPushButton[buttonRole="layout"] {{
+            background: {t["btn_layout"]};
+            color: #ffffff;
+            border-color: {t["btn_layout"]};
+            border-bottom: 3px solid {t["accent"]};
+        }}
+        QPushButton[buttonRole="utility"] {{
+            background: {t["btn_utility"]};
+            color: #ffffff;
+            border-color: {t["btn_utility"]};
+            border-bottom: 3px solid {t["muted"]};
+        }}
+        QPushButton:hover {{
+            border-color: {t["warning"]};
+            color: #ffffff;
+        }}
+        QPushButton:pressed {{
+            padding-top: 7px;
+            padding-bottom: 5px;
+        }}
+        QPushButton:disabled {{
+            color: {t["muted"]};
+            background: {t["surface_2"]};
+        }}
+        QLabel#appTitle {{
+            color: {t["text"]};
+            font-size: 19pt;
+            font-weight: 800;
+            padding: 8px 4px;
+        }}
+        QLabel#sideTitle {{
+            background: {t["surface_2"]};
+            color: {t["text"]};
+            border: 1px solid {t["border"]};
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-weight: 800;
+        }}
+        QWidget#snippetDrawer {{
+            background: {t["surface"]};
+            border-right: 1px solid {t["border"]};
+        }}
+        QLineEdit {{
+            background: {t["surface"]};
+            color: {t["text"]};
+            border: 1px solid {t["border"]};
+            border-radius: 6px;
+            padding: 6px 8px;
+        }}
+        QPushButton#findNavButton {{
+            background: {t["surface_2"]};
+            color: {t["accent"]};
+            border: 1px solid {t["border"]};
+            border-radius: 6px;
+            padding: 0;
+            font-weight: 900;
+        }}
+        QPushButton#findNavButton:hover {{
+            background: {t["accent"]};
+            color: #ffffff;
+            border-color: {t["accent"]};
+        }}
+        QTabWidget::pane {{
+            border: 1px solid {t["border"]};
+            background: {t["surface"]};
+        }}
+        QTabBar::tab {{
+            background: {t["surface_2"]};
+            color: {t["muted"]};
+            padding: 7px 10px;
+            border: 1px solid {t["border"]};
+            border-bottom: 0;
+        }}
+        QTabBar::tab:selected {{
+            background: {t["surface"]};
+            color: {t["accent"]};
+            font-weight: 700;
+        }}
+        QListWidget, QTableWidget {{
+            background: {t["surface"]};
+            color: {t["text"]};
+            border: 1px solid {t["border"]};
+            gridline-color: {t["border"]};
+            selection-background-color: {t["accent"]};
+            selection-color: {t["surface"]};
+            font-size: {table_font_size}pt;
+        }}
+        QPlainTextEdit {{
+            background: {t["surface"]};
+            color: {t["terminal_text"]};
+            border: 1px solid {t["border"]};
+            selection-background-color: {t["accent"]};
+            selection-color: {t["surface"]};
+            font-size: {table_font_size}pt;
+        }}
+        QTableWidget {{
+            alternate-background-color: {t["surface_2"]};
+        }}
+        QHeaderView::section {{
+            background: {t["surface_2"]};
+            color: {t["text"]};
+            border: 0;
+            border-right: 1px solid {t["border"]};
+            border-bottom: 1px solid {t["border"]};
+            padding: 6px;
+            font-weight: 700;
+        }}
+        QStatusBar QLabel {{
+            color: {t["muted"]};
+            padding: 0 6px;
+        }}
+        """
 
-        self._show_input_bar()          # Show the input bar at bottom
-        self.status_msg.config(text="Program running...")
-        self._start_io_pump()
 
-        # self._term_write("=== Program started ===\n", tag="info")
-
-        def _stream_output():
-            """Cross-platform stream reader using blocking reads + queue events."""
-            start = time.monotonic()            # absolute runtime start
-            self._last_term_activity = start    # last time anything happened
-            HARD_TIMEOUT = 300.0        # hard cap: total runtime no more than 5 minutes
-            SILENT_TIMEOUT = 300.0      # 5 min inactivity guard (output and keyboard)
-            MAX_OUTPUT_CHARS = 1_000_000  # runaway print-loop protection
-            stop_requested = threading.Event()
-            output_count = 0
-            count_lock = threading.Lock()
-
-            def _reader(stream, tag):
-                nonlocal output_count
-
-                while not stop_requested.is_set():
-                    try:
-                        chunk = stream.read(4096) # chunk size
-                    except Exception:
-                        break
-
-                    # end-of-stream detection
-                    if chunk in (b"", ""):
-                        break
-                    
-                    # decoding bytes → string
-                    if isinstance(chunk, bytes):
-                        chunk = chunk.decode("utf-8", errors="replace")
-
-                    self._last_term_activity = time.monotonic()
-
-                    with count_lock:
-                        output_count += len(chunk)
-                        too_much_output = output_count > MAX_OUTPUT_CHARS
-
-                    if too_much_output:
-                        try:
-                            self._io_events.put_nowait(("output", "\n[Execution Stopped: excessive output detected]\n", "term_error"))
-                        except queue.Full:
-                            pass
-                        try:
-                            proc.kill()
-                        except Exception:
-                            pass
-                        stop_requested.set()
-                        break
-
-                    try:
-                        self._io_events.put(("output", chunk, tag), timeout=0.2)
-                    except queue.Full:
-                        try:
-                            self._io_events.put_nowait(("output", "\n[Execution Stopped: terminal queue overflow]\n", "term_error"))
-                        except queue.Full:
-                            pass
-                        try:
-                            proc.kill()
-                        except Exception:
-                            pass
-                        stop_requested.set()
-                        break
-
-            readers = []
-            
-            # spawning reader threads. stdout - output | stderr - errors
-            if proc.stdout:
-                readers.append(threading.Thread(target=_reader, args=(proc.stdout, None), daemon=True))
-            if proc.stderr:
-                readers.append(threading.Thread(target=_reader, args=(proc.stderr, "term_error"), daemon=True))
-            
-            # loops through all the reader threads you created (one for stdout, one for stderr) and tells each one to start running
-            for t in readers:
-                t.start()
-
-            # Main watchdog loop
-            while True:
-                now = time.monotonic()
-
-                # Hard runtime cutoff for non-terminating loops (even if there is output activity)
-                if now - start > HARD_TIMEOUT:
-                    self._io_events.put(("output", "\n[Execution Timeout: exceeded 300s runtime]\n", "term_error"))
-                    try: proc.kill()
-                    except Exception: pass
-                    stop_requested.set()
-                    break
-
-                # If there is no output and no user typing for too long, assume hang/infinite loop.
-                if now - self._last_term_activity > SILENT_TIMEOUT:
-                    self._io_events.put(("output", "\n[Execution Timeout: no terminal activity for 300s]\n", "term_error"))
-                    try: proc.kill()
-                    except Exception: pass
-                    stop_requested.set()
-                    break
-
-                if proc.poll() is not None:
-                    break
-
-                time.sleep(0.05)
-
-            rc = proc.wait() # wait then returns the exit code. (0 = success, other = error); 
-
-            for t in readers:
-                t.join(timeout=0.2)
-
-            # with statement is a context manager that handles cleanup for ANY resource that needs cleanup
-            # thread lock - prevents racing conditions
-            with self._proc_lock:
-                self._running_proc = None # No longer runnin
-            self._io_events.put(("finish", rc))
-
-        threading.Thread(target=_stream_output, daemon=True).start()
-
-    def _populate_tokens(self, tokens):
-        """ populate table from lexical """
-        for i, token in enumerate(tokens):
-            token_type_name = getattr(token, "type", token.get("type") if isinstance(token, dict) else "")
-            if hasattr(token_type_name, "name"): token_type_name = token_type_name.name
-            line = getattr(token, "line", token.get("line") if isinstance(token, dict) else "")
-            col  = getattr(token, "col",  token.get("col")  if isinstance(token, dict) else "")
-            raw_lexeme = getattr(token, "lexeme", token.get("lexeme") if isinstance(token, dict) else str(token))
-            lexeme = raw_lexeme.replace('\n', '\\n').replace('\r', '\\r').replace('\t', '    ')
-
-            t  = str(token_type_name).lower()
-            lx = str(raw_lexeme).lower()
-            tag = 'identifier'
-            if t in LITERALS:       tag = 'literal'
-            elif t == 'comment':    tag = 'comment'
-            elif lx in OPERATORS:   tag = 'operator'
-            elif lx in DELIMS:      tag = 'delimiter'
-            elif t in KEYWORDS:     tag = 'keyword'
-
-            row_tag = 'evenrow' if i % 2 == 0 else 'oddrow'
-            self.token_tree.insert("", tk.END, values=(line, col, lexeme, token_type_name),
-                                   tags=(tag, row_tag))
-
-    def _show_mock_instructions(self, mode):
-        self.error_output.config(state=tk.NORMAL)
-        self.error_output.insert(tk.END,
-            f"No {mode.lower()} backend connected.\n\n"
-            f"Provide a callable gui.{mode.lower()}_callback = lambda src: (tokens, errors)\n"
-            "Where tokens is a list of objects/dicts with fields: type, lexeme, line, col.\n\n",
-            "error")
-        self.error_output.config(state=tk.DISABLED)
+ChungusLexerGUI = ChungusCompilerGUI

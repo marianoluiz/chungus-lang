@@ -32,11 +32,13 @@ A clean, minimal, general programming language.
    - Bash:
      ```sh
       python3 -m pip install pip-tools
+      pip-compile requirements-dev.in
       python3 -m piptools sync requirements-dev.txt
      ```
    - PowerShell / CMD:
      ```sh
       python -m pip install pip-tools
+      pip-compile requirements-dev.in
       python -m piptools sync requirements-dev.txt
      ```
 

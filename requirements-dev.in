@@ -2,3 +2,4 @@ pytest
 pip-tools
 lark
 pyflakes
+PySide6
