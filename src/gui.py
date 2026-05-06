@@ -653,10 +653,20 @@ class ProcessStreamer(QThread):
     output = Signal(str, str)
     done = Signal(int)
 
-    def __init__(self, proc: subprocess.Popen):
+    def __init__(
+        self,
+        proc: subprocess.Popen,
+        hard_timeout: float | None = None,
+        silent_timeout: float | None = None,
+        max_output_chars: int = 1_000_000,
+    ):
         super().__init__()
         self.proc = proc
         self.stop_requested = threading.Event()
+        # timeouts: None = no limit
+        self.hard_timeout = hard_timeout
+        self.silent_timeout = silent_timeout
+        self.max_output_chars = max_output_chars
 
     def stop(self):
         self.stop_requested.set()
@@ -676,9 +686,13 @@ class ProcessStreamer(QThread):
             pass
 
     def run(self):
-        events: queue.Queue[tuple[str, str]] = queue.Queue()
+        # Bounded queue to avoid unbounded memory growth on spamming programs
+        events: queue.Queue[tuple[str, str]] = queue.Queue(maxsize=4000)
+        output_count = 0
+        output_count_lock = threading.Lock()
 
         def reader(stream, tag):
+            nonlocal output_count
             while not self.stop_requested.is_set():
                 try:
                     chunk = stream.read(4096)
@@ -688,7 +702,38 @@ class ProcessStreamer(QThread):
                     break
                 if isinstance(chunk, bytes):
                     chunk = chunk.decode("utf-8", errors="replace")
-                events.put((chunk, tag))
+
+                # Track total output safely
+                with output_count_lock:
+                    output_count += len(chunk)
+                    too_much = output_count > (self.max_output_chars or 1_000_000)
+
+                if too_much:
+                    try:
+                        events.put_nowait(("\n[Execution stopped: excessive output detected]\n", "stderr"))
+                    except queue.Full:
+                        pass
+                    try:
+                        self.proc.kill()
+                    except Exception:
+                        pass
+                    self.stop_requested.set()
+                    break
+
+                # Try to enqueue, but handle overflow gracefully
+                try:
+                    events.put((chunk, tag), timeout=0.2)
+                except queue.Full:
+                    try:
+                        events.put_nowait(("\n[Execution stopped: terminal queue overflow]\n", "stderr"))
+                    except queue.Full:
+                        pass
+                    try:
+                        self.proc.kill()
+                    except Exception:
+                        pass
+                    self.stop_requested.set()
+                    break
 
         threads = []
         if self.proc.stdout:
@@ -698,36 +743,95 @@ class ProcessStreamer(QThread):
         for thread in threads:
             thread.start()
 
+        # Watchdog / pump loop
         started = time.monotonic()
         last_activity = started
-        output_count = 0
+        HARD_TIMEOUT = self.hard_timeout
+        SILENT_TIMEOUT = self.silent_timeout
 
-        while self.proc.poll() is None and not self.stop_requested.is_set():
-            try:
-                text, tag = events.get(timeout=0.05)
-                output_count += len(text)
-                last_activity = time.monotonic()
-                self.output.emit(text, tag)
-                if output_count > 1_000_000:
-                    self.output.emit("\n[Execution stopped: excessive output detected]\n", "stderr")
-                    self.stop()
-                    break
-            except queue.Empty:
-                pass
+        while True:
             now = time.monotonic()
-            if now - started > 300:
-                self.output.emit("\n[Execution timeout: exceeded 300s runtime]\n", "stderr")
-                self.stop()
-                break
-            if now - last_activity > 300:
-                self.output.emit("\n[Execution timeout: no terminal activity for 300s]\n", "stderr")
-                self.stop()
+
+            # Drain a batch of queued events and coalesce them by tag to reduce signal frequency
+            processed = 0
+            pending: dict[str, list[str]] = {}
+            while processed < 300:
+                try:
+                    text, tag = events.get_nowait()
+                except queue.Empty:
+                    break
+                last_activity = time.monotonic()
+                pending.setdefault(tag or "stdout", []).append(text)
+                processed += 1
+
+            # Emit coalesced chunks (limit size per emit to avoid huge signals)
+            MAX_EMIT = 65536
+            for tag, chunks in pending.items():
+                agg = "".join(chunks)
+                start = 0
+                while start < len(agg):
+                    part = agg[start : start + MAX_EMIT]
+                    self.output.emit(part, tag)
+                    start += MAX_EMIT
+
+            # Hard runtime cutoff
+            if HARD_TIMEOUT is not None and now - started > HARD_TIMEOUT:
+                try:
+                    events.put_nowait(("\n[Execution timeout: exceeded 300s runtime]\n", "stderr"))
+                except queue.Full:
+                    pass
+                try:
+                    self.proc.kill()
+                except Exception:
+                    pass
+                self.stop_requested.set()
                 break
 
-        rc = self.proc.wait()
+            # Silent timeout (no output and no input)
+            if SILENT_TIMEOUT is not None and now - last_activity > SILENT_TIMEOUT:
+                try:
+                    events.put_nowait(("\n[Execution timeout: no terminal activity for 300s]\n", "stderr"))
+                except queue.Full:
+                    pass
+                try:
+                    self.proc.kill()
+                except Exception:
+                    pass
+                self.stop_requested.set()
+                break
+
+            if self.proc.poll() is not None:
+                break
+
+            time.sleep(0.03)
+
+        # final drain — coalesce remaining events before emitting
+        remaining: dict[str, list[str]] = {}
         while not events.empty():
-            text, tag = events.get()
-            self.output.emit(text, tag)
+            try:
+                text, tag = events.get_nowait()
+            except queue.Empty:
+                break
+            remaining.setdefault(tag or "stdout", []).append(text)
+
+        MAX_EMIT = 65536
+        for tag, chunks in remaining.items():
+            agg = "".join(chunks)
+            start = 0
+            while start < len(agg):
+                part = agg[start : start + MAX_EMIT]
+                self.output.emit(part, tag)
+                start += MAX_EMIT
+
+        # join reader threads briefly
+        for t in threads:
+            t.join(timeout=0.2)
+
+        try:
+            rc = self.proc.wait()
+        except Exception:
+            rc = -1
+
         self.done.emit(rc)
 
 
@@ -1280,7 +1384,16 @@ class ChungusCompilerGUI(QMainWindow):
         cursor = self.terminal_view.textCursor()
         cursor.movePosition(QTextCursor.End)
         fmt = QTextCharFormat()
-        fmt.setForeground(QColor(self.theme["danger"] if tag == "stderr" else self.theme["terminal_text"]))
+        # Render stderr in danger color, user-typed input with reduced opacity, otherwise normal terminal text
+        if tag == "stderr":
+            color = QColor(self.theme["danger"])
+        elif tag in ("term_input", "stdin"):
+            color = QColor(self.theme.get("muted", self.theme["terminal_text"]))
+            # reduce opacity for user inputs to visually separate them from program output
+            color.setAlpha(160)
+        else:
+            color = QColor(self.theme["terminal_text"])
+        fmt.setForeground(color)
         cursor.insertText(text, fmt)
         self.terminal_view.setTextCursor(cursor)
         self.terminal_view.ensureCursorVisible()
@@ -1290,7 +1403,8 @@ class ChungusCompilerGUI(QMainWindow):
         self.terminal_input.clear()
         if not text:
             return
-        self.append_terminal(text + "\n", "stdout")
+        # show user input in terminal with muted opacity
+        self.append_terminal(text + "\n", "term_input")
         if self.streamer:
             self.streamer.send_input(text)
 
@@ -1635,11 +1749,19 @@ class ChungusCompilerGUI(QMainWindow):
             color: {t["accent"]};
             font-weight: 700;
         }}
-        QListWidget, QTableWidget, QPlainTextEdit {{
+        QListWidget, QTableWidget {{
             background: {t["surface"]};
             color: {t["text"]};
             border: 1px solid {t["border"]};
             gridline-color: {t["border"]};
+            selection-background-color: {t["accent"]};
+            selection-color: {t["surface"]};
+            font-size: {table_font_size}pt;
+        }}
+        QPlainTextEdit {{
+            background: {t["surface"]};
+            color: {t["terminal_text"]};
+            border: 1px solid {t["border"]};
             selection-background-color: {t["accent"]};
             selection-color: {t["surface"]};
             font-size: {table_font_size}pt;
