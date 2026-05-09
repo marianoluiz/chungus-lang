@@ -1,6 +1,17 @@
-# Simple multiplication
-a = 3;
-b = 4;
-result = a * b;
+fn fact(n):
+	res = 0;
 
-show result;
+	if n == 0:
+		res = 1;
+	close
+
+	if res != 0:
+			res = n * fact(res - 1);
+	close
+	
+	ret res;
+close
+
+id = fact(5);
+show id;
+

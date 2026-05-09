@@ -1122,6 +1122,7 @@ class ChungusCompilerGUI(QMainWindow):
 
         self.output_view = QPlainTextEdit()
         self.output_view.setReadOnly(True)
+        self.output_view.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.bottom_tabs.addTab(self.output_view, "Output")
 
         terminal_widget = QWidget()
@@ -1129,6 +1130,7 @@ class ChungusCompilerGUI(QMainWindow):
         terminal_layout.setContentsMargins(0, 0, 0, 0)
         self.terminal_view = QPlainTextEdit()
         self.terminal_view.setReadOnly(True)
+        self.terminal_view.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.terminal_input = QLineEdit()
         self.terminal_input.setPlaceholderText("Program input")
         self.terminal_input.returnPressed.connect(self.send_terminal_input)
@@ -1139,6 +1141,7 @@ class ChungusCompilerGUI(QMainWindow):
 
         self.log_view = QPlainTextEdit()
         self.log_view.setReadOnly(True)
+        self.log_view.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.bottom_tabs.addTab(self.log_view, "Compilation Log")
 
     def _build_status_bar(self):
@@ -1503,6 +1506,8 @@ class ChungusCompilerGUI(QMainWindow):
             ]
             for col, value in enumerate(values):
                 item = QTableWidgetItem(value)
+                if col == 3:
+                    item.setFont(self.code_font)
                 if col in (1, 2):
                     item.setTextAlignment(Qt.AlignCenter)
                 self.problems_table.setItem(row, col, item)
@@ -1550,6 +1555,9 @@ class ChungusCompilerGUI(QMainWindow):
         ui_font.setPointSize(max(9, self.current_font_size - 1))
         terminal_font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         terminal_font.setPointSize(self.current_font_size)
+        monospace_family = terminal_font.family()
+        for widget in [self.output_view, self.terminal_view, self.log_view]:
+            widget.document().setDefaultFont(terminal_font)
         for widget in [
             self.token_table,
             self.problems_table,
@@ -1562,6 +1570,11 @@ class ChungusCompilerGUI(QMainWindow):
             self.snippet_list,
         ]:
             widget.setFont(terminal_font if isinstance(widget, QPlainTextEdit) else ui_font)
+        for widget in [self.output_view, self.terminal_view, self.log_view]:
+            widget.setStyleSheet(
+                widget.styleSheet()
+                + f"\nQPlainTextEdit {{ font-family: '{monospace_family}'; }}\n"
+            )
         row_height = max(28, int(self.current_font_size * 2.4))
         self.token_table.verticalHeader().setDefaultSectionSize(row_height)
         self.problems_table.verticalHeader().setDefaultSectionSize(row_height)
@@ -1762,6 +1775,7 @@ class ChungusCompilerGUI(QMainWindow):
             background: {t["surface"]};
             color: {t["terminal_text"]};
             border: 1px solid {t["border"]};
+            font-family: monospace;
             selection-background-color: {t["accent"]};
             selection-color: {t["surface"]};
             font-size: {table_font_size}pt;
