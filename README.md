@@ -1,9 +1,77 @@
+<p align="center">
+  <img src="docs/logo.png" alt="CHUNGUS logo" width="600" />
+</p>
+
 # CHUNGUS Language
 A clean, minimal, general programming language.
+
+## Introduction
+
+**CHUNGUS** is a small, dynamically typed language with a friendly, readable syntax.
+Programs are written in `.chg` files and compiled by a Python-based compiler that
+generates C, which is then built and run with the CHUNGUS runtime library.
+
+### Hello, CHUNGUS
+
+```
+# Recursive factorial
+fn fact(n):
+    result = 1;
+    if n > 1:
+        result = n * fact(n - 1);
+    close
+    ret result;
+close
+
+nums : [3] = [3, 4, 5];
+
+for i in range(0, 3, 1):
+    n = nums[i];
+    f = fact(n);
+    show 'fact('; show n; show ') = '; show f; show '\n';
+close
+```
+
+Output:
+
+```
+fact(3) = 6
+fact(4) = 24
+fact(5) = 120
+```
+
+### Language at a glance
+
+| Feature | Syntax |
+| --- | --- |
+| Comments | `# single line`, `### multi-line ###` |
+| Variables | `x = 10;` (no type declarations; types are inferred) |
+| Types | `int`, `float`, `str` (`'single quotes'`), `bool` (`true` / `false`) |
+| Output / input | `show x;` &nbsp;·&nbsp; `x = read;` |
+| Arrays (1D / 2D) | `arr : [5] = [1, 2, 3, 4, 5];` &nbsp;·&nbsp; `mat : [2][3] = [[1, 2, 3], [4, 5, 6]];` |
+| Conditionals | `if cond: ... elif cond: ... else: ... close` |
+| Loops | `while cond: ... close` &nbsp;·&nbsp; `for i in range(start, stop, step): ... close` |
+| Functions | `fn name(a, b): ... ret value; close` |
+| Arithmetic | `+  -  *  /  //` (floor div) `%  **` (power) |
+| Comparison / logic | `==  !=  <  >  <=  >=` &nbsp;·&nbsp; `and  or  !` |
+| Type casts | `int(x)`, `float(x)` |
+| Built-ins | `length(x)`, `type(x)`, `compare(a, b)`, `str_to_arr(s)`, `arr_to_str(a)` |
+| Placeholder | `todo;` |
+
+Key rules:
+- Every statement ends with `;`.
+- Every block (`fn`, `if`, `while`, `for`) opens with `:` and ends with `close`.
+- `show` prints a variable or string literal; store expressions in a variable first.
+
+More examples live in [`samples/`](samples/).
+
+### How it works
 
 <p align="center">
   <img src="docs/landing.png" alt="Chungus Compiler" width="800" />
 </p>
+
+`.chg` source → **Lexer** (tokens) → **Parser** (AST) → **Semantic analysis** → **C code generation** → **Compile & run**
 
 ## Quick start
 1. Create and activate a venv
